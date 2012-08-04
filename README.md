@@ -55,6 +55,6 @@ We would like to acknowledge the following projects that have been consulted whi
 
 AUTHORS
 ----------------------------
-Lu Wang <coolwanglu@gmail.com>
-Hongliang Tian <tatetian@gmail.com>
+* Lu Wang <coolwanglu@gmail.com>
+* Hongliang Tian <tatetian@gmail.com>
 
