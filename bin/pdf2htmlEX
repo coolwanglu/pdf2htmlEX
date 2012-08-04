@@ -1,0 +1,12 @@
+#!/bin/bash
+# Get directory of the script
+SOURCE="${BASH_SOURCE[0]}"
+while [ -h "$SOURCE" ] ; do SOURCE="$(readlink "$SOURCE")"; done
+SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"/
+# Execute
+${SCRIPT_DIR}/pdftohtmlEX $* 
+
+for f in *.pfa; do
+    fontforge -script "${SCRIPT_DIR}/pfa2otf.pe" $f
+    rm $f
+done
