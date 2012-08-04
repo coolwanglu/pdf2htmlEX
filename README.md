@@ -1,7 +1,8 @@
 pdf2html**EX**
 =============================
 
-[**Demo**](http://coolwanglu.github.com/pdf2htmlEX/demo/demo.html)
+
+[**View Demo**](http://coolwanglu.github.com/pdf2htmlEX/demo/demo.html)
 
 Introduction
 -----------------------------
