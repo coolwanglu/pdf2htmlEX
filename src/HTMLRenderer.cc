@@ -758,7 +758,7 @@ void HTMLRenderer::install_embedded_type1c_font (GfxFont * font, long long fn_id
             string fn = (boost::format("f%|1$x|")%fn_id).str();
             ofstream tmpf((fn+".pfa").c_str(), ofstream::binary);
             FFT1C->convertToType1((char*)fn.c_str(), nullptr, true, &output_to_file , &tmpf);
-            export_remote_font(fn_id, "otf");
+            export_remote_font(fn_id, "ttf");
             delete FFT1C;
         }
         else
