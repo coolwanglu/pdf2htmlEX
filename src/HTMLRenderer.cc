@@ -394,11 +394,31 @@ void HTMLRenderer::endString(GfxState *state) {
 
     GfxState * cur_state = cur_string -> getState();
 
+    // fix if font size too small
+    long long new_fs_id;
+    long long new_tm_id = 0;
+    if((cur_font_size < 1) && _is_positive(cur_font_size))
+    { 
+        new_fs_id = install_font_size(1);
+
+        double tmp_text_mat[6];
+        memcpy(tmp_text_mat, cur_text_mat, sizeof(tmp_text_mat));
+        tmp_text_mat[0] *= cur_font_size;
+        tmp_text_mat[3] *= cur_font_size;
+        new_tm_id = install_transform_matrix(tmp_text_mat);
+    } 
+    else
+    {
+        new_fs_id = cur_fs_id;
+        new_tm_id = install_transform_matrix(cur_text_mat);
+    }
+
     // TODO: optimize text matrix search/install
-    html_fout << boost::format("<div class=\"l f%|1$x| s%|2$x| t%|3$x|\" style=\"") % cur_fn_id % cur_fs_id % install_transform_matrix(cur_text_mat)
-        << "bottom:" << cur_string->getY() + cur_state->getFont()->getDescent() * cur_state->getFontSize() << "px;"
+    // TODO: position might not be accurate
+    html_fout << boost::format("<div class=\"l f%|1$x| s%|2$x| t%|3$x|\" style=\"") % cur_fn_id % new_fs_id % new_tm_id
+        << "bottom:" << cur_string->getY() << "px;"
         << "left:" << cur_string->getX() << "px;"
-//        << "top:" << (pageHeight - cur_string->getY() - cur_state->getFont()->getAscent() * cur_state->getFontSize()) << "px;"
+        << "top:" << (pageHeight - cur_string->getY() - cur_state->getFont()->getAscent() * cur_state->getFontSize()) << "px;"
         ;
     
     // letter & word spacing
