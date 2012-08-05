@@ -17,6 +17,7 @@ pdf2htmlEX is optimized for recent versions of moderm web browsers such as Mozil
 
 Features
 ----------------------------
+* Text Selection
 * Font embedding
 * Proper styling
 * Optimization for Web 

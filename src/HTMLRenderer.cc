@@ -396,9 +396,9 @@ void HTMLRenderer::endString(GfxState *state) {
 
     // TODO: optimize text matrix search/install
     html_fout << boost::format("<div class=\"l f%|1$x| s%|2$x| t%|3$x|\" style=\"") % cur_fn_id % cur_fs_id % install_transform_matrix(cur_text_mat)
-        << "bottom:" << cur_string->getY() << "px;"
+        << "bottom:" << cur_string->getY() + cur_state->getFont()->getDescent() * cur_state->getFontSize() << "px;"
         << "left:" << cur_string->getX() << "px;"
-        << "top:" << (pageHeight - cur_string->getY() - cur_state->getFont()->getAscent() * cur_state->getFontSize()) << "px;"
+//        << "top:" << (pageHeight - cur_string->getY() - cur_state->getFont()->getAscent() * cur_state->getFontSize()) << "px;"
         ;
     
     // letter & word spacing
@@ -413,7 +413,7 @@ void HTMLRenderer::endString(GfxState *state) {
         html_fout << "\"";
         double x,y;
         cur_state->transform(cur_state->getCurX(), cur_state->getCurY(), &x, &y);
-        html_fout << boost::format(" data-x=\"%1%\" data-y=\"%2%")%x%y;
+        html_fout << boost::format(" data-x=\"%1%\" data-y=\"%2%\" hs=\"%3%")%x%y%(cur_state->getHorizScaling());
     }
 
     html_fout << "\">";
