@@ -35,9 +35,9 @@ using namespace std;
 static const double EPS = 1e-6;
 inline bool _equal(double x, double y) { return std::abs(x-y) < EPS; }
 inline bool _is_positive(double x) { return x > EPS; }
-inline bool _tm_equal(const double * tm1, const double * tm2)
+inline bool _tm_equal(const double * tm1, const double * tm2, int size = 6)
 {
-    for(int i = 0; i < 6; ++i)
+    for(int i = 0; i < size; ++i)
         if(!_equal(tm1[i], tm2[i]))
             return false;
     return true;
@@ -55,7 +55,6 @@ class TextString
                 Unicode u);
         double getX() const {return x;}
         double getY() const {return y;}
-
         double getWidth() const {return width;}
         double getHeight() const {return height;}
 
@@ -100,7 +99,6 @@ class HTMLRenderer : public OutputDev
         virtual GBool needNonText() { return gFalse; }
 
         //----- initialization and control
-
         virtual GBool checkPageSlice(Page *page, double hDPI, double vDPI,
                 int rotate, GBool useMediaBox, GBool crop,
                 int sliceX, int sliceY, int sliceW, int sliceH,
@@ -121,9 +119,13 @@ class HTMLRenderer : public OutputDev
         virtual void endPage();
 
         //----- update state
-        virtual void updateCTM(GfxState * state, double m11, double m12, double m21, double m22, double m31, double m32);
+        virtual void updateAll(GfxState * state);
         virtual void updateFont(GfxState * state);
         virtual void updateTextMat(GfxState * state);
+        virtual void updateCTM(GfxState * state, double m11, double m12, double m21, double m22, double m31, double m32);
+        virtual void updateTextPos(GfxState * state);
+        virtual void saveTextPos(GfxState * state);
+        virtual void restoreTextPos(GfxState * state);
 
         //----- text drawing
         virtual void beginString(GfxState *state, GooString *s);
@@ -137,9 +139,6 @@ class HTMLRenderer : public OutputDev
 
     private:
         bool at_same_line(const TextString * ts1, const TextString * ts2) const;
-
-        // CSS use a different coordinate system from PDF
-        void convert_transform_matrix(double * tm);
 
         void close_cur_line();
         void outputTextString(TextString * str);
@@ -176,11 +175,18 @@ class HTMLRenderer : public OutputDev
 
         // page info
         int pageNum ;
-        int pageWidth ;
-        int pageHeight ;
+        double pageWidth ;
+        double pageHeight ;
 
 
         // state maintained when processing pdf
+
+        void check_state_change(GfxState * state);
+
+        // current position
+        double cur_x, cur_y;
+        bool pos_changed;
+
         // the string being processed
         TextString * cur_string;
         // the last word of current line
@@ -188,8 +194,17 @@ class HTMLRenderer : public OutputDev
         TextString * cur_line;
         // (actual x) - (supposed x)
         double cur_line_x_offset;
-        double ctm[6], text_mat[6];
-        long long cur_fs_id, cur_fn_id;
+
+        double cur_ctm[6]; 
+        bool ctm_changed;
+
+        double cur_text_mat[6];
+        bool text_mat_changed;
+
+        long long cur_fn_id;
+        double cur_font_size;
+        long long cur_fs_id; 
+        bool font_changed;
 
 
         ofstream html_fout, allcss_fout;

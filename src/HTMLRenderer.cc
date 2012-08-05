@@ -37,6 +37,7 @@
  * p - Page
  * t - Transform
  * l - Line
+ * w - White space
  *
  * 
  * Reusable CSS classes
@@ -61,14 +62,14 @@ const char * HTML_HEAD = "<!DOCTYPE html>\n\
   overflow:auto;\
   background-color:grey;\
 }\
-#pdf-main .p {\
+#pdf-main > .p {\
   position:relative;\
   margin:13px auto;\
   background-color:white;\
   overflow:hidden;\
   display:none;\
 }\
-.p .t {\
+.p > .t {\
   position:absolute;\
   top:0;\
   left:0;\
@@ -80,7 +81,7 @@ const char * HTML_HEAD = "<!DOCTYPE html>\n\
   -webkit-transform-origin:0% 100%;\
   -o-transform-origin:0% 100%;\
 }\
-.t .l {\
+.t > .l {\
   position:absolute; \
   white-space:pre;\
   transform-origin:0% 100%;\
@@ -89,7 +90,7 @@ const char * HTML_HEAD = "<!DOCTYPE html>\n\
   -webkit-transform-origin:0% 100%;\
   -o-transform-origin:0% 100%;\
 }\
-.l > span{\
+.l > .w{\
   display:inline-block;\
 }\
 ::selection{\
@@ -131,7 +132,8 @@ TextString::TextString(GfxState *state)
     ,x(state->getCurX()), y(state->getCurY())
     ,width(0),height(0)
     ,state(state)
-{ }
+{ 
+}
 
 TextString::~TextString()
 {
@@ -161,8 +163,6 @@ void TextString::addChar(GfxState *state, double x, double y,
 
 HTMLRenderer::HTMLRenderer(const Param * param)
     :cur_string(nullptr), cur_line(nullptr)
-    ,cur_line_x_offset(0)
-    ,cur_fs_id(0), cur_fn_id(0)
     ,html_fout(param->output_filename.c_str(), ofstream::binary), allcss_fout("all.css")
     ,param(param)
 {
@@ -172,10 +172,6 @@ HTMLRenderer::HTMLRenderer(const Param * param)
 
     html_fout << HTML_HEAD; 
     if(param->readable) html_fout << endl;
-
-    for(int i = 0; i < 6; ++i)
-        ctm[i] = text_mat[i] = 0.0;
-    ctm[0] = text_mat[0] = ctm[3] = text_mat[3] = 1.0;
 }
 
 HTMLRenderer::~HTMLRenderer()
@@ -197,23 +193,35 @@ void HTMLRenderer::process(PDFDoc *doc)
 void HTMLRenderer::startPage(int pageNum, GfxState *state) 
 {
     this->pageNum = pageNum;
-    this->pageWidth=static_cast<int>(state->getPageWidth());
-    this->pageHeight=static_cast<int>(state->getPageHeight());
+    this->pageWidth = state->getPageWidth();
+    this->pageHeight = state->getPageHeight();
 
     assert(cur_line == nullptr);
+    assert(cur_string == nullptr);
 
     html_fout << boost::format("<div id=\"page-%3%\" class=\"p\" style=\"width:%1%px;height:%2%px;") % pageWidth % pageHeight % pageNum;
 
-#if 0
     // TODO:background
     html_fout << boost::format("background-image:url(p%3%.png);background-position:0 0;background-size:%1%px %2%px;background-repeat:no-repeat;") % pageWidth % pageHeight % pageNum;
-#endif
             
     html_fout << "\">";
     if(param->readable) html_fout << endl;
 
+    cur_x = cur_y = 0;
+    cur_fn_id = cur_fs_id = 0;
+    cur_line_x_offset = 0;
+
+    for(int i = 0; i < 6; ++i)
+        cur_ctm[i] = cur_text_mat[i] = 0.0;
+    cur_ctm[0] = cur_text_mat[0] = cur_ctm[3] = cur_text_mat[3] = 1.0;
+    
+    pos_changed = false;
+    ctm_changed = false;
+    text_mat_changed = false;
+    font_changed = false;
+
     // default CTM
-    html_fout << "<div class=\"t\">";
+    html_fout << boost::format("<div class=\"t t%|1$x|\">") % install_transform_matrix(cur_ctm);
     if(param->readable) html_fout << endl;
 }
 
@@ -225,13 +233,6 @@ void HTMLRenderer::endPage() {
     // close page
     html_fout << "</div>";
     if(param->readable) html_fout << endl;
-}
-
-void HTMLRenderer::convert_transform_matrix(double * tm)
-{
-    tm[1] = -tm[1];
-    tm[2] = -tm[2];
-    tm[5] = -tm[5];
 }
 
 bool HTMLRenderer::at_same_line(const TextString * ts1, const TextString * ts2) const
@@ -301,54 +302,47 @@ void HTMLRenderer::outputTextString(TextString * str)
     }
 }
 
-void HTMLRenderer::updateCTM(GfxState * state, double m11, double m12, double m21, double m22, double m31, double m32)
+void HTMLRenderer::updateAll(GfxState *state)
 {
-    double new_ctm[6];
-    memcpy(new_ctm, state->getCTM(), sizeof(new_ctm));
-    convert_transform_matrix(new_ctm);
-
-    if(!_tm_equal(ctm, new_ctm))
-    {
-        close_cur_line();
-        memcpy(ctm, new_ctm, sizeof(ctm));
-
-        // close old CTM div and create a new one
-        html_fout << "</div>";
-        if(param->readable) html_fout << endl;
-        html_fout << boost::format("<div class=\"t t%|1$x|\">") % install_transform_matrix(ctm);
-        if(param->readable) html_fout << endl;
-    }
+    font_changed = true;
+    text_mat_changed = true;
+    ctm_changed = true;
+    pos_changed = true;
 }
 
-void HTMLRenderer::updateFont(GfxState *state) {
-    long long new_fn_id = install_font(state->getFont());
-    long long new_fs_id = install_font_size(state->getFontSize());
-    if(!((new_fn_id == cur_fn_id) && (new_fs_id == cur_fs_id)))
-    {
-        close_cur_line();
-        cur_fn_id = new_fn_id;
-        cur_fs_id = new_fs_id;
-    }
+void HTMLRenderer::updateFont(GfxState *state) 
+{
+    font_changed = true;
 }
 
 void HTMLRenderer::updateTextMat(GfxState * state)
 {
-    double new_text_mat[6];
-    memcpy(new_text_mat, state->getTextMat(), sizeof(new_text_mat));
-    convert_transform_matrix(new_text_mat);
+    text_mat_changed = true;
+}
 
-    if(!_tm_equal(text_mat, new_text_mat))
-    {
-        close_cur_line();
-        memcpy(text_mat, new_text_mat, sizeof(text_mat));
+void HTMLRenderer::updateCTM(GfxState * state, double m11, double m12, double m21, double m22, double m31, double m32)
+{
+    ctm_changed = true;
+}
 
-        //debug
-        //TODO: why
-        text_mat[4] = text_mat[5] = 0.0;
-    }
+void HTMLRenderer::updateTextPos(GfxState * state)
+{
+    pos_changed = true;
+}
+
+void HTMLRenderer::saveTextPos(GfxState * state)
+{
+    cout << "save" << endl;
+}
+
+void HTMLRenderer::restoreTextPos(GfxState * state)
+{
+    cout << "restore" << endl;
 }
 
 void HTMLRenderer::beginString(GfxState *state, GooString *s) {
+    check_state_change(state);
+
     // TODO: remove this
     GfxState * new_state = state->copy(gTrue);
 
@@ -377,7 +371,7 @@ void HTMLRenderer::endString(GfxState *state) {
                     double w;
                     auto wid = install_whitespace(target, w);
                     cur_line_x_offset = w-target;
-                    html_fout << boost::format("<span class=\"w%|1$x|\"> </span>") % wid;
+                    html_fout << boost::format("<span class=\"w w%|1$x|\"> </span>") % wid;
                 }
                 else
                 {
@@ -396,21 +390,23 @@ void HTMLRenderer::endString(GfxState *state) {
 
     close_cur_line();
 
+    GfxState * cur_state = cur_string -> getState();
+
     // TODO: optimize text matrix search/install
-    html_fout << boost::format("<div class=\"l f%|1$x| s%|2$x| t%|3$x|\" style=\"") % cur_fn_id % cur_fs_id % install_transform_matrix(text_mat)
-        << "top:" << (pageHeight - cur_string->getY()) << "px;"
+    html_fout << boost::format("<div class=\"l f%|1$x| s%|2$x| t%|3$x|\" style=\"") % cur_fn_id % cur_fs_id % install_transform_matrix(cur_text_mat)
+        << "bottom:" << cur_string->getY() << "px;"
         << "left:" << cur_string->getX() << "px;"
-//        << "height:" << cur_string->getHeight() << "px;"
+        << "line-height:" << (cur_state->getFont()->getAscent() * cur_state->getFontSize()) << "px;"
         ;
     
     // letter & word spacing
-    GfxState * cur_state = cur_string -> getState();
     if(_is_positive(cur_state->getCharSpace()))
         html_fout << "letter-spacing:" << cur_state->getCharSpace() << "px;";
     if(_is_positive(cur_state->getWordSpace()))
         html_fout << "word-spacing:" << cur_state->getWordSpace() << "px;";
 
-    //debug
+    //debug 
+    //real pos
     {
         html_fout << "\"";
         double x,y;
@@ -425,10 +421,6 @@ void HTMLRenderer::endString(GfxState *state) {
     cur_line = cur_string;
     cur_string = nullptr;
     cur_line_x_offset = 0;
-
-    // HERE
-    //debug
-//    close_cur_line();
 }
 
 void HTMLRenderer::drawChar(GfxState *state, double x, double y,
@@ -720,7 +712,7 @@ void HTMLRenderer::install_embedded_type1_font (Ref * id, long long fn_id)
         tmpf.write(CTM, strlen(CTM));
     }
 
-    export_remote_font(fn_id, "otf");
+    export_remote_font(fn_id, "woff");
 
 err:
     str_obj.streamClose();
@@ -898,21 +890,91 @@ void HTMLRenderer::export_whitespace (long long ws_id, double ws_width)
 
 void HTMLRenderer::export_transform_matrix (long long tm_id, double * tm)
 {
-    // TODO: recognize common matices
     allcss_fout << boost::format(".t%|1$x|{") % tm_id;
 
-    for(const std::string & prefix : {"", "-ms-", "-moz-", "-webkit-", "-o-"})
+
+    // TODO: recognize common matices
+    static const double id_matrix[6] = {1.0, 0.0, 0.0, 1.0, 0.0, 0.0};
+    if(_tm_equal(tm, id_matrix))
     {
-        allcss_fout << prefix << "transform:matrix(";
-        for(int i = 0; i < 4; ++i)
-            allcss_fout << tm[i] << ',';
-        if(prefix == "-moz-")
-            allcss_fout << boost::format("%1%px,%2%px);") % tm[4] % tm[5];
-        else
-            allcss_fout << boost::format("%1%,%2%);") % tm[4] % tm[5];
+        // no need to output anything
+    }
+    else
+    {
+        for(const std::string & prefix : {"", "-ms-", "-moz-", "-webkit-", "-o-"})
+        {
+            // PDF use a different coordinate system from Web
+            allcss_fout << prefix << "transform:matrix("
+                << tm[0] << ','
+                << -tm[1] << ','
+                << -tm[2] << ','
+                << tm[3] << ',';
+
+            if(prefix == "-moz-")
+                allcss_fout << boost::format("%1%px,%2%px);") % tm[4] % -tm[5];
+            else
+                allcss_fout << boost::format("%1%,%2%);") % tm[4] % -tm[5];
+        }
     }
     allcss_fout << "}";
     if(param->readable) allcss_fout << endl;
 
+}
+
+void HTMLRenderer::check_state_change(GfxState * state)
+{
+    if(pos_changed)
+    {
+        if(!(_equal(state->getCurX(), cur_x) && _equal(state->getCurY(), cur_y)))
+        {
+            close_cur_line();
+            cur_x = state->getCurX();
+            cur_y = state->getCurY();
+        }
+        pos_changed = false;
+    }
+
+    if(font_changed)
+    {
+        long long new_fn_id = install_font(state->getFont());
+        long long new_fs_id = install_font_size(state->getFontSize());
+        cur_font_size = state->getFontSize();
+        if(!((new_fn_id == cur_fn_id) && (new_fs_id == cur_fs_id)))
+        {
+            close_cur_line();
+            cur_fn_id = new_fn_id;
+            cur_fs_id = new_fs_id;
+        }
+        font_changed = false;
+    }  
+    if(text_mat_changed)
+    {
+        if(!_tm_equal(cur_text_mat, state->getTextMat(), 4))
+        {
+            close_cur_line();
+            memcpy(cur_text_mat, state->getTextMat(), sizeof(cur_text_mat));
+
+            // we've already shift the text to the correct posstion
+            // so later in css we need to ignore the these offsets
+            cur_text_mat[4] = cur_text_mat[5] = 0.0;
+        }
+        text_mat_changed = false;
+    }
+
+    if(ctm_changed)
+    {
+        if(!_tm_equal(cur_ctm, state->getCTM()))
+        {
+            close_cur_line();
+            memcpy(cur_ctm, state->getCTM(), sizeof(cur_ctm));
+
+            // close old CTM div and create a new one
+            html_fout << "</div>";
+            if(param->readable) html_fout << endl;
+            html_fout << boost::format("<div class=\"t t%|1$x|\">") % install_transform_matrix(cur_ctm);
+            if(param->readable) html_fout << endl;
+        }
+        ctm_changed = false;
+    }
 }
 
