@@ -107,9 +107,11 @@ function show_pages()\
  var idx = 0;\
  var f = function(){\
   if (idx < pages.length) {\
+   try{\
     pages[idx].style.display='block';\
-    ++idx;\
-    setTimeout(f,100);\
+   }catch(e){}\
+   ++idx;\
+   setTimeout(f,100);\
   }\
  };\
  f();\
@@ -396,7 +398,7 @@ void HTMLRenderer::endString(GfxState *state) {
     html_fout << boost::format("<div class=\"l f%|1$x| s%|2$x| t%|3$x|\" style=\"") % cur_fn_id % cur_fs_id % install_transform_matrix(cur_text_mat)
         << "bottom:" << cur_string->getY() << "px;"
         << "left:" << cur_string->getX() << "px;"
-        << "line-height:" << (cur_state->getFont()->getAscent() * cur_state->getFontSize()) << "px;"
+        << "top:" << (pageHeight - cur_string->getY() - cur_state->getFont()->getAscent() * cur_state->getFontSize()) << "px;"
         ;
     
     // letter & word spacing
