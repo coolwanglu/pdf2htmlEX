@@ -7,6 +7,6 @@ SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"/
 ${SCRIPT_DIR}/pdftohtmlEX $* 
 
 for f in *.pfa; do
-    fontforge -script "${SCRIPT_DIR}/pfa2otf.pe" $f
+    fontforge -script "${SCRIPT_DIR}/convert.pe" $f 2>/dev/null
     rm $f
 done

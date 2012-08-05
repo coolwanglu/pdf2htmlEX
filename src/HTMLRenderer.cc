@@ -714,7 +714,7 @@ void HTMLRenderer::install_embedded_type1_font (Ref * id, long long fn_id)
         tmpf.write(CTM, strlen(CTM));
     }
 
-    export_remote_font(fn_id, "woff");
+    export_remote_font(fn_id, "ttf");
 
 err:
     str_obj.streamClose();
