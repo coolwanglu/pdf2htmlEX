@@ -28,8 +28,10 @@
 #include <UTF8.h>
 #include <fofi/FoFiType1C.h>
 #include <fofi/FoFiTrueType.h>
+#include <splash/SplashBitmap.h>
 
 #include "HTMLRenderer.h"
+#include "BackgroundRenderer.h"
 
 /*
  * CSS classes
@@ -185,11 +187,29 @@ HTMLRenderer::~HTMLRenderer()
 void HTMLRenderer::process(PDFDoc *doc)
 {
     xref = doc->getXRef();
-    for(int i = param->first_page; i <= param->last_page ; ++i) {
+    for(int i = param->first_page; i <= param->last_page ; ++i) 
+    {
         doc->displayPage(this, i, param->h_dpi, param->v_dpi,
                 0, true, false, false,
                 nullptr, nullptr, nullptr, nullptr);
     }
+
+    // Render non-text objects as image
+    // copied from poppler
+    SplashColor color;
+    color[0] = color[1] = color[2] = 255;
+
+    auto bg_renderer = new BackgroundRenderer(splashModeRGB8, 4, gFalse, color);
+    bg_renderer->startDoc(doc);
+
+    for(int i = param->first_page; i <= param->last_page ; ++i) 
+    {
+        doc->displayPage(bg_renderer, i, 4*param->h_dpi, 4*param->v_dpi,
+                0, true, false, false,
+                nullptr, nullptr, nullptr, nullptr);
+        bg_renderer->getBitmap()->writeImgFile(splashFormatPng, (char*)(boost::format("p%|1$x|.png")%i).str().c_str(), 4*param->h_dpi, 4*param->v_dpi);
+    }
+    delete bg_renderer;
 }
 
 void HTMLRenderer::startPage(int pageNum, GfxState *state) 
@@ -203,8 +223,7 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
 
     html_fout << boost::format("<div id=\"page-%3%\" class=\"p\" style=\"width:%1%px;height:%2%px;") % pageWidth % pageHeight % pageNum;
 
-    // TODO:background
-    html_fout << boost::format("background-image:url(p%3%.png);background-position:0 0;background-size:%1%px %2%px;background-repeat:no-repeat;") % pageWidth % pageHeight % pageNum;
+    html_fout << boost::format("background-image:url(p%|3$x|.png);background-position:0 0;background-size:%1%px %2%px;background-repeat:no-repeat;") % pageWidth % pageHeight % pageNum;
             
     html_fout << "\">";
     if(param->readable) html_fout << endl;
@@ -263,7 +282,7 @@ void HTMLRenderer::close_cur_line()
 {
     if(cur_line != nullptr)
     {
-        html_fout << "</div>";
+        html_fout << "</p>";
         if(param->readable) html_fout << endl;
 
         delete cur_line;
@@ -415,7 +434,7 @@ void HTMLRenderer::endString(GfxState *state) {
 
     // TODO: optimize text matrix search/install
     // TODO: position might not be accurate
-    html_fout << boost::format("<div class=\"l f%|1$x| s%|2$x| t%|3$x|\" style=\"") % cur_fn_id % new_fs_id % new_tm_id
+    html_fout << boost::format("<p class=\"l f%|1$x| s%|2$x| t%|3$x|\" style=\"") % cur_fn_id % new_fs_id % new_tm_id
         << "bottom:" << cur_string->getY() << "px;"
         << "left:" << cur_string->getX() << "px;"
         << "top:" << (pageHeight - cur_string->getY() - cur_state->getFont()->getAscent() * cur_state->getFontSize()) << "px;"
@@ -544,7 +563,12 @@ long long HTMLRenderer::install_font(GfxFont * font)
     string new_fn = (boost::format("f%|1$x|") % new_fn_id).str();
 
     if(font->getType() == fontType3) {
-        std::cerr << "TODO: Type 3 font unsupported" << std::endl;
+        std::cerr << "Type 3 fonts are unsupported and will be rendered as Image" << std::endl;
+        export_remote_default_font(new_fn_id);
+        return new_fn_id;
+    }
+    if(font->getWMode()) {
+        std::cerr << "Writing mode is unsupported and will be rendered as Image" << std::endl;
         export_remote_default_font(new_fn_id);
         return new_fn_id;
     }
@@ -866,7 +890,7 @@ void HTMLRenderer::export_remote_font(long long fn_id, const string & suffix)
 
 void HTMLRenderer::export_remote_default_font(long long fn_id)
 {
-    allcss_fout << boost::format(".f%|1$x|{font-family:sans-serif;color:red;}")%fn_id;
+    allcss_fout << boost::format(".f%|1$x|{font-family:sans-serif;color:transparent;}")%fn_id;
     if(param->readable) allcss_fout << endl;
 }
 
