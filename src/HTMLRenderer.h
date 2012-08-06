@@ -128,8 +128,8 @@ class HTMLRenderer : public OutputDev
         virtual void updateTextMat(GfxState * state);
         virtual void updateCTM(GfxState * state, double m11, double m12, double m21, double m22, double m31, double m32);
         virtual void updateTextPos(GfxState * state);
-        virtual void saveTextPos(GfxState * state);
-        virtual void restoreTextPos(GfxState * state);
+
+        virtual void updateFillColor(GfxState * state);
 
         //----- text drawing
         virtual void beginString(GfxState *state, GooString *s);
@@ -160,6 +160,7 @@ class HTMLRenderer : public OutputDev
         long long install_font_size(double font_size);
         long long install_whitespace(double ws_width, double & actual_width);
         long long install_transform_matrix(const double * tm);
+        long long install_color(const GfxRGB * rgb);
 
         /*
          * remote font: to be retrieved from the web server
@@ -173,7 +174,9 @@ class HTMLRenderer : public OutputDev
         void export_font_size(long long fs_id, double font_size);
         void export_whitespace(long long ws_id, double ws_width);
         void export_transform_matrix(long long tm_id, const double * tm);
+        void export_color(long long color_id, const GfxRGB * rgb);
 
+        XRef * xref;
         Catalog *catalog;
         Page *docPage;
 
@@ -186,10 +189,8 @@ class HTMLRenderer : public OutputDev
         // state maintained when processing pdf
 
         void check_state_change(GfxState * state);
+        void reset_state_track();
 
-        // current position
-        double cur_line_y;
-        bool pos_changed;
 
         // the string being processed
         TextString * cur_string;
@@ -199,10 +200,12 @@ class HTMLRenderer : public OutputDev
         // (actual x) - (supposed x)
         double cur_line_x_offset;
 
+        // current position
+        double cur_line_y;
+        bool pos_changed;
 
         long long cur_fn_id;
         double cur_font_size;
-
         long long cur_fs_id; 
         bool font_changed;
 
@@ -210,6 +213,9 @@ class HTMLRenderer : public OutputDev
         bool ctm_changed;
         bool text_mat_changed;
 
+        long long cur_color_id;
+        GfxRGB cur_color;
+        bool color_changed;
 
         // optmize for web
         // we try to render the final font size directly
@@ -227,7 +233,6 @@ class HTMLRenderer : public OutputDev
         unordered_map<long long, FontInfo> font_name_map;
         map<double, long long> font_size_map;
         map<double, long long> whitespace_map;
-        XRef * xref;
 
         // transform matrix
         class TM{
@@ -251,6 +256,35 @@ class HTMLRenderer : public OutputDev
         };
 
         map<TM, long long> transform_matrix_map;
+
+        class Color{
+            public:
+                Color() {}
+                Color(const GfxRGB * rgb) { 
+                    _[0] = rgb->r;
+                    _[1] = rgb->g;
+                    _[2] = rgb->b;
+                }
+                bool operator < (const Color & c) const {
+                    for(int i = 0; i < 3; ++i)
+                    {
+                        if(_[i] < c._[i])
+                            return true;
+                        if(_[i] > c._[i])
+                            return false;
+                    }
+                    return false;
+                }
+                bool operator == (const Color & c) const {
+                    for(int i = 0; i < 3; ++i)
+                        if(_[i] != c._[i])
+                            return false;
+                    return true;
+                }
+
+                int _[3];
+        };
+        map<Color, long long> color_map; 
 
         const Param * param;
 };

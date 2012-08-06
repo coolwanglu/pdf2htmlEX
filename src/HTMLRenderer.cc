@@ -8,13 +8,7 @@
 /*
  * TODO
  * color
- * transformation
- * remove line break for divs in the same line
- *
- * updatetextmat, position etc.
- *
  * font base64 embedding
- * custom css
  */
 
 #include <cmath>
@@ -47,6 +41,7 @@
  * s<hex> - font Size
  * w<hex> - White space
  * t<hex> - Transform matrix
+ * c<hex> - Color
  */
 
 const char * HTML_HEAD = "<!DOCTYPE html>\n\
@@ -136,7 +131,7 @@ void TextString::addChars(GfxState *state, double x, double y,
 {
     if(nbytes > 0)
     {
-        CharCode mask = 0xff << (8*(nbytes-1));
+        CharCode mask = (0xffLL) << (8*(nbytes-1));
         while(nbytes > 0)
         {
             unicodes.push_back((Unicode)((code & mask) >> (8 * (nbytes-1))));
@@ -179,6 +174,10 @@ HTMLRenderer::HTMLRenderer(const Param * param)
     install_font_size(0);
 
     install_transform_matrix(id_matrix);
+
+    GfxRGB black;
+    black.r = black.g = black.b = 0;
+    install_color(&black);
     
     html_fout << HTML_HEAD; 
     if(param->readable) html_fout << endl;
@@ -255,11 +254,10 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
     memcpy(draw_ctm, id_matrix, sizeof(draw_ctm));
     draw_font_size = 0;
     draw_scale = 1.0;
+
+    cur_color.r = cur_color.g = cur_color.b = 0;
     
-    pos_changed = false;
-    ctm_changed = false;
-    text_mat_changed = false;
-    font_changed = false;
+    reset_state_track();
 }
 
 void HTMLRenderer::endPage() {
@@ -338,6 +336,7 @@ void HTMLRenderer::updateAll(GfxState *state)
     text_mat_changed = true;
     ctm_changed = true;
     pos_changed = true;
+    color_changed = true;
 }
 
 void HTMLRenderer::updateFont(GfxState *state) 
@@ -360,14 +359,9 @@ void HTMLRenderer::updateTextPos(GfxState * state)
     pos_changed = true;
 }
 
-void HTMLRenderer::saveTextPos(GfxState * state)
+void HTMLRenderer::updateFillColor(GfxState * state)
 {
-    cout << "save" << endl;
-}
-
-void HTMLRenderer::restoreTextPos(GfxState * state)
-{
-    cout << "restore" << endl;
+    color_changed = true;
 }
 
 void HTMLRenderer::beginString(GfxState *state, GooString *s) {
@@ -425,7 +419,7 @@ void HTMLRenderer::endString(GfxState *state) {
     // open a new line
     // classes
     html_fout << "<div class=\"l "
-        << boost::format("f%|1$x| s%|2$x|") % cur_fn_id % cur_fs_id;
+        << boost::format("f%|1$x| s%|2$x| c%|3$x|") % cur_fn_id % cur_fs_id % cur_color_id;
     
     // "t0" is the id_matrix
     if(cur_tm_id != 0)
@@ -860,18 +854,30 @@ long long HTMLRenderer::install_whitespace(double ws_width, double & actual_widt
     return new_ws_id;
 }
 
-long long HTMLRenderer::install_transform_matrix(const double * tm){
+long long HTMLRenderer::install_transform_matrix(const double * tm)
+{
     TM m(tm);
     auto iter = transform_matrix_map.lower_bound(m);
-    if(m == (iter->first))
-    {
+    if((iter != transform_matrix_map.end()) && (m == (iter->first)))
         return iter->second;
-    }
 
     long long new_tm_id = transform_matrix_map.size();
     transform_matrix_map.insert(std::make_pair(m, new_tm_id));
     export_transform_matrix(new_tm_id, tm);
     return new_tm_id;
+}
+
+long long HTMLRenderer::install_color(const GfxRGB * rgb)
+{
+    Color c(rgb);
+    auto iter = color_map.lower_bound(c);
+    if((iter != color_map.end()) && (c == (iter->first)))
+        return iter->second;
+
+    long long new_color_id = color_map.size();
+    color_map.insert(std::make_pair(c, new_color_id));
+    export_color(new_color_id, rgb);
+    return new_color_id;
 }
 
 
@@ -957,7 +963,6 @@ void HTMLRenderer::export_transform_matrix (long long tm_id, const double * tm)
 {
     allcss_fout << boost::format(".t%|1$x|{") % tm_id;
 
-
     // TODO: recognize common matices
     if(_tm_equal(tm, id_matrix))
     {
@@ -982,7 +987,13 @@ void HTMLRenderer::export_transform_matrix (long long tm_id, const double * tm)
     }
     allcss_fout << "}";
     if(param->readable) allcss_fout << endl;
+}
 
+void HTMLRenderer::export_color(long long color_id, const GfxRGB * rgb)
+{
+    allcss_fout << boost::format(".c%|1$x|{color:rgb(%2%,%3%,%4%);}") 
+        % color_id % rgb->r % rgb->g % rgb->b;
+    if(param->readable) allcss_fout << endl;
 }
 
 void HTMLRenderer::check_state_change(GfxState * state)
@@ -993,6 +1004,19 @@ void HTMLRenderer::check_state_change(GfxState * state)
         {
             close_cur_line();
             cur_line_y = state->getLineY();
+        }
+
+    }
+
+    if(color_changed)
+    {
+        GfxRGB new_color;
+        state->getFillRGB(&new_color);
+        if(!((new_color.r == cur_color.r) && (new_color.g == cur_color.g) && (new_color.b == cur_color.b)))
+        {
+            close_cur_line();
+            cur_color = new_color;
+            cur_color_id = install_color(&new_color);
         }
     }
 
@@ -1065,8 +1089,14 @@ void HTMLRenderer::check_state_change(GfxState * state)
             close_cur_line();
     }
 
-    text_mat_changed = false;
-    pos_changed = false;
-    font_changed = false;
+    reset_state_track();
 }
 
+void HTMLRenderer::reset_state_track()
+{
+    pos_changed = false;
+    ctm_changed = false;
+    text_mat_changed = false;
+    font_changed = false;
+    color_changed = false;
+}

@@ -12,5 +12,5 @@ done
 
 for f in *.pfa; do
     fontforge -script "${SCRIPT_DIR}/convert.pe" $f 2>/dev/null
-    rm $f
+#    rm $f
 done
