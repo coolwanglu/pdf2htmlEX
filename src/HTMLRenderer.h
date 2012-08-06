@@ -49,6 +49,10 @@ class TextString
         TextString(GfxState *state);
         ~TextString();
 
+        void addChars(GfxState * state, double x, double y,
+                double dx, double dy,
+                CharCode code, int nbytes);
+
         // Add a character to the string.
         void addChar(GfxState *state, double x, double y,
                 double dx, double dy,
@@ -207,9 +211,12 @@ class HTMLRenderer : public OutputDev
         bool text_mat_changed;
 
 
-        // this is the modified fontsize & ctm for optimzation
+        // optmize for web
+        // we try to render the final font size directly
+        // to reduce the effect of ctm as much as possible
         double draw_ctm[6];
         double draw_font_size;
+        double draw_scale;
 
         ofstream html_fout, allcss_fout;
 

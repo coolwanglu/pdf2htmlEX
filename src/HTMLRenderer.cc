@@ -131,6 +131,24 @@ TextString::~TextString()
     state = nullptr;
 }
 
+void TextString::addChars(GfxState *state, double x, double y,
+        double dx, double dy, CharCode code, int nbytes)
+{
+    if(nbytes > 0)
+    {
+        CharCode mask = 0xff << (8*(nbytes-1));
+        while(nbytes > 0)
+        {
+            unicodes.push_back((Unicode)((code & mask) >> (8 * (nbytes-1))));
+            --nbytes;
+            mask >>= 8;
+        }
+    }
+    
+    width += dx;
+    height += dy;
+}
+
 void TextString::addChar(GfxState *state, double x, double y,
         double dx, double dy, Unicode u)
 {
@@ -236,6 +254,7 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
 
     memcpy(draw_ctm, id_matrix, sizeof(draw_ctm));
     draw_font_size = 0;
+    draw_scale = 1.0;
     
     pos_changed = false;
     ctm_changed = false;
@@ -373,7 +392,7 @@ void HTMLRenderer::endString(GfxState *state) {
         {
             double x1 = cur_line->getX() + cur_line->getWidth();
             double x2 = cur_string->getX();
-            double target = x2-x1-cur_line_x_offset;
+            double target = (x2-x1-cur_line_x_offset) * draw_scale;
 
             if(target > -param->h_eps)
             {
@@ -445,7 +464,7 @@ void HTMLRenderer::endString(GfxState *state) {
 void HTMLRenderer::drawChar(GfxState *state, double x, double y,
         double dx, double dy,
         double originX, double originY,
-        CharCode code, int /*nBytes*/, Unicode *u, int uLen)
+        CharCode code, int nBytes, Unicode *u, int uLen)
 {
     double x1, y1, w1, h1;
     
@@ -457,17 +476,19 @@ void HTMLRenderer::drawChar(GfxState *state, double x, double y,
         return ;
 
     w1 = dx - state->getCharSpace() * state->getHorizScaling(),
-
     h1 = dy;
 
+    cur_string->addChars(state, x1, y1, w1, h1, code, nBytes);
+
+    /*
     if (uLen != 0) {
         w1 /= uLen;
         h1 /= uLen;
     }
-
     for (int i = 0; i < uLen; ++i) {
         cur_string->addChar(state, x1 + i*w1, y1 + i*h1, w1, h1, u[i]);
     }
+    */
 }
 
 // TODO
@@ -1014,24 +1035,17 @@ void HTMLRenderer::check_state_change(GfxState * state)
 
     if(need_rescale_font)
     {
-        double scale = std::sqrt(new_ctm[2] * new_ctm[2] + new_ctm[3] * new_ctm[3]);
+        draw_scale = std::sqrt(new_ctm[2] * new_ctm[2] + new_ctm[3] * new_ctm[3]);
         double new_draw_font_size = cur_font_size;
-        if(_is_positive(scale))
+        if(_is_positive(draw_scale))
         {
-            new_draw_font_size *= scale;
+            new_draw_font_size *= draw_scale;
             for(int i = 0; i < 4; ++i)
-                new_ctm[i] /= scale;
+                new_ctm[i] /= draw_scale;
         }
-
-        //debug
-        if(new_draw_font_size > 100)
+        else
         {
-            cerr << "Font size too big: " << new_draw_font_size << endl;
-            cerr << "scale: " << scale << endl;
-            cerr << "ctm:";
-            for(int i = 0; i < 6; ++i)
-                cerr << ' ' << new_ctm[i];
-            cerr << endl;
+            draw_scale = 1.0;
         }
 
         bool flag = false;
