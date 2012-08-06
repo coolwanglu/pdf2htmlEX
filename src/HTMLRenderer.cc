@@ -282,7 +282,7 @@ void HTMLRenderer::close_cur_line()
 {
     if(cur_line != nullptr)
     {
-        html_fout << "</p>";
+        html_fout << "</div>";
         if(param->readable) html_fout << endl;
 
         delete cur_line;
@@ -434,7 +434,7 @@ void HTMLRenderer::endString(GfxState *state) {
 
     // TODO: optimize text matrix search/install
     // TODO: position might not be accurate
-    html_fout << boost::format("<p class=\"l f%|1$x| s%|2$x| t%|3$x|\" style=\"") % cur_fn_id % new_fs_id % new_tm_id
+    html_fout << boost::format("<div class=\"l f%|1$x| s%|2$x| t%|3$x|\" style=\"") % cur_fn_id % new_fs_id % new_tm_id
         << "bottom:" << cur_string->getY() << "px;"
         << "left:" << cur_string->getX() << "px;"
         << "top:" << (pageHeight - cur_string->getY() - cur_state->getFont()->getAscent() * cur_state->getFontSize()) << "px;"
