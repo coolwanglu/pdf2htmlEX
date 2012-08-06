@@ -235,6 +235,7 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
     cur_font_size = 0;
 
     memcpy(draw_ctm, id_matrix, sizeof(draw_ctm));
+    draw_font_size = 0;
     
     pos_changed = false;
     ctm_changed = false;
@@ -412,8 +413,8 @@ void HTMLRenderer::endString(GfxState *state) {
         html_fout << boost::format(" t%|1$x|") % cur_tm_id;
 
     html_fout << "\" style=\""
-        << "bottom:" << (cur_string->getY() + cur_state->getFont()->getDescent() * cur_font_size) << "px;"
-        << "top:" << (pageHeight - cur_string->getY() - cur_state->getFont()->getAscent() * cur_font_size) << "px;"
+        << "bottom:" << (cur_string->getY() + cur_state->getFont()->getDescent() * draw_font_size) << "px;"
+        << "top:" << (pageHeight - cur_string->getY() - cur_state->getFont()->getAscent() * draw_font_size) << "px;"
         << "left:" << cur_string->getX() << "px;"
         ;
     
@@ -855,16 +856,18 @@ long long HTMLRenderer::install_transform_matrix(const double * tm){
 
 void HTMLRenderer::export_remote_font(long long fn_id, const string & suffix, GfxFont * font)
 {
+    allcss_fout << boost::format("@font-face{font-family:f%|1$x|;src:url(f%|1$x|.%2%);}.f%|1$x|{font-family:f%|1$x|;") % fn_id % suffix;
+
     double a = font->getAscent();
     double d = font->getDescent();
     double r = _is_positive(a-d) ? (a/(a-d)) : 1.0;
-
-    allcss_fout << boost::format("@font-face{font-family:f%|1$x|;src:url(f%|1$x|.%2%);}.f%|1$x|{font-family:f%|1$x|;") % fn_id % suffix;
 
     for(const std::string & prefix : {"", "-ms-", "-moz-", "-webkit-", "-o-"})
     {
         allcss_fout << prefix << "transform-origin:0% " << (r*100.0) << "%;";
     }
+
+    allcss_fout << "line-height:" << (a-d) << ";";
 
     allcss_fout << "}";
 
@@ -894,10 +897,13 @@ void HTMLRenderer::export_local_font(long long fn_id, GfxFont * font, GfxFontLoc
     double a = font->getAscent();
     double d = font->getDescent();
     double r = _is_positive(a-d) ? (a/(a-d)) : 1.0;
+
     for(const std::string & prefix : {"", "-ms-", "-moz-", "-webkit-", "-o-"})
     {
         allcss_fout << prefix << "transform-origin:0% " << (r*100.0) << "%;";
     }
+
+    allcss_fout << "line-height:" << (a-d) << ";";
 
     allcss_fout << "}";
 
@@ -970,19 +976,18 @@ void HTMLRenderer::check_state_change(GfxState * state)
     }
 
     bool need_rescale_font = true;
-    double new_font_size = cur_font_size;
     if(font_changed)
     {
         long long new_fn_id = install_font(state->getFont());
-        new_font_size = state->getFontSize();
 
         if(!(new_fn_id == cur_fn_id))
         {
             close_cur_line();
             cur_fn_id = new_fn_id;
         }
-        if(!_equal(cur_font_size, new_font_size))
+        if(!_equal(cur_font_size, state->getFontSize()))
         {
+            cur_font_size = state->getFontSize();
             need_rescale_font = true;
         }
     }  
@@ -1010,17 +1015,30 @@ void HTMLRenderer::check_state_change(GfxState * state)
     if(need_rescale_font)
     {
         double scale = std::sqrt(new_ctm[2] * new_ctm[2] + new_ctm[3] * new_ctm[3]);
+        double new_draw_font_size = cur_font_size;
         if(_is_positive(scale))
         {
-            new_font_size *= scale;
+            new_draw_font_size *= scale;
             for(int i = 0; i < 4; ++i)
                 new_ctm[i] /= scale;
         }
-        bool flag = false;
-        if(!(_equal(new_font_size, cur_font_size)))
+
+        //debug
+        if(new_draw_font_size > 100)
         {
-            cur_font_size = new_font_size;
-            cur_fs_id = install_font_size(cur_font_size);
+            cerr << "Font size too big: " << new_draw_font_size << endl;
+            cerr << "scale: " << scale << endl;
+            cerr << "ctm:";
+            for(int i = 0; i < 6; ++i)
+                cerr << ' ' << new_ctm[i];
+            cerr << endl;
+        }
+
+        bool flag = false;
+        if(!(_equal(new_draw_font_size, draw_font_size)))
+        {
+            draw_font_size = new_draw_font_size;
+            cur_fs_id = install_font_size(draw_font_size);
             flag = true;
         }
         if(!(_tm_equal(new_ctm, draw_ctm)))
