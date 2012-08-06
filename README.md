@@ -25,7 +25,7 @@ Features
 
 Not supported yet
 ----------------------------
-* Non-text object
+* Non-text object (Don't worry, they will be rendered as images)
 * Color
 * CJK
 
