@@ -37,7 +37,6 @@
  * CSS classes
  *
  * p - Page
- * t - Transform
  * l - Line
  * w - White space
  *
@@ -47,7 +46,7 @@
  * f<hex> - Font (also for font names)
  * s<hex> - font Size
  * w<hex> - White space
- * t<hex> - Transform matrix (for both CTM and Text Matrix)
+ * t<hex> - Transform matrix
  */
 
 const char * HTML_HEAD = "<!DOCTYPE html>\n\
@@ -71,28 +70,11 @@ const char * HTML_HEAD = "<!DOCTYPE html>\n\
   overflow:hidden;\
   display:none;\
 }\
-.p > .t {\
-  position:absolute;\
-  top:0;\
-  left:0;\
-  bottom:0;\
-  right:0;\
-  transform-origin:0% 100%;\
-  -ms-transform-origin:0% 100%;\
-  -moz-transform-origin:0% 100%;\
-  -webkit-transform-origin:0% 100%;\
-  -o-transform-origin:0% 100%;\
-}\
-.t > .l {\
+.p  > .l {\
   position:absolute; \
   white-space:pre;\
-  transform-origin:0% 100%;\
-  -ms-transform-origin:0% 100%;\
-  -moz-transform-origin:0% 100%;\
-  -webkit-transform-origin:0% 100%;\
-  -o-transform-origin:0% 100%;\
 }\
-.l > .w{\
+.l > .w {\
   display:inline-block;\
 }\
 ::selection{\
@@ -131,12 +113,16 @@ const std::map<string, string> BASE_14_FONT_CSS_FONT_MAP({\
    { "ZapfDingbats", "ZapfDingbats" },\
 });
 
+const double id_matrix[6] = {1.0, 0.0, 0.0, 1.0, 0.0, 0.0};
+
 TextString::TextString(GfxState *state)
     :unicodes()
-    ,x(state->getCurX()), y(state->getCurY())
+    ,x(state->getCurX())
+    ,y(state->getCurY())
     ,width(0),height(0)
     ,state(state)
 { 
+    state->transform(x,y,&x,&y);
 }
 
 TextString::~TextString()
@@ -174,6 +160,8 @@ HTMLRenderer::HTMLRenderer(const Param * param)
     install_font(nullptr);
     install_font_size(0);
 
+    install_transform_matrix(id_matrix);
+    
     html_fout << HTML_HEAD; 
     if(param->readable) html_fout << endl;
 }
@@ -186,13 +174,20 @@ HTMLRenderer::~HTMLRenderer()
 
 void HTMLRenderer::process(PDFDoc *doc)
 {
+    std::cerr << "Processing Text: ";
+
     xref = doc->getXRef();
     for(int i = param->first_page; i <= param->last_page ; ++i) 
     {
         doc->displayPage(this, i, param->h_dpi, param->v_dpi,
                 0, true, false, false,
                 nullptr, nullptr, nullptr, nullptr);
+
+        std::cerr << ".";
+        std::cerr.flush();
     }
+    std::cerr << std::endl;
+    std::cerr << "Processing Others: ";
 
     // Render non-text objects as image
     // copied from poppler
@@ -208,8 +203,14 @@ void HTMLRenderer::process(PDFDoc *doc)
                 0, true, false, false,
                 nullptr, nullptr, nullptr, nullptr);
         bg_renderer->getBitmap()->writeImgFile(splashFormatPng, (char*)(boost::format("p%|1$x|.png")%i).str().c_str(), 4*param->h_dpi, 4*param->v_dpi);
+
+        std::cerr << ".";
+        std::cerr.flush();
     }
     delete bg_renderer;
+
+    std::cerr << std::endl;
+    std::cerr << "Done." << std::endl;
 }
 
 void HTMLRenderer::startPage(int pageNum, GfxState *state) 
@@ -228,29 +229,21 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
     html_fout << "\">";
     if(param->readable) html_fout << endl;
 
-    cur_x = cur_y = 0;
-    cur_fn_id = cur_fs_id = 0;
+    cur_fn_id = cur_fs_id = cur_tm_id = 0;
     cur_line_x_offset = 0;
+    cur_line_y = 0;
+    cur_font_size = 0;
 
-    for(int i = 0; i < 6; ++i)
-        cur_ctm[i] = cur_text_mat[i] = 0.0;
-    cur_ctm[0] = cur_text_mat[0] = cur_ctm[3] = cur_text_mat[3] = 1.0;
+    memcpy(draw_ctm, id_matrix, sizeof(draw_ctm));
     
     pos_changed = false;
     ctm_changed = false;
     text_mat_changed = false;
     font_changed = false;
-
-    // default CTM
-    html_fout << boost::format("<div class=\"t t%|1$x|\">") % install_transform_matrix(cur_ctm);
-    if(param->readable) html_fout << endl;
 }
 
 void HTMLRenderer::endPage() {
     close_cur_line();
-    // close CTM
-    html_fout << "</div>";
-    if(param->readable) html_fout << endl;
     // close page
     html_fout << "</div>";
     if(param->readable) html_fout << endl;
@@ -258,22 +251,18 @@ void HTMLRenderer::endPage() {
 
 bool HTMLRenderer::at_same_line(const TextString * ts1, const TextString * ts2) const
 {
+    // TODO, this is not accurate, with transforms
     if(!(std::abs(ts1->getY() - ts2->getY()) < param->v_eps))
         return false;
 
     GfxState * s1 = ts1->getState();
     GfxState * s2 = ts2->getState();
     
+    // TODO, track this instead of check here
     if(!(_equal(s1->getCharSpace(), s2->getCharSpace())
          && _equal(s1->getWordSpace(), s2->getWordSpace())
          && _equal(s1->getHorizScaling(), s2->getHorizScaling())))
             return false;
-
-    /*
-      no need for this, as we track TM now
-    if(!(_tm_equal(s1->getCTM(), s2->getCTM()) && _tm_equal(s1->getTextMat(), s2->getTextMat())))
-        return false;
-        */
 
     return true;
 }
@@ -413,31 +402,19 @@ void HTMLRenderer::endString(GfxState *state) {
 
     GfxState * cur_state = cur_string -> getState();
 
-    // fix if font size too small
-    long long new_fs_id;
-    long long new_tm_id = 0;
-    if((cur_font_size < 1) && _is_positive(cur_font_size))
-    { 
-        new_fs_id = install_font_size(1);
+    // open a new line
+    // classes
+    html_fout << "<div class=\"l "
+        << boost::format("f%|1$x| s%|2$x|") % cur_fn_id % cur_fs_id;
+    
+    // "t0" is the id_matrix
+    if(cur_tm_id != 0)
+        html_fout << boost::format(" t%|1$x|") % cur_tm_id;
 
-        double tmp_text_mat[6];
-        memcpy(tmp_text_mat, cur_text_mat, sizeof(tmp_text_mat));
-        tmp_text_mat[0] *= cur_font_size;
-        tmp_text_mat[3] *= cur_font_size;
-        new_tm_id = install_transform_matrix(tmp_text_mat);
-    } 
-    else
-    {
-        new_fs_id = cur_fs_id;
-        new_tm_id = install_transform_matrix(cur_text_mat);
-    }
-
-    // TODO: optimize text matrix search/install
-    // TODO: position might not be accurate
-    html_fout << boost::format("<div class=\"l f%|1$x| s%|2$x| t%|3$x|\" style=\"") % cur_fn_id % new_fs_id % new_tm_id
-        << "bottom:" << cur_string->getY() << "px;"
+    html_fout << "\" style=\""
+        << "bottom:" << (cur_string->getY() + cur_state->getFont()->getDescent() * cur_font_size) << "px;"
+        << "top:" << (pageHeight - cur_string->getY() - cur_state->getFont()->getAscent() * cur_font_size) << "px;"
         << "left:" << cur_string->getX() << "px;"
-        << "top:" << (pageHeight - cur_string->getY() - cur_state->getFont()->getAscent() * cur_state->getFontSize()) << "px;"
         ;
     
     // letter & word spacing
@@ -447,7 +424,7 @@ void HTMLRenderer::endString(GfxState *state) {
         html_fout << "word-spacing:" << cur_state->getWordSpace() << "px;";
 
     //debug 
-    //real pos
+    //real pos & hori_scale
     {
         html_fout << "\"";
         double x,y;
@@ -477,12 +454,6 @@ void HTMLRenderer::drawChar(GfxState *state, double x, double y,
     // if it is hidden, then return
     if ((state->getRender() & 3) == 3)
         return ;
-
-    // TODO:
-    // not on the same line
-    if (!_equal(cur_string->getY(), y1)){
-        std::cerr << "TODO: line break in a string" << std::endl;
-    }
 
     w1 = dx - state->getCharSpace() * state->getHorizScaling(),
 
@@ -582,7 +553,7 @@ long long HTMLRenderer::install_font(GfxFont * font)
                 switch(font_loc -> fontType)
                 {
                     case fontType1:
-                        install_embedded_type1_font(&font_loc->embFontID, new_fn_id);
+                        install_embedded_type1_font(&font_loc->embFontID, font, new_fn_id);
                         break;
                     case fontType1C:
                         install_embedded_type1c_font(font, new_fn_id);
@@ -620,7 +591,7 @@ long long HTMLRenderer::install_font(GfxFont * font)
     return new_fn_id;
 }
 
-void HTMLRenderer::install_embedded_type1_font (Ref * id, long long fn_id)
+void HTMLRenderer::install_embedded_type1_font (Ref * id, GfxFont * font, long long fn_id)
 {
     Object ref_obj, str_obj, ol1, ol2, ol3;
     Dict * dict;
@@ -758,7 +729,7 @@ void HTMLRenderer::install_embedded_type1_font (Ref * id, long long fn_id)
         tmpf.write(CTM, strlen(CTM));
     }
 
-    export_remote_font(fn_id, "ttf");
+    export_remote_font(fn_id, "ttf", font);
 
 err:
     str_obj.streamClose();
@@ -782,7 +753,7 @@ void HTMLRenderer::install_embedded_type1c_font (GfxFont * font, long long fn_id
             string fn = (boost::format("f%|1$x|")%fn_id).str();
             ofstream tmpf((fn+".pfa").c_str(), ofstream::binary);
             FFT1C->convertToType1((char*)fn.c_str(), nullptr, true, &output_to_file , &tmpf);
-            export_remote_font(fn_id, "ttf");
+            export_remote_font(fn_id, "ttf", font);
             delete FFT1C;
         }
         else
@@ -811,7 +782,7 @@ void HTMLRenderer::install_embedded_truetype_font (GfxFont * font, long long fn_
             string fn = (boost::format("f%|1$x|")%fn_id).str();
             ofstream tmpf((fn+".ttf").c_str(), ofstream::binary);
             FFTT->writeTTF(output_to_file, &tmpf, (char*)(fn.c_str()), nullptr);
-            export_remote_font(fn_id, "ttf");
+            export_remote_font(fn_id, "ttf", font);
             delete FFTT;
         }
         else
@@ -867,7 +838,7 @@ long long HTMLRenderer::install_whitespace(double ws_width, double & actual_widt
     return new_ws_id;
 }
 
-long long HTMLRenderer::install_transform_matrix(double * tm){
+long long HTMLRenderer::install_transform_matrix(const double * tm){
     TM m(tm);
     auto iter = transform_matrix_map.lower_bound(m);
     if(m == (iter->first))
@@ -882,12 +853,25 @@ long long HTMLRenderer::install_transform_matrix(double * tm){
 }
 
 
-void HTMLRenderer::export_remote_font(long long fn_id, const string & suffix)
+void HTMLRenderer::export_remote_font(long long fn_id, const string & suffix, GfxFont * font)
 {
-    allcss_fout << boost::format("@font-face{font-family:f%|1$x|;src:url(f%|1$x|.%2%);}.f%|1$x|{font-family:f%|1$x|;}") % fn_id % suffix;
+    double a = font->getAscent();
+    double d = font->getDescent();
+    double r = _is_positive(a-d) ? (a/(a-d)) : 1.0;
+
+    allcss_fout << boost::format("@font-face{font-family:f%|1$x|;src:url(f%|1$x|.%2%);}.f%|1$x|{font-family:f%|1$x|;") % fn_id % suffix;
+
+    for(const std::string & prefix : {"", "-ms-", "-moz-", "-webkit-", "-o-"})
+    {
+        allcss_fout << prefix << "transform-origin:0% " << (r*100.0) << "%;";
+    }
+
+    allcss_fout << "}";
+
     if(param->readable) allcss_fout << endl;
 }
 
+// TODO: this function is called when some font is unable to process, may use the name there as a hint
 void HTMLRenderer::export_remote_default_font(long long fn_id)
 {
     allcss_fout << boost::format(".f%|1$x|{font-family:sans-serif;color:transparent;}")%fn_id;
@@ -906,6 +890,14 @@ void HTMLRenderer::export_local_font(long long fn_id, GfxFont * font, GfxFontLoc
         allcss_fout << "font-style:oblique;";
     else if(font->isItalic())
         allcss_fout << "font-style:italic;";
+
+    double a = font->getAscent();
+    double d = font->getDescent();
+    double r = _is_positive(a-d) ? (a/(a-d)) : 1.0;
+    for(const std::string & prefix : {"", "-ms-", "-moz-", "-webkit-", "-o-"})
+    {
+        allcss_fout << prefix << "transform-origin:0% " << (r*100.0) << "%;";
+    }
 
     allcss_fout << "}";
 
@@ -934,13 +926,12 @@ void HTMLRenderer::export_whitespace (long long ws_id, double ws_width)
     if(param->readable) allcss_fout << endl;
 }
 
-void HTMLRenderer::export_transform_matrix (long long tm_id, double * tm)
+void HTMLRenderer::export_transform_matrix (long long tm_id, const double * tm)
 {
     allcss_fout << boost::format(".t%|1$x|{") % tm_id;
 
 
     // TODO: recognize common matices
-    static const double id_matrix[6] = {1.0, 0.0, 0.0, 1.0, 0.0, 0.0};
     if(_tm_equal(tm, id_matrix))
     {
         // no need to output anything
@@ -971,56 +962,79 @@ void HTMLRenderer::check_state_change(GfxState * state)
 {
     if(pos_changed)
     {
-        if(!(_equal(state->getCurX(), cur_x) && _equal(state->getCurY(), cur_y)))
+        if(!_equal(state->getLineY(), cur_line_y))
         {
             close_cur_line();
-            cur_x = state->getCurX();
-            cur_y = state->getCurY();
+            cur_line_y = state->getLineY();
         }
-        pos_changed = false;
     }
 
+    bool need_rescale_font = true;
+    double new_font_size = cur_font_size;
     if(font_changed)
     {
         long long new_fn_id = install_font(state->getFont());
-        long long new_fs_id = install_font_size(state->getFontSize());
-        cur_font_size = state->getFontSize();
-        if(!((new_fn_id == cur_fn_id) && (new_fs_id == cur_fs_id)))
+        new_font_size = state->getFontSize();
+
+        if(!(new_fn_id == cur_fn_id))
         {
             close_cur_line();
             cur_fn_id = new_fn_id;
-            cur_fs_id = new_fs_id;
         }
-        font_changed = false;
+        if(!_equal(cur_font_size, new_font_size))
+        {
+            need_rescale_font = true;
+        }
     }  
-    if(text_mat_changed)
-    {
-        if(!_tm_equal(cur_text_mat, state->getTextMat(), 4))
-        {
-            close_cur_line();
-            memcpy(cur_text_mat, state->getTextMat(), sizeof(cur_text_mat));
 
-            // we've already shift the text to the correct posstion
-            // so later in css we need to ignore the these offsets
-            cur_text_mat[4] = cur_text_mat[5] = 0.0;
+    // TODO
+    // Rise, HorizScale etc
+    double new_ctm[6];
+    memcpy(new_ctm, draw_ctm, sizeof(new_ctm));
+    if(text_mat_changed || ctm_changed)
+    {
+        double * m1 = state->getCTM();
+        double * m2 = state->getTextMat();
+        new_ctm[0] = m1[0] * m2[0] + m1[2] * m2[1];
+        new_ctm[1] = m1[1] * m2[0] + m1[3] * m2[1];
+        new_ctm[2] = m1[0] * m2[2] + m1[2] * m2[3];
+        new_ctm[3] = m1[1] * m2[2] + m1[3] * m2[3];
+        new_ctm[4] = new_ctm[5] = 0;
+
+        if(!_tm_equal(new_ctm, draw_ctm, 4))
+        {
+            need_rescale_font = true;
         }
-        text_mat_changed = false;
     }
 
-    if(ctm_changed)
+    if(need_rescale_font)
     {
-        if(!_tm_equal(cur_ctm, state->getCTM()))
+        double scale = std::sqrt(new_ctm[2] * new_ctm[2] + new_ctm[3] * new_ctm[3]);
+        if(_is_positive(scale))
         {
-            close_cur_line();
-            memcpy(cur_ctm, state->getCTM(), sizeof(cur_ctm));
-
-            // close old CTM div and create a new one
-            html_fout << "</div>";
-            if(param->readable) html_fout << endl;
-            html_fout << boost::format("<div class=\"t t%|1$x|\">") % install_transform_matrix(cur_ctm);
-            if(param->readable) html_fout << endl;
+            new_font_size *= scale;
+            for(int i = 0; i < 4; ++i)
+                new_ctm[i] /= scale;
         }
-        ctm_changed = false;
+        bool flag = false;
+        if(!(_equal(new_font_size, cur_font_size)))
+        {
+            cur_font_size = new_font_size;
+            cur_fs_id = install_font_size(cur_font_size);
+            flag = true;
+        }
+        if(!(_tm_equal(new_ctm, draw_ctm)))
+        {
+            memcpy(draw_ctm, new_ctm, sizeof(draw_ctm));
+            cur_tm_id = install_transform_matrix(draw_ctm);
+            flag = true;
+        }
+        if(flag)
+            close_cur_line();
     }
+
+    text_mat_changed = false;
+    pos_changed = false;
+    font_changed = false;
 }
 

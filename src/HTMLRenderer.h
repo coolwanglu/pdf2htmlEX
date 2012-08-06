@@ -147,7 +147,7 @@ class HTMLRenderer : public OutputDev
         long long install_font(GfxFont * font);
 
         static void output_to_file(void * outf, const char * data, int len);
-        void install_embedded_type1_font (Ref * id, long long fn_id);
+        void install_embedded_type1_font (Ref * id, GfxFont * font, long long fn_id);
         void install_embedded_type1c_font (GfxFont * font, long long fn_id);
         void install_embedded_opentypet1c_font (GfxFont * font, long long fn_id);
         void install_embedded_truetype_font (GfxFont * font, long long fn_id);
@@ -155,20 +155,20 @@ class HTMLRenderer : public OutputDev
 
         long long install_font_size(double font_size);
         long long install_whitespace(double ws_width, double & actual_width);
-        long long install_transform_matrix(double * tm);
+        long long install_transform_matrix(const double * tm);
 
         /*
          * remote font: to be retrieved from the web server
          * local font: to be substituted with a local (client side) font
          */
-        void export_remote_font(long long fn_id, const string & suffix);
+        void export_remote_font(long long fn_id, const string & suffix, GfxFont * font);
         void export_remote_default_font(long long fn_id);
         void export_local_font(long long fn_id, GfxFont * font, GfxFontLoc * font_loc, const string & original_font_name, const string & cssfont);
         std::string general_font_family(GfxFont * font);
 
         void export_font_size(long long fs_id, double font_size);
         void export_whitespace(long long ws_id, double ws_width);
-        void export_transform_matrix(long long tm_id, double * tm);
+        void export_transform_matrix(long long tm_id, const double * tm);
 
         Catalog *catalog;
         Page *docPage;
@@ -184,7 +184,7 @@ class HTMLRenderer : public OutputDev
         void check_state_change(GfxState * state);
 
         // current position
-        double cur_x, cur_y;
+        double cur_line_y;
         bool pos_changed;
 
         // the string being processed
@@ -195,17 +195,21 @@ class HTMLRenderer : public OutputDev
         // (actual x) - (supposed x)
         double cur_line_x_offset;
 
-        double cur_ctm[6]; 
-        bool ctm_changed;
-
-        double cur_text_mat[6];
-        bool text_mat_changed;
 
         long long cur_fn_id;
         double cur_font_size;
+
         long long cur_fs_id; 
         bool font_changed;
 
+        long long cur_tm_id;
+        bool ctm_changed;
+        bool text_mat_changed;
+
+
+        // this is the modified fontsize & ctm for optimzation
+        double draw_ctm[6];
+        double draw_font_size;
 
         ofstream html_fout, allcss_fout;
 
@@ -222,7 +226,7 @@ class HTMLRenderer : public OutputDev
         class TM{
             public:
                 TM() {}
-                TM(double * m) {memcpy(_, m, sizeof(_));}
+                TM(const double * m) {memcpy(_, m, sizeof(_));}
                 bool operator < (const TM & m) const {
                     for(int i = 0; i < 6; ++i)
                     {
