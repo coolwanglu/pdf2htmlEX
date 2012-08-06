@@ -21,7 +21,7 @@ Features
 * Font embedding
 * Proper styling
 * Optimization for Web 
-* Transformation (Experimental) 
+* Transformation 
 
 Not supported yet
 ----------------------------
