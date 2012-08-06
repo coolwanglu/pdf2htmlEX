@@ -52,11 +52,9 @@ class TextString
         void addChars(GfxState * state, double x, double y,
                 double dx, double dy,
                 CharCode code, int nbytes);
-
-        // Add a character to the string.
-        void addChar(GfxState *state, double x, double y,
+        void addUnicodes(GfxState *state, double x, double y,
                 double dx, double dy,
-                Unicode u);
+                Unicode *u, int uLen);
         double getX() const {return x;}
         double getY() const {return y;}
         double getWidth() const {return width;}

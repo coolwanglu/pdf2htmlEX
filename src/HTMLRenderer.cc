@@ -143,20 +143,16 @@ void TextString::addChars(GfxState *state, double x, double y,
     height += dy;
 }
 
-void TextString::addChar(GfxState *state, double x, double y,
-        double dx, double dy, Unicode u)
+void TextString::addUnicodes(GfxState *state, double x, double y,
+        double dx, double dy, Unicode * u, int uLen)
 {
+    /*
     if (0 < u && u != 9 && u < 32)	// skip non-printable not-tab character
         return;
+        */
 
-    /*
-    if (unicodes.empty())
-    {
-        this->x = x;
-        this->y = y;
-    }
-    */
-    unicodes.push_back(u);
+    for(int i = 0; i < uLen; ++i)
+        unicodes.push_back(u[i]);
 
     width += dx;
     height += dy;
@@ -226,7 +222,6 @@ void HTMLRenderer::process(PDFDoc *doc)
     delete bg_renderer;
 
     std::cerr << std::endl;
-    std::cerr << "Done." << std::endl;
 }
 
 void HTMLRenderer::startPage(int pageNum, GfxState *state) 
@@ -459,29 +454,12 @@ void HTMLRenderer::drawChar(GfxState *state, double x, double y,
         double originX, double originY,
         CharCode code, int nBytes, Unicode *u, int uLen)
 {
-    double x1, y1, w1, h1;
-    
-    x1 = x;
-    y1 = y;
-
     // if it is hidden, then return
     if ((state->getRender() & 3) == 3)
         return ;
 
-    w1 = dx - state->getCharSpace() * state->getHorizScaling(),
-    h1 = dy;
-
-    cur_string->addChars(state, x1, y1, w1, h1, code, nBytes);
-
-    /*
-    if (uLen != 0) {
-        w1 /= uLen;
-        h1 /= uLen;
-    }
-    for (int i = 0; i < uLen; ++i) {
-        cur_string->addChar(state, x1 + i*w1, y1 + i*h1, w1, h1, u[i]);
-    }
-    */
+    //cur_string->addChars(state, x, y, dx, dy, code, nBytes);
+    cur_string->addUnicodes(state, x, y, dx, dy, u, uLen);
 }
 
 // TODO
@@ -544,11 +522,6 @@ long long HTMLRenderer::install_font(GfxFont * font)
     {
         export_remote_default_font(new_fn_id);
         return new_fn_id;
-    }
-
-    //debug
-    {
-        std::cerr << "install font: " << new_fn_id << ' ' << font->getID()->num << std::endl;
     }
 
     string new_fn = (boost::format("f%|1$x|") % new_fn_id).str();
