@@ -461,7 +461,20 @@ void HTMLRenderer::drawChar(GfxState *state, double x, double y,
     if(uLen > 0)
         cur_string->addUnicodes(state, x, y, dx, dy, u, uLen);
     else
+    {
+        if(nBytes > 0)
+        {
+            std::cerr << "Cannot map to Unicode!" << std::endl;
+            std::cerr << cur_fn_id << std::endl;
+            std::cerr << "*";
+            for(int i = 0; i < nBytes; ++i)
+            {
+                std::cerr << (int)(((char*)&code)[i]);
+            }
+            std::cerr << std::endl;
+        }
         cur_string->addChars(state, x, y, dx, dy, code, nBytes);
+    }
 }
 
 // TODO
