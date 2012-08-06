@@ -19,15 +19,15 @@ Features
 ----------------------------
 * Text Selection
 * Font embedding
-* Proper styling
+* Proper styling (Color, Transformation...)
 * Optimization for Web 
-* Transformation 
 
 Not supported yet
 ----------------------------
 * Non-text object (Don't worry, they will be rendered as images)
-* Color
+* Blend Mode
 * CJK
+* ...
 
 Dependency
 ----------------------------

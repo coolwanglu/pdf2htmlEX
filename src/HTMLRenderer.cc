@@ -7,7 +7,6 @@
 
 /*
  * TODO
- * color
  * font base64 embedding
  */
 
@@ -246,7 +245,7 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
     html_fout << "\">";
     if(param->readable) html_fout << endl;
 
-    cur_fn_id = cur_fs_id = cur_tm_id = 0;
+    cur_fn_id = cur_fs_id = cur_tm_id = cur_color_id = 0;
     cur_line_x_offset = 0;
     cur_line_y = 0;
     cur_font_size = 0;
@@ -545,6 +544,11 @@ long long HTMLRenderer::install_font(GfxFont * font)
     {
         export_remote_default_font(new_fn_id);
         return new_fn_id;
+    }
+
+    //debug
+    {
+        std::cerr << "install font: " << new_fn_id << ' ' << font->getID()->num << std::endl;
     }
 
     string new_fn = (boost::format("f%|1$x|") % new_fn_id).str();
