@@ -370,6 +370,7 @@ void HTMLRenderer::beginString(GfxState *state, GooString *s) {
 void HTMLRenderer::endString(GfxState *state) {
     if (cur_string->getSize() == 0) {
         delete cur_string ;
+        cur_string = nullptr;
         return;
     }
 
@@ -378,9 +379,10 @@ void HTMLRenderer::endString(GfxState *state) {
     {
         if(at_same_line(cur_line, cur_string))
         {
+            // TODO: this is not correct
             double x1 = cur_line->getX() + cur_line->getWidth();
             double x2 = cur_string->getX();
-            double target = (x2-x1-cur_line_x_offset) * draw_scale;
+            double target = (x2-x1-cur_line_x_offset);
 
             if(target > -param->h_eps)
             {
@@ -437,7 +439,7 @@ void HTMLRenderer::endString(GfxState *state) {
         html_fout << "\"";
         double x,y;
         cur_state->transform(cur_state->getCurX(), cur_state->getCurY(), &x, &y);
-        html_fout << boost::format(" data-x=\"%1%\" data-y=\"%2%\" hs=\"%3%")%x%y%(cur_state->getHorizScaling());
+        html_fout << boost::format(" data-scale=\"%4%\" data-x=\"%1%\" data-y=\"%2%\" data-hs=\"%3%")%x%y%(cur_state->getHorizScaling())%draw_scale;
     }
 
     html_fout << "\">";
@@ -462,17 +464,6 @@ void HTMLRenderer::drawChar(GfxState *state, double x, double y,
         cur_string->addUnicodes(state, x, y, dx, dy, u, uLen);
     else
     {
-        if(nBytes > 0)
-        {
-            std::cerr << "Cannot map to Unicode!" << std::endl;
-            std::cerr << cur_fn_id << std::endl;
-            std::cerr << "*";
-            for(int i = 0; i < nBytes; ++i)
-            {
-                std::cerr << (int)(((char*)&code)[i]);
-            }
-            std::cerr << std::endl;
-        }
         cur_string->addChars(state, x, y, dx, dy, code, nBytes);
     }
 }
@@ -997,7 +988,6 @@ void HTMLRenderer::check_state_change(GfxState * state)
             close_cur_line();
             cur_line_y = state->getLineY();
         }
-
     }
 
     if(color_changed)
@@ -1012,7 +1002,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
         }
     }
 
-    bool need_rescale_font = true;
+    bool need_rescale_font = false;
     if(font_changed)
     {
         long long new_fn_id = install_font(state->getFont());
@@ -1022,6 +1012,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
             close_cur_line();
             cur_fn_id = new_fn_id;
         }
+
         if(!_equal(cur_font_size, state->getFontSize()))
         {
             cur_font_size = state->getFontSize();
@@ -1043,7 +1034,9 @@ void HTMLRenderer::check_state_change(GfxState * state)
         new_ctm[3] = m1[1] * m2[2] + m1[3] * m2[3];
         new_ctm[4] = new_ctm[5] = 0;
 
-        if(!_tm_equal(new_ctm, draw_ctm, 4))
+        // TODO: this is not correct
+        // what to check?
+        if(!_tm_equal(new_ctm, draw_ctm, 4)) { }
         {
             need_rescale_font = true;
         }
