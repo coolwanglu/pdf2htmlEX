@@ -458,8 +458,10 @@ void HTMLRenderer::drawChar(GfxState *state, double x, double y,
     if ((state->getRender() & 3) == 3)
         return ;
 
-    //cur_string->addChars(state, x, y, dx, dy, code, nBytes);
-    cur_string->addUnicodes(state, x, y, dx, dy, u, uLen);
+    if(uLen > 0)
+        cur_string->addUnicodes(state, x, y, dx, dy, u, uLen);
+    else
+        cur_string->addChars(state, x, y, dx, dy, code, nBytes);
 }
 
 // TODO
