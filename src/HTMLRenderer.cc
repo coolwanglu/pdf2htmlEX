@@ -25,6 +25,7 @@
 
 #include "HTMLRenderer.h"
 #include "BackgroundRenderer.h"
+#include "Consts.h"
 
 /*
  * CSS classes
@@ -41,73 +42,8 @@
  * w<hex> - White space
  * t<hex> - Transform matrix
  * c<hex> - Color
+ *
  */
-
-const char * HTML_HEAD = "<!DOCTYPE html>\n\
-<html><head>\
-<meta charset=\"utf-8\">\
-<style type=\"text/css\">\
-#pdf-main {\
-  font-family: sans-serif;\
-  position:absolute;\
-  top:0;\
-  left:0;\
-  bottom:0;\
-  right:0;\
-  overflow:auto;\
-  background-color:grey;\
-}\
-#pdf-main > .p {\
-  position:relative;\
-  margin:13px auto;\
-  background-color:white;\
-  overflow:hidden;\
-  display:none;\
-}\
-.p  > .l {\
-  position:absolute; \
-  white-space:pre;\
-}\
-.l > .w {\
-  display:inline-block;\
-}\
-::selection{\
-  background: rgba(168,209,255,0.5);\
-}\
-::-moz-selection{\
-  background: rgba(168,209,255,0.5);\
-}\
-</style><link rel=\"stylesheet\" type=\"text/css\" href=\"all.css\" />\
-<script type=\"text/javascript\">\
-function show_pages()\
-{\
- var pages = document.getElementById('pdf-main').childNodes;\
- var idx = 0;\
- var f = function(){\
-  if (idx < pages.length) {\
-   try{\
-    pages[idx].style.display='block';\
-   }catch(e){}\
-   ++idx;\
-   setTimeout(f,100);\
-  }\
- };\
- f();\
-};\
-</script>\
-</head><body onload=\"show_pages();\"><div id=\"pdf-main\">";
-
-const char * HTML_TAIL = "</div></body></html>";
-
-const std::map<string, string> BASE_14_FONT_CSS_FONT_MAP({\
-   { "Courier", "Courier,monospace" },\
-   { "Helvetica", "Helvetica,Arial,\"Nimbus Sans L\",sans-serif" },\
-   { "Times", "Times,\"Time New Roman\",\"Nimbus Roman No9 L\",serif" },\
-   { "Symbol", "Symbol" },\
-   { "ZapfDingbats", "ZapfDingbats" },\
-});
-
-const double id_matrix[6] = {1.0, 0.0, 0.0, 1.0, 0.0, 0.0};
 
 TextString::TextString(GfxState *state)
     :unicodes()
@@ -242,7 +178,7 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
 
     cur_fn_id = cur_fs_id = cur_tm_id = cur_color_id = 0;
     cur_line_x_offset = 0;
-    cur_line_y = 0;
+    cur_tx = cur_ty = 0;
     cur_font_size = 0;
 
     memcpy(draw_ctm, id_matrix, sizeof(draw_ctm));
@@ -380,9 +316,9 @@ void HTMLRenderer::endString(GfxState *state) {
         if(at_same_line(cur_line, cur_string))
         {
             // TODO: this is not correct
-            double x1 = cur_line->getX() + cur_line->getWidth();
-            double x2 = cur_string->getX();
-            double target = (x2-x1-cur_line_x_offset);
+            double x1 = cur_line->getState()->getLineX() + cur_line->getWidth();
+            double x2 = cur_string->getState()->getLineX();
+            double target = (x2-x1-cur_line_x_offset) * draw_scale;
 
             if(target > -param->h_eps)
             {
@@ -439,7 +375,8 @@ void HTMLRenderer::endString(GfxState *state) {
         html_fout << "\"";
         double x,y;
         cur_state->transform(cur_state->getCurX(), cur_state->getCurY(), &x, &y);
-        html_fout << boost::format(" data-scale=\"%4%\" data-x=\"%1%\" data-y=\"%2%\" data-hs=\"%3%")%x%y%(cur_state->getHorizScaling())%draw_scale;
+        html_fout << boost::format("data-lx=\"%5%\" data-ly=\"%6%\" data-scale=\"%4%\" data-x=\"%1%\" data-y=\"%2%\" data-hs=\"%3%")
+            %x%y%(cur_state->getHorizScaling())%draw_scale%cur_state->getLineX()%cur_state->getLineY();
     }
 
     html_fout << "\">";
@@ -471,11 +408,16 @@ void HTMLRenderer::drawChar(GfxState *state, double x, double y,
 // TODO
 void HTMLRenderer::drawString(GfxState * state, GooString * s)
 {
+    check_state_change(state);
+
     auto font = state->getFont();
     if(font->getWMode())
-        std::cerr << "TODO: writing mode" << std::endl;
+    {
+        //TODO
+        return;
+    }
 
-    // stolen from poppler
+    // from poppler
     double dx = 0; 
     double dy = 0;
     double dx2, dy2;
@@ -983,10 +925,10 @@ void HTMLRenderer::check_state_change(GfxState * state)
 {
     if(pos_changed)
     {
-        if(!_equal(state->getLineY(), cur_line_y))
+        if(!_equal(state->getLineY(), cur_ty))
         {
             close_cur_line();
-            cur_line_y = state->getLineY();
+            cur_ty = state->getLineY();
         }
     }
 

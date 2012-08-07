@@ -17,7 +17,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ggdb")
 
-add_executable(pdftohtmlEX src/pdftohtmlEX.cc src/HTMLRenderer.cc src/HTMLRenderer.h src/BackgroundRenderer.cc src/BackgroundRenderer.h)
+add_executable(pdftohtmlEX src/pdftohtmlEX.cc src/HTMLRenderer.cc src/HTMLRenderer.h src/BackgroundRenderer.cc src/BackgroundRenderer.h src/Consts.h)
 target_link_libraries(pdftohtmlEX poppler boost_program_options)
 
 

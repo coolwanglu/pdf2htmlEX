@@ -199,7 +199,7 @@ class HTMLRenderer : public OutputDev
         double cur_line_x_offset;
 
         // current position
-        double cur_line_y;
+        double cur_tx, cur_ty; // in text coords
         bool pos_changed;
 
         long long cur_fn_id;
