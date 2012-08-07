@@ -12,7 +12,6 @@ echo -n "Converting fonts: "
 
 for f in *.ttf; do
     if [ -f $f ]; then
-        cp $f $f.old
         fontforge -script "${SCRIPT_DIR}/convert.pe" $f 2>/dev/null
         echo -n "."
     fi
@@ -20,7 +19,6 @@ done
 
 for f in *.pfa; do
     if [ -f $f ]; then
-        cp $f $f.old
         fontforge -script "${SCRIPT_DIR}/convert.pe" $f 2>/dev/null
         rm $f
         echo -n "."

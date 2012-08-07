@@ -43,39 +43,6 @@ inline bool _tm_equal(const double * tm1, const double * tm2, int size = 6)
     return true;
 }
 
-class TextString
-{
-    public:
-        TextString(GfxState *state);
-        ~TextString();
-
-        void addChars(GfxState * state, double x, double y,
-                double dx, double dy,
-                CharCode code, int nbytes);
-        void addUnicodes(GfxState *state, double x, double y,
-                double dx, double dy,
-                Unicode *u, int uLen);
-        double getX() const {return x;}
-        double getY() const {return y;}
-        double getWidth() const {return width;}
-        double getHeight() const {return height;}
-
-        GfxState * getState() const { return state; }
-
-        const std::vector<Unicode> & getUnicodes() const { return unicodes; }
-        size_t getSize() const { return unicodes.size(); }
-
-
-    private:
-        std::vector<Unicode> unicodes;
-        double x, y;
-        double width, height;
-
-        // TODO: 
-        // remove this, track state change in the converter
-        GfxState * state;
-};
-
 class HTMLRenderer : public OutputDev
 {
     public:
@@ -91,7 +58,7 @@ class HTMLRenderer : public OutputDev
         virtual GBool upsideDown() { return gFalse; }
 
         // Does this device use drawChar() or drawString()?
-        virtual GBool useDrawChar() { return gTrue; }
+        virtual GBool useDrawChar() { return gFalse; }
 
         // Does this device use beginType3Char/endType3Char?  Otherwise,
         // text in Type 3 fonts will be drawn with drawChar/drawString.
@@ -121,29 +88,25 @@ class HTMLRenderer : public OutputDev
         virtual void endPage();
 
         //----- update state
+        /*
+         * To optmize false alarms
+         * We just mark as changed, and recheck if they have been changed when we are about to output a new string
+         */
         virtual void updateAll(GfxState * state);
         virtual void updateFont(GfxState * state);
         virtual void updateTextMat(GfxState * state);
         virtual void updateCTM(GfxState * state, double m11, double m12, double m21, double m22, double m31, double m32);
         virtual void updateTextPos(GfxState * state);
-
+        virtual void updateTextShift(GfxState * state, double shift);
         virtual void updateFillColor(GfxState * state);
 
         //----- text drawing
-        virtual void beginString(GfxState *state, GooString *s);
-        virtual void endString(GfxState *state);
-        virtual void drawChar(GfxState *state, double x, double y,
-                double dx, double dy,
-                double originX, double originY,
-                CharCode code, int nBytes, Unicode *u, int uLen);
-
         virtual void drawString(GfxState * state, GooString * s);
 
     private:
-        bool at_same_line(const TextString * ts1, const TextString * ts2) const;
-
         void close_cur_line();
-        void outputTextString(TextString * str);
+
+        void outputUnicodes(const Unicode * u, int uLen);
 
         // return the mapped font name
         long long install_font(GfxFont * font);
@@ -184,23 +147,19 @@ class HTMLRenderer : public OutputDev
         double pageHeight ;
 
 
-        // state maintained when processing pdf
 
+        // state tracking when processing pdf
         void check_state_change(GfxState * state);
         void reset_state_track();
 
+        bool all_changed;
 
-        // the string being processed
-        TextString * cur_string;
-        // the last word of current line
-        // if it's not nullptr, there's an open <div> waiting for new strings in the same line
-        TextString * cur_line;
-        // (actual x) - (supposed x)
-        double cur_line_x_offset;
+        // if we have a pending opened line
+        bool line_opened;
 
         // current position
-        double cur_tx, cur_ty; // in text coords
-        bool pos_changed;
+        double cur_tx, cur_ty; // real text position, in text coords
+        bool text_pos_changed; 
 
         long long cur_fn_id;
         double cur_font_size;
@@ -210,6 +169,10 @@ class HTMLRenderer : public OutputDev
         long long cur_tm_id;
         bool ctm_changed;
         bool text_mat_changed;
+        
+        // this is CTM * TextMAT in PDF, not only CTM
+        // [4] and [5] are ignored, we'll calculate the position of the origin separately
+        double cur_ctm[6]; // unscaled
 
         long long cur_color_id;
         GfxRGB cur_color;
@@ -218,9 +181,15 @@ class HTMLRenderer : public OutputDev
         // optmize for web
         // we try to render the final font size directly
         // to reduce the effect of ctm as much as possible
+        
+        // draw_ctm is cur_ctm scaled by 1/draw_scale, 
+        // so everything redenered should be multiplied by draw_scale
         double draw_ctm[6];
         double draw_font_size;
-        double draw_scale;
+        double draw_scale; 
+
+        // the position of next char, in text coords
+        double draw_tx, draw_ty; 
 
         ofstream html_fout, allcss_fout;
 
