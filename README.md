@@ -6,12 +6,15 @@ pdf2html**EX**
 
 Introduction
 -----------------------------
-pdf2htmlEX renders PDF files in HTML, utilizing modern technologies of html/css, aims to provide an accuracy rendering, while keeping optimized for Web display.
+pdf2htmlEX renders PDF files in HTML, utilizing modern Web technologies, aims to provide an accuracy rendering, while keeping optimized for Web display.
 
-pdf2htmlEX is optimized for recent versions of modern web browsers such as Mozilla Firefox & Google Chrome.
+It is optimized for recent versions of modern web browsers such as Mozilla Firefox & Google Chrome.
+
+This program is designed for scientific papers with complicate formulas and figures, so a precise rendering is also the #1 concern.
 
 Features
 ----------------------------
+* Precise rendering 
 * Text Selection
 * Font embedding
 * Proper styling (Color, Transformation...)
