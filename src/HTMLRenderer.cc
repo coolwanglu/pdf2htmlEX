@@ -45,58 +45,8 @@
  *
  */
 
-TextString::TextString(GfxState *state)
-    :unicodes()
-    ,x(state->getCurX())
-    ,y(state->getCurY())
-    ,width(0),height(0)
-    ,state(state)
-{ 
-    state->transform(x,y,&x,&y);
-}
-
-TextString::~TextString()
-{
-    delete state;
-    state = nullptr;
-}
-
-void TextString::addChars(GfxState *state, double x, double y,
-        double dx, double dy, CharCode code, int nbytes)
-{
-    if(nbytes > 0)
-    {
-        CharCode mask = (0xffLL) << (8*(nbytes-1));
-        while(nbytes > 0)
-        {
-            unicodes.push_back((Unicode)((code & mask) >> (8 * (nbytes-1))));
-            --nbytes;
-            mask >>= 8;
-        }
-    }
-    
-    width += dx;
-    height += dy;
-}
-
-void TextString::addUnicodes(GfxState *state, double x, double y,
-        double dx, double dy, Unicode * u, int uLen)
-{
-    /*
-    if (0 < u && u != 9 && u < 32)	// skip non-printable not-tab character
-        return;
-        */
-
-    for(int i = 0; i < uLen; ++i)
-        unicodes.push_back(u[i]);
-
-    width += dx;
-    height += dy;
-}
-
-
 HTMLRenderer::HTMLRenderer(const Param * param)
-    :cur_string(nullptr), cur_line(nullptr)
+    :line_opened(false)
     ,html_fout(param->output_filename.c_str(), ofstream::binary), allcss_fout("all.css")
     ,param(param)
 {
@@ -166,8 +116,7 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
     this->pageWidth = state->getPageWidth();
     this->pageHeight = state->getPageHeight();
 
-    assert(cur_line == nullptr);
-    assert(cur_string == nullptr);
+    assert(!line_opened);
 
     html_fout << boost::format("<div id=\"page-%3%\" class=\"p\" style=\"width:%1%px;height:%2%px;") % pageWidth % pageHeight % pageNum;
 
@@ -181,6 +130,7 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
     cur_tx = cur_ty = 0;
     cur_font_size = 0;
 
+    memcpy(cur_ctm, id_matrix, sizeof(cur_ctm));
     memcpy(draw_ctm, id_matrix, sizeof(draw_ctm));
     draw_font_size = 0;
     draw_scale = 1.0;
@@ -197,48 +147,29 @@ void HTMLRenderer::endPage() {
     if(param->readable) html_fout << endl;
 }
 
-bool HTMLRenderer::at_same_line(const TextString * ts1, const TextString * ts2) const
-{
-    // TODO, this is not accurate, with transforms
-    if(!(std::abs(ts1->getY() - ts2->getY()) < param->v_eps))
-        return false;
-
-    GfxState * s1 = ts1->getState();
-    GfxState * s2 = ts2->getState();
-    
-    // TODO, track this instead of check here
-    if(!(_equal(s1->getCharSpace(), s2->getCharSpace())
-         && _equal(s1->getWordSpace(), s2->getWordSpace())
-         && _equal(s1->getHorizScaling(), s2->getHorizScaling())))
-            return false;
-
-    return true;
-}
-
 void HTMLRenderer::close_cur_line()
 {
-    if(cur_line != nullptr)
+    if(line_opened)
     {
         html_fout << "</div>";
         if(param->readable) html_fout << endl;
 
-        delete cur_line;
-        cur_line = nullptr;
         cur_line_x_offset = 0;
+        line_opened = false;
     }
 }
 
-void HTMLRenderer::outputTextString(TextString * str)
+void HTMLRenderer::outputUnicodes(const Unicode * u, int uLen)
 {
-    for (auto u : str->getUnicodes())
+    for(int i = 0; i < uLen; ++i)
     {
-        switch(u)
+        switch(u[i])
         {
             case '&':
                 html_fout << "&amp;";
                 break;
-            case '\"':
-                html_fout << "&quot;";
+                case '\"':
+                    html_fout << "&quot;";
                 break;
             case '\'':
                 html_fout << "&apos;";
@@ -252,189 +183,125 @@ void HTMLRenderer::outputTextString(TextString * str)
             default:
                 {
                     char buf[4];
-                    auto n = mapUTF8(u, buf, 4);
-                    if(n > 0)
-                        html_fout.write(buf, n);
+                    auto n = mapUTF8(u[i], buf, 4);
+                    html_fout.write(buf, n);
                 }
         }
     }
 }
 
-void HTMLRenderer::updateAll(GfxState *state)
-{
-    font_changed = true;
-    text_mat_changed = true;
-    ctm_changed = true;
-    pos_changed = true;
-    color_changed = true;
-}
-
-void HTMLRenderer::updateFont(GfxState *state) 
-{
-    font_changed = true;
-}
-
-void HTMLRenderer::updateTextMat(GfxState * state)
-{
-    text_mat_changed = true;
-}
-
-void HTMLRenderer::updateCTM(GfxState * state, double m11, double m12, double m21, double m22, double m31, double m32)
-{
-    ctm_changed = true;
-}
-
-void HTMLRenderer::updateTextPos(GfxState * state)
-{
-    pos_changed = true;
-}
-
-void HTMLRenderer::updateFillColor(GfxState * state)
-{
-    color_changed = true;
-}
-
-void HTMLRenderer::beginString(GfxState *state, GooString *s) {
-    check_state_change(state);
-
-    // TODO: remove this
-    GfxState * new_state = state->copy(gTrue);
-
-    cur_string = new TextString(new_state);
-}
-
-void HTMLRenderer::endString(GfxState *state) {
-    if (cur_string->getSize() == 0) {
-        delete cur_string ;
-        cur_string = nullptr;
-        return;
-    }
-
-    // try to merge with last line
-    if(cur_line != nullptr)
-    {
-        if(at_same_line(cur_line, cur_string))
-        {
-            // TODO: this is not correct
-            double x1 = cur_line->getState()->getLineX() + cur_line->getWidth();
-            double x2 = cur_string->getState()->getLineX();
-            double target = (x2-x1-cur_line_x_offset) * draw_scale;
-
-            if(target > -param->h_eps)
-            {
-                if(target > param->h_eps)
-                {
-                    double w;
-                    auto wid = install_whitespace(target, w);
-                    cur_line_x_offset = w-target;
-                    html_fout << boost::format("<span class=\"w w%|1$x|\"> </span>") % wid;
-                }
-                else
-                {
-                    cur_line_x_offset = -target;
-                }
-
-                outputTextString(cur_string);
-
-                delete cur_line;
-                cur_line = cur_string;
-                cur_string = nullptr;
-                return;
-            }
-        }
-    }
-
-    close_cur_line();
-
-    GfxState * cur_state = cur_string -> getState();
-
-    // open a new line
-    // classes
-    html_fout << "<div class=\"l "
-        << boost::format("f%|1$x| s%|2$x| c%|3$x|") % cur_fn_id % cur_fs_id % cur_color_id;
-    
-    // "t0" is the id_matrix
-    if(cur_tm_id != 0)
-        html_fout << boost::format(" t%|1$x|") % cur_tm_id;
-
-    html_fout << "\" style=\""
-        << "bottom:" << (cur_string->getY() + cur_state->getFont()->getDescent() * draw_font_size) << "px;"
-        << "top:" << (pageHeight - cur_string->getY() - cur_state->getFont()->getAscent() * draw_font_size) << "px;"
-        << "left:" << cur_string->getX() << "px;"
-        ;
-    
-    // letter & word spacing
-    if(_is_positive(cur_state->getCharSpace()))
-        html_fout << "letter-spacing:" << cur_state->getCharSpace() << "px;";
-    if(_is_positive(cur_state->getWordSpace()))
-        html_fout << "word-spacing:" << cur_state->getWordSpace() << "px;";
-
-    //debug 
-    //real pos & hori_scale
-    {
-        html_fout << "\"";
-        double x,y;
-        cur_state->transform(cur_state->getCurX(), cur_state->getCurY(), &x, &y);
-        html_fout << boost::format("data-lx=\"%5%\" data-ly=\"%6%\" data-scale=\"%4%\" data-x=\"%1%\" data-y=\"%2%\" data-hs=\"%3%")
-            %x%y%(cur_state->getHorizScaling())%draw_scale%cur_state->getLineX()%cur_state->getLineY();
-    }
-
-    html_fout << "\">";
-
-    outputTextString(cur_string);
-
-    cur_line = cur_string;
-    cur_string = nullptr;
-    cur_line_x_offset = 0;
-}
-
-void HTMLRenderer::drawChar(GfxState *state, double x, double y,
-        double dx, double dy,
-        double originX, double originY,
-        CharCode code, int nBytes, Unicode *u, int uLen)
-{
-    // if it is hidden, then return
-    if ((state->getRender() & 3) == 3)
-        return ;
-
-    if(uLen > 0)
-        cur_string->addUnicodes(state, x, y, dx, dy, u, uLen);
-    else
-    {
-        cur_string->addChars(state, x, y, dx, dy, code, nBytes);
-    }
-}
-
-// TODO
 void HTMLRenderer::drawString(GfxState * state, GooString * s)
 {
-    check_state_change(state);
+    if(s->getLength() == 0)
+        return;
 
     auto font = state->getFont();
-    if(font->getWMode())
+    if((font == nullptr) || (font->getWMode()))
     {
         //TODO
         return;
     }
 
-    // from poppler
-    double dx = 0; 
-    double dy = 0;
-    double dx2, dy2;
-    double ox, oy;
+    // see if the line has to be closed due to state change
+    check_state_change(state);
+    
+    // if the line is still open, try to merge with it
+    if(line_opened)
+    {
+        double target = (state->getLineX() - cur_tx - cur_line_x_offset) * draw_scale;
 
+        if(target > -param->h_eps)
+        {
+            if(target > param->h_eps)
+            {
+                double w;
+                auto wid = install_whitespace(target, w);
+                cur_line_x_offset = w-target;
+                html_fout << boost::format("<span class=\"w w%|1$x|\"> </span>") % wid;
+            }
+            else
+            {
+                cur_line_x_offset = -target;
+            }
+        }
+        else
+        {
+            // can we shift left using simple tags?
+            close_cur_line();
+        }
+    }
+
+    if(!line_opened)
+    {
+        // have to open a new line
+        
+        // classes
+        html_fout << "<div class=\"l "
+            << boost::format("f%|1$x| s%|2$x| c%|3$x|") % cur_fn_id % cur_fs_id % cur_color_id;
+        
+        // "t0" is the id_matrix
+        if(cur_tm_id != 0)
+            html_fout << boost::format(" t%|1$x|") % cur_tm_id;
+
+        {
+            double x,y; // in user space
+            state->transform(state->getCurX(), state->getCurY(), &x, &y);
+            // TODO: recheck descent/ascent
+            html_fout << "\" style=\""
+                << "bottom:" << (y + state->getFont()->getDescent() * draw_font_size) << "px;"
+                << "top:" << (pageHeight - y - state->getFont()->getAscent() * draw_font_size) << "px;"
+                << "left:" << x << "px;"
+                ;
+        }
+        
+        // TODO: tracking
+        // letter & word spacing
+        if(_is_positive(state->getCharSpace()))
+            html_fout << "letter-spacing:" << state->getCharSpace() << "px;";
+        if(_is_positive(state->getWordSpace()))
+            html_fout << "word-spacing:" << state->getWordSpace() << "px;";
+
+        //debug 
+        //real pos & hori_scale
+        {
+            html_fout << "\"";
+            double x,y;
+            state->transform(state->getCurX(), state->getCurY(), &x, &y);
+            html_fout << boost::format("data-lx=\"%5%\" data-ly=\"%6%\" data-scale=\"%4%\" data-x=\"%1%\" data-y=\"%2%\" data-hs=\"%3%")
+                %x%y%(state->getHorizScaling())%draw_scale%state->getLineX()%state->getLineY();
+        }
+
+        html_fout << "\">";
+
+        line_opened = true;
+    }
+
+
+    // Now ready to output
+    // get the unicodes
     char *p = s->getCString();
     int len = s->getLength();
+    double dx,dy,dx1,dy1;
+    double ox, oy;
+
     int nChars = 0;
     int nSpaces = 0;
     int uLen;
     CharCode code;
     Unicode *u = nullptr;
-
     while (len > 0) {
-        auto n = font->getNextChar(p, len, &code, &u, &uLen, &dx2, &dy2, &ox, &oy);
-        dx += dx2;
-        dy += dy2;
+        auto n = font->getNextChar(p, len, &code, &u, &uLen, &dx1, &dy1, &ox, &oy);
+
+        if(!(_equal(ox, 0) && _equal(oy, 0)))
+        {
+            std::cerr << "TODO: non-zero orgins" << std::endl;
+        }
+
+        outputUnicodes(u, uLen);
+
+        dx += dx1;
+        dy += dy1;
+
         if (n == 1 && *p == ' ') {
             ++nSpaces;
         }
@@ -443,12 +310,11 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
         len -= n;
     }
 
-    dx = dx * state->getFontSize()
-        + nChars * state->getCharSpace()
-        + nSpaces * state->getWordSpace();
-    dx *= state->getHorizScaling();
-    dy *= state->getFontSize();
-
+    cur_tx += (dx * state->getFontSize() 
+            + nChars * state->getCharSpace() 
+            + nSpaces * state->getWordSpace()) * state->getHorizScaling();
+    
+    cur_ty += (dy * state->getFontSize());
 }
 
 // The font installation code is stolen from PSOutputDev.cc in poppler
@@ -923,35 +789,41 @@ void HTMLRenderer::export_color(long long color_id, const GfxRGB * rgb)
 
 void HTMLRenderer::check_state_change(GfxState * state)
 {
-    if(pos_changed)
+    bool close_line = false;
+
+    if(all_changed || pos_changed)
     {
-        if(!_equal(state->getLineY(), cur_ty))
+        double tx = state->getLineX();
+        double ty = state->getLineY();
+        // TODO: consider draw_scale, while it's actually draw_scale_x
+        if(!(std::abs(ty - cur_ty) < param->v_eps))
         {
-            close_cur_line();
-            cur_ty = state->getLineY();
+            close_line = true;
+            cur_ty = ty;
+            cur_tx = tx;
         }
     }
 
-    if(color_changed)
+    if(all_changed || color_changed)
     {
         GfxRGB new_color;
         state->getFillRGB(&new_color);
         if(!((new_color.r == cur_color.r) && (new_color.g == cur_color.g) && (new_color.b == cur_color.b)))
         {
-            close_cur_line();
+            close_line = true;
             cur_color = new_color;
             cur_color_id = install_color(&new_color);
         }
     }
 
     bool need_rescale_font = false;
-    if(font_changed)
+    if(all_changed || font_changed)
     {
         long long new_fn_id = install_font(state->getFont());
 
         if(!(new_fn_id == cur_fn_id))
         {
-            close_cur_line();
+            close_line = true;
             cur_fn_id = new_fn_id;
         }
 
@@ -966,7 +838,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
     // Rise, HorizScale etc
     double new_ctm[6];
     memcpy(new_ctm, draw_ctm, sizeof(new_ctm));
-    if(text_mat_changed || ctm_changed)
+    if(all_changed || text_mat_changed || ctm_changed)
     {
         double * m1 = state->getCTM();
         double * m2 = state->getTextMat();
@@ -976,9 +848,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
         new_ctm[3] = m1[1] * m2[2] + m1[3] * m2[3];
         new_ctm[4] = new_ctm[5] = 0;
 
-        // TODO: this is not correct
-        // what to check?
-        if(!_tm_equal(new_ctm, draw_ctm, 4)) { }
+        if(!_tm_equal(new_ctm, cur_ctm, 4)) { }
         {
             need_rescale_font = true;
         }
@@ -999,28 +869,36 @@ void HTMLRenderer::check_state_change(GfxState * state)
             draw_scale = 1.0;
         }
 
-        bool flag = false;
         if(!(_equal(new_draw_font_size, draw_font_size)))
         {
             draw_font_size = new_draw_font_size;
             cur_fs_id = install_font_size(draw_font_size);
-            flag = true;
+            close_line = true;
         }
         if(!(_tm_equal(new_ctm, draw_ctm)))
         {
             memcpy(draw_ctm, new_ctm, sizeof(draw_ctm));
             cur_tm_id = install_transform_matrix(draw_ctm);
-            flag = true;
+            close_line = true;
         }
-        if(flag)
-            close_cur_line();
     }
 
+    // TODO: track these 
+    /*
+    if(!(_equal(s1->getCharSpace(), s2->getCharSpace()) && _equal(s1->getWordSpace(), s2->getWordSpace())
+         && _equal(s1->getHorizScaling(), s2->getHorizScaling())))
+            return false;
+            */
+
     reset_state_track();
+
+    if(close_line)
+        close_cur_line();
 }
 
 void HTMLRenderer::reset_state_track()
 {
+    all_changed = false;
     pos_changed = false;
     ctm_changed = false;
     text_mat_changed = false;
