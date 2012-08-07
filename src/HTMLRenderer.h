@@ -92,17 +92,13 @@ class HTMLRenderer : public OutputDev
          * To optmize false alarms
          * We just mark as changed, and recheck if they have been changed when we are about to output a new string
          */
-        virtual void updateAll(GfxState * state) { all_changed = true; }
-        virtual void updateFont(GfxState * state) { font_changed = true; }
-        virtual void updateTextMat(GfxState * state) { text_mat_changed = true; }
-        virtual void updateCTM(GfxState * state, double m11, double m12, double m21, double m22, double m31, double m32) { ctm_changed = true; }
-        virtual void updateTextPos(GfxState * state) { line_pos_changed = true; }
-        virtual void updateTextShift(GfxState * state, double shift) { 
-            double off = shift * 0.001 * state->getFontSize() * state->getHorizScaling(); 
-            cur_line_x_offset += off;
-            cur_tx -= off;
-        }
-        virtual void updateFillColor(GfxState * state) { color_changed = true; }
+        virtual void updateAll(GfxState * state);
+        virtual void updateFont(GfxState * state);
+        virtual void updateTextMat(GfxState * state);
+        virtual void updateCTM(GfxState * state, double m11, double m12, double m21, double m22, double m31, double m32);
+        virtual void updateTextPos(GfxState * state);
+        virtual void updateTextShift(GfxState * state, double shift);
+        virtual void updateFillColor(GfxState * state);
 
         //----- text drawing
         virtual void drawString(GfxState * state, GooString * s);
@@ -162,9 +158,8 @@ class HTMLRenderer : public OutputDev
         bool line_opened;
 
         // current position
-        double cur_tx, cur_ty; // in text coords
-        double cur_line_x_offset;  // in text coords, our position - real position
-        bool line_pos_changed; 
+        double cur_tx, cur_ty; // real text position, in text coords
+        bool text_pos_changed; 
 
         long long cur_fn_id;
         double cur_font_size;
@@ -187,11 +182,14 @@ class HTMLRenderer : public OutputDev
         // we try to render the final font size directly
         // to reduce the effect of ctm as much as possible
         
-        // draw_ctm is cur_ctem scaled by 1/draw_scale, 
-        // so everything redenered should be scaled by draw_scale
+        // draw_ctm is cur_ctm scaled by 1/draw_scale, 
+        // so everything redenered should be multiplied by draw_scale
         double draw_ctm[6];
         double draw_font_size;
         double draw_scale; 
+
+        // the position of next char, in text coords
+        double draw_tx, draw_ty; 
 
         ofstream html_fout, allcss_fout;
 

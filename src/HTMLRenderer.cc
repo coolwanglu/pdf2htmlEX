@@ -127,13 +127,13 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
 
     cur_fn_id = cur_fs_id = cur_tm_id = cur_color_id = 0;
     cur_tx = cur_ty = 0;
-    cur_line_x_offset = 0;
     cur_font_size = 0;
 
     memcpy(cur_ctm, id_matrix, sizeof(cur_ctm));
     memcpy(draw_ctm, id_matrix, sizeof(draw_ctm));
     draw_font_size = 0;
     draw_scale = 1.0;
+    draw_tx = draw_ty = 0;
 
     cur_color.r = cur_color.g = cur_color.b = 0;
     
@@ -189,6 +189,45 @@ void HTMLRenderer::outputUnicodes(const Unicode * u, int uLen)
     }
 }
 
+void HTMLRenderer::updateAll(GfxState * state) 
+{ 
+    all_changed = true; 
+    updateTextPos(state);
+}
+
+void HTMLRenderer::updateFont(GfxState * state) 
+{
+    font_changed = true; 
+}
+
+void HTMLRenderer::updateTextMat(GfxState * state) 
+{
+    text_mat_changed = true; 
+}
+
+void HTMLRenderer::updateCTM(GfxState * state, double m11, double m12, double m21, double m22, double m31, double m32) 
+{
+    ctm_changed = true; 
+}
+
+void HTMLRenderer::updateTextPos(GfxState * state) 
+{
+    text_pos_changed = true;
+    cur_tx = state->getLineX(); 
+    cur_ty = state->getLineY(); 
+}
+
+void HTMLRenderer::updateTextShift(GfxState * state, double shift) 
+{
+    text_pos_changed = true;
+    cur_tx -= shift * 0.001 * state->getFontSize() * state->getHorizScaling(); 
+}
+
+void HTMLRenderer::updateFillColor(GfxState * state) 
+{
+    color_changed = true; 
+}
+
 void HTMLRenderer::drawString(GfxState * state, GooString * s)
 {
     if(s->getLength() == 0)
@@ -206,26 +245,20 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
     // if the line is still open, try to merge with it
     if(line_opened)
     {
-        //debug
-        html_fout << "<span data-x=\"" << cur_tx << "\"></span>";
-            
-        double target = -cur_line_x_offset * draw_scale;
+        double target = (cur_tx - draw_tx) * draw_scale;
         if(target > -param->h_eps)
         {
             if(target > param->h_eps)
             {
                 double w;
                 auto wid = install_whitespace(target, w);
-                cur_line_x_offset = (w - target) / draw_scale;
                 html_fout << boost::format("<span class=\"w w%|1$x|\"> </span>") % wid;
+                draw_tx += w / draw_scale;
             }
         }
         else
         {
-            //debug
-            html_fout << "<span data-w=\"" << target << "\"></span>";
-            
-            // can we shift left using simple tags?
+            // or can we shift left using simple tags?
             close_cur_line();
         }
     }
@@ -266,7 +299,7 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
             html_fout << "\"";
             double x,y;
             state->transform(state->getCurX(), state->getCurY(), &x, &y);
-            html_fout << boost::format("data-lx=\"%5%\" data-ly=\"%6%\" data-scale=\"%4%\" data-x=\"%1%\" data-y=\"%2%\" data-hs=\"%3%")
+            html_fout << boost::format("data-lx=\"%5%\" data-ly=\"%6%\" data-drawscale=\"%4%\" data-x=\"%1%\" data-y=\"%2%\" data-hs=\"%3%")
                 %x%y%(state->getHorizScaling())%draw_scale%state->getLineX()%state->getLineY();
         }
 
@@ -274,7 +307,7 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
 
         line_opened = true;
 
-        cur_line_x_offset = 0;
+        draw_tx = cur_tx;
     }
 
 
@@ -282,20 +315,25 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
     // get the unicodes
     char *p = s->getCString();
     int len = s->getLength();
-    double dx,dy,dx1,dy1;
+
+    double dx = 0;
+    double dy = 0;
+    double dx1,dy1;
     double ox, oy;
 
     int nChars = 0;
     int nSpaces = 0;
     int uLen;
+
     CharCode code;
     Unicode *u = nullptr;
+
     while (len > 0) {
         auto n = font->getNextChar(p, len, &code, &u, &uLen, &dx1, &dy1, &ox, &oy);
 
         if(!(_equal(ox, 0) && _equal(oy, 0)))
         {
-            std::cerr << "TODO: non-zero orgins" << std::endl;
+            std::cerr << "TODO: non-zero origins" << std::endl;
         }
 
         outputUnicodes(u, uLen);
@@ -303,19 +341,27 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
         dx += dx1;
         dy += dy1;
 
-        if (n == 1 && *p == ' ') {
+        if (n == 1 && *p == ' ') 
+        {
             ++nSpaces;
         }
+
         ++nChars;
         p += n;
         len -= n;
     }
 
-    cur_tx += (dx * state->getFontSize() 
+    dx = (dx * state->getFontSize() 
             + nChars * state->getCharSpace() 
             + nSpaces * state->getWordSpace()) * state->getHorizScaling();
     
-    cur_ty += (dy * state->getFontSize());
+    dy *= state->getFontSize();
+
+    cur_tx += dx;
+    cur_ty += dy;
+        
+    draw_tx += dx;
+    draw_ty += dy;
 }
 
 // The font installation code is stolen from PSOutputDev.cc in poppler
@@ -792,23 +838,13 @@ void HTMLRenderer::check_state_change(GfxState * state)
 {
     bool close_line = false;
 
-    if(all_changed || line_pos_changed)
+    if(all_changed || text_pos_changed)
     {
-        double tx = state->getLineX();
-        double ty = state->getLineY();
-        // TODO: consider draw_scale, while it's actually draw_scale_x
-        if(!(std::abs(ty - cur_ty) < param->v_eps))
+        if(!(std::abs(cur_ty - draw_ty) * draw_scale < param->v_eps))
         {
             close_line = true;
-            cur_ty = ty;
-            cur_tx = tx;
-            cur_line_x_offset = 0;
-        }
-        else
-        {
-            // LineY remains unchanged
-            cur_line_x_offset = cur_tx - tx;
-            cur_tx = tx;
+            draw_ty = cur_ty;
+            draw_tx = cur_tx;
         }
     }
 
@@ -866,8 +902,8 @@ void HTMLRenderer::check_state_change(GfxState * state)
     if(need_rescale_font)
     {
         draw_scale = std::sqrt(cur_ctm[2] * cur_ctm[2] + cur_ctm[3] * cur_ctm[3]);
+
         double new_draw_font_size = cur_font_size;
-        
         if(_is_positive(draw_scale))
         {
             new_draw_font_size *= draw_scale;
@@ -909,7 +945,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
 void HTMLRenderer::reset_state_track()
 {
     all_changed = false;
-    line_pos_changed = false;
+    text_pos_changed = false;
     ctm_changed = false;
     text_mat_changed = false;
     font_changed = false;
