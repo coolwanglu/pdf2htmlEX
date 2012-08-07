@@ -126,8 +126,8 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
     if(param->readable) html_fout << endl;
 
     cur_fn_id = cur_fs_id = cur_tm_id = cur_color_id = 0;
-    cur_line_x_offset = 0;
     cur_tx = cur_ty = 0;
+    cur_line_x_offset = 0;
     cur_font_size = 0;
 
     memcpy(cur_ctm, id_matrix, sizeof(cur_ctm));
@@ -154,7 +154,6 @@ void HTMLRenderer::close_cur_line()
         html_fout << "</div>";
         if(param->readable) html_fout << endl;
 
-        cur_line_x_offset = 0;
         line_opened = false;
     }
 }
@@ -198,7 +197,6 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
     auto font = state->getFont();
     if((font == nullptr) || (font->getWMode()))
     {
-        //TODO
         return;
     }
 
@@ -208,26 +206,24 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
     // if the line is still open, try to merge with it
     if(line_opened)
     {
-        double target = (state->getLineX() - cur_tx - cur_line_x_offset) * draw_scale;
-
+        double target = -cur_line_x_offset * draw_scale;
         if(target > -param->h_eps)
         {
             if(target > param->h_eps)
             {
                 double w;
                 auto wid = install_whitespace(target, w);
-                cur_line_x_offset = w-target;
+                cur_tx += w / draw_scale;
+                cur_line_x_offset = (w - target) / draw_scale;
                 html_fout << boost::format("<span class=\"w w%|1$x|\"> </span>") % wid;
-            }
-            else
-            {
-                cur_line_x_offset = -target;
             }
         }
         else
         {
             // can we shift left using simple tags?
             close_cur_line();
+            cur_tx = state->getLineX();
+            cur_line_x_offset = 0;
         }
     }
 
@@ -791,7 +787,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
 {
     bool close_line = false;
 
-    if(all_changed || pos_changed)
+    if(all_changed || line_pos_changed)
     {
         double tx = state->getLineX();
         double ty = state->getLineY();
@@ -801,9 +797,16 @@ void HTMLRenderer::check_state_change(GfxState * state)
             close_line = true;
             cur_ty = ty;
             cur_tx = tx;
+            cur_line_x_offset = 0;
+        }
+        else
+        {
+            // LineY remains unchanged
+            cur_line_x_offset += cur_tx - tx;
         }
     }
 
+    // TODO, we may use nested span if only color has been changed
     if(all_changed || color_changed)
     {
         GfxRGB new_color;
@@ -836,10 +839,9 @@ void HTMLRenderer::check_state_change(GfxState * state)
 
     // TODO
     // Rise, HorizScale etc
-    double new_ctm[6];
-    memcpy(new_ctm, draw_ctm, sizeof(new_ctm));
     if(all_changed || text_mat_changed || ctm_changed)
     {
+        double new_ctm[6];
         double * m1 = state->getCTM();
         double * m2 = state->getTextMat();
         new_ctm[0] = m1[0] * m2[0] + m1[2] * m2[1];
@@ -848,21 +850,23 @@ void HTMLRenderer::check_state_change(GfxState * state)
         new_ctm[3] = m1[1] * m2[2] + m1[3] * m2[3];
         new_ctm[4] = new_ctm[5] = 0;
 
-        if(!_tm_equal(new_ctm, cur_ctm, 4)) { }
+        if(!_tm_equal(new_ctm, cur_ctm))
         {
             need_rescale_font = true;
+            memcpy(cur_ctm, new_ctm, sizeof(cur_ctm));
         }
     }
 
     if(need_rescale_font)
     {
-        draw_scale = std::sqrt(new_ctm[2] * new_ctm[2] + new_ctm[3] * new_ctm[3]);
+        draw_scale = std::sqrt(cur_ctm[2] * cur_ctm[2] + cur_ctm[3] * cur_ctm[3]);
         double new_draw_font_size = cur_font_size;
+        
         if(_is_positive(draw_scale))
         {
             new_draw_font_size *= draw_scale;
             for(int i = 0; i < 4; ++i)
-                new_ctm[i] /= draw_scale;
+                cur_ctm[i] /= draw_scale;
         }
         else
         {
@@ -875,9 +879,9 @@ void HTMLRenderer::check_state_change(GfxState * state)
             cur_fs_id = install_font_size(draw_font_size);
             close_line = true;
         }
-        if(!(_tm_equal(new_ctm, draw_ctm)))
+        if(!(_tm_equal(cur_ctm, draw_ctm)))
         {
-            memcpy(draw_ctm, new_ctm, sizeof(draw_ctm));
+            memcpy(draw_ctm, cur_ctm, sizeof(draw_ctm));
             cur_tm_id = install_transform_matrix(draw_ctm);
             close_line = true;
         }
@@ -899,7 +903,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
 void HTMLRenderer::reset_state_track()
 {
     all_changed = false;
-    pos_changed = false;
+    line_pos_changed = false;
     ctm_changed = false;
     text_mat_changed = false;
     font_changed = false;
