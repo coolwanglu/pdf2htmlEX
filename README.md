@@ -6,13 +6,9 @@ pdf2html**EX**
 
 Introduction
 -----------------------------
-Traditional pdf -> html conversion tools are more likely pdf -> text tools.
+pdf2htmlEX renders PDF files in HTML, utilizing modern technologies of html/css, aims to provide an accuracy rendering, while keeping optimized for Web display.
 
-For those who are not satisfied with them, this might be the right one for you.
-
-pdf2htmlEX utilizes latest technologies of html/css, aims to provide an accuracy rendering, while keeping optimized for Web display.
-
-pdf2htmlEX is optimized for recent versions of moderm web browsers such as Mozilla Firefox & Google Chrome.
+pdf2htmlEX is optimized for recent versions of modern web browsers such as Mozilla Firefox & Google Chrome.
 
 Features
 ----------------------------
