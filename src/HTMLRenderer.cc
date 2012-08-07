@@ -206,6 +206,9 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
     // if the line is still open, try to merge with it
     if(line_opened)
     {
+        //debug
+        html_fout << "<span data-x=\"" << cur_tx << "\"></span>";
+            
         double target = -cur_line_x_offset * draw_scale;
         if(target > -param->h_eps)
         {
@@ -213,17 +216,17 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
             {
                 double w;
                 auto wid = install_whitespace(target, w);
-                cur_tx += w / draw_scale;
                 cur_line_x_offset = (w - target) / draw_scale;
                 html_fout << boost::format("<span class=\"w w%|1$x|\"> </span>") % wid;
             }
         }
         else
         {
+            //debug
+            html_fout << "<span data-w=\"" << target << "\"></span>";
+            
             // can we shift left using simple tags?
             close_cur_line();
-            cur_tx = state->getLineX();
-            cur_line_x_offset = 0;
         }
     }
 
@@ -270,6 +273,8 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
         html_fout << "\">";
 
         line_opened = true;
+
+        cur_line_x_offset = 0;
     }
 
 
@@ -691,7 +696,7 @@ void HTMLRenderer::export_remote_font(long long fn_id, const string & suffix, Gf
 // TODO: this function is called when some font is unable to process, may use the name there as a hint
 void HTMLRenderer::export_remote_default_font(long long fn_id)
 {
-    allcss_fout << boost::format(".f%|1$x|{font-family:sans-serif;color:transparent;}")%fn_id;
+    allcss_fout << boost::format(".f%|1$x|{font-family:sans-serif;color:transparent;visibility:hidden;}")%fn_id;
     if(param->readable) allcss_fout << endl;
 }
 
@@ -802,7 +807,8 @@ void HTMLRenderer::check_state_change(GfxState * state)
         else
         {
             // LineY remains unchanged
-            cur_line_x_offset += cur_tx - tx;
+            cur_line_x_offset = cur_tx - tx;
+            cur_tx = tx;
         }
     }
 

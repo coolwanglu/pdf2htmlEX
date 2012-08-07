@@ -97,7 +97,11 @@ class HTMLRenderer : public OutputDev
         virtual void updateTextMat(GfxState * state) { text_mat_changed = true; }
         virtual void updateCTM(GfxState * state, double m11, double m12, double m21, double m22, double m31, double m32) { ctm_changed = true; }
         virtual void updateTextPos(GfxState * state) { line_pos_changed = true; }
-        virtual void updateTextShift(GfxState * state, double shift) { cur_line_x_offset += shift * 0.001 * state->getFontSize() * state->getHorizScaling(); }
+        virtual void updateTextShift(GfxState * state, double shift) { 
+            double off = shift * 0.001 * state->getFontSize() * state->getHorizScaling(); 
+            cur_line_x_offset += off;
+            cur_tx -= off;
+        }
         virtual void updateFillColor(GfxState * state) { color_changed = true; }
 
         //----- text drawing
