@@ -242,7 +242,7 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
     }
 
     //hidden
-    if(state->getRender() & 3 == 3)
+    if((state->getRender() & 3) == 3)
     {
         return;
     }
