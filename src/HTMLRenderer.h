@@ -124,7 +124,6 @@ class HTMLRenderer : public OutputDev
          * remote font: to be retrieved from the web server
          * local font: to be substituted with a local (client side) font
          */
-        void export_font(long long fn_id, const string & original_font_name, const string & font_family_string, GfxFont * font);
         void export_remote_font(long long fn_id, const string & suffix, const string & format, GfxFont * font);
         void export_remote_default_font(long long fn_id);
         void export_local_font(long long fn_id, GfxFont * font, GfxFontLoc * font_loc, const string & original_font_name, const string & cssfont);

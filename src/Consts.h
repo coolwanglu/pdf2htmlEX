@@ -37,6 +37,7 @@ const char * HTML_HEAD = "<!DOCTYPE html>\n\
 }\
 .l > .w {\
   display:inline-block;\
+  visibility:hidden;\
 }\
 ::selection{\
   background: rgba(168,209,255,0.5);\

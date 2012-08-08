@@ -63,13 +63,13 @@ HTMLRenderer::HTMLRenderer(const Param * param)
     install_color(&black);
     
     html_fout << HTML_HEAD; 
-    if(param->readable) html_fout << endl;
+    html_fout << endl;
 }
 
 HTMLRenderer::~HTMLRenderer()
 {
     html_fout << HTML_TAIL;
-    if(param->readable) html_fout << endl;
+    html_fout << endl;
 }
 
 void HTMLRenderer::process(PDFDoc *doc)
@@ -125,7 +125,7 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
     html_fout << boost::format("background-image:url(p%|3$x|.png);background-position:0 0;background-size:%1%px %2%px;background-repeat:no-repeat;") % pageWidth % pageHeight % pageNum;
             
     html_fout << "\">";
-    if(param->readable) html_fout << endl;
+    html_fout << endl;
 
     cur_fn_id = cur_fs_id = cur_tm_id = cur_color_id = 0;
     cur_tx = cur_ty = 0;
@@ -146,7 +146,7 @@ void HTMLRenderer::endPage() {
     close_cur_line();
     // close page
     html_fout << "</div>";
-    if(param->readable) html_fout << endl;
+    html_fout << endl;
 }
 
 void HTMLRenderer::close_cur_line()
@@ -154,7 +154,7 @@ void HTMLRenderer::close_cur_line()
     if(line_opened)
     {
         html_fout << "</div>";
-        if(param->readable) html_fout << endl;
+        html_fout << endl;
 
         line_opened = false;
     }
@@ -237,6 +237,12 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
 
     auto font = state->getFont();
     if((font == nullptr) || (font->getWMode()))
+    {
+        return;
+    }
+
+    //hidden
+    if((state->getRender() & 3) == 3)
     {
         return;
     }
@@ -431,7 +437,7 @@ long long HTMLRenderer::install_font(GfxFont * font)
 void HTMLRenderer::install_embedded_font (GfxFont * font, long long fn_id)
 {
     //generate script for fontforge
-    fontscript_fout << boost::format("Open(\"%1%(%2%)\")") % param->input_filename % font->getName()->getCString() << endl;
+    fontscript_fout << boost::format("Open(\"%1%(%2%)\",1)") % param->input_filename % font->getName()->getCString() << endl;
     fontscript_fout << boost::format("Generate(\"f%|1$x|.ttf\")") % fn_id << endl;
 
     export_remote_font(fn_id, ".ttf", "truetype", font);
@@ -508,13 +514,40 @@ long long HTMLRenderer::install_color(const GfxRGB * rgb)
     return new_color_id;
 }
 
-void HTMLRenderer::export_font(long long fn_id, const string & original_font_name, const string & font_family_string, GfxFont * font)
+void HTMLRenderer::export_remote_font(long long fn_id, const string & suffix, const string & format, GfxFont * font)
 {
-    allcss_fout << boost::format("@font-face{font-family:f%|1$x|;%2%;}.f%|1$x|{font-family:f%|1$x|;") % fn_id % font_family_string;
+    allcss_fout << boost::format("@font-face{font-family:f%|1$x|;src:url(f%|1$x|%2%)format(\"%3%\");}.f%|1$x|{font-family:f%|1$x|;") % fn_id % suffix % format;
 
-    // TODO: shall we export these information for embedded fonts? or it doesn't matter?
+    double a = font->getAscent();
+    double d = font->getDescent();
+    double r = _is_positive(a-d) ? (a/(a-d)) : 1.0;
+
+    for(const std::string & prefix : {"", "-ms-", "-moz-", "-webkit-", "-o-"})
+    {
+        allcss_fout << prefix << "transform-origin:0% " << (r*100.0) << "%;";
+    }
+
+    allcss_fout << "line-height:" << (a-d) << ";";
+
+    allcss_fout << "}";
+
+    allcss_fout << endl;
+}
+
+// TODO: this function is called when some font is unable to process, may use the name there as a hint
+void HTMLRenderer::export_remote_default_font(long long fn_id)
+{
+    allcss_fout << boost::format(".f%|1$x|{font-family:sans-serif;color:transparent;visibility:hidden;}")%fn_id;
+    allcss_fout << endl;
+}
+
+void HTMLRenderer::export_local_font(long long fn_id, GfxFont * font, GfxFontLoc * font_loc, const string & original_font_name, const string & cssfont)
+{
+    allcss_fout << boost::format(".f%|1$x|{") % fn_id;
+    allcss_fout << "font-family:" << ((cssfont == "") ? (original_font_name+","+general_font_family(font)) : cssfont) << ";";
     if(font->isBold())
         allcss_fout << "font-weight:bold;";
+    
     if(boost::algorithm::ifind_first(original_font_name, "oblique"))
         allcss_fout << "font-style:oblique;";
     else if(font->isItalic())
@@ -533,25 +566,7 @@ void HTMLRenderer::export_font(long long fn_id, const string & original_font_nam
 
     allcss_fout << "}";
 
-    if(param->readable) allcss_fout << endl;
-}
-
-
-void HTMLRenderer::export_remote_font(long long fn_id, const string & suffix, const string & format, GfxFont * font)
-{
-    export_font(fn_id, font->getName()->getCString(), (boost::format("src:url(f%|1$x|%2%)format(\"%3%\")") % fn_id % suffix % format).str(), font);
-}
-
-// TODO: this function is called when some font is unable to process, may use the name there as a hint
-void HTMLRenderer::export_remote_default_font(long long fn_id)
-{
-    allcss_fout << boost::format(".f%|1$x|{font-family:sans-serif;color:transparent;visibility:hidden;}")%fn_id;
-    if(param->readable) allcss_fout << endl;
-}
-
-void HTMLRenderer::export_local_font(long long fn_id, GfxFont * font, GfxFontLoc * font_loc, const string & original_font_name, const string & cssfont)
-{
-    export_font(fn_id, original_font_name, string("font-family:") + ((cssfont == "") ? (original_font_name + "," + general_font_family(font)) : cssfont), font);
+    allcss_fout << endl;
 }
 
 std::string HTMLRenderer::general_font_family(GfxFont * font)
@@ -567,13 +582,13 @@ std::string HTMLRenderer::general_font_family(GfxFont * font)
 void HTMLRenderer::export_font_size (long long fs_id, double font_size)
 {
     allcss_fout << boost::format(".s%|1$x|{font-size:%2%px;}") % fs_id % font_size;
-    if(param->readable) allcss_fout << endl;
+    allcss_fout << endl;
 }
 
 void HTMLRenderer::export_whitespace (long long ws_id, double ws_width)
 {
     allcss_fout << boost::format(".w%|1$x|{width:%2%px;}") % ws_id % ws_width;
-    if(param->readable) allcss_fout << endl;
+    allcss_fout << endl;
 }
 
 void HTMLRenderer::export_transform_matrix (long long tm_id, const double * tm)
@@ -603,14 +618,14 @@ void HTMLRenderer::export_transform_matrix (long long tm_id, const double * tm)
         }
     }
     allcss_fout << "}";
-    if(param->readable) allcss_fout << endl;
+    allcss_fout << endl;
 }
 
 void HTMLRenderer::export_color(long long color_id, const GfxRGB * rgb)
 {
     allcss_fout << boost::format(".c%|1$x|{color:rgb(%2%,%3%,%4%);}") 
         % color_id % rgb->r % rgb->g % rgb->b;
-    if(param->readable) allcss_fout << endl;
+    allcss_fout << endl;
 }
 
 void HTMLRenderer::check_state_change(GfxState * state)
