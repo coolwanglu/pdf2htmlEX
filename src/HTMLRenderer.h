@@ -112,10 +112,7 @@ class HTMLRenderer : public OutputDev
         long long install_font(GfxFont * font);
 
         static void output_to_file(void * outf, const char * data, int len);
-        void install_embedded_type1_font (Ref * id, GfxFont * font, long long fn_id);
-        void install_embedded_type1c_font (GfxFont * font, long long fn_id);
-        void install_embedded_opentypet1c_font (GfxFont * font, long long fn_id);
-        void install_embedded_truetype_font (GfxFont * font, long long fn_id);
+        void install_embedded_font (GfxFont * font, long long fn_id);
         void install_base_font(GfxFont * font, GfxFontLoc * font_loc, long long fn_id);
 
         long long install_font_size(double font_size);
@@ -127,7 +124,8 @@ class HTMLRenderer : public OutputDev
          * remote font: to be retrieved from the web server
          * local font: to be substituted with a local (client side) font
          */
-        void export_remote_font(long long fn_id, const string & suffix, GfxFont * font);
+        void export_font(long long fn_id, const string & original_font_name, const string & font_family_string, GfxFont * font);
+        void export_remote_font(long long fn_id, const string & suffix, const string & format, GfxFont * font);
         void export_remote_default_font(long long fn_id);
         void export_local_font(long long fn_id, GfxFont * font, GfxFontLoc * font_loc, const string & original_font_name, const string & cssfont);
         std::string general_font_family(GfxFont * font);
@@ -191,7 +189,7 @@ class HTMLRenderer : public OutputDev
         // the position of next char, in text coords
         double draw_tx, draw_ty; 
 
-        ofstream html_fout, allcss_fout;
+        ofstream html_fout, allcss_fout, fontscript_fout;
 
         class FontInfo{
             public:
