@@ -437,7 +437,7 @@ long long HTMLRenderer::install_font(GfxFont * font)
 void HTMLRenderer::install_embedded_font (GfxFont * font, long long fn_id)
 {
     //generate script for fontforge
-    fontscript_fout << boost::format("Open(\"%1%(%2%)\")") % param->input_filename % font->getName()->getCString() << endl;
+    fontscript_fout << boost::format("Open(\"%1%(%2%)\",1)") % param->input_filename % font->getName()->getCString() << endl;
     fontscript_fout << boost::format("Generate(\"f%|1$x|.ttf\")") % fn_id << endl;
 
     export_remote_font(fn_id, ".ttf", "truetype", font);
