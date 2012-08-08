@@ -508,13 +508,40 @@ long long HTMLRenderer::install_color(const GfxRGB * rgb)
     return new_color_id;
 }
 
-void HTMLRenderer::export_font(long long fn_id, const string & original_font_name, const string & font_family_string, GfxFont * font)
+void HTMLRenderer::export_remote_font(long long fn_id, const string & suffix, const string & format, GfxFont * font)
 {
-    allcss_fout << boost::format("@font-face{font-family:f%|1$x|;%2%;}.f%|1$x|{font-family:f%|1$x|;") % fn_id % font_family_string;
+    allcss_fout << boost::format("@font-face{font-family:f%|1$x|;src:url(f%|1$x|%2%)format(\"%3%\");}.f%|1$x|{font-family:f%|1$x|;") % fn_id % suffix % format;
 
-    // TODO: shall we export these information for embedded fonts? or it doesn't matter?
+    double a = font->getAscent();
+    double d = font->getDescent();
+    double r = _is_positive(a-d) ? (a/(a-d)) : 1.0;
+
+    for(const std::string & prefix : {"", "-ms-", "-moz-", "-webkit-", "-o-"})
+    {
+        allcss_fout << prefix << "transform-origin:0% " << (r*100.0) << "%;";
+    }
+
+    allcss_fout << "line-height:" << (a-d) << ";";
+
+    allcss_fout << "}";
+
+    if(param->readable) allcss_fout << endl;
+}
+
+// TODO: this function is called when some font is unable to process, may use the name there as a hint
+void HTMLRenderer::export_remote_default_font(long long fn_id)
+{
+    allcss_fout << boost::format(".f%|1$x|{font-family:sans-serif;color:transparent;visibility:hidden;}")%fn_id;
+    if(param->readable) allcss_fout << endl;
+}
+
+void HTMLRenderer::export_local_font(long long fn_id, GfxFont * font, GfxFontLoc * font_loc, const string & original_font_name, const string & cssfont)
+{
+    allcss_fout << boost::format(".f%|1$x|{") % fn_id;
+    allcss_fout << "font-family:" << ((cssfont == "") ? (original_font_name+","+general_font_family(font)) : cssfont) << ";";
     if(font->isBold())
         allcss_fout << "font-weight:bold;";
+    
     if(boost::algorithm::ifind_first(original_font_name, "oblique"))
         allcss_fout << "font-style:oblique;";
     else if(font->isItalic())
@@ -534,24 +561,6 @@ void HTMLRenderer::export_font(long long fn_id, const string & original_font_nam
     allcss_fout << "}";
 
     if(param->readable) allcss_fout << endl;
-}
-
-
-void HTMLRenderer::export_remote_font(long long fn_id, const string & suffix, const string & format, GfxFont * font)
-{
-    export_font(fn_id, font->getName()->getCString(), (boost::format("src:url(f%|1$x|%2%)format(\"%3%\")") % fn_id % suffix % format).str(), font);
-}
-
-// TODO: this function is called when some font is unable to process, may use the name there as a hint
-void HTMLRenderer::export_remote_default_font(long long fn_id)
-{
-    allcss_fout << boost::format(".f%|1$x|{font-family:sans-serif;color:transparent;visibility:hidden;}")%fn_id;
-    if(param->readable) allcss_fout << endl;
-}
-
-void HTMLRenderer::export_local_font(long long fn_id, GfxFont * font, GfxFontLoc * font_loc, const string & original_font_name, const string & cssfont)
-{
-    export_font(fn_id, original_font_name, string("font-family:") + ((cssfont == "") ? (original_font_name + "," + general_font_family(font)) : cssfont), font);
 }
 
 std::string HTMLRenderer::general_font_family(GfxFont * font)
