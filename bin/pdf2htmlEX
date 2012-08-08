@@ -8,22 +8,11 @@ SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"/
 # Execute
 ${SCRIPT_DIR}/pdftohtmlEX $* 
 
-echo -n "Converting fonts: "
+if [ -f convert.pe ]; then
+    echo -n "Converting fonts: "
+    fontforge -script convert.pe 2>/dev/null
+    echo "."
+    rm convert.pe
+fi
 
-for f in *.ttf; do
-    if [ -f $f ]; then
-        fontforge -script "${SCRIPT_DIR}/convert.pe" $f 2>/dev/null
-        echo -n "."
-    fi
-done
-
-for f in *.pfa; do
-    if [ -f $f ]; then
-        fontforge -script "${SCRIPT_DIR}/convert.pe" $f 2>/dev/null
-        rm $f
-        echo -n "."
-    fi
-done
-
-echo
 echo "Done."

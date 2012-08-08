@@ -16,7 +16,7 @@ Features
 ----------------------------
 * Precise rendering 
 * Text Selection
-* Font embedding
+* Font embedding (Need my modified fontforge to work)
 * Proper styling (Color, Transformation...)
 * Optimization for Web 
 
