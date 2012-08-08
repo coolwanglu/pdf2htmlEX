@@ -1,3 +1,0 @@
-Open($1);
-Reencode("unicode");
-Generate($1:r+".ttf");
