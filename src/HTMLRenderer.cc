@@ -241,6 +241,12 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
         return;
     }
 
+    //hidden
+    if(state->getRender() & 3 == 3)
+    {
+        return;
+    }
+
     // see if the line has to be closed due to state change
     check_state_change(state);
     
