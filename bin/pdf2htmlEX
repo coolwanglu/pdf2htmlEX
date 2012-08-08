@@ -12,7 +12,7 @@ if [ -f convert.pe ]; then
     echo -n "Converting fonts: "
     fontforge -script convert.pe 2>/dev/null
     echo "."
-    rm convert.pe
+#    rm convert.pe
 fi
 
 echo "Done."
