@@ -63,13 +63,13 @@ HTMLRenderer::HTMLRenderer(const Param * param)
     install_color(&black);
     
     html_fout << HTML_HEAD; 
-    if(param->readable) html_fout << endl;
+    html_fout << endl;
 }
 
 HTMLRenderer::~HTMLRenderer()
 {
     html_fout << HTML_TAIL;
-    if(param->readable) html_fout << endl;
+    html_fout << endl;
 }
 
 void HTMLRenderer::process(PDFDoc *doc)
@@ -125,7 +125,7 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
     html_fout << boost::format("background-image:url(p%|3$x|.png);background-position:0 0;background-size:%1%px %2%px;background-repeat:no-repeat;") % pageWidth % pageHeight % pageNum;
             
     html_fout << "\">";
-    if(param->readable) html_fout << endl;
+    html_fout << endl;
 
     cur_fn_id = cur_fs_id = cur_tm_id = cur_color_id = 0;
     cur_tx = cur_ty = 0;
@@ -146,7 +146,7 @@ void HTMLRenderer::endPage() {
     close_cur_line();
     // close page
     html_fout << "</div>";
-    if(param->readable) html_fout << endl;
+    html_fout << endl;
 }
 
 void HTMLRenderer::close_cur_line()
@@ -154,7 +154,7 @@ void HTMLRenderer::close_cur_line()
     if(line_opened)
     {
         html_fout << "</div>";
-        if(param->readable) html_fout << endl;
+        html_fout << endl;
 
         line_opened = false;
     }
@@ -525,14 +525,14 @@ void HTMLRenderer::export_remote_font(long long fn_id, const string & suffix, co
 
     allcss_fout << "}";
 
-    if(param->readable) allcss_fout << endl;
+    allcss_fout << endl;
 }
 
 // TODO: this function is called when some font is unable to process, may use the name there as a hint
 void HTMLRenderer::export_remote_default_font(long long fn_id)
 {
     allcss_fout << boost::format(".f%|1$x|{font-family:sans-serif;color:transparent;visibility:hidden;}")%fn_id;
-    if(param->readable) allcss_fout << endl;
+    allcss_fout << endl;
 }
 
 void HTMLRenderer::export_local_font(long long fn_id, GfxFont * font, GfxFontLoc * font_loc, const string & original_font_name, const string & cssfont)
@@ -560,7 +560,7 @@ void HTMLRenderer::export_local_font(long long fn_id, GfxFont * font, GfxFontLoc
 
     allcss_fout << "}";
 
-    if(param->readable) allcss_fout << endl;
+    allcss_fout << endl;
 }
 
 std::string HTMLRenderer::general_font_family(GfxFont * font)
@@ -576,13 +576,13 @@ std::string HTMLRenderer::general_font_family(GfxFont * font)
 void HTMLRenderer::export_font_size (long long fs_id, double font_size)
 {
     allcss_fout << boost::format(".s%|1$x|{font-size:%2%px;}") % fs_id % font_size;
-    if(param->readable) allcss_fout << endl;
+    allcss_fout << endl;
 }
 
 void HTMLRenderer::export_whitespace (long long ws_id, double ws_width)
 {
     allcss_fout << boost::format(".w%|1$x|{width:%2%px;}") % ws_id % ws_width;
-    if(param->readable) allcss_fout << endl;
+    allcss_fout << endl;
 }
 
 void HTMLRenderer::export_transform_matrix (long long tm_id, const double * tm)
@@ -612,14 +612,14 @@ void HTMLRenderer::export_transform_matrix (long long tm_id, const double * tm)
         }
     }
     allcss_fout << "}";
-    if(param->readable) allcss_fout << endl;
+    allcss_fout << endl;
 }
 
 void HTMLRenderer::export_color(long long color_id, const GfxRGB * rgb)
 {
     allcss_fout << boost::format(".c%|1$x|{color:rgb(%2%,%3%,%4%);}") 
         % color_id % rgb->r % rgb->g % rgb->b;
-    if(param->readable) allcss_fout << endl;
+    allcss_fout << endl;
 }
 
 void HTMLRenderer::check_state_change(GfxState * state)

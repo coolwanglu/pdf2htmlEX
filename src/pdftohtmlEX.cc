@@ -125,7 +125,6 @@ po::variables_map parse_options (int argc, char **argv)
         ("vdpi", po::value<double>(&param.v_dpi)->default_value(72.0), "vertical DPI")
         ("heps", po::value<double>(&param.h_eps)->default_value(1.0), "max tolerated horizontal offset (in pixels)")
         ("veps", po::value<double>(&param.v_eps)->default_value(1.0), "max tolerated vertical offset (in pixels)")
-        ("readable", po::value<int>(&param.readable)->default_value(0), "make the ouptut human readable")
         ;
 
     opt_hidden.add_options()

@@ -19,8 +19,6 @@ struct Param
 
     double h_dpi, v_dpi;
     double h_eps, v_eps;
-
-    int readable;
 };
 
 
