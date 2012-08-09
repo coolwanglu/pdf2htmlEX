@@ -440,7 +440,7 @@ long long HTMLRenderer::install_font(GfxFont * font)
 
 void HTMLRenderer::install_embedded_font (GfxFont * font, long long fn_id)
 {
-    //generate script for fontforge
+    // fontforge doesn't fully support ToUnicode CMap, so we have to generate the encoding for fontforge
     fontscript_fout << boost::format("Open(\"%1%(%2%)\",1)") % param->input_filename % font->getName()->getCString() << endl;
     if(font->hasToUnicodeCMap() && (font->getType() == fontTrueType))
     {
