@@ -442,26 +442,43 @@ void HTMLRenderer::install_embedded_font (GfxFont * font, long long fn_id)
 {
     //generate script for fontforge
     fontscript_fout << boost::format("Open(\"%1%(%2%)\",1)") % param->input_filename % font->getName()->getCString() << endl;
-    if(font->hasToUnicodeCMap())
+    if(font->hasToUnicodeCMap() && (font->getType() == fontTrueType))
     {
-        auto ctu = font->getToUnicode();
-        ofstream map_fout((boost::format("f%|1$x|.encoding") % fn_id).str().c_str());
-        for(int i = 0; i < 256; ++i)
+        char * buf;
+        int buflen;
+        FoFiTrueType * ttf;
+        if((buf = font->readEmbFontFile(xref, &buflen)))
         {
-            Unicode * u;
-            auto n = ctu->mapToUnicode(i, &u);
-            // not sure what to do when n > 1
-            if(n > 0)
+            if((ttf = FoFiTrueType::make(buf, buflen)))
             {
-                map_fout << boost::format("0x%|1$X|") % i;
-                for(int j = 0; j < n; ++j)
-                    map_fout << boost::format(" 0x%|1$X|") % u[i];
-                map_fout << " #" << endl;
+                auto ctg = dynamic_cast<Gfx8BitFont*>(font)->getCodeToGIDMap(ttf);
+                auto ctu = font->getToUnicode();
+                ofstream map_fout((boost::format("f%|1$x|.encoding") % fn_id).str().c_str());
+
+                for(int i = 0; i < 256; ++i)
+                {
+                    int code = ctg[i];
+                    Unicode * u;
+                    auto n = ctu->mapToUnicode(i, &u);
+                    // not sure what to do when n > 1
+                    if(n > 0)
+                    {
+                        map_fout << boost::format("0x%|1$X|") % code;
+                        for(int j = 0; j < n; ++j)
+                            map_fout << boost::format(" 0x%|1$X|") % u[j];
+                        map_fout << boost::format(" # 0x%|1$X|") % i << endl;
+                    }
+                }
+
+                fontscript_fout << boost::format("LoadEncodingFile(\"f%|1$x|.encoding\", \"f%|1$x|\")") % fn_id << endl;
+                fontscript_fout << boost::format("Reencode(\"f%|1$x|\", 1)") % fn_id << endl;
+
+                ctu->decRefCnt();
+                delete ttf;
             }
+            gfree(buf);
         }
 
-        fontscript_fout << boost::format("LoadEncodingFile(\"f%|1$x|.encoding\")") % fn_id << endl;
-        fontscript_fout << boost::format("Reencode(\"f%|1$x|.encoding\")") % fn_id << endl;
     }
 
     fontscript_fout << boost::format("Generate(\"f%|1$x|.ttf\")") % fn_id << endl;
