@@ -16,7 +16,7 @@ Features
 ----------------------------
 * Precise rendering 
 * Text Selection
-* Font embedding (Need my modified fontforge to work)
+* Font embedding 
 * Proper styling (Color, Transformation...)
 * Optimization for Web 
 
@@ -31,7 +31,7 @@ Dependency
 ----------------------------
 * libpoppler with xpdf header >= 0.20.2
 * boost c++ library (format, program options)
-* fontforge (we will compile with libfontforge later)
+* fontforge **Please use [my modified version](http://github.com/coolwanglu/fontforge) before the bugs are fixed**
 
 HOW TO COMPILE
 ----------------------------
