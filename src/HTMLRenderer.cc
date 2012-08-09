@@ -22,6 +22,7 @@
 #include <fofi/FoFiType1C.h>
 #include <fofi/FoFiTrueType.h>
 #include <splash/SplashBitmap.h>
+#include <CharCodeToUnicode.h>
 
 #include "HTMLRenderer.h"
 #include "BackgroundRenderer.h"
@@ -87,29 +88,31 @@ void HTMLRenderer::process(PDFDoc *doc)
         std::cerr.flush();
     }
     std::cerr << std::endl;
-    std::cerr << "Processing Others: ";
 
-    // Render non-text objects as image
-    // copied from poppler
-    SplashColor color;
-    color[0] = color[1] = color[2] = 255;
-
-    auto bg_renderer = new BackgroundRenderer(splashModeRGB8, 4, gFalse, color);
-    bg_renderer->startDoc(doc);
-
-    for(int i = param->first_page; i <= param->last_page ; ++i) 
+    if(param->process_nontext)
     {
-        doc->displayPage(bg_renderer, i, 4*param->h_dpi, 4*param->v_dpi,
-                0, true, false, false,
-                nullptr, nullptr, nullptr, nullptr);
-        bg_renderer->getBitmap()->writeImgFile(splashFormatPng, (char*)(boost::format("p%|1$x|.png")%i).str().c_str(), 4*param->h_dpi, 4*param->v_dpi);
+        // Render non-text objects as image
+        std::cerr << "Processing Others: ";
+        // copied from poppler
+        SplashColor color;
+        color[0] = color[1] = color[2] = 255;
 
-        std::cerr << ".";
-        std::cerr.flush();
+        auto bg_renderer = new BackgroundRenderer(splashModeRGB8, 4, gFalse, color);
+        bg_renderer->startDoc(doc);
+
+        for(int i = param->first_page; i <= param->last_page ; ++i) 
+        {
+            doc->displayPage(bg_renderer, i, 4*param->h_dpi, 4*param->v_dpi,
+                    0, true, false, false,
+                    nullptr, nullptr, nullptr, nullptr);
+            bg_renderer->getBitmap()->writeImgFile(splashFormatPng, (char*)(boost::format("p%|1$x|.png")%i).str().c_str(), 4*param->h_dpi, 4*param->v_dpi);
+
+            std::cerr << ".";
+            std::cerr.flush();
+        }
+        delete bg_renderer;
+        std::cerr << std::endl;
     }
-    delete bg_renderer;
-
-    std::cerr << std::endl;
 }
 
 void HTMLRenderer::startPage(int pageNum, GfxState *state) 
@@ -303,6 +306,7 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
 
         //debug 
         //real pos & hori_scale
+        if(0)
         {
             html_fout << "\"";
             double x,y;
@@ -438,6 +442,28 @@ void HTMLRenderer::install_embedded_font (GfxFont * font, long long fn_id)
 {
     //generate script for fontforge
     fontscript_fout << boost::format("Open(\"%1%(%2%)\",1)") % param->input_filename % font->getName()->getCString() << endl;
+    if(font->hasToUnicodeCMap())
+    {
+        auto ctu = font->getToUnicode();
+        ofstream map_fout((boost::format("f%|1$x|.encoding") % fn_id).str().c_str());
+        for(int i = 0; i < 256; ++i)
+        {
+            Unicode * u;
+            auto n = ctu->mapToUnicode(i, &u);
+            // not sure what to do when n > 1
+            if(n > 0)
+            {
+                map_fout << boost::format("0x%|1$X|") % i;
+                for(int j = 0; j < n; ++j)
+                    map_fout << boost::format(" 0x%|1$X|") % u[i];
+                map_fout << " #" << endl;
+            }
+        }
+
+        fontscript_fout << boost::format("LoadEncodingFile(\"f%|1$x|.encoding\")") % fn_id << endl;
+        fontscript_fout << boost::format("Reencode(\"f%|1$x|.encoding\")") % fn_id << endl;
+    }
+
     fontscript_fout << boost::format("Generate(\"f%|1$x|.ttf\")") % fn_id << endl;
 
     export_remote_font(fn_id, ".ttf", "truetype", font);
