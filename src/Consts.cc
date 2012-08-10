@@ -9,7 +9,7 @@
 
 const double EPS = 1e-6;
 
-const char * HTML_HEAD = "<!DOCTYPE html>\n\
+const std::string HTML_HEAD = "<!DOCTYPE html>\n\
 <html><head>\
 <meta charset=\"utf-8\">\
 <style type=\"text/css\">\
@@ -64,7 +64,9 @@ function show_pages()\
 </script>\
 </head><body onload=\"show_pages();\"><div id=\"pdf-main\">";
 
-const char * HTML_TAIL = "</div></body></html>";
+const std::string HTML_TAIL = "</div></body></html>";
+
+const std::string TMP_DIR = "/tmp/pdf2htmlEX";
 
 const std::map<std::string, std::string> BASE_14_FONT_CSS_FONT_MAP({\
    { "Courier", "Courier,monospace" },\
@@ -83,3 +85,5 @@ const std::map<std::string, std::string> GB_ENCODED_FONT_NAME_MAP({\
     {"\xB7\xC2\xCB\xCE_GB2312", "SimFang"},\
     {"\xC1\xA5\xCA\xE9", "SimLi"},\
 });
+
+

@@ -13,8 +13,10 @@
 
 extern const double EPS;
 
-extern const char * HTML_HEAD;
-extern const char * HTML_TAIL;
+extern const std::string HTML_HEAD;
+extern const std::string HTML_TAIL;
+
+extern const std::string TMP_DIR;
 
 extern const std::map<std::string, std::string> BASE_14_FONT_CSS_FONT_MAP;
 

@@ -50,7 +50,7 @@ HTMLRenderer::HTMLRenderer(const Param * param)
     :line_opened(false)
     ,html_fout(param->output_filename.c_str(), ofstream::binary)
     ,allcss_fout("all.css")
-    ,fontscript_fout("convert.pe")
+    ,fontscript_fout(TMP_DIR+"/convert.pe")
     ,param(param)
 {
     // install default font & size
@@ -438,7 +438,7 @@ void HTMLRenderer::install_embedded_font (GfxFont * font, long long fn_id)
             {
                 auto ctg = dynamic_cast<Gfx8BitFont*>(font)->getCodeToGIDMap(ttf);
                 auto ctu = font->getToUnicode();
-                ofstream map_fout((boost::format("f%|1$x|.encoding") % fn_id).str().c_str());
+                ofstream map_fout((boost::format("%2%/f%|1$x|.encoding") % fn_id % TMP_DIR).str().c_str());
 
                 for(int i = 0; i < 256; ++i)
                 {
@@ -455,7 +455,7 @@ void HTMLRenderer::install_embedded_font (GfxFont * font, long long fn_id)
                     }
                 }
 
-                fontscript_fout << boost::format("LoadEncodingFile(\"f%|1$x|.encoding\", \"f%|1$x|\")") % fn_id << endl;
+                fontscript_fout << boost::format("LoadEncodingFile(\"%2%/f%|1$x|.encoding\", \"f%|1$x|\")") % fn_id % TMP_DIR<< endl;
                 fontscript_fout << boost::format("Reencode(\"f%|1$x|\", 1)") % fn_id << endl;
 
                 ctu->decRefCnt();
