@@ -306,7 +306,6 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
 
         //debug 
         //real pos & hori_scale
-        if(0)
         {
             html_fout << "\"";
             double x,y;
@@ -348,7 +347,25 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
             std::cerr << "TODO: non-zero origins" << std::endl;
         }
 
-        outputUnicodes(u, uLen);
+        if(uLen == 0)
+        {
+            CharCode c = 0;
+            for(int i = 0; i < n; ++i)
+            {
+                c = (c<<8) | (code&0xff);
+                code >>= 8;
+            }
+            for(int i = 0; i < n; ++i)
+            {
+                Unicode u = (c&0xff);
+                c >>= 8;
+                outputUnicodes(&u, 1);
+            }
+        }
+        else
+        {
+            outputUnicodes(u, uLen);
+        }
 
         dx += dx1;
         dy += dy1;
