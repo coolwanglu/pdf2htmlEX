@@ -21,6 +21,6 @@ if [ -f $TMPDIR/convert.pe ]; then
 fi
 
 #clean
-rm -f $TMPDIR/* 2>/dev/null
+#rm -f $TMPDIR/* 2>/dev/null
 
 echo "Done."

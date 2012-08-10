@@ -318,6 +318,8 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
 
         if(uLen == 0)
         {
+            // TODO
+#if 0
             CharCode c = 0;
             for(int i = 0; i < n; ++i)
             {
@@ -330,6 +332,7 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
                 c >>= 8;
                 outputUnicodes(html_fout, &u, 1);
             }
+#endif
         }
         else
         {
@@ -383,8 +386,6 @@ long long HTMLRenderer::install_font(GfxFont * font)
         return new_fn_id;
     }
 
-    string new_fn = (boost::format("f%|1$x|") % new_fn_id).str();
-
     if(font->getType() == fontType3) {
         std::cerr << "Type 3 fonts are unsupported and will be rendered as Image" << std::endl;
         export_remote_default_font(new_fn_id);
@@ -402,7 +403,26 @@ long long HTMLRenderer::install_font(GfxFont * font)
         switch(font_loc -> locType)
         {
             case gfxFontLocEmbedded:
-                install_embedded_font(font, new_fn_id);
+                switch(font_loc -> fontType)
+                {
+                    case fontType1:
+                        install_embedded_type1_font(&font_loc->embFontID, font, new_fn_id);
+                        break;
+                    case fontType1C:
+                        install_embedded_type1c_font(font, new_fn_id);
+                        break;
+                    case fontType1COT:
+                        install_embedded_opentypet1c_font(font, new_fn_id);
+                        break;
+                    case fontTrueType:
+                    case fontTrueTypeOT:
+                        install_embedded_truetype_font(font, new_fn_id);
+                        break;
+                    default:
+                        std::cerr << "TODO: unsuppported embedded font type" << std::endl;
+                        export_remote_default_font(new_fn_id);
+                        break;
+                }
                 break;
             case gfxFontLocExternal:
                 install_external_font(font, new_fn_id);
@@ -415,74 +435,274 @@ long long HTMLRenderer::install_font(GfxFont * font)
                 export_remote_default_font(new_fn_id);
                 break;
         }      
-
         delete font_loc;
     }
-
       
     return new_fn_id;
 }
 
-void HTMLRenderer::install_embedded_font (GfxFont * font, long long fn_id)
+void HTMLRenderer::install_embedded_type1_font (Ref * id, GfxFont * font, long long fn_id)
 {
-    // fontforge doesn't fully support ToUnicode CMap, so we have to generate the encoding for fontforge
-    fontscript_fout << boost::format("Open(\"%1%(%2%)\",1)") % param->input_filename % font->getName()->getCString() << endl;
-    if(font->hasToUnicodeCMap() && (font->getType() == fontTrueType))
+    Object ref_obj, str_obj, ol1, ol2, ol3;
+    Dict * dict;
+
+    int l1, l2, l3;
+    int c;
+    bool is_bin = false;
+    int buf[4];
+
+    std::string fn = (boost::format("f%|1$x|")%fn_id).str();
+
+    ofstream tmpf((TMP_DIR + "/" + fn + ".pfa").c_str(), ofstream::binary);
+    auto output_char = [&tmpf](int c)->void {
+        char tmp = (char)(c & 0xff);
+        tmpf.write(&tmp, 1);
+    };
+
+    ref_obj.initRef(id->num, id->gen);
+    ref_obj.fetch(xref, &str_obj);
+    ref_obj.free();
+
+    if(!str_obj.isStream())
     {
-        char * buf;
-        int buflen;
-        FoFiTrueType * ttf;
-        if((buf = font->readEmbFontFile(xref, &buflen)))
-        {
-            if((ttf = FoFiTrueType::make(buf, buflen)))
-            {
-                auto ctg = dynamic_cast<Gfx8BitFont*>(font)->getCodeToGIDMap(ttf);
-                auto ctu = font->getToUnicode();
-                ofstream map_fout((boost::format("%2%/f%|1$x|.encoding") % fn_id % TMP_DIR).str().c_str());
-
-                for(int i = 0; i < 256; ++i)
-                {
-                    int code = ctg[i];
-                    Unicode * u;
-                    auto n = ctu->mapToUnicode(i, &u);
-                    // not sure what to do when n > 1
-                    if(n > 0)
-                    {
-                        map_fout << boost::format("0x%|1$X|") % code;
-                        for(int j = 0; j < n; ++j)
-                            map_fout << boost::format(" 0x%|1$X|") % u[j];
-                        map_fout << boost::format(" # 0x%|1$X|") % i << endl;
-                    }
-                }
-
-                fontscript_fout << boost::format("LoadEncodingFile(\"%2%/f%|1$x|.encoding\", \"f%|1$x|\")") % fn_id % TMP_DIR<< endl;
-                fontscript_fout << boost::format("Reencode(\"f%|1$x|\", 1)") % fn_id << endl;
-
-                ctu->decRefCnt();
-                delete ttf;
-            }
-            gfree(buf);
-        }
-
+        std::cerr << "Embedded font is not a stream" << std::endl;
+        goto err;
     }
 
-    fontscript_fout << boost::format("Generate(\"f%|1$x|.ttf\")") % fn_id << endl;
+    dict = str_obj.streamGetDict();
+    if(dict == nullptr)
+    {
+        std::cerr << "No dict in the embedded font" << std::endl;
+        goto err;
+    }
+
+    dict->lookup("Length1", &ol1);
+    dict->lookup("Length2", &ol2);
+    dict->lookup("Length3", &ol3);
+
+    if(!(ol1.isInt() && ol2.isInt() && ol3.isInt()))
+    {
+        std::cerr << "Length 1&2&3 are not all integers" << std::endl;
+        ol1.free();
+        ol2.free();
+        ol3.free();
+        goto err;
+    }
+
+    l1 = ol1.getInt();
+    l2 = ol2.getInt();
+    l3 = ol3.getInt();
+    ol1.free();
+    ol2.free();
+    ol3.free();
+
+    str_obj.streamReset();
+    for(int i = 0; i < l1; ++i)
+    {
+        if((c = str_obj.streamGetChar()) == EOF)
+            break;
+        output_char(c);
+    }
+
+    if(l2 == 0)
+    {
+        std::cerr << "Bad Length2" << std::endl;
+        goto err;
+    }
+    {
+        int i;
+        for(i = 0; i < 4; ++i)
+        {
+            int j = buf[i] = str_obj.streamGetChar();
+            if(buf[i] == EOF)
+            {
+                std::cerr << "Embedded font stream is too short" << std::endl;
+                goto err;
+            }
+
+            if(!((j>='0'&&j<='9') || (j>='a'&&j<='f') || (j>='A'&&j<='F')))
+            {
+                is_bin = true;
+                ++i;
+                break;
+            }
+        }
+        if(is_bin)
+        {
+            static const char hex_char[] = "0123456789ABCDEF";
+            for(int j = 0; j < i; ++j)
+            {
+                output_char(hex_char[(buf[j]>>4)&0xf]);
+                output_char(hex_char[buf[j]&0xf]);
+            }
+            for(; i < l2; ++i)
+            {
+                if(i % 32 == 0)
+                    output_char('\n');
+                int c = str_obj.streamGetChar();
+                if(c == EOF)
+                    break;
+                output_char(hex_char[(c>>4)&0xf]);
+                output_char(hex_char[c&0xf]);
+            }
+            if(i % 32 != 0)
+                output_char('\n');
+        }
+        else
+        {
+            for(int j = 0; j < i; ++j)
+            {
+                output_char(buf[j]);
+            }
+            for(;i < l2; ++i)
+            {
+                int c = str_obj.streamGetChar();
+                if(c == EOF)
+                    break;
+                output_char(c);
+            }
+        }
+    }
+    if(l3 > 0)
+    {
+        int c;
+        while((c = str_obj.streamGetChar()) != EOF)
+            output_char(c);
+    }
+    else
+    {
+        for(int i = 0; i < 8; ++i)
+        {
+            for(int j = 0; j < 64; ++j)
+                output_char('0');
+            output_char('\n');
+        }
+        static const char * CTM = "cleartomark\n";
+        tmpf.write(CTM, strlen(CTM));
+    }
+
+
+    fontscript_fout << boost::format("Open(\"%1%/%2%.pfa\",1)") % TMP_DIR % fn << endl;
+    prepare_tounicode_map(font, fn_id); 
+    fontscript_fout << boost::format("Generate(\"%1%.ttf\")") % fn << endl;
 
     export_remote_font(fn_id, ".ttf", "truetype", font);
+err:
+    str_obj.streamClose();
+    str_obj.free();
 }
 
-void HTMLRenderer::install_external_font( GfxFont * font, long long fn_id)
+void HTMLRenderer::output_to_file(void * outf, const char * data, int len)
 {
-    std::string fontname(font->getName()->getCString());
-
-    // resolve bad encodings in GB
-    auto iter = GB_ENCODED_FONT_NAME_MAP.find(fontname); 
-    if(iter != GB_ENCODED_FONT_NAME_MAP.end())
-        fontname = iter->second;
-
-    export_local_font(fn_id, font, fontname, "");
+    reinterpret_cast<ofstream*>(outf)->write(data, len);
 }
-    
+
+// generate a charcode -> unicode mapping for fontforge
+// and write instructions in fontscript
+void HTMLRenderer::prepare_tounicode_map(GfxFont * font, long long fn_id)
+{
+    if(!font->hasToUnicodeCMap())
+        return;
+    auto ctu = font->getToUnicode();
+
+    std::string fn = (boost::format("f%|1$x|") % fn_id).str();
+    ofstream map_fout((boost::format("%1%/%2%.encoding") % TMP_DIR % fn).str().c_str());
+
+    if(font->getType() < fontCIDType0)
+    {
+        for(int i = 0; i < 256; ++i)
+        {
+            //                    int code = ctg[i];
+            Unicode * u;
+            auto n = ctu->mapToUnicode(i, &u);
+            // not sure what to do when n > 1
+            if(n > 0)
+            {
+                //                        map_fout << boost::format("0x%|1$X|") % code;
+                map_fout << boost::format("0x%|1$X|") % i;
+                for(int j = 0; j < n; ++j)
+                    map_fout << boost::format(" 0x%|1$X|") % u[j];
+                map_fout << boost::format(" # 0x%|1$X|") % i << endl;
+            }
+        }
+    }
+    else
+    {
+        std::cerr << "unsupported font type when preparing tounicodeo map" << endl;
+    }
+
+
+    fontscript_fout << boost::format("LoadEncodingFile(\"%1%/%2%.encoding\", \"%2%\")") % TMP_DIR % fn << endl;
+    fontscript_fout << boost::format("Reencode(\"%1%\", 1)") % fn << endl;
+
+    //                ctu->decRefCnt();
+}
+
+void HTMLRenderer::install_embedded_type1c_font (GfxFont * font, long long fn_id)
+{
+    int font_len;
+    char * font_buf = font->readEmbFontFile(xref, &font_len);
+    if(font_buf != nullptr)
+    {
+        auto * FFT1C = FoFiType1C::make(font_buf, font_len);
+        if(FFT1C != nullptr)
+        {
+            string fn = (boost::format("f%|1$x|")%fn_id).str();
+            ofstream tmpf((TMP_DIR + "/" + fn+".pfa").c_str(), ofstream::binary);
+            FFT1C->convertToType1((char*)fn.c_str(), nullptr, true, &output_to_file , &tmpf);
+
+            delete FFT1C;
+
+            export_remote_font(fn_id, ".ttf", "truetype", font);
+
+            fontscript_fout << boost::format("Open(\"%1%/%2%.pfa\",1)") % TMP_DIR % fn << endl;
+            prepare_tounicode_map(font, fn_id);
+            fontscript_fout << boost::format("Generate(\"%1%.ttf\")") % fn << endl;
+        }
+        else
+        {
+            std::cerr << "Warning: cannot process type 1c font: " << fn_id << std::endl;
+            export_remote_default_font(fn_id);
+        }
+        gfree(font_buf);
+    }
+}
+
+void HTMLRenderer::install_embedded_opentypet1c_font (GfxFont * font, long long fn_id)
+{
+    install_embedded_truetype_font(font, fn_id);
+}
+
+void HTMLRenderer::install_embedded_truetype_font (GfxFont * font, long long fn_id)
+{
+    int font_len;
+    char * font_buf = font->readEmbFontFile(xref, &font_len);
+    if(font_buf != nullptr)
+    {
+        auto * FFTT = FoFiTrueType::make(font_buf, font_len);
+        if(FFTT != nullptr)
+        {
+            string fn = (boost::format("f%|1$x|")%fn_id).str();
+            ofstream tmpf((TMP_DIR + "/" + fn + ".ttf").c_str(), ofstream::binary);
+            FFTT->writeTTF(output_to_file, &tmpf, (char*)(fn.c_str()), nullptr);
+
+            fontscript_fout << boost::format("Open(\"%1%/%2%.ttf\")") % TMP_DIR % fn << endl;
+            prepare_tounicode_map(font, fn_id);
+            fontscript_fout << boost::format("Generate(\"%1%.ttf\")") % fn << endl;
+
+            export_remote_font(fn_id, ".ttf", "truetype", font);
+
+            delete FFTT;
+        }
+        else
+        {
+            std::cerr << "Warning: cannot process truetype (or opentype t1c) font: " << fn_id << std::endl;
+            export_remote_default_font(fn_id);
+        }
+        gfree(font_buf);
+    }
+}
+
 void HTMLRenderer::install_base_font(GfxFont * font, GfxFontLoc * font_loc, long long fn_id)
 {
     std::string psname(font_loc->path->getCString());
@@ -500,6 +720,18 @@ void HTMLRenderer::install_base_font(GfxFont * font, GfxFontLoc * font_loc, long
     export_local_font(fn_id, font, psname, cssfont);
 }
 
+void HTMLRenderer::install_external_font( GfxFont * font, long long fn_id)
+{
+    std::string fontname(font->getName()->getCString());
+
+    // resolve bad encodings in GB
+    auto iter = GB_ENCODED_FONT_NAME_MAP.find(fontname); 
+    if(iter != GB_ENCODED_FONT_NAME_MAP.end())
+        fontname = iter->second;
+
+    export_local_font(fn_id, font, fontname, "");
+}
+    
 long long HTMLRenderer::install_font_size(double font_size)
 {
     auto iter = font_size_map.lower_bound(font_size - EPS);
@@ -584,10 +816,11 @@ void HTMLRenderer::export_remote_default_font(long long fn_id)
 void HTMLRenderer::export_local_font(long long fn_id, GfxFont * font, const string & original_font_name, const string & cssfont)
 {
     allcss_fout << boost::format(".f%|1$x|{") % fn_id;
-    allcss_fout << "font-family:" << ((cssfont == "") ? (original_font_name+","+general_font_family(font)) : cssfont) << ";";
+    allcss_fout << "font-family:" << ((cssfont == "") ? (original_font_name + "," + general_font_family(font)) : cssfont) << ";";
+
     if(font->isBold())
         allcss_fout << "font-weight:bold;";
-    
+
     if(boost::algorithm::ifind_first(original_font_name, "oblique"))
         allcss_fout << "font-style:oblique;";
     else if(font->isItalic())

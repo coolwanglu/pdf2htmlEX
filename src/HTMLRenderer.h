@@ -100,9 +100,15 @@ class HTMLRenderer : public OutputDev
         long long install_font(GfxFont * font);
 
         static void output_to_file(void * outf, const char * data, int len);
-        void install_embedded_font (GfxFont * font, long long fn_id);
-        void install_external_font (GfxFont * font, long long fn_id);
+
+        void prepare_tounicode_map(GfxFont * font, long long fn_id);
+
+        void install_embedded_type1_font (Ref * id, GfxFont * font, long long fn_id);
+        void install_embedded_type1c_font (GfxFont * font, long long fn_id);
+        void install_embedded_opentypet1c_font (GfxFont * font, long long fn_id);
+        void install_embedded_truetype_font (GfxFont * font, long long fn_id);
         void install_base_font(GfxFont * font, GfxFontLoc * font_loc, long long fn_id);
+        void install_external_font (GfxFont * font, long long fn_id);
 
         long long install_font_size(double font_size);
         long long install_whitespace(double ws_width, double & actual_width);
