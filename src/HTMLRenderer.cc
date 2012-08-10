@@ -18,7 +18,6 @@
 #include <boost/algorithm/string.hpp>
 
 #include <GfxFont.h>
-#include <UTF8.h>
 #include <fofi/FoFiType1C.h>
 #include <fofi/FoFiTrueType.h>
 #include <splash/SplashBitmap.h>
@@ -27,6 +26,7 @@
 #include "HTMLRenderer.h"
 #include "BackgroundRenderer.h"
 #include "Consts.h"
+#include "util.h"
 
 /*
  * CSS classes
@@ -160,37 +160,6 @@ void HTMLRenderer::close_cur_line()
         html_fout << endl;
 
         line_opened = false;
-    }
-}
-
-void HTMLRenderer::outputUnicodes(const Unicode * u, int uLen)
-{
-    for(int i = 0; i < uLen; ++i)
-    {
-        switch(u[i])
-        {
-            case '&':
-                html_fout << "&amp;";
-                break;
-                case '\"':
-                    html_fout << "&quot;";
-                break;
-            case '\'':
-                html_fout << "&apos;";
-                break;
-            case '<':
-                html_fout << "&lt;";
-                break;
-            case '>':
-                html_fout << "&gt;";
-                break;
-            default:
-                {
-                    char buf[4];
-                    auto n = mapUTF8(u[i], buf, 4);
-                    html_fout.write(buf, n);
-                }
-        }
     }
 }
 
@@ -359,12 +328,12 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
             {
                 Unicode u = (c&0xff);
                 c >>= 8;
-                outputUnicodes(&u, 1);
+                outputUnicodes(html_fout, &u, 1);
             }
         }
         else
         {
-            outputUnicodes(u, uLen);
+            outputUnicodes(html_fout, u, uLen);
         }
 
         dx += dx1;
@@ -436,8 +405,7 @@ long long HTMLRenderer::install_font(GfxFont * font)
                 install_embedded_font(font, new_fn_id);
                 break;
             case gfxFontLocExternal:
-                std::cerr << "TODO: external font" << std::endl;
-                export_remote_default_font(new_fn_id);
+                install_external_font(font, new_fn_id);
                 break;
             case gfxFontLocResident:
                 install_base_font(font, font_loc, new_fn_id);
@@ -502,8 +470,20 @@ void HTMLRenderer::install_embedded_font (GfxFont * font, long long fn_id)
 
     export_remote_font(fn_id, ".ttf", "truetype", font);
 }
+
+void HTMLRenderer::install_external_font( GfxFont * font, long long fn_id)
+{
+    std::string fontname(font->getName()->getCString());
+
+    // resolve bad encodings in GB
+    auto iter = GB_ENCODED_FONT_NAME_MAP.find(fontname); 
+    if(iter != GB_ENCODED_FONT_NAME_MAP.end())
+        fontname = iter->second;
+
+    export_local_font(fn_id, font, fontname, "");
+}
     
-void HTMLRenderer::install_base_font( GfxFont * font, GfxFontLoc * font_loc, long long fn_id)
+void HTMLRenderer::install_base_font(GfxFont * font, GfxFontLoc * font_loc, long long fn_id)
 {
     std::string psname(font_loc->path->getCString());
     string basename = psname.substr(0, psname.find('-'));
@@ -517,7 +497,7 @@ void HTMLRenderer::install_base_font( GfxFont * font, GfxFontLoc * font_loc, lon
     else
         cssfont = iter->second;
 
-    export_local_font(fn_id, font, font_loc, psname, cssfont);
+    export_local_font(fn_id, font, psname, cssfont);
 }
 
 long long HTMLRenderer::install_font_size(double font_size)
@@ -601,7 +581,7 @@ void HTMLRenderer::export_remote_default_font(long long fn_id)
     allcss_fout << endl;
 }
 
-void HTMLRenderer::export_local_font(long long fn_id, GfxFont * font, GfxFontLoc * font_loc, const string & original_font_name, const string & cssfont)
+void HTMLRenderer::export_local_font(long long fn_id, GfxFont * font, const string & original_font_name, const string & cssfont)
 {
     allcss_fout << boost::format(".f%|1$x|{") % fn_id;
     allcss_fout << "font-family:" << ((cssfont == "") ? (original_font_name+","+general_font_family(font)) : cssfont) << ";";

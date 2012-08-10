@@ -29,19 +29,9 @@
 #include <GfxFont.h>
 
 #include "Param.h"
+#include "util.h"
 
 using namespace std;
-
-static const double EPS = 1e-6;
-inline bool _equal(double x, double y) { return std::abs(x-y) < EPS; }
-inline bool _is_positive(double x) { return x > EPS; }
-inline bool _tm_equal(const double * tm1, const double * tm2, int size = 6)
-{
-    for(int i = 0; i < size; ++i)
-        if(!_equal(tm1[i], tm2[i]))
-            return false;
-    return true;
-}
 
 class HTMLRenderer : public OutputDev
 {
@@ -106,13 +96,12 @@ class HTMLRenderer : public OutputDev
     private:
         void close_cur_line();
 
-        void outputUnicodes(const Unicode * u, int uLen);
-
         // return the mapped font name
         long long install_font(GfxFont * font);
 
         static void output_to_file(void * outf, const char * data, int len);
         void install_embedded_font (GfxFont * font, long long fn_id);
+        void install_external_font (GfxFont * font, long long fn_id);
         void install_base_font(GfxFont * font, GfxFontLoc * font_loc, long long fn_id);
 
         long long install_font_size(double font_size);
@@ -126,7 +115,7 @@ class HTMLRenderer : public OutputDev
          */
         void export_remote_font(long long fn_id, const string & suffix, const string & format, GfxFont * font);
         void export_remote_default_font(long long fn_id);
-        void export_local_font(long long fn_id, GfxFont * font, GfxFontLoc * font_loc, const string & original_font_name, const string & cssfont);
+        void export_local_font(long long fn_id, GfxFont * font, const string & original_font_name, const string & cssfont);
         std::string general_font_family(GfxFont * font);
 
         void export_font_size(long long fs_id, double font_size);
