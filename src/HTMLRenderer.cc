@@ -564,17 +564,15 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const std::string & suf
 
     fontscript_fout << boost::format("Open(\"%1%/%2%%3%\",1)") % TMP_DIR % fn % suffix << endl;
 
-    //TODO
-    //for 8bit fonts, always read the UnicodeCMap
-
-    
     auto ctu = font->getToUnicode();
     int * code2GID = nullptr;
     if(ctu)
     {
+        // TODO: ctu could be CID2Unicode for CID fonts
+        
         int maxcode = 0;
 
-        if(font->getType() < fontCIDType0)
+        if(!font->isCIDFont())
         {
             maxcode = 0xff;
             //TODO read code2GID for TrueType
@@ -611,6 +609,7 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const std::string & suf
 
         ctu->decRefCnt();
     }
+
     fontscript_fout << boost::format("Generate(\"%1%.ttf\")") % fn << endl;
 
     export_remote_font(fn_id, ".ttf", "truetype", font);
