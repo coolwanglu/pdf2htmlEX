@@ -102,12 +102,6 @@ class HTMLRenderer : public OutputDev
         static void output_to_file(void * outf, const char * data, int len);
 
         std::string dump_embedded_font (GfxFont * font, long long fn_id);
-        std::string dump_embedded_type1_font (Ref * id, GfxFont * font, long long fn_id);
-        std::string dump_embedded_type1c_font (GfxFont * font, long long fn_id);
-        std::string dump_embedded_opentypet1c_font (GfxFont * font, long long fn_id);
-        std::string dump_embedded_truetype_font (GfxFont * font, long long fn_id);
-        std::string dump_embedded_cidtype0_font (GfxFont * font, long long fn_id);
-        std::string dump_embedded_cidtype2_font(GfxFont * font, long long fn_id);
 
         void install_embedded_font(GfxFont * font, const std::string & suffix, long long fn_id);
         void install_base_font(GfxFont * font, GfxFontLoc * font_loc, long long fn_id);
