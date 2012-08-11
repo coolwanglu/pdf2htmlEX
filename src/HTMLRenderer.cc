@@ -423,6 +423,19 @@ long long HTMLRenderer::install_font(GfxFont * font)
                         case fontTrueTypeOT:
                             suffix = dump_embedded_truetype_font(font, new_fn_id);
                             break;
+                        case fontCIDType0C:
+                            suffix = dump_embedded_cidtype0_font(font, new_fn_id);
+                            break;
+                        case fontCIDType2:
+                        case fontCIDType2OT:
+                            suffix = dump_embedded_cidtype2_font(font, new_fn_id);
+                            break;
+                            /*
+                        case fontCIDType0COT:
+                            psName = makePSFontName(font, &fontLoc->embFontID);
+                            setupEmbeddedOpenTypeCFFFont(font, &fontLoc->embFontID, psName);
+                            break;
+                          */
                         default:
                             std::cerr << "TODO: unsuppported embedded font type" << std::endl;
                             break;
@@ -644,7 +657,30 @@ std::string HTMLRenderer::dump_embedded_type1c_font (GfxFont * font, long long f
 
 std::string HTMLRenderer::dump_embedded_opentypet1c_font (GfxFont * font, long long fn_id)
 {
-    return dump_embedded_truetype_font(font, fn_id);
+    bool ok = false;
+    int font_len;
+    char * font_buf = font->readEmbFontFile(xref, &font_len);
+    if(font_buf != nullptr)
+    {
+        auto * FFTT = FoFiTrueType::make(font_buf, font_len);
+        if(FFTT != nullptr)
+        {
+            string fn = (boost::format("f%|1$x|")%fn_id).str();
+            ofstream tmpf((TMP_DIR + "/" + fn + ".ttf").c_str(), ofstream::binary);
+            FFTT->convertToType1((char*)(fn.c_str()), nullptr, true, output_to_file, &tmpf);
+
+            delete FFTT;
+
+            ok = true;
+        }
+        else
+        {
+            std::cerr << "Warning: cannot process truetype (or opentype t1c) font: " << fn_id << std::endl;
+        }
+        gfree(font_buf);
+    }
+
+    return ok ? ".ttf" : "";
 }
 
 std::string HTMLRenderer::dump_embedded_truetype_font (GfxFont * font, long long fn_id)
@@ -675,6 +711,66 @@ std::string HTMLRenderer::dump_embedded_truetype_font (GfxFont * font, long long
     return ok ? ".ttf" : "";
 }
 
+std::string HTMLRenderer::dump_embedded_cidtype0_font(GfxFont * font, long long fn_id)
+{
+    bool ok = false;
+    int font_len;
+    char * font_buf = font->readEmbFontFile(xref, &font_len);
+    if(font_buf != nullptr)
+    {
+        auto * FFT1C = FoFiType1C::make(font_buf, font_len);
+        if(FFT1C != nullptr)
+        {
+            string fn = (boost::format("f%|1$x|")%fn_id).str();
+            // TODO: check the suffix
+            ofstream tmpf((TMP_DIR + "/" + fn + ".pfa").c_str(), ofstream::binary);
+            
+            FFT1C->convertToCIDType0((char*)(fn.c_str()), nullptr, 0, output_to_file, &tmpf);
+
+            delete FFT1C;
+
+            ok = true;
+        }
+        else
+        {
+            std::cerr << "Warning: cannot process truetype (or opentype t1c) font: " << fn_id << std::endl;
+        }
+        gfree(font_buf);
+    }
+
+    return ok ? ".pfa" : "";
+}
+
+std::string HTMLRenderer::dump_embedded_cidtype2_font(GfxFont * font, long long fn_id)
+{
+    bool ok = false;
+    int font_len;
+    char * font_buf = font->readEmbFontFile(xref, &font_len);
+    if(font_buf != nullptr)
+    {
+        auto * FFTT = FoFiTrueType::make(font_buf, font_len);
+        if(FFTT != nullptr)
+        {
+            string fn = (boost::format("f%|1$x|")%fn_id).str();
+            ofstream tmpf((TMP_DIR + "/" + fn + ".pfa").c_str(), ofstream::binary);
+            FFTT->convertToCIDType2((char*)(fn.c_str()), 
+                    dynamic_cast<GfxCIDFont*>(font)->getCIDToGID(),
+                    dynamic_cast<GfxCIDFont*>(font)->getCIDToGIDLen(),
+                    true, output_to_file, &tmpf);
+            delete FFTT;
+
+            ok = true;
+        }
+        else
+        {
+            std::cerr << "Warning: cannot process truetype (or opentype t1c) font: " << fn_id << std::endl;
+        }
+        gfree(font_buf);
+    }
+
+    return ok ? ".pfa" : "";
+}
+
 void HTMLRenderer::install_embedded_font(GfxFont * font, const std::string & suffix, long long fn_id)
 {
     std::string fn = (boost::format("f%|1$x|") % fn_id).str();
@@ -688,7 +784,7 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const std::string & suf
 
         if(font->getType() < fontCIDType0)
         {
-            for(int i = 0; i < 256; ++i)
+            for(int i = 0; i <= 0xff; ++i)
             {
                 Unicode * u;
                 auto n = ctu->mapToUnicode(i, &u);
@@ -704,7 +800,19 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const std::string & suf
         }
         else
         {
-            std::cerr << "unsupported font type when preparing tounicodeo map" << endl;
+            for(int i = 0; i <= 0xffff; ++i)
+            {
+                Unicode * u;
+                auto n = ctu->mapToUnicode(i, &u);
+                // not sure what to do when n > 1
+                if(n > 0)
+                {
+                    map_fout << boost::format("0x%|1$X|") % i;
+                    for(int j = 0; j < n; ++j)
+                        map_fout << boost::format(" 0x%|1$X|") % u[j];
+                    map_fout << boost::format(" # 0x%|1$X|") % i << endl;
+                }
+            }
         }
         fontscript_fout << boost::format("LoadEncodingFile(\"%1%/%2%.encoding\", \"%2%\")") % TMP_DIR % fn << endl;
         fontscript_fout << boost::format("Reencode(\"%1%\", 1)") % fn << endl;
