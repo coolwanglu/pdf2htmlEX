@@ -407,7 +407,8 @@ long long HTMLRenderer::install_font(GfxFont * font)
         {
             case gfxFontLocEmbedded:
                 {
-                    std::string suffix;
+                    std::string suffix = dump_embedded_font(font, new_fn_id);
+                    /*
                     switch(font_loc -> fontType)
                     {
                         case fontType1:
@@ -430,16 +431,17 @@ long long HTMLRenderer::install_font(GfxFont * font)
                         case fontCIDType2OT:
                             suffix = dump_embedded_cidtype2_font(font, new_fn_id);
                             break;
-                            /*
+                            / *
                         case fontCIDType0COT:
                             psName = makePSFontName(font, &fontLoc->embFontID);
                             setupEmbeddedOpenTypeCFFFont(font, &fontLoc->embFontID, psName);
                             break;
-                          */
+                          * /
                         default:
                             std::cerr << "TODO: unsuppported embedded font type" << std::endl;
                             break;
                     }
+                    */
                     if(suffix != "")
                     {
                         install_embedded_font(font, suffix, new_fn_id);
@@ -470,6 +472,124 @@ long long HTMLRenderer::install_font(GfxFont * font)
       
     return new_fn_id;
 
+}
+
+std::string HTMLRenderer::dump_embedded_font (GfxFont * font, long long fn_id)
+{
+    // mupdf consulted
+    
+    Object ref_obj, font_obj, font_obj2, fontdesc_obj;
+    Object obj, obj1, obj2;
+    Dict * dict = nullptr;
+
+    std::string suffix, subtype;
+
+    char buf[1024];
+    int len;
+
+    ofstream outf;
+
+    auto * id = font->getID();
+    ref_obj.initRef(id->num, id->gen);
+    ref_obj.fetch(xref, &font_obj);
+    ref_obj.free();
+
+    if(!font_obj.isDict())
+    {
+        std::cerr << "Font object is not a dictionary" << std::endl;
+        goto err;
+    }
+
+    dict = font_obj.getDict();
+    if(dict->lookup("DescendantFonts", &font_obj2)->isArray())
+    {
+        if(font_obj2.arrayGetLength() == 0)
+        {
+            std::cerr << "Warning: empty DescendantFonts array" << std::endl;
+        }
+        else
+        {
+            if(font_obj2.arrayGetLength() > 1)
+                std::cerr << "TODO: multiple entries in DescendantFonts array" << std::endl;
+
+            if(font_obj2.arrayGet(0, &obj2)->isDict())
+            {
+                dict = obj2.getDict();
+            }
+        }
+    }
+
+    if(!dict->lookup("FontDescriptor", &fontdesc_obj)->isDict())
+    {
+        std::cerr << "Cannot find FontDescriptor " << std::endl;
+        goto err;
+    }
+
+    dict = fontdesc_obj.getDict();
+    
+    if(dict->lookup("FontFile3", &obj)->isStream())
+    {
+        if(obj.streamGetDict()->lookup("Subtype", &obj1)->isName())
+        {
+            subtype = obj1.getName();
+            if(subtype == "Type1C")
+            {
+                suffix = ".cff";
+            }
+            else if (subtype == "CIDFontType0C")
+            {
+                suffix = ".cid";
+            }
+            else
+            {
+                std::cerr << "Unknown subtype: " << subtype << std::endl;
+                goto err;
+            }
+        }
+        else
+        {
+            std::cerr << "Invalid subtype in font descriptor" << std::endl;
+            goto err;
+        }
+    }
+    else if (dict->lookup("FontFile2", &obj)->isStream())
+    { 
+        suffix = ".ttf";
+    }
+    else if (dict->lookup("FontFile", &obj)->isStream())
+    {
+        suffix = ".ttf";
+    }
+    else
+    {
+        std::cerr << "Cannot find FontFile for dump" << std::endl;
+        goto err;
+    }
+
+    if(suffix == "")
+    {
+        std::cerr << "Font type unrecognized" << std::endl;
+        goto err;
+    }
+
+    obj.streamReset();
+    outf.open((boost::format("%1%/f%|2$x|%3%")%TMP_DIR%fn_id%suffix).str().c_str(), ofstream::binary);
+    while((len = obj.streamGetChars(1024, (Guchar*)buf)) > 0)
+    {
+        outf.write(buf, len);
+    }
+    outf.close();
+    obj.streamClose();
+
+err:
+    obj2.free();
+    obj1.free();
+    obj.free();
+
+    fontdesc_obj.free();
+    font_obj2.free();
+    font_obj.free();
+    return suffix;
 }
 
 std::string HTMLRenderer::dump_embedded_type1_font (Ref * id, GfxFont * font, long long fn_id)
@@ -667,7 +787,7 @@ std::string HTMLRenderer::dump_embedded_opentypet1c_font (GfxFont * font, long l
         {
             string fn = (boost::format("f%|1$x|")%fn_id).str();
             ofstream tmpf((TMP_DIR + "/" + fn + ".ttf").c_str(), ofstream::binary);
-            FFTT->convertToType1((char*)(fn.c_str()), nullptr, true, output_to_file, &tmpf);
+            FFTT->writeTTF(output_to_file, &tmpf, (char*)(fn.c_str()), nullptr);
 
             delete FFTT;
 
@@ -752,11 +872,15 @@ std::string HTMLRenderer::dump_embedded_cidtype2_font(GfxFont * font, long long 
         if(FFTT != nullptr)
         {
             string fn = (boost::format("f%|1$x|")%fn_id).str();
-            ofstream tmpf((TMP_DIR + "/" + fn + ".pfa").c_str(), ofstream::binary);
+            ofstream tmpf((TMP_DIR + "/" + fn + ".ttf").c_str(), ofstream::binary);
+            int maplen;
+            FFTT->writeTTF(output_to_file, &tmpf, (char*)(fn.c_str()), dynamic_cast<GfxCIDFont*>(font)->getCodeToGIDMap(FFTT, &maplen));
+            /*
             FFTT->convertToCIDType2((char*)(fn.c_str()), 
                     dynamic_cast<GfxCIDFont*>(font)->getCIDToGID(),
                     dynamic_cast<GfxCIDFont*>(font)->getCIDToGIDLen(),
                     true, output_to_file, &tmpf);
+                    */
             delete FFTT;
 
             ok = true;
@@ -768,7 +892,7 @@ std::string HTMLRenderer::dump_embedded_cidtype2_font(GfxFont * font, long long 
         gfree(font_buf);
     }
 
-    return ok ? ".pfa" : "";
+    return ok ? ".ttf" : "";
 }
 
 void HTMLRenderer::install_embedded_font(GfxFont * font, const std::string & suffix, long long fn_id)
@@ -780,27 +904,22 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const std::string & suf
     {
         auto ctu = font->getToUnicode();
 
-        ofstream map_fout((boost::format("%1%/%2%.encoding") % TMP_DIR % fn).str().c_str());
+        int maxcode = 0;
 
         if(font->getType() < fontCIDType0)
         {
-            for(int i = 0; i <= 0xff; ++i)
-            {
-                Unicode * u;
-                auto n = ctu->mapToUnicode(i, &u);
-                // not sure what to do when n > 1
-                if(n > 0)
-                {
-                    map_fout << boost::format("0x%|1$X|") % i;
-                    for(int j = 0; j < n; ++j)
-                        map_fout << boost::format(" 0x%|1$X|") % u[j];
-                    map_fout << boost::format(" # 0x%|1$X|") % i << endl;
-                }
-            }
+            maxcode = 0xff;
         }
         else
         {
-            for(int i = 0; i <= 0xffff; ++i)
+            maxcode = 0xffff;
+            fontscript_fout << boost::format("Reencode(\"original\")") << endl;
+        }
+
+        if(maxcode > 0)
+        {
+            ofstream map_fout((boost::format("%1%/%2%.encoding") % TMP_DIR % fn).str().c_str());
+            for(int i = 0; i <= maxcode; ++i)
             {
                 Unicode * u;
                 auto n = ctu->mapToUnicode(i, &u);
@@ -813,9 +932,12 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const std::string & suf
                     map_fout << boost::format(" # 0x%|1$X|") % i << endl;
                 }
             }
+
+            fontscript_fout << boost::format("LoadEncodingFile(\"%1%/%2%.encoding\", \"%2%\")") % TMP_DIR % fn << endl;
+            fontscript_fout << boost::format("Reencode(\"%1%\", 1)") % fn << endl;
         }
-        fontscript_fout << boost::format("LoadEncodingFile(\"%1%/%2%.encoding\", \"%2%\")") % TMP_DIR % fn << endl;
-        fontscript_fout << boost::format("Reencode(\"%1%\", 1)") % fn << endl;
+
+        ctu->decRefCnt();
     }
     fontscript_fout << boost::format("Generate(\"%1%.ttf\")") % fn << endl;
 

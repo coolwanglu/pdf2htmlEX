@@ -49,6 +49,7 @@ GPLv3
 
 We would like to acknowledge the following projects that have been consulted while writing this program:
 * pdftops & pdftohtml from poppler 
+* MuPDF
 * PDF.js
 * Crocodoc
 * Google Doc
