@@ -22,15 +22,15 @@ Features
 
 Not supported yet
 ----------------------------
+* Several Font types & encodings
 * Non-text object (Don't worry, they will be rendered as images)
 * Blend Mode
-* CJK
 * ...
 
 Dependency
 ----------------------------
 * libpoppler with xpdf header >= 0.20.2
-* boost c++ library (format, program options)
+* boost c++ library (format, program options, gil)
 * fontforge **Please use [my modified version](http://github.com/coolwanglu/fontforge) before the bugs are fixed**
 
 HOW TO COMPILE
