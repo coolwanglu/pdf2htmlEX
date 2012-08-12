@@ -90,8 +90,9 @@ class HTMLRenderer : public OutputDev
         virtual void updateTextShift(GfxState * state, double shift);
         virtual void updateFillColor(GfxState * state);
 
-        //----- text drawing
         virtual void drawString(GfxState * state, GooString * s);
+
+        virtual void drawImage(GfxState * state, Object * ref, Stream * str, int width, int height, GfxImageColorMap * colorMap, GBool interpolate, int *maskColors, GBool inlineImg);
 
     private:
         void close_cur_line();
@@ -134,8 +135,6 @@ class HTMLRenderer : public OutputDev
         int pageNum ;
         double pageWidth ;
         double pageHeight ;
-
-
 
         // state tracking when processing pdf
         void check_state_change(GfxState * state);
@@ -241,6 +240,8 @@ class HTMLRenderer : public OutputDev
                 int _[3];
         };
         map<Color, long long> color_map; 
+
+        int image_count;
 
         const Param * param;
 };

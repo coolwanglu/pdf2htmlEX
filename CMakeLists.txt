@@ -14,8 +14,8 @@ SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wunused-function")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2")
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ggdb")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ggdb")
 
 add_executable(pdftohtmlEX src/pdftohtmlEX.cc src/HTMLRenderer.cc src/HTMLRenderer.h src/BackgroundRenderer.cc src/BackgroundRenderer.h src/Consts.h src/Consts.cc src/util.h)
 target_link_libraries(pdftohtmlEX poppler boost_program_options)

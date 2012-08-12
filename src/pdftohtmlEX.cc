@@ -11,11 +11,12 @@
 #include <ctime>
 #include <string>
 #include <limits>
-
-#include <goo/GooString.h>
+#include <iostream>
 
 #include <boost/program_options.hpp>
 #include <boost/algorithm/string/predicate.hpp>
+
+#include <goo/GooString.h>
 
 #include "Object.h"
 #include "PDFDoc.h"

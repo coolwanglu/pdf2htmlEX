@@ -14,14 +14,19 @@
 #include <cassert>
 #include <fstream>
 #include <algorithm>
+
 #include <boost/format.hpp>
 #include <boost/algorithm/string.hpp>
+// for gil bug
+const int *int_p_NULL = nullptr;
+#include <boost/gil/gil_all.hpp>
+#include <boost/gil/extension/io/png_dynamic_io.hpp>
 
 #include <GfxFont.h>
+#include <CharCodeToUnicode.h>
 #include <fofi/FoFiType1C.h>
 #include <fofi/FoFiTrueType.h>
 #include <splash/SplashBitmap.h>
-#include <CharCodeToUnicode.h>
 
 #include "HTMLRenderer.h"
 #include "BackgroundRenderer.h"
@@ -51,6 +56,7 @@ HTMLRenderer::HTMLRenderer(const Param * param)
     ,html_fout(param->output_filename.c_str(), ofstream::binary)
     ,allcss_fout("all.css")
     ,fontscript_fout(TMP_DIR+"/convert.pe")
+    ,image_count(0)
     ,param(param)
 {
     // install default font & size
@@ -367,6 +373,41 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
     draw_ty += dy;
 }
 
+void HTMLRenderer::drawImage(GfxState * state, Object * ref, Stream * str, int width, int height, GfxImageColorMap * colorMap, GBool interpolate, int *maskColors, GBool inlineImg)
+{
+    boost::gil::rgb16_image_t img(width, height);
+    auto imgview = view(img);
+    auto loc = imgview.xy_at(0,0);
+
+    ImageStream * img_stream = new ImageStream(str, width, colorMap->getNumPixelComps(), colorMap->getBits());
+    img_stream->reset();
+
+    for(int i = 0; i < height; ++i)
+    {
+        auto p = img_stream->getLine();
+        for(int j = 0; j < width; ++j)
+        {
+            GfxRGB rgb;
+            colorMap->getRGB(p, &rgb);
+
+            *loc = boost::gil::rgb16_pixel_t(rgb.r, rgb.g, rgb.b);
+
+            p += colorMap->getNumPixelComps();
+
+            ++ loc.x();
+        }
+
+        loc = imgview.xy_at(0, i+1);
+    }
+
+    boost::gil::png_write_view((boost::format("i%|1$x|.png")%image_count).str(), imgview);
+
+    img_stream->close();
+    delete img_stream;
+
+    ++ image_count;
+}
+
 // The font installation code is stolen from PSOutputDev.cc in poppler
 
 long long HTMLRenderer::install_font(GfxFont * font)
@@ -565,6 +606,8 @@ err:
 
 void HTMLRenderer::install_embedded_font(GfxFont * font, const std::string & suffix, long long fn_id)
 {
+    // TODO Should use standard way to handle CID fonts
+    
     std::string fn = (boost::format("f%|1$x|") % fn_id).str();
 
     fontscript_fout << boost::format("Open(\"%1%/%2%%3%\",1)") % TMP_DIR % fn % suffix << endl;
@@ -585,10 +628,17 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const std::string & suf
         else
         {
             maxcode = 0xffff;
-            fontscript_fout << boost::format("Reencode(\"original\")") << endl;
-            int len; 
-            // code2GID has been stored for embedded CID fonts
-            code2GID = dynamic_cast<GfxCIDFont*>(font)->getCodeToGIDMap(nullptr, &len);
+            if(suffix != ".ttf")
+            {
+                fontscript_fout << "CIDFlatten()" << endl;
+            }
+            else
+            {
+                fontscript_fout << boost::format("Reencode(\"original\")") << endl;
+                int len; 
+                // code2GID has been stored for embedded CID fonts
+                code2GID = dynamic_cast<GfxCIDFont*>(font)->getCodeToGIDMap(nullptr, &len);
+            }
         }
 
         if(maxcode > 0)
@@ -822,7 +872,7 @@ void HTMLRenderer::export_transform_matrix (long long tm_id, const double * tm)
 void HTMLRenderer::export_color(long long color_id, const GfxRGB * rgb)
 {
     allcss_fout << boost::format(".c%|1$x|{color:rgb(%2%,%3%,%4%);}") 
-        % color_id % rgb->r % rgb->g % rgb->b;
+        % color_id % (int)colToByte(rgb->r) % (int)colToByte(rgb->g) % (int)colToByte(rgb->b);
     allcss_fout << endl;
 }
 
