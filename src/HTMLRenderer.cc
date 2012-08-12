@@ -102,10 +102,10 @@ void HTMLRenderer::process(PDFDoc *doc)
 
         for(int i = param->first_page; i <= param->last_page ; ++i) 
         {
-            doc->displayPage(bg_renderer, i, 4*param->h_dpi, 4*param->v_dpi,
+            doc->displayPage(bg_renderer, i, param->h_dpi2, param->v_dpi2,
                     0, true, false, false,
                     nullptr, nullptr, nullptr, nullptr);
-            bg_renderer->getBitmap()->writeImgFile(splashFormatPng, (char*)(boost::format("p%|1$x|.png")%i).str().c_str(), 4*param->h_dpi, 4*param->v_dpi);
+            bg_renderer->getBitmap()->writeImgFile(splashFormatPng, (char*)(boost::format("p%|1$x|.png")%i).str().c_str(), param->h_dpi2, param->v_dpi2);
 
             std::cerr << ".";
             std::cerr.flush();
@@ -900,6 +900,8 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const std::string & suf
     std::string fn = (boost::format("f%|1$x|") % fn_id).str();
 
     fontscript_fout << boost::format("Open(\"%1%/%2%%3%\",1)") % TMP_DIR % fn % suffix << endl;
+
+    // TODO:  CID fonts without ToUnicode
     if(font->hasToUnicodeCMap())
     {
         auto ctu = font->getToUnicode();
