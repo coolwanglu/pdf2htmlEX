@@ -18,9 +18,12 @@ struct Param
     int first_page, last_page;
 
     double h_dpi, v_dpi;
+    double h_dpi2, v_dpi2;
     double h_eps, v_eps;
 
     int process_nontext;
+
+    int debug;
 };
 
 

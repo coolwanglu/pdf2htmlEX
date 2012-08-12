@@ -11,11 +11,12 @@
 #include <ctime>
 #include <string>
 #include <limits>
-
-#include <goo/GooString.h>
+#include <iostream>
 
 #include <boost/program_options.hpp>
 #include <boost/algorithm/string/predicate.hpp>
+
+#include <goo/GooString.h>
 
 #include "Object.h"
 #include "PDFDoc.h"
@@ -121,11 +122,14 @@ po::variables_map parse_options (int argc, char **argv)
         ("metadata,m", "show the document meta data in JSON")
         ("owner-password,o", po::value<string>(&param.owner_password)->default_value(""), "owner password (for encrypted files)")
         ("user-password,u", po::value<string>(&param.user_password)->default_value(""), "user password (for encrypted files)")
-        ("hdpi", po::value<double>(&param.h_dpi)->default_value(72.0), "horizontal DPI")
-        ("vdpi", po::value<double>(&param.v_dpi)->default_value(72.0), "vertical DPI")
+        ("hdpi", po::value<double>(&param.h_dpi)->default_value(72.0), "horizontal DPI for text")
+        ("vdpi", po::value<double>(&param.v_dpi)->default_value(72.0), "vertical DPI for text")
+        ("hdpi2", po::value<double>(&param.h_dpi2)->default_value(144.0), "horizontal DPI for non-text")
+        ("vdpi2", po::value<double>(&param.v_dpi2)->default_value(144.0), "vertical DPI for non-text")
         ("heps", po::value<double>(&param.h_eps)->default_value(1.0), "max tolerated horizontal offset (in pixels)")
         ("veps", po::value<double>(&param.v_eps)->default_value(1.0), "max tolerated vertical offset (in pixels)")
         ("process-nontext", po::value<int>(&param.process_nontext)->default_value(1), "process nontext objects")
+        ("debug", po::value<int>(&param.debug)->default_value(0), "output debug information")
         ;
 
     opt_hidden.add_options()

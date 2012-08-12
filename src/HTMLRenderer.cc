@@ -14,19 +14,24 @@
 #include <cassert>
 #include <fstream>
 #include <algorithm>
+
 #include <boost/format.hpp>
 #include <boost/algorithm/string.hpp>
+// for gil bug
+const int *int_p_NULL = nullptr;
+#include <boost/gil/gil_all.hpp>
+#include <boost/gil/extension/io/png_dynamic_io.hpp>
 
 #include <GfxFont.h>
-#include <UTF8.h>
+#include <CharCodeToUnicode.h>
 #include <fofi/FoFiType1C.h>
 #include <fofi/FoFiTrueType.h>
 #include <splash/SplashBitmap.h>
-#include <CharCodeToUnicode.h>
 
 #include "HTMLRenderer.h"
 #include "BackgroundRenderer.h"
 #include "Consts.h"
+#include "util.h"
 
 /*
  * CSS classes
@@ -50,7 +55,8 @@ HTMLRenderer::HTMLRenderer(const Param * param)
     :line_opened(false)
     ,html_fout(param->output_filename.c_str(), ofstream::binary)
     ,allcss_fout("all.css")
-    ,fontscript_fout("convert.pe")
+    ,fontscript_fout(TMP_DIR+"/convert.pe")
+    ,image_count(0)
     ,param(param)
 {
     // install default font & size
@@ -102,10 +108,10 @@ void HTMLRenderer::process(PDFDoc *doc)
 
         for(int i = param->first_page; i <= param->last_page ; ++i) 
         {
-            doc->displayPage(bg_renderer, i, 4*param->h_dpi, 4*param->v_dpi,
+            doc->displayPage(bg_renderer, i, param->h_dpi2, param->v_dpi2,
                     0, true, false, false,
                     nullptr, nullptr, nullptr, nullptr);
-            bg_renderer->getBitmap()->writeImgFile(splashFormatPng, (char*)(boost::format("p%|1$x|.png")%i).str().c_str(), 4*param->h_dpi, 4*param->v_dpi);
+            bg_renderer->getBitmap()->writeImgFile(splashFormatPng, (char*)(boost::format("p%|1$x|.png")%i).str().c_str(), param->h_dpi2, param->v_dpi2);
 
             std::cerr << ".";
             std::cerr.flush();
@@ -160,37 +166,6 @@ void HTMLRenderer::close_cur_line()
         html_fout << endl;
 
         line_opened = false;
-    }
-}
-
-void HTMLRenderer::outputUnicodes(const Unicode * u, int uLen)
-{
-    for(int i = 0; i < uLen; ++i)
-    {
-        switch(u[i])
-        {
-            case '&':
-                html_fout << "&amp;";
-                break;
-                case '\"':
-                    html_fout << "&quot;";
-                break;
-            case '\'':
-                html_fout << "&apos;";
-                break;
-            case '<':
-                html_fout << "&lt;";
-                break;
-            case '>':
-                html_fout << "&gt;";
-                break;
-            default:
-                {
-                    char buf[4];
-                    auto n = mapUTF8(u[i], buf, 4);
-                    html_fout.write(buf, n);
-                }
-        }
     }
 }
 
@@ -308,11 +283,13 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
         //real pos & hori_scale
         if(0)
         {
+#if 0
             html_fout << "\"";
             double x,y;
             state->transform(state->getCurX(), state->getCurY(), &x, &y);
             html_fout << boost::format("data-lx=\"%5%\" data-ly=\"%6%\" data-drawscale=\"%4%\" data-x=\"%1%\" data-y=\"%2%\" data-hs=\"%3%")
                 %x%y%(state->getHorizScaling())%draw_scale%state->getLineX()%state->getLineY();
+#endif
         }
 
         html_fout << "\">";
@@ -348,7 +325,28 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
             std::cerr << "TODO: non-zero origins" << std::endl;
         }
 
-        outputUnicodes(u, uLen);
+        if(uLen == 0)
+        {
+            // TODO
+#if 0
+            CharCode c = 0;
+            for(int i = 0; i < n; ++i)
+            {
+                c = (c<<8) | (code&0xff);
+                code >>= 8;
+            }
+            for(int i = 0; i < n; ++i)
+            {
+                Unicode u = (c&0xff);
+                c >>= 8;
+                outputUnicodes(html_fout, &u, 1);
+            }
+#endif
+        }
+        else
+        {
+            outputUnicodes(html_fout, u, uLen);
+        }
 
         dx += dx1;
         dy += dy1;
@@ -376,6 +374,41 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
     draw_ty += dy;
 }
 
+void HTMLRenderer::drawImage(GfxState * state, Object * ref, Stream * str, int width, int height, GfxImageColorMap * colorMap, GBool interpolate, int *maskColors, GBool inlineImg)
+{
+    boost::gil::rgb16_image_t img(width, height);
+    auto imgview = view(img);
+    auto loc = imgview.xy_at(0,0);
+
+    ImageStream * img_stream = new ImageStream(str, width, colorMap->getNumPixelComps(), colorMap->getBits());
+    img_stream->reset();
+
+    for(int i = 0; i < height; ++i)
+    {
+        auto p = img_stream->getLine();
+        for(int j = 0; j < width; ++j)
+        {
+            GfxRGB rgb;
+            colorMap->getRGB(p, &rgb);
+
+            *loc = boost::gil::rgb16_pixel_t(rgb.r, rgb.g, rgb.b);
+
+            p += colorMap->getNumPixelComps();
+
+            ++ loc.x();
+        }
+
+        loc = imgview.xy_at(0, i+1);
+    }
+
+    boost::gil::png_write_view((boost::format("i%|1$x|.png")%image_count).str(), imgview);
+
+    img_stream->close();
+    delete img_stream;
+
+    ++ image_count;
+}
+
 // The font installation code is stolen from PSOutputDev.cc in poppler
 
 long long HTMLRenderer::install_font(GfxFont * font)
@@ -383,6 +416,7 @@ long long HTMLRenderer::install_font(GfxFont * font)
     assert(sizeof(long long) == 2*sizeof(int));
                 
     long long fn_id = (font == nullptr) ? 0 : *reinterpret_cast<long long*>(font->getID());
+
     auto iter = font_name_map.find(fn_id);
     if(iter != font_name_map.end())
         return iter->second.fn_id;
@@ -397,7 +431,10 @@ long long HTMLRenderer::install_font(GfxFont * font)
         return new_fn_id;
     }
 
-    string new_fn = (boost::format("f%|1$x|") % new_fn_id).str();
+    if(param->debug)
+    {
+        std::cerr << "Install font: (" << (font->getID()->num) << ' ' << (font->getID()->gen) << ") -> " << boost::format("f%|1$x|")%new_fn_id << std::endl;
+    }
 
     if(font->getType() == fontType3) {
         std::cerr << "Type 3 fonts are unsupported and will be rendered as Image" << std::endl;
@@ -416,11 +453,20 @@ long long HTMLRenderer::install_font(GfxFont * font)
         switch(font_loc -> locType)
         {
             case gfxFontLocEmbedded:
-                install_embedded_font(font, new_fn_id);
+                {
+                    std::string suffix = dump_embedded_font(font, new_fn_id);
+                    if(suffix != "")
+                    {
+                        install_embedded_font(font, suffix, new_fn_id);
+                    }
+                    else
+                    {
+                        export_remote_default_font(new_fn_id);
+                    }
+                }
                 break;
             case gfxFontLocExternal:
-                std::cerr << "TODO: external font" << std::endl;
-                export_remote_default_font(new_fn_id);
+                install_external_font(font, new_fn_id);
                 break;
             case gfxFontLocResident:
                 install_base_font(font, font_loc, new_fn_id);
@@ -430,63 +476,207 @@ long long HTMLRenderer::install_font(GfxFont * font)
                 export_remote_default_font(new_fn_id);
                 break;
         }      
-
         delete font_loc;
     }
-
+    else
+    {
+        export_remote_default_font(new_fn_id);
+    }
       
     return new_fn_id;
+
 }
 
-void HTMLRenderer::install_embedded_font (GfxFont * font, long long fn_id)
+std::string HTMLRenderer::dump_embedded_font (GfxFont * font, long long fn_id)
 {
-    // fontforge doesn't fully support ToUnicode CMap, so we have to generate the encoding for fontforge
-    fontscript_fout << boost::format("Open(\"%1%(%2%)\",1)") % param->input_filename % font->getName()->getCString() << endl;
-    if(font->hasToUnicodeCMap() && (font->getType() == fontTrueType))
+    // mupdf consulted
+    
+    Object ref_obj, font_obj, font_obj2, fontdesc_obj;
+    Object obj, obj1, obj2;
+    Dict * dict = nullptr;
+
+    std::string suffix, subtype;
+
+    char buf[1024];
+    int len;
+
+    ofstream outf;
+
+    auto * id = font->getID();
+    ref_obj.initRef(id->num, id->gen);
+    ref_obj.fetch(xref, &font_obj);
+    ref_obj.free();
+
+    if(!font_obj.isDict())
     {
-        char * buf;
-        int buflen;
-        FoFiTrueType * ttf;
-        if((buf = font->readEmbFontFile(xref, &buflen)))
-        {
-            if((ttf = FoFiTrueType::make(buf, buflen)))
-            {
-                auto ctg = dynamic_cast<Gfx8BitFont*>(font)->getCodeToGIDMap(ttf);
-                auto ctu = font->getToUnicode();
-                ofstream map_fout((boost::format("f%|1$x|.encoding") % fn_id).str().c_str());
-
-                for(int i = 0; i < 256; ++i)
-                {
-                    int code = ctg[i];
-                    Unicode * u;
-                    auto n = ctu->mapToUnicode(i, &u);
-                    // not sure what to do when n > 1
-                    if(n > 0)
-                    {
-                        map_fout << boost::format("0x%|1$X|") % code;
-                        for(int j = 0; j < n; ++j)
-                            map_fout << boost::format(" 0x%|1$X|") % u[j];
-                        map_fout << boost::format(" # 0x%|1$X|") % i << endl;
-                    }
-                }
-
-                fontscript_fout << boost::format("LoadEncodingFile(\"f%|1$x|.encoding\", \"f%|1$x|\")") % fn_id << endl;
-                fontscript_fout << boost::format("Reencode(\"f%|1$x|\", 1)") % fn_id << endl;
-
-                ctu->decRefCnt();
-                delete ttf;
-            }
-            gfree(buf);
-        }
-
+        std::cerr << "Font object is not a dictionary" << std::endl;
+        goto err;
     }
 
-    fontscript_fout << boost::format("Generate(\"f%|1$x|.ttf\")") % fn_id << endl;
+    dict = font_obj.getDict();
+    if(dict->lookup("DescendantFonts", &font_obj2)->isArray())
+    {
+        if(font_obj2.arrayGetLength() == 0)
+        {
+            std::cerr << "Warning: empty DescendantFonts array" << std::endl;
+        }
+        else
+        {
+            if(font_obj2.arrayGetLength() > 1)
+                std::cerr << "TODO: multiple entries in DescendantFonts array" << std::endl;
+
+            if(font_obj2.arrayGet(0, &obj2)->isDict())
+            {
+                dict = obj2.getDict();
+            }
+        }
+    }
+
+    if(!dict->lookup("FontDescriptor", &fontdesc_obj)->isDict())
+    {
+        std::cerr << "Cannot find FontDescriptor " << std::endl;
+        goto err;
+    }
+
+    dict = fontdesc_obj.getDict();
+    
+    if(dict->lookup("FontFile3", &obj)->isStream())
+    {
+        if(obj.streamGetDict()->lookup("Subtype", &obj1)->isName())
+        {
+            subtype = obj1.getName();
+            if(subtype == "Type1C")
+            {
+                suffix = ".cff";
+            }
+            else if (subtype == "CIDFontType0C")
+            {
+                suffix = ".cid";
+            }
+            else
+            {
+                std::cerr << "Unknown subtype: " << subtype << std::endl;
+                goto err;
+            }
+        }
+        else
+        {
+            std::cerr << "Invalid subtype in font descriptor" << std::endl;
+            goto err;
+        }
+    }
+    else if (dict->lookup("FontFile2", &obj)->isStream())
+    { 
+        suffix = ".ttf";
+    }
+    else if (dict->lookup("FontFile", &obj)->isStream())
+    {
+        suffix = ".ttf";
+    }
+    else
+    {
+        std::cerr << "Cannot find FontFile for dump" << std::endl;
+        goto err;
+    }
+
+    if(suffix == "")
+    {
+        std::cerr << "Font type unrecognized" << std::endl;
+        goto err;
+    }
+
+    obj.streamReset();
+    outf.open((boost::format("%1%/f%|2$x|%3%")%TMP_DIR%fn_id%suffix).str().c_str(), ofstream::binary);
+    while((len = obj.streamGetChars(1024, (Guchar*)buf)) > 0)
+    {
+        outf.write(buf, len);
+    }
+    outf.close();
+    obj.streamClose();
+
+err:
+    obj2.free();
+    obj1.free();
+    obj.free();
+
+    fontdesc_obj.free();
+    font_obj2.free();
+    font_obj.free();
+    return suffix;
+}
+
+void HTMLRenderer::install_embedded_font(GfxFont * font, const std::string & suffix, long long fn_id)
+{
+    // TODO Should use standard way to handle CID fonts
+    
+    std::string fn = (boost::format("f%|1$x|") % fn_id).str();
+
+    fontscript_fout << boost::format("Open(\"%1%/%2%%3%\",1)") % TMP_DIR % fn % suffix << endl;
+
+    auto ctu = font->getToUnicode();
+    int * code2GID = nullptr;
+    if(ctu)
+    {
+        // TODO: ctu could be CID2Unicode for CID fonts
+        
+        int maxcode = 0;
+
+        if(!font->isCIDFont())
+        {
+            maxcode = 0xff;
+            //TODO read code2GID for TrueType
+        }
+        else
+        {
+            maxcode = 0xffff;
+            if(suffix != ".ttf")
+            {
+                fontscript_fout << "CIDFlatten()" << endl;
+            }
+            else
+            {
+                fontscript_fout << boost::format("Reencode(\"original\")") << endl;
+                int len; 
+                // code2GID has been stored for embedded CID fonts
+                code2GID = dynamic_cast<GfxCIDFont*>(font)->getCodeToGIDMap(nullptr, &len);
+            }
+        }
+
+        if(maxcode > 0)
+        {
+            ofstream map_fout((boost::format("%1%/%2%.encoding") % TMP_DIR % fn).str().c_str());
+            int cnt = 0;
+            for(int i = 0; i <= maxcode; ++i)
+            {
+                Unicode * u;
+                auto n = ctu->mapToUnicode(i, &u);
+                // not sure what to do when n > 1
+                if(n > 0)
+                {
+                    ++cnt;
+                    map_fout << boost::format("0x%|1$X|") % (code2GID ? code2GID[i] : i);
+                    for(int j = 0; j < n; ++j)
+                        map_fout << boost::format(" 0x%|1$X|") % u[j];
+                    map_fout << boost::format(" # 0x%|1$X|") % i << endl;
+                }
+            }
+
+            if(cnt > 0)
+            {
+                fontscript_fout << boost::format("LoadEncodingFile(\"%1%/%2%.encoding\", \"%2%\")") % TMP_DIR % fn << endl;
+                fontscript_fout << boost::format("Reencode(\"%1%\", 1)") % fn << endl;
+            }
+        }
+
+        ctu->decRefCnt();
+    }
+
+    fontscript_fout << boost::format("Generate(\"%1%.ttf\")") % fn << endl;
 
     export_remote_font(fn_id, ".ttf", "truetype", font);
 }
-    
-void HTMLRenderer::install_base_font( GfxFont * font, GfxFontLoc * font_loc, long long fn_id)
+
+void HTMLRenderer::install_base_font(GfxFont * font, GfxFontLoc * font_loc, long long fn_id)
 {
     std::string psname(font_loc->path->getCString());
     string basename = psname.substr(0, psname.find('-'));
@@ -500,9 +690,24 @@ void HTMLRenderer::install_base_font( GfxFont * font, GfxFontLoc * font_loc, lon
     else
         cssfont = iter->second;
 
-    export_local_font(fn_id, font, font_loc, psname, cssfont);
+    export_local_font(fn_id, font, psname, cssfont);
 }
 
+void HTMLRenderer::install_external_font( GfxFont * font, long long fn_id)
+{
+    std::string fontname(font->getName()->getCString());
+
+    // resolve bad encodings in GB
+    auto iter = GB_ENCODED_FONT_NAME_MAP.find(fontname); 
+    if(iter != GB_ENCODED_FONT_NAME_MAP.end())
+    {
+        fontname = iter->second;
+        std::cerr << "Warning: workaround for font names in bad encodings." << std::endl;
+    }
+
+    export_local_font(fn_id, font, fontname, "");
+}
+    
 long long HTMLRenderer::install_font_size(double font_size)
 {
     auto iter = font_size_map.lower_bound(font_size - EPS);
@@ -584,13 +789,14 @@ void HTMLRenderer::export_remote_default_font(long long fn_id)
     allcss_fout << endl;
 }
 
-void HTMLRenderer::export_local_font(long long fn_id, GfxFont * font, GfxFontLoc * font_loc, const string & original_font_name, const string & cssfont)
+void HTMLRenderer::export_local_font(long long fn_id, GfxFont * font, const string & original_font_name, const string & cssfont)
 {
     allcss_fout << boost::format(".f%|1$x|{") % fn_id;
-    allcss_fout << "font-family:" << ((cssfont == "") ? (original_font_name+","+general_font_family(font)) : cssfont) << ";";
+    allcss_fout << "font-family:" << ((cssfont == "") ? (original_font_name + "," + general_font_family(font)) : cssfont) << ";";
+
     if(font->isBold())
         allcss_fout << "font-weight:bold;";
-    
+
     if(boost::algorithm::ifind_first(original_font_name, "oblique"))
         allcss_fout << "font-style:oblique;";
     else if(font->isItalic())
@@ -667,7 +873,7 @@ void HTMLRenderer::export_transform_matrix (long long tm_id, const double * tm)
 void HTMLRenderer::export_color(long long color_id, const GfxRGB * rgb)
 {
     allcss_fout << boost::format(".c%|1$x|{color:rgb(%2%,%3%,%4%);}") 
-        % color_id % rgb->r % rgb->g % rgb->b;
+        % color_id % (int)colToByte(rgb->r) % (int)colToByte(rgb->g) % (int)colToByte(rgb->b);
     allcss_fout << endl;
 }
 
