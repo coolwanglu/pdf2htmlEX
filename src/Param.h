@@ -22,6 +22,8 @@ struct Param
     double h_eps, v_eps;
 
     int process_nontext;
+
+    int debug;
 };
 
 
