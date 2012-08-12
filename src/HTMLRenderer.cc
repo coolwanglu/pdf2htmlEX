@@ -389,6 +389,11 @@ long long HTMLRenderer::install_font(GfxFont * font)
         return new_fn_id;
     }
 
+    if(param->debug)
+    {
+        std::cerr << "Install font: (" << (font->getID()->num) << ' ' << (font->getID()->gen) << ") -> " << boost::format("f%|1$x|")%new_fn_id << std::endl;
+    }
+
     if(font->getType() == fontType3) {
         std::cerr << "Type 3 fonts are unsupported and will be rendered as Image" << std::endl;
         export_remote_default_font(new_fn_id);
@@ -589,6 +594,7 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const std::string & suf
         if(maxcode > 0)
         {
             ofstream map_fout((boost::format("%1%/%2%.encoding") % TMP_DIR % fn).str().c_str());
+            int cnt = 0;
             for(int i = 0; i <= maxcode; ++i)
             {
                 Unicode * u;
@@ -596,6 +602,7 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const std::string & suf
                 // not sure what to do when n > 1
                 if(n > 0)
                 {
+                    ++cnt;
                     map_fout << boost::format("0x%|1$X|") % (code2GID ? code2GID[i] : i);
                     for(int j = 0; j < n; ++j)
                         map_fout << boost::format(" 0x%|1$X|") % u[j];
@@ -603,8 +610,11 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const std::string & suf
                 }
             }
 
-            fontscript_fout << boost::format("LoadEncodingFile(\"%1%/%2%.encoding\", \"%2%\")") % TMP_DIR % fn << endl;
-            fontscript_fout << boost::format("Reencode(\"%1%\", 1)") % fn << endl;
+            if(cnt > 0)
+            {
+                fontscript_fout << boost::format("LoadEncodingFile(\"%1%/%2%.encoding\", \"%2%\")") % TMP_DIR % fn << endl;
+                fontscript_fout << boost::format("Reencode(\"%1%\", 1)") % fn << endl;
+            }
         }
 
         ctu->decRefCnt();

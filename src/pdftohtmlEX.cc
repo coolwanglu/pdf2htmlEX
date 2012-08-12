@@ -126,6 +126,7 @@ po::variables_map parse_options (int argc, char **argv)
         ("heps", po::value<double>(&param.h_eps)->default_value(1.0), "max tolerated horizontal offset (in pixels)")
         ("veps", po::value<double>(&param.v_eps)->default_value(1.0), "max tolerated vertical offset (in pixels)")
         ("process-nontext", po::value<int>(&param.process_nontext)->default_value(1), "process nontext objects")
+        ("debug", po::value<int>(&param.debug)->default_value(0), "output debug information")
         ;
 
     opt_hidden.add_options()
