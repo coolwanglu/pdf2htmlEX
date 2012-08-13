@@ -31,7 +31,7 @@ Dependency
 ----------------------------
 * libpoppler with xpdf header >= 0.20.2
 * boost c++ library (format, program options, gil)
-* fontforge **Please use [my modified version](http://github.com/coolwanglu/fontforge) before the bugs are fixed**
+* fontforge **Please use [the lastest version](https://github.com/fontforge/fontforge)**
 
 HOW TO COMPILE
 ----------------------------
