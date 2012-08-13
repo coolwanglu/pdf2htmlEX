@@ -18,14 +18,14 @@
 
 #include <goo/GooString.h>
 
-#include "Object.h"
-#include "PDFDoc.h"
-#include "PDFDocFactory.h"
-#include "HTMLRenderer.h"
-#include "GlobalParams.h"
-#include "Error.h"
-#include "DateInfo.h"
+#include <Object.h>
+#include <PDFDoc.h>
+#include <PDFDocFactory.h>
+#include <GlobalParams.h>
+#include <Error.h>
+#include <DateInfo.h>
 
+#include "HTMLRenderer.h"
 #include "Param.h"
 #include "PaperClub.h"
 
