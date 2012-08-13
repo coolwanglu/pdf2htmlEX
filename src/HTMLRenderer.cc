@@ -70,12 +70,12 @@ HTMLRenderer::HTMLRenderer(const Param * param)
     black.r = black.g = black.b = 0;
     install_color(&black);
     
-    html_fout << HTML_HEAD << endl;
+    write_html_head();
 }
 
 HTMLRenderer::~HTMLRenderer()
 {
-    html_fout << HTML_TAIL << endl;
+    write_html_tail();
 }
 
 void HTMLRenderer::process(PDFDoc *doc)
@@ -118,6 +118,16 @@ void HTMLRenderer::process(PDFDoc *doc)
         delete bg_renderer;
         std::cerr << std::endl;
     }
+}
+
+void HTMLRenderer::write_html_head()
+{
+    html_fout << HTML_HEAD << endl;
+}
+
+void HTMLRenderer::write_html_tail()
+{
+    html_fout << HTML_TAIL << endl;
 }
 
 void HTMLRenderer::startPage(int pageNum, GfxState *state) 
