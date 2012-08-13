@@ -77,8 +77,8 @@ HTMLRenderer::~HTMLRenderer()
 
 void HTMLRenderer::process(PDFDoc *doc)
 {
-    write_html_head();
     std::cerr << "Processing Text: ";
+    write_html_head();
     xref = doc->getXRef();
     for(int i = param->first_page; i <= param->last_page ; ++i) 
     {
@@ -89,8 +89,8 @@ void HTMLRenderer::process(PDFDoc *doc)
         std::cerr << ".";
         std::cerr.flush();
     }
-    std::cerr << std::endl;
     write_html_tail();
+    std::cerr << std::endl;
 
     if(param->process_nontext)
     {
