@@ -30,8 +30,8 @@ const std::string HTML_HEAD = "<!DOCTYPE html>\n\
   overflow:hidden;\
   display:none;\
 }\
-.p  > .l {\
-  position:absolute; \
+.p > .l {\
+  position:absolute;\
   white-space:pre;\
 }\
 .l > .w {\
@@ -44,6 +44,9 @@ const std::string HTML_HEAD = "<!DOCTYPE html>\n\
 ::-moz-selection{\
   background: rgba(168,209,255,0.5);\
 }\
+.p > .i {\
+  position:absolute;\
+}\
 </style><link rel=\"stylesheet\" type=\"text/css\" href=\"all.css\" />\
 <script type=\"text/javascript\">\
 function show_pages()\
@@ -51,10 +54,10 @@ function show_pages()\
  var pages = document.getElementById('pdf-main').childNodes;\
  var idx = 0;\
  var f = function(){\
-  if (idx < pages.length) {\
-   try{\
-    pages[idx].style.display='block';\
-   }catch(e){}\
+ if (idx < pages.length) {\
+  try{\
+   pages[idx].style.display='block';\
+  }catch(e){}\
    ++idx;\
    setTimeout(f,100);\
   }\

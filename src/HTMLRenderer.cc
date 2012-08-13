@@ -39,6 +39,7 @@ const int *int_p_NULL = nullptr;
  * p - Page
  * l - Line
  * w - White space
+ * i - Image
  *
  * 
  * Reusable CSS classes
@@ -69,14 +70,12 @@ HTMLRenderer::HTMLRenderer(const Param * param)
     black.r = black.g = black.b = 0;
     install_color(&black);
     
-    html_fout << HTML_HEAD; 
-    html_fout << endl;
+    html_fout << HTML_HEAD << endl;
 }
 
 HTMLRenderer::~HTMLRenderer()
 {
-    html_fout << HTML_TAIL;
-    html_fout << endl;
+    html_fout << HTML_TAIL << endl;
 }
 
 void HTMLRenderer::process(PDFDoc *doc)
@@ -133,8 +132,7 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
 
     html_fout << boost::format("background-image:url(p%|3$x|.png);background-position:0 0;background-size:%1%px %2%px;background-repeat:no-repeat;") % pageWidth % pageHeight % pageNum;
             
-    html_fout << "\">";
-    html_fout << endl;
+    html_fout << "\">" << endl;
 
     cur_fn_id = cur_fs_id = cur_tm_id = cur_color_id = 0;
     cur_tx = cur_ty = 0;
@@ -154,17 +152,14 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
 void HTMLRenderer::endPage() {
     close_cur_line();
     // close page
-    html_fout << "</div>";
-    html_fout << endl;
+    html_fout << "</div>" << endl;
 }
 
 void HTMLRenderer::close_cur_line()
 {
     if(line_opened)
     {
-        html_fout << "</div>";
-        html_fout << endl;
-
+        html_fout << "</div>" << endl;
         line_opened = false;
     }
 }
@@ -376,7 +371,10 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
 
 void HTMLRenderer::drawImage(GfxState * state, Object * ref, Stream * str, int width, int height, GfxImageColorMap * colorMap, GBool interpolate, int *maskColors, GBool inlineImg)
 {
-    boost::gil::rgb16_image_t img(width, height);
+    if(maskColors)
+        return;
+
+    boost::gil::rgb8_image_t img(width, height);
     auto imgview = view(img);
     auto loc = imgview.xy_at(0,0);
 
@@ -391,7 +389,7 @@ void HTMLRenderer::drawImage(GfxState * state, Object * ref, Stream * str, int w
             GfxRGB rgb;
             colorMap->getRGB(p, &rgb);
 
-            *loc = boost::gil::rgb16_pixel_t(rgb.r, rgb.g, rgb.b);
+            *loc = boost::gil::rgb8_pixel_t(colToByte(rgb.r), colToByte(rgb.g), colToByte(rgb.b));
 
             p += colorMap->getNumPixelComps();
 
@@ -402,9 +400,16 @@ void HTMLRenderer::drawImage(GfxState * state, Object * ref, Stream * str, int w
     }
 
     boost::gil::png_write_view((boost::format("i%|1$x|.png")%image_count).str(), imgview);
-
+    
     img_stream->close();
     delete img_stream;
+
+    close_cur_line();
+
+    double * ctm = state->getCTM();
+    ctm[4] = ctm[5] = 0.0;
+    html_fout << boost::format("<img class=\"i t%2%\" style=\"left:%3%px;bottom:%4%px;width:%5%px;height:%6%px;\" src=\"i%|1$x|.png\" />") % image_count % install_transform_matrix(ctm) % state->getCurX() % state->getCurY() % width % height << endl;
+
 
     ++ image_count;
 }
@@ -608,6 +613,25 @@ err:
 void HTMLRenderer::install_embedded_font(GfxFont * font, const std::string & suffix, long long fn_id)
 {
     // TODO Should use standard way to handle CID fonts
+    /*
+     * How it works:
+     *
+     * 1.dump the font file directly from the font descriptor and put the glyphs into the correct slots
+     *
+     * for nonCID
+     * nothing need to do
+     *
+     * for CID + nonTrueType
+     * Flatten the font 
+     *
+     * for CID Truetype
+     * Just use glyph order, and later we'll map GID (instead of char code) to Unicode
+     *
+     *
+     * 2. map charcode (or GID for CID truetype) to Unicode
+     * 
+     * generate an encoding file and let fontforge handle it.
+     */
     
     std::string fn = (boost::format("f%|1$x|") % fn_id).str();
 
@@ -618,13 +642,11 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const std::string & suf
     if(ctu)
     {
         // TODO: ctu could be CID2Unicode for CID fonts
-        
         int maxcode = 0;
 
         if(!font->isCIDFont())
         {
             maxcode = 0xff;
-            //TODO read code2GID for TrueType
         }
         else
         {
@@ -777,16 +799,13 @@ void HTMLRenderer::export_remote_font(long long fn_id, const string & suffix, co
 
     allcss_fout << "line-height:" << (a-d) << ";";
 
-    allcss_fout << "}";
-
-    allcss_fout << endl;
+    allcss_fout << "}" << endl;
 }
 
 // TODO: this function is called when some font is unable to process, may use the name there as a hint
 void HTMLRenderer::export_remote_default_font(long long fn_id)
 {
-    allcss_fout << boost::format(".f%|1$x|{font-family:sans-serif;color:transparent;visibility:hidden;}")%fn_id;
-    allcss_fout << endl;
+    allcss_fout << boost::format(".f%|1$x|{font-family:sans-serif;color:transparent;visibility:hidden;}")%fn_id << endl;
 }
 
 void HTMLRenderer::export_local_font(long long fn_id, GfxFont * font, const string & original_font_name, const string & cssfont)
@@ -813,9 +832,7 @@ void HTMLRenderer::export_local_font(long long fn_id, GfxFont * font, const stri
 
     allcss_fout << "line-height:" << (a-d) << ";";
 
-    allcss_fout << "}";
-
-    allcss_fout << endl;
+    allcss_fout << "}" << endl;
 }
 
 std::string HTMLRenderer::general_font_family(GfxFont * font)
@@ -830,14 +847,12 @@ std::string HTMLRenderer::general_font_family(GfxFont * font)
 
 void HTMLRenderer::export_font_size (long long fs_id, double font_size)
 {
-    allcss_fout << boost::format(".s%|1$x|{font-size:%2%px;}") % fs_id % font_size;
-    allcss_fout << endl;
+    allcss_fout << boost::format(".s%|1$x|{font-size:%2%px;}") % fs_id % font_size << endl;
 }
 
 void HTMLRenderer::export_whitespace (long long ws_id, double ws_width)
 {
-    allcss_fout << boost::format(".w%|1$x|{width:%2%px;}") % ws_id % ws_width;
-    allcss_fout << endl;
+    allcss_fout << boost::format(".w%|1$x|{width:%2%px;}") % ws_id % ws_width << endl;
 }
 
 void HTMLRenderer::export_transform_matrix (long long tm_id, const double * tm)
@@ -866,15 +881,14 @@ void HTMLRenderer::export_transform_matrix (long long tm_id, const double * tm)
                 allcss_fout << boost::format("%1%,%2%);") % tm[4] % -tm[5];
         }
     }
-    allcss_fout << "}";
-    allcss_fout << endl;
+    allcss_fout << "}" << endl;
 }
 
 void HTMLRenderer::export_color(long long color_id, const GfxRGB * rgb)
 {
     allcss_fout << boost::format(".c%|1$x|{color:rgb(%2%,%3%,%4%);}") 
-        % color_id % (int)colToByte(rgb->r) % (int)colToByte(rgb->g) % (int)colToByte(rgb->b);
-    allcss_fout << endl;
+        % color_id % (int)colToByte(rgb->r) % (int)colToByte(rgb->g) % (int)colToByte(rgb->b)
+        << endl;
 }
 
 void HTMLRenderer::check_state_change(GfxState * state)
@@ -944,14 +958,17 @@ void HTMLRenderer::check_state_change(GfxState * state)
 
     if(need_rescale_font)
     {
-        draw_scale = std::sqrt(cur_ctm[2] * cur_ctm[2] + cur_ctm[3] * cur_ctm[3]);
+        double new_draw_ctm[6];
+        memcpy(new_draw_ctm, cur_ctm, sizeof(new_draw_ctm));
+
+        draw_scale = std::sqrt(new_draw_ctm[2] * new_draw_ctm[2] + new_draw_ctm[3] * new_draw_ctm[3]);
 
         double new_draw_font_size = cur_font_size;
         if(_is_positive(draw_scale))
         {
             new_draw_font_size *= draw_scale;
             for(int i = 0; i < 4; ++i)
-                cur_ctm[i] /= draw_scale;
+                new_draw_ctm[i] /= draw_scale;
         }
         else
         {
@@ -964,9 +981,9 @@ void HTMLRenderer::check_state_change(GfxState * state)
             cur_fs_id = install_font_size(draw_font_size);
             close_line = true;
         }
-        if(!(_tm_equal(cur_ctm, draw_ctm)))
+        if(!(_tm_equal(new_draw_ctm, draw_ctm)))
         {
-            memcpy(draw_ctm, cur_ctm, sizeof(draw_ctm));
+            memcpy(draw_ctm, new_draw_ctm, sizeof(draw_ctm));
             cur_tm_id = install_transform_matrix(draw_ctm);
             close_line = true;
         }
