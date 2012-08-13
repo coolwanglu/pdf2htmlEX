@@ -9,6 +9,8 @@
 
 const double EPS = 1e-6;
 
+// The style "-webkit-text-stroke-width:0.2px;" is used in #pdf-main to
+// improve some font of small size, which looks really bad in Chrome & Safari
 const std::string HTML_HEAD = "<!DOCTYPE html>\n\
 <html><head>\
 <meta charset=\"utf-8\">\
@@ -22,6 +24,7 @@ const std::string HTML_HEAD = "<!DOCTYPE html>\n\
   right:0;\
   overflow:auto;\
   background-color:grey;\
+  -webkit-text-stroke-width:0.2px; \
 }\
 #pdf-main > .p {\
   position:relative;\
