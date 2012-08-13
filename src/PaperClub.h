@@ -8,14 +8,18 @@
 #ifndef PAPERCLUB_H__
 #define PAPERCLUB_H__
 
+#include <boost/format.hpp>
+
 #include "HTMLRenderer.h"
 
 class PC_HTMLRenderer : public HTMLRenderer
 {
     public:
-        virtual ~PC_HTMLRenderer()
-        {
-        }
+        PC_HTMLRenderer (const Param * param)
+           : HTMLRenderer(param)
+        { } 
+
+        virtual ~PC_HTMLRenderer() { }
 
         virtual void startPage(int pageNum, GfxState *state) 
         {
