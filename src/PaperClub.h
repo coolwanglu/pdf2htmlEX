@@ -21,6 +21,9 @@ class PC_HTMLRenderer : public HTMLRenderer
 
         virtual ~PC_HTMLRenderer() { }
 
+        virtual void write_html_head() { }
+        virtual void write_html_tail() { }
+
         virtual void startPage(int pageNum, GfxState *state) 
         {
             html_fout.close();
