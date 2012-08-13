@@ -27,6 +27,7 @@
 #include "DateInfo.h"
 
 #include "Param.h"
+#include "PaperClub.h"
 
 #define PDFTOHTMLEX_VERSION "0.1"
 
@@ -220,7 +221,7 @@ int main(int argc, char **argv)
         }
     }
 
-    htmlOut = new HTMLRenderer(&param);
+    htmlOut = new PC_HTMLRenderer(&param);
     htmlOut->process(doc);
 
     {
