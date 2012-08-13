@@ -94,7 +94,7 @@ class HTMLRenderer : public OutputDev
 
         virtual void drawImage(GfxState * state, Object * ref, Stream * str, int width, int height, GfxImageColorMap * colorMap, GBool interpolate, int *maskColors, GBool inlineImg);
 
-    private:
+    protected:
         void close_cur_line();
 
         // return the mapped font name
