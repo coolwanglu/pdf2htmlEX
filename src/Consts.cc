@@ -36,7 +36,7 @@ const std::string HTML_HEAD = "<!DOCTYPE html>\n\
 }\
 .l > .w {\
   display:inline-block;\
-  visibility:hidden;\
+  font-family: monospace;\
 }\
 ::selection{\
   background: rgba(168,209,255,0.5);\
@@ -51,18 +51,18 @@ const std::string HTML_HEAD = "<!DOCTYPE html>\n\
 <script type=\"text/javascript\">\
 function show_pages()\
 {\
-var pages = document.getElementById('pdf-main').childNodes;\
-var idx = 0;\
-var f = function(){\
-if (idx < pages.length) {\
-try{\
-pages[idx].style.display='block';\
-}catch(e){}\
-++idx;\
-setTimeout(f,100);\
-}\
-};\
-f();\
+ var pages = document.getElementById('pdf-main').childNodes;\
+ var idx = 0;\
+ var f = function(){\
+ if (idx < pages.length) {\
+  try{\
+   pages[idx].style.display='block';\
+  }catch(e){}\
+   ++idx;\
+   setTimeout(f,100);\
+  }\
+ };\
+ f();\
 };\
 </script>\
 </head><body onload=\"show_pages();\"><div id=\"pdf-main\">";

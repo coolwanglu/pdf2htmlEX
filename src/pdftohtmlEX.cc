@@ -108,7 +108,7 @@ void show_usage(void)
     cerr << "Copyright 2011 Hongliang Tian (tatetian@gmail.com)" << endl;
     cerr << "Copyright 2012 Lu Wang (coolwanglu<at>gmail.com)" << endl;
     cerr << endl;
-    cerr << "Usage: pdftohtml [Options] <PDF-file> [<JSON-file>]" << endl;
+    cerr << "Usage: pdf2htmlEX [Options] <PDF-file>" << endl;
     cerr << endl;
     cerr << opt_visible << endl;
 }

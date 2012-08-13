@@ -70,12 +70,12 @@ HTMLRenderer::HTMLRenderer(const Param * param)
     black.r = black.g = black.b = 0;
     install_color(&black);
     
-    html_fout << HTML_HEAD << endl;
+    write_html_head();
 }
 
 HTMLRenderer::~HTMLRenderer()
 {
-    html_fout << HTML_TAIL << endl;
+    write_html_tail();
 }
 
 void HTMLRenderer::process(PDFDoc *doc)
@@ -118,6 +118,16 @@ void HTMLRenderer::process(PDFDoc *doc)
         delete bg_renderer;
         std::cerr << std::endl;
     }
+}
+
+void HTMLRenderer::write_html_head()
+{
+    html_fout << HTML_HEAD << endl;
+}
+
+void HTMLRenderer::write_html_tail()
+{
+    html_fout << HTML_TAIL << endl;
 }
 
 void HTMLRenderer::startPage(int pageNum, GfxState *state) 
@@ -276,6 +286,7 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
 
         //debug 
         //real pos & hori_scale
+        if(0)
         {
 #if 0
             html_fout << "\"";
@@ -957,14 +968,17 @@ void HTMLRenderer::check_state_change(GfxState * state)
 
     if(need_rescale_font)
     {
-        draw_scale = std::sqrt(cur_ctm[2] * cur_ctm[2] + cur_ctm[3] * cur_ctm[3]);
+        double new_draw_ctm[6];
+        memcpy(new_draw_ctm, cur_ctm, sizeof(new_draw_ctm));
+
+        draw_scale = std::sqrt(new_draw_ctm[2] * new_draw_ctm[2] + new_draw_ctm[3] * new_draw_ctm[3]);
 
         double new_draw_font_size = cur_font_size;
         if(_is_positive(draw_scale))
         {
             new_draw_font_size *= draw_scale;
             for(int i = 0; i < 4; ++i)
-                cur_ctm[i] /= draw_scale;
+                new_draw_ctm[i] /= draw_scale;
         }
         else
         {
@@ -977,9 +991,9 @@ void HTMLRenderer::check_state_change(GfxState * state)
             cur_fs_id = install_font_size(draw_font_size);
             close_line = true;
         }
-        if(!(_tm_equal(cur_ctm, draw_ctm)))
+        if(!(_tm_equal(new_draw_ctm, draw_ctm)))
         {
-            memcpy(draw_ctm, cur_ctm, sizeof(draw_ctm));
+            memcpy(draw_ctm, new_draw_ctm, sizeof(draw_ctm));
             cur_tm_id = install_transform_matrix(draw_ctm);
             close_line = true;
         }

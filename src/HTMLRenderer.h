@@ -70,6 +70,8 @@ class HTMLRenderer : public OutputDev
             return gTrue;
         }
 
+        virtual void write_html_head();
+        virtual void write_html_tail();
 
         // Start a page.
         virtual void startPage(int pageNum, GfxState *state);
