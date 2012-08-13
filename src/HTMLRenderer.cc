@@ -69,19 +69,16 @@ HTMLRenderer::HTMLRenderer(const Param * param)
     GfxRGB black;
     black.r = black.g = black.b = 0;
     install_color(&black);
-    
-    write_html_head();
 }
 
 HTMLRenderer::~HTMLRenderer()
 {
-    write_html_tail();
 }
 
 void HTMLRenderer::process(PDFDoc *doc)
 {
+    write_html_head();
     std::cerr << "Processing Text: ";
-
     xref = doc->getXRef();
     for(int i = param->first_page; i <= param->last_page ; ++i) 
     {
@@ -93,6 +90,7 @@ void HTMLRenderer::process(PDFDoc *doc)
         std::cerr.flush();
     }
     std::cerr << std::endl;
+    write_html_tail();
 
     if(param->process_nontext)
     {
