@@ -20,4 +20,5 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ggdb")
 add_executable(pdftohtmlEX src/pdftohtmlEX.cc src/HTMLRenderer.cc src/HTMLRenderer.h src/BackgroundRenderer.cc src/BackgroundRenderer.h src/Consts.h src/Consts.cc src/util.h)
 target_link_libraries(pdftohtmlEX poppler boost_program_options)
 
-
+install (TARGETS pdftohtmlEX DESTINATION bin)
+install (PROGRAMS "bin/pdf2htmlEX" DESTINATION bin)
