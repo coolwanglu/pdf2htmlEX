@@ -14,6 +14,7 @@
 #include <CharCodeToUnicode.h>
 
 #include "HTMLRenderer.h"
+#include "namespace.h"
 
 long long HTMLRenderer::install_font(GfxFont * font)
 {
@@ -27,7 +28,7 @@ long long HTMLRenderer::install_font(GfxFont * font)
 
     long long new_fn_id = font_name_map.size(); 
 
-    font_name_map.insert(std::make_pair(fn_id, FontInfo({new_fn_id})));
+    font_name_map.insert(make_pair(fn_id, FontInfo({new_fn_id})));
 
     if(font == nullptr)
     {
@@ -37,16 +38,16 @@ long long HTMLRenderer::install_font(GfxFont * font)
 
     if(param->debug)
     {
-        std::cerr << "Install font: (" << (font->getID()->num) << ' ' << (font->getID()->gen) << ") -> " << boost::format("f%|1$x|")%new_fn_id << std::endl;
+        cerr << "Install font: (" << (font->getID()->num) << ' ' << (font->getID()->gen) << ") -> " << boost::format("f%|1$x|")%new_fn_id << endl;
     }
 
     if(font->getType() == fontType3) {
-        std::cerr << "Type 3 fonts are unsupported and will be rendered as Image" << std::endl;
+        cerr << "Type 3 fonts are unsupported and will be rendered as Image" << endl;
         export_remote_default_font(new_fn_id);
         return new_fn_id;
     }
     if(font->getWMode()) {
-        std::cerr << "Writing mode is unsupported and will be rendered as Image" << std::endl;
+        cerr << "Writing mode is unsupported and will be rendered as Image" << endl;
         export_remote_default_font(new_fn_id);
         return new_fn_id;
     }
@@ -58,7 +59,7 @@ long long HTMLRenderer::install_font(GfxFont * font)
         {
             case gfxFontLocEmbedded:
                 {
-                    std::string suffix = dump_embedded_font(font, new_fn_id);
+                    string suffix = dump_embedded_font(font, new_fn_id);
                     if(suffix != "")
                     {
                         install_embedded_font(font, suffix, new_fn_id);
@@ -76,7 +77,7 @@ long long HTMLRenderer::install_font(GfxFont * font)
                 install_base_font(font, font_loc, new_fn_id);
                 break;
             default:
-                std::cerr << "TODO: other font loc" << std::endl;
+                cerr << "TODO: other font loc" << endl;
                 export_remote_default_font(new_fn_id);
                 break;
         }      
@@ -93,7 +94,7 @@ long long HTMLRenderer::install_font(GfxFont * font)
 
 // TODO
 // add a new function and move to text.cc
-void HTMLRenderer::install_embedded_font(GfxFont * font, const std::string & suffix, long long fn_id)
+void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, long long fn_id)
 {
     // TODO Should use standard way to handle CID fonts
     /*
@@ -116,7 +117,7 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const std::string & suf
      * generate an encoding file and let fontforge handle it.
      */
     
-    std::string fn = (boost::format("f%|1$x|") % fn_id).str();
+    string fn = (boost::format("f%|1$x|") % fn_id).str();
 
     fontscript_fout << boost::format("Open(\"%1%/%2%%3%\",1)") % TMP_DIR % fn % suffix << endl;
 
@@ -183,13 +184,13 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const std::string & suf
 
 void HTMLRenderer::install_base_font(GfxFont * font, GfxFontLoc * font_loc, long long fn_id)
 {
-    std::string psname(font_loc->path->getCString());
+    string psname(font_loc->path->getCString());
     string basename = psname.substr(0, psname.find('-'));
     string cssfont;
     auto iter = BASE_14_FONT_CSS_FONT_MAP.find(basename);
     if(iter == BASE_14_FONT_CSS_FONT_MAP.end())
     {
-        std::cerr << "PS Font: " << basename << " not found in the base 14 font map" << std::endl;
+        cerr << "PS Font: " << basename << " not found in the base 14 font map" << endl;
         cssfont = "";
     }
     else
@@ -200,14 +201,14 @@ void HTMLRenderer::install_base_font(GfxFont * font, GfxFontLoc * font_loc, long
 
 void HTMLRenderer::install_external_font( GfxFont * font, long long fn_id)
 {
-    std::string fontname(font->getName()->getCString());
+    string fontname(font->getName()->getCString());
 
     // resolve bad encodings in GB
     auto iter = GB_ENCODED_FONT_NAME_MAP.find(fontname); 
     if(iter != GB_ENCODED_FONT_NAME_MAP.end())
     {
         fontname = iter->second;
-        std::cerr << "Warning: workaround for font names in bad encodings." << std::endl;
+        cerr << "Warning: workaround for font names in bad encodings." << endl;
     }
 
     export_local_font(fn_id, font, fontname, "");
@@ -220,7 +221,7 @@ long long HTMLRenderer::install_font_size(double font_size)
         return iter->second;
 
     long long new_fs_id = font_size_map.size();
-    font_size_map.insert(std::make_pair(font_size, new_fs_id));
+    font_size_map.insert(make_pair(font_size, new_fs_id));
     export_font_size(new_fs_id, font_size);
     return new_fs_id;
 }
@@ -228,7 +229,7 @@ long long HTMLRenderer::install_font_size(double font_size)
 long long HTMLRenderer::install_whitespace(double ws_width, double & actual_width)
 {
     auto iter = whitespace_map.lower_bound(ws_width - param->h_eps);
-    if((iter != whitespace_map.end()) && (std::abs(iter->first - ws_width) < param->h_eps))
+    if((iter != whitespace_map.end()) && (abs(iter->first - ws_width) < param->h_eps))
     {
         actual_width = iter->first;
         return iter->second;
@@ -236,7 +237,7 @@ long long HTMLRenderer::install_whitespace(double ws_width, double & actual_widt
 
     actual_width = ws_width;
     long long new_ws_id = whitespace_map.size();
-    whitespace_map.insert(std::make_pair(ws_width, new_ws_id));
+    whitespace_map.insert(make_pair(ws_width, new_ws_id));
     export_whitespace(new_ws_id, ws_width);
     return new_ws_id;
 }
@@ -249,20 +250,20 @@ long long HTMLRenderer::install_transform_matrix(const double * tm)
         return iter->second;
 
     long long new_tm_id = transform_matrix_map.size();
-    transform_matrix_map.insert(std::make_pair(m, new_tm_id));
+    transform_matrix_map.insert(make_pair(m, new_tm_id));
     export_transform_matrix(new_tm_id, tm);
     return new_tm_id;
 }
 
 long long HTMLRenderer::install_color(const GfxRGB * rgb)
 {
-    Color c(rgb);
+    const GfxRGB & c = *rgb;
     auto iter = color_map.lower_bound(c);
     if((iter != color_map.end()) && (c == (iter->first)))
         return iter->second;
 
     long long new_color_id = color_map.size();
-    color_map.insert(std::make_pair(c, new_color_id));
+    color_map.insert(make_pair(c, new_color_id));
     export_color(new_color_id, rgb);
     return new_color_id;
 }

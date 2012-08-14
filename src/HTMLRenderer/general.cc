@@ -19,6 +19,7 @@
 #include "HTMLRenderer.h"
 #include "BackgroundRenderer.h"
 #include "config.h"
+#include "namespace.h"
 
 HTMLRenderer::HTMLRenderer(const Param * param)
     :line_opened(false)
@@ -44,7 +45,7 @@ HTMLRenderer::~HTMLRenderer()
 
 void HTMLRenderer::process(PDFDoc *doc)
 {
-    std::cerr << "Processing Text: ";
+    cerr << "Processing Text: ";
     write_html_head();
     xref = doc->getXRef();
     for(int i = param->first_page; i <= param->last_page ; ++i) 
@@ -53,16 +54,16 @@ void HTMLRenderer::process(PDFDoc *doc)
                 0, true, false, false,
                 nullptr, nullptr, nullptr, nullptr);
 
-        std::cerr << ".";
-        std::cerr.flush();
+        cerr << ".";
+        cerr.flush();
     }
     write_html_tail();
-    std::cerr << std::endl;
+    cerr << endl;
 
     if(param->process_nontext)
     {
         // Render non-text objects as image
-        std::cerr << "Processing Others: ";
+        cerr << "Processing Others: ";
         // copied from poppler
         SplashColor color;
         color[0] = color[1] = color[2] = 255;
@@ -77,22 +78,22 @@ void HTMLRenderer::process(PDFDoc *doc)
                     nullptr, nullptr, nullptr, nullptr);
             bg_renderer->getBitmap()->writeImgFile(splashFormatPng, (char*)(boost::format("p%|1$x|.png")%i).str().c_str(), param->h_dpi2, param->v_dpi2);
 
-            std::cerr << ".";
-            std::cerr.flush();
+            cerr << ".";
+            cerr.flush();
         }
         delete bg_renderer;
-        std::cerr << std::endl;
+        cerr << endl;
     }
 }
 
 void HTMLRenderer::write_html_head()
 {
-    html_fout << boost::filesystem::ifstream(PDF2HTMLEX_LIB_PATH / "head.html", ifstream::binary).rdbuf();
+    html_fout << ifstream(PDF2HTMLEX_LIB_PATH / "head.html", ifstream::binary).rdbuf();
 }
 
 void HTMLRenderer::write_html_tail()
 {
-    html_fout << boost::filesystem::ifstream(PDF2HTMLEX_LIB_PATH / "tail.html", ifstream::binary).rdbuf();
+    html_fout << ifstream(PDF2HTMLEX_LIB_PATH / "tail.html", ifstream::binary).rdbuf();
 }
 
 void HTMLRenderer::startPage(int pageNum, GfxState *state) 

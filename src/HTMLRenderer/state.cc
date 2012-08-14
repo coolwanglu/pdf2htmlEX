@@ -9,6 +9,7 @@
 
 
 #include "HTMLRenderer.h"
+#include "namespace.h"
 
 void HTMLRenderer::check_state_change(GfxState * state)
 {
@@ -16,7 +17,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
 
     if(all_changed || text_pos_changed)
     {
-        if(!(std::abs(cur_ty - draw_ty) * draw_scale < param->v_eps))
+        if(!(abs(cur_ty - draw_ty) * draw_scale < param->v_eps))
         {
             close_line = true;
             draw_ty = cur_ty;
@@ -80,7 +81,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
         double new_draw_ctm[6];
         memcpy(new_draw_ctm, cur_ctm, sizeof(new_draw_ctm));
 
-        draw_scale = std::sqrt(new_draw_ctm[2] * new_draw_ctm[2] + new_draw_ctm[3] * new_draw_ctm[3]);
+        draw_scale = sqrt(new_draw_ctm[2] * new_draw_ctm[2] + new_draw_ctm[3] * new_draw_ctm[3]);
 
         double new_draw_font_size = cur_font_size;
         if(_is_positive(draw_scale))

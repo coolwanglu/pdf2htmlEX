@@ -12,8 +12,9 @@
 #include <boost/format.hpp>
 
 #include "HTMLRenderer.h"
+#include "namespace.h"
 
-std::string HTMLRenderer::dump_embedded_font (GfxFont * font, long long fn_id)
+string HTMLRenderer::dump_embedded_font (GfxFont * font, long long fn_id)
 {
     // mupdf consulted
     
@@ -21,7 +22,7 @@ std::string HTMLRenderer::dump_embedded_font (GfxFont * font, long long fn_id)
     Object obj, obj1, obj2;
     Dict * dict = nullptr;
 
-    std::string suffix, subtype;
+    string suffix, subtype;
 
     char buf[1024];
     int len;
@@ -35,7 +36,7 @@ std::string HTMLRenderer::dump_embedded_font (GfxFont * font, long long fn_id)
 
     if(!font_obj.isDict())
     {
-        std::cerr << "Font object is not a dictionary" << std::endl;
+        cerr << "Font object is not a dictionary" << endl;
         goto err;
     }
 
@@ -44,12 +45,12 @@ std::string HTMLRenderer::dump_embedded_font (GfxFont * font, long long fn_id)
     {
         if(font_obj2.arrayGetLength() == 0)
         {
-            std::cerr << "Warning: empty DescendantFonts array" << std::endl;
+            cerr << "Warning: empty DescendantFonts array" << endl;
         }
         else
         {
             if(font_obj2.arrayGetLength() > 1)
-                std::cerr << "TODO: multiple entries in DescendantFonts array" << std::endl;
+                cerr << "TODO: multiple entries in DescendantFonts array" << endl;
 
             if(font_obj2.arrayGet(0, &obj2)->isDict())
             {
@@ -60,7 +61,7 @@ std::string HTMLRenderer::dump_embedded_font (GfxFont * font, long long fn_id)
 
     if(!dict->lookup("FontDescriptor", &fontdesc_obj)->isDict())
     {
-        std::cerr << "Cannot find FontDescriptor " << std::endl;
+        cerr << "Cannot find FontDescriptor " << endl;
         goto err;
     }
 
@@ -81,13 +82,13 @@ std::string HTMLRenderer::dump_embedded_font (GfxFont * font, long long fn_id)
             }
             else
             {
-                std::cerr << "Unknown subtype: " << subtype << std::endl;
+                cerr << "Unknown subtype: " << subtype << endl;
                 goto err;
             }
         }
         else
         {
-            std::cerr << "Invalid subtype in font descriptor" << std::endl;
+            cerr << "Invalid subtype in font descriptor" << endl;
             goto err;
         }
     }
@@ -101,13 +102,13 @@ std::string HTMLRenderer::dump_embedded_font (GfxFont * font, long long fn_id)
     }
     else
     {
-        std::cerr << "Cannot find FontFile for dump" << std::endl;
+        cerr << "Cannot find FontFile for dump" << endl;
         goto err;
     }
 
     if(suffix == "")
     {
-        std::cerr << "Font type unrecognized" << std::endl;
+        cerr << "Font type unrecognized" << endl;
         goto err;
     }
 
@@ -245,7 +246,7 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
 
         if(!(_equal(ox, 0) && _equal(oy, 0)))
         {
-            std::cerr << "TODO: non-zero origins" << std::endl;
+            cerr << "TODO: non-zero origins" << endl;
         }
 
         if(uLen == 0)

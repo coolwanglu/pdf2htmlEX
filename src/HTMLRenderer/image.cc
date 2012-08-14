@@ -14,7 +14,7 @@ const int *int_p_NULL = nullptr;
 #include <boost/gil/extension/io/png_dynamic_io.hpp>
 
 #include "HTMLRenderer.h"
-
+#include "namespace.h"
 
 void HTMLRenderer::drawImage(GfxState * state, Object * ref, Stream * str, int width, int height, GfxImageColorMap * colorMap, GBool interpolate, int *maskColors, GBool inlineImg)
 {

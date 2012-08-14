@@ -7,9 +7,9 @@
 
 #ifndef CONSTS_H__
 #define CONSTS_H__
+
 #include <string>
 #include <map>
-#include <string>
 
 extern const double EPS;
 

@@ -9,10 +9,11 @@
 #define HTMLRENDERER_H_
 
 #include <algorithm>
-#include <fstream>
 #include <unordered_map>
 #include <map>
 #include <vector>
+
+#include <boost/filesystem/fstream.hpp>
 
 #include <OutputDev.h>
 #include <GfxState.h>
@@ -27,8 +28,6 @@
 
 #include "Param.h"
 #include "util.h"
-
-using namespace std;
 
 class HTMLRenderer : public OutputDev
 {
@@ -115,9 +114,9 @@ class HTMLRenderer : public OutputDev
          * remote font: to be retrieved from the web server
          * local font: to be substituted with a local (client side) font
          */
-        void export_remote_font(long long fn_id, const string & suffix, const string & format, GfxFont * font);
+        void export_remote_font(long long fn_id, const std::string & suffix, const std::string & format, GfxFont * font);
         void export_remote_default_font(long long fn_id);
-        void export_local_font(long long fn_id, GfxFont * font, const string & original_font_name, const string & cssfont);
+        void export_local_font(long long fn_id, GfxFont * font, const std::string & original_font_name, const std::string & cssfont);
         void export_font_size(long long fs_id, double font_size);
         void export_whitespace(long long ws_id, double ws_width);
         void export_transform_matrix(long long tm_id, const double * tm);
@@ -175,15 +174,15 @@ class HTMLRenderer : public OutputDev
         // the position of next char, in text coords
         double draw_tx, draw_ty; 
 
-        ofstream html_fout, allcss_fout, fontscript_fout;
+        std::ofstream html_fout, allcss_fout, fontscript_fout;
 
         class FontInfo{
             public:
                 long long fn_id;
         };
-        unordered_map<long long, FontInfo> font_name_map;
-        map<double, long long> font_size_map;
-        map<double, long long> whitespace_map;
+        std::unordered_map<long long, FontInfo> font_name_map;
+        std::map<double, long long> font_size_map;
+        std::map<double, long long> whitespace_map;
 
         // transform matrix
         class TM{
@@ -206,36 +205,9 @@ class HTMLRenderer : public OutputDev
                 double _[6];
         };
 
-        map<TM, long long> transform_matrix_map;
+        std::map<TM, long long> transform_matrix_map;
 
-        class Color{
-            public:
-                Color() {}
-                Color(const GfxRGB * rgb) { 
-                    _[0] = rgb->r;
-                    _[1] = rgb->g;
-                    _[2] = rgb->b;
-                }
-                bool operator < (const Color & c) const {
-                    for(int i = 0; i < 3; ++i)
-                    {
-                        if(_[i] < c._[i])
-                            return true;
-                        if(_[i] > c._[i])
-                            return false;
-                    }
-                    return false;
-                }
-                bool operator == (const Color & c) const {
-                    for(int i = 0; i < 3; ++i)
-                        if(_[i] != c._[i])
-                            return false;
-                    return true;
-                }
-
-                int _[3];
-        };
-        map<Color, long long> color_map; 
+        std::map<GfxRGB, long long> color_map; 
 
         int image_count;
 

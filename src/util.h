@@ -65,6 +65,19 @@ static inline void outputUnicodes(std::ostream & out, const Unicode * u, int uLe
     }
 }
 
+static inline bool operator < (const GfxRGB & rgb1, const GfxRGB & rgb2)
+{
+    if(rgb1.r < rgb2.r) return true;
+    if(rgb1.r > rgb2.r) return false;
+    if(rgb1.g < rgb2.g) return true;
+    if(rgb1.g > rgb2.g) return false;
+    return (rgb1.b < rgb2.b);
+}
+
+static inline bool operator == (const GfxRGB & rgb1, const GfxRGB & rgb2)
+{
+    return ((rgb1.r == rgb2.r) && (rgb1.g == rgb2.g) && (rgb1.b == rgb1.b));
+}
 
 
 #endif //UTIL_H__

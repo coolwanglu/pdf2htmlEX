@@ -12,6 +12,8 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/format.hpp>
 
+using std::string;
+using std::endl;
 
 /*
  * CSS classes
@@ -40,7 +42,7 @@ void HTMLRenderer::export_remote_font(long long fn_id, const string & suffix, co
     double d = font->getDescent();
     double r = _is_positive(a-d) ? (a/(a-d)) : 1.0;
 
-    for(const std::string & prefix : {"", "-ms-", "-moz-", "-webkit-", "-o-"})
+    for(const string & prefix : {"", "-ms-", "-moz-", "-webkit-", "-o-"})
     {
         allcss_fout << prefix << "transform-origin:0% " << (r*100.0) << "%;";
     }
@@ -50,7 +52,7 @@ void HTMLRenderer::export_remote_font(long long fn_id, const string & suffix, co
     allcss_fout << "}" << endl;
 }
 
-static std::string general_font_family(GfxFont * font)
+static string general_font_family(GfxFont * font)
 {
     if(font -> isFixedWidth())
         return "monospace";
@@ -83,7 +85,7 @@ void HTMLRenderer::export_local_font(long long fn_id, GfxFont * font, const stri
     double d = font->getDescent();
     double r = _is_positive(a-d) ? (a/(a-d)) : 1.0;
 
-    for(const std::string & prefix : {"", "-ms-", "-moz-", "-webkit-", "-o-"})
+    for(const string & prefix : {"", "-ms-", "-moz-", "-webkit-", "-o-"})
     {
         allcss_fout << prefix << "transform-origin:0% " << (r*100.0) << "%;";
     }
@@ -115,7 +117,7 @@ void HTMLRenderer::export_transform_matrix (long long tm_id, const double * tm)
     }
     else
     {
-        for(const std::string & prefix : {"", "-ms-", "-moz-", "-webkit-", "-o-"})
+        for(const string & prefix : {"", "-ms-", "-moz-", "-webkit-", "-o-"})
         {
             // PDF use a different coordinate system from Web
             allcss_fout << prefix << "transform:matrix("
