@@ -27,6 +27,8 @@ struct Param
     int process_nontext;
 
     int debug;
+
+    int single_html;
 };
 
 

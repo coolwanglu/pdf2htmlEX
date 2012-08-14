@@ -9,10 +9,7 @@
  * 2012.08.14
  */
 
-#include <iostream>
-
-#include <boost/format.hpp>
-#include <boost/filesystem/fstream.hpp>
+#include <iomanip>
 
 #include <splash/SplashBitmap.h>
 
@@ -21,15 +18,14 @@
 #include "config.h"
 #include "namespace.h"
 
+using std::flush;
+
 HTMLRenderer::HTMLRenderer(const Param * param)
     :line_opened(false)
     ,image_count(0)
     ,param(param)
     ,dest_dir(param->dest_dir)
     ,tmp_dir(TMP_DIR)
-    ,html_fout(dest_dir / param->output_filename, ofstream::binary) // we may output utf8 characters, so use binary
-    ,allcss_fout(dest_dir / "all.css", ofstream::binary)
-    ,fontscript_fout(tmp_dir / "convert.pe", ofstream::binary)
 {
     // install default font & size
     install_font(nullptr);
@@ -47,55 +43,80 @@ HTMLRenderer::~HTMLRenderer()
 
 void HTMLRenderer::process(PDFDoc *doc)
 {
-    cerr << "Processing Text: ";
-    write_html_head();
-    xref = doc->getXRef();
-    for(int i = param->first_page; i <= param->last_page ; ++i) 
-    {
-        doc->displayPage(this, i, param->h_dpi, param->v_dpi,
-                0, true, false, false,
-                nullptr, nullptr, nullptr, nullptr);
+    cerr << "Working: ";
 
-        cerr << ".";
-        cerr.flush();
-    }
-    write_html_tail();
-    cerr << endl;
+    xref = doc->getXRef();
+
+    BackgroundRenderer * bg_renderer = nullptr;
 
     if(param->process_nontext)
     {
         // Render non-text objects as image
-        cerr << "Processing Others: ";
         // copied from poppler
         SplashColor color;
         color[0] = color[1] = color[2] = 255;
 
-        auto bg_renderer = new BackgroundRenderer(splashModeRGB8, 4, gFalse, color);
+        bg_renderer = new BackgroundRenderer(splashModeRGB8, 4, gFalse, color);
         bg_renderer->startDoc(doc);
+    }
 
-        for(int i = param->first_page; i <= param->last_page ; ++i) 
+    pre_process();
+    for(int i = param->first_page; i <= param->last_page ; ++i) 
+    {
+        if(param->process_nontext)
         {
             doc->displayPage(bg_renderer, i, param->h_dpi2, param->v_dpi2,
                     0, true, false, false,
                     nullptr, nullptr, nullptr, nullptr);
-            bg_renderer->getBitmap()->writeImgFile(splashFormatPng, (char*)(dest_dir / (format("p%|1$x|.png")%i).str()).c_str(), param->h_dpi2, param->v_dpi2);
-
-            cerr << ".";
-            cerr.flush();
+            bg_renderer->getBitmap()->writeImgFile(splashFormatPng, (char*)(working_dir() / (format("p%|1$x|.png")%i).str()).c_str(), param->h_dpi2, param->v_dpi2);
         }
-        delete bg_renderer;
-        cerr << endl;
+
+
+        doc->displayPage(this, i, param->h_dpi, param->v_dpi,
+                0, true, false, false,
+                nullptr, nullptr, nullptr, nullptr);
+
+        cerr << "." << flush;
     }
+    post_process();
+
+    if(bg_renderer)
+        delete bg_renderer;
+
+    cerr << endl;
 }
 
-void HTMLRenderer::write_html_head()
+void HTMLRenderer::pre_process()
 {
-    html_fout << ifstream(PDF2HTMLEX_LIB_PATH / "head.html", ifstream::binary).rdbuf();
+    html_fout.open(working_dir() / param->output_filename, ofstream::binary); // we may output utf8 characters, so use binary
+    allcss_fout.open(working_dir() / "all.css", ofstream::binary);
+    fontscript_fout.open(tmp_dir / "pdf2htmlEX.pe", ofstream::binary);
+
+    if(!param->single_html)
+    {
+        html_fout << ifstream(PDF2HTMLEX_LIB_PATH / "head.html", ifstream::binary).rdbuf();
+        html_fout << "<link rel=\"stylesheet\" type=\"text/css\" href=\"all.css\"/>" << endl;
+        html_fout << ifstream(PDF2HTMLEX_LIB_PATH / "neck.html", ifstream::binary).rdbuf();
+    }
+
+    allcss_fout << ifstream(PDF2HTMLEX_LIB_PATH / "base.css", ifstream::binary).rdbuf();
 }
 
-void HTMLRenderer::write_html_tail()
+void HTMLRenderer::post_process()
 {
-    html_fout << ifstream(PDF2HTMLEX_LIB_PATH / "tail.html", ifstream::binary).rdbuf();
+    if(!param->single_html)
+    {
+        html_fout << ifstream(PDF2HTMLEX_LIB_PATH / "tail.html", ifstream::binary).rdbuf();
+    }
+
+    html_fout.close();
+    allcss_fout.close();
+    fontscript_fout.close();
+
+    if(param->single_html)
+    {
+        process_single_html();
+    }
 }
 
 void HTMLRenderer::startPage(int pageNum, GfxState *state) 
@@ -133,7 +154,22 @@ void HTMLRenderer::endPage() {
     html_fout << "</div>" << endl;
 }
 
+void HTMLRenderer::process_single_html()
+{
+    ofstream out (dest_dir / param->output_filename, ofstream::binary);
 
+    out << ifstream(PDF2HTMLEX_LIB_PATH / "head.html", ifstream::binary).rdbuf();
+
+    out << "<style type=\"text/css\">" << endl;
+    out << ifstream(tmp_dir / "all.css", ifstream::binary).rdbuf();
+    out << "</style>" << endl;
+
+    out << ifstream(PDF2HTMLEX_LIB_PATH / "neck.html", ifstream::binary).rdbuf();
+
+    out << ifstream(tmp_dir / param->output_filename, ifstream::binary).rdbuf();
+
+    out << ifstream(PDF2HTMLEX_LIB_PATH / "tail.html", ifstream::binary).rdbuf();
+}
 
 
 
