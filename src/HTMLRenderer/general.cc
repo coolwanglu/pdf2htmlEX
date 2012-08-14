@@ -129,7 +129,21 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
 
     html_fout << format("<div id=\"page-%3%\" class=\"p\" style=\"width:%1%px;height:%2%px;") % pageWidth % pageHeight % pageNum;
 
-    html_fout << format("background-image:url(p%|3$x|.png);background-position:0 0;background-size:%1%px %2%px;background-repeat:no-repeat;") % pageWidth % pageHeight % pageNum;
+    html_fout << "background-image:url(";
+
+    const std::string fn = (format("p%|1$x|.png") % pageNum).str();
+    if(param->single_html)
+    {
+        html_fout << "'data:image/png;base64,";
+        copy_base64(html_fout, ifstream(tmp_dir / fn));
+        html_fout << "'";
+    }
+    else
+    {
+        html_fout << fn;
+    }
+    
+    html_fout << format(");background-position:0 0;background-size:%1%px %2%px;background-repeat:no-repeat;") % pageWidth % pageHeight;
             
     html_fout << "\">" << endl;
 

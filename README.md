@@ -30,7 +30,7 @@ Not supported yet
 Dependency
 ----------------------------
 * libpoppler with xpdf header >= 0.20.2
-* boost c++ library (format, program options, gil, filesystem)
+* boost c++ library (format, program options, gil, filesystem, serialization)
 * fontforge **Please use [the lastest version](https://github.com/fontforge/fontforge)**
 
 HOW TO COMPILE

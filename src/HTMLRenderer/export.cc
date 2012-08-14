@@ -36,7 +36,23 @@ using boost::algorithm::ifind_first;
 
 void HTMLRenderer::export_remote_font(long long fn_id, const string & suffix, const string & fontfileformat, GfxFont * font)
 {
-    allcss_fout << format("@font-face{font-family:f%|1$x|;src:url(f%|1$x|%2%)format(\"%3%\");}.f%|1$x|{font-family:f%|1$x|;") % fn_id % suffix % fontfileformat;
+
+    //allcss_fout << format("@font-face{font-family:f%|1$x|;src:url(f%|1$x|%2%)format(\"%3%\");}.f%|1$x|{font-family:f%|1$x|;") % fn_id % suffix % fontfileformat;
+    
+    allcss_fout << format("@font-face{font-family:f%|1$x|;src:url(") % fn_id;
+
+    if(param->single_html)
+    {
+        allcss_fout << "'data:font/" << fontfileformat << ";base64,";
+        //TODO
+        allcss_fout << "'";
+    }
+    else
+    {
+        allcss_fout << format("f%|1$x|%2%") % fn_id % suffix;
+    }
+
+    allcss_fout << format(")format(\"%1%\");}.f%|2$x|{font-family:f%|2$x|;") % fontfileformat % fn_id;
 
     double a = font->getAscent();
     double d = font->getDescent();

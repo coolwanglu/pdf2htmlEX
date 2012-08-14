@@ -11,11 +11,25 @@
 #define UTIL_H__
 
 #include <algorithm>
+#include <istream>
 #include <ostream>
+#include <iterator>
+
+#include <boost/archive/iterators/transform_width.hpp>
+#include <boost/archive/iterators/base64_from_binary.hpp>
 
 #include <UTF8.h>
 
 #include "Consts.h"
+
+using std::istream;
+using std::ostream;
+using std::istream_iterator;
+using std::ostream_iterator;
+using std::copy;
+
+using boost::archive::iterators::base64_from_binary;
+using boost::archive::iterators::transform_width;
 
 // mute gcc
 namespace
@@ -109,5 +123,17 @@ public:
     double _[6];
 };
 
+// TODO: padding bug of boost
+static inline void copy_base64 (ostream & out, istream & in)
+{
+    typedef base64_from_binary < transform_width < istream_iterator<char>, 6, 8 > > base64_iter;
+    copy(base64_iter(istream_iterator<char>(in)), base64_iter(istream_iterator<char>()), ostream_iterator<char>(out));
+}
+
+static inline void copy_base64 (ostream & out, istream && in)
+{
+    typedef base64_from_binary < transform_width < istream_iterator<char>, 6, 8 > > base64_iter;
+    copy(base64_iter(istream_iterator<char>(in)), base64_iter(istream_iterator<char>()), ostream_iterator<char>(out));
+}
 
 #endif //UTIL_H__

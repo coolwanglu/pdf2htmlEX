@@ -10,9 +10,9 @@ rm -f $TMPDIR/* 2>/dev/null
 
 $LIBDIR/pdf2htmlEX $* 
 
-if [ -f $TMPDIR/convert.pe ]; then
+if [ -f $TMPDIR/pdf2htmlEX.pe ]; then
     echo -n "Converting fonts: "
-    fontforge -script $TMPDIR/convert.pe 2>/dev/null
+    fontforge -script $TMPDIR/pdf2htmlEX.pe 2>/dev/null
     echo "."
 fi
 
