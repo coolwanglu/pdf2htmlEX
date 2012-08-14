@@ -20,6 +20,8 @@
 
 using std::flush;
 
+using boost::filesystem::file_size;
+
 HTMLRenderer::HTMLRenderer(const Param * param)
     :line_opened(false)
     ,image_count(0)
@@ -134,8 +136,9 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
     const std::string fn = (format("p%|1$x|.png") % pageNum).str();
     if(param->single_html)
     {
+        auto path = tmp_dir / fn;
         html_fout << "'data:image/png;base64,";
-        copy_base64(html_fout, ifstream(tmp_dir / fn));
+        copy_base64(html_fout, ifstream(path), file_size(path));
         html_fout << "'";
     }
     else

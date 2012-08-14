@@ -123,17 +123,40 @@ public:
     double _[6];
 };
 
-// TODO: padding bug of boost
-static inline void copy_base64 (ostream & out, istream & in)
+static inline void copy_base64 (ostream & out, istream & in, size_t length)
 {
     typedef base64_from_binary < transform_width < istream_iterator<char>, 6, 8 > > base64_iter;
     copy(base64_iter(istream_iterator<char>(in)), base64_iter(istream_iterator<char>()), ostream_iterator<char>(out));
+    switch(length % 3)
+    {
+        case 1:
+            out << '=';
+            // fall through
+        case 2:
+            out << '=';
+            // fall through
+        case 0:
+        default:
+            break;
+    }
 }
 
-static inline void copy_base64 (ostream & out, istream && in)
+static inline void copy_base64 (ostream & out, istream && in, size_t length)
 {
     typedef base64_from_binary < transform_width < istream_iterator<char>, 6, 8 > > base64_iter;
     copy(base64_iter(istream_iterator<char>(in)), base64_iter(istream_iterator<char>()), ostream_iterator<char>(out));
+    switch(length % 3)
+    {
+        case 1:
+            out << '=';
+            // fall through
+        case 2:
+            out << '=';
+            // fall through
+        case 0:
+        default:
+            break;
+    }
 }
 
 #endif //UTIL_H__
