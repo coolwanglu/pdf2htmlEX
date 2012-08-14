@@ -5,7 +5,7 @@ find_package(PkgConfig)
 pkg_check_modules(POPPLER REQUIRED poppler)
 include_directories(${POPPLER_INCLUDE_DIRS})
 link_directories ( ${POPPLER_LIBRARY_DIRS} )
-find_package(Boost REQUIRED COMPONENTS program_options)
+find_package(Boost REQUIRED COMPONENTS program_options filesystem)
 include_directories(${Boost_INCLUDE_DIRS})
 link_directories ( ${Boost_LIBRARY_DIRS} )
 include_directories(src)
@@ -37,7 +37,9 @@ add_executable(pdf2htmlEX
     src/util.h
     src/config.h)
 
-target_link_libraries(pdf2htmlEX poppler boost_program_options boost_filesystem)
+#link boost::system temporarily... maybe a bug of boost
+#target_link_libraries(pdf2htmlEX poppler boost_program_options boost_filesystem)
+target_link_libraries(pdf2htmlEX poppler boost_program_options boost_filesystem boost_system)
 
 install (TARGETS pdf2htmlEX DESTINATION lib/pdf2htmlEX)
 install (PROGRAMS "bin/pdf2htmlEX" DESTINATION bin)

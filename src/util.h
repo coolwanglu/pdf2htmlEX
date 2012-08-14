@@ -31,11 +31,11 @@ using std::copy;
 using boost::archive::iterators::base64_from_binary;
 using boost::archive::iterators::transform_width;
 
-// mute gcc
+// mute gcc warning of unused function
 namespace
 {
     template <class T>
-    void dummy1(){ auto _ = &mapUCS2; }
+    void dummy(){ auto _ = &mapUCS2; }
 }
 
 static inline bool _equal(double x, double y) { return std::abs(x-y) < EPS; }
