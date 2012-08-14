@@ -119,7 +119,7 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
     
     string fn = (format("f%|1$x|") % fn_id).str();
 
-    fontscript_fout << format("Open(\"%1%\", 1)") % (tmp_dir / (fn + suffix)) << endl;
+    fontscript_fout << format("Open(%1%, 1)") % (tmp_dir / (fn + suffix)) << endl;
 
     auto ctu = font->getToUnicode();
     int * code2GID = nullptr;
@@ -169,7 +169,7 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
 
             if(cnt > 0)
             {
-                fontscript_fout << format("LoadEncodingFile(\"%1%\", \"%2%\")") % (tmp_dir / (fn+".encoding")) % fn << endl;
+                fontscript_fout << format("LoadEncodingFile(%1%, \"%2%\")") % (tmp_dir / (fn+".encoding")) % fn << endl;
                 fontscript_fout << format("Reencode(\"%1%\", 1)") % fn << endl;
             }
         }
@@ -177,7 +177,7 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
         ctu->decRefCnt();
     }
 
-    fontscript_fout << format("Generate(\"%1%.ttf\")") % (dest_dir / fn) << endl;
+    fontscript_fout << format("Generate(%1%)") % (dest_dir / (fn+".ttf")) << endl;
 
     export_remote_font(fn_id, ".ttf", "truetype", font);
 }

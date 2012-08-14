@@ -78,7 +78,7 @@ void HTMLRenderer::process(PDFDoc *doc)
             doc->displayPage(bg_renderer, i, param->h_dpi2, param->v_dpi2,
                     0, true, false, false,
                     nullptr, nullptr, nullptr, nullptr);
-            bg_renderer->getBitmap()->writeImgFile(splashFormatPng, (char*)(format("p%|1$x|.png")%i).str().c_str(), param->h_dpi2, param->v_dpi2);
+            bg_renderer->getBitmap()->writeImgFile(splashFormatPng, (char*)(dest_dir / (format("p%|1$x|.png")%i).str()).c_str(), param->h_dpi2, param->v_dpi2);
 
             cerr << ".";
             cerr.flush();
