@@ -133,6 +133,7 @@ po::variables_map parse_options (int argc, char **argv)
         ("veps", po::value<double>(&param.v_eps)->default_value(1.0), "max tolerated vertical offset (in pixels)")
         ("process-nontext", po::value<int>(&param.process_nontext)->default_value(1), "process nontext objects")
         ("debug", po::value<int>(&param.debug)->default_value(0), "output debug information")
+        ("single-html", po::value<int>(&param.single_html)->default_value(0), "combine everything into one single HTML file")
         ;
 
     opt_hidden.add_options()

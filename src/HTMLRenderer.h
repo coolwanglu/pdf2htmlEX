@@ -56,8 +56,11 @@ class HTMLRenderer : public OutputDev
         // Does this device need non-text content?
         virtual GBool needNonText() { return gFalse; }
 
-        virtual void write_html_head();
-        virtual void write_html_tail();
+        virtual void pre_process();
+        virtual void post_process();
+        virtual void process_single_html();
+
+        virtual boost::filesystem::path working_dir() const { return (param->single_html ? tmp_dir : dest_dir); }
 
         // Start a page.
         virtual void startPage(int pageNum, GfxState *state);
