@@ -38,7 +38,7 @@ long long HTMLRenderer::install_font(GfxFont * font)
 
     if(param->debug)
     {
-        cerr << "Install font: (" << (font->getID()->num) << ' ' << (font->getID()->gen) << ") -> " << boost::format("f%|1$x|")%new_fn_id << endl;
+        cerr << "Install font: (" << (font->getID()->num) << ' ' << (font->getID()->gen) << ") -> " << format("f%|1$x|")%new_fn_id << endl;
     }
 
     if(font->getType() == fontType3) {
@@ -117,9 +117,9 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
      * generate an encoding file and let fontforge handle it.
      */
     
-    string fn = (boost::format("f%|1$x|") % fn_id).str();
+    string fn = (format("f%|1$x|") % fn_id).str();
 
-    fontscript_fout << boost::format("Open(\"%1%/%2%%3%\",1)") % TMP_DIR % fn % suffix << endl;
+    fontscript_fout << format("Open(\"%1%\", 1)") % (tmp_dir / (fn + suffix)) << endl;
 
     auto ctu = font->getToUnicode();
     int * code2GID = nullptr;
@@ -141,7 +141,7 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
             }
             else
             {
-                fontscript_fout << boost::format("Reencode(\"original\")") << endl;
+                fontscript_fout << format("Reencode(\"original\")") << endl;
                 int len; 
                 // code2GID has been stored for embedded CID fonts
                 code2GID = dynamic_cast<GfxCIDFont*>(font)->getCodeToGIDMap(nullptr, &len);
@@ -150,7 +150,7 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
 
         if(maxcode > 0)
         {
-            ofstream map_fout((boost::format("%1%/%2%.encoding") % TMP_DIR % fn).str().c_str());
+            ofstream map_fout(tmp_dir / (fn + ".encoding"));
             int cnt = 0;
             for(int i = 0; i <= maxcode; ++i)
             {
@@ -160,24 +160,24 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
                 if(n > 0)
                 {
                     ++cnt;
-                    map_fout << boost::format("0x%|1$X|") % (code2GID ? code2GID[i] : i);
+                    map_fout << format("0x%|1$X|") % (code2GID ? code2GID[i] : i);
                     for(int j = 0; j < n; ++j)
-                        map_fout << boost::format(" 0x%|1$X|") % u[j];
-                    map_fout << boost::format(" # 0x%|1$X|") % i << endl;
+                        map_fout << format(" 0x%|1$X|") % u[j];
+                    map_fout << format(" # 0x%|1$X|") % i << endl;
                 }
             }
 
             if(cnt > 0)
             {
-                fontscript_fout << boost::format("LoadEncodingFile(\"%1%/%2%.encoding\", \"%2%\")") % TMP_DIR % fn << endl;
-                fontscript_fout << boost::format("Reencode(\"%1%\", 1)") % fn << endl;
+                fontscript_fout << format("LoadEncodingFile(\"%1%\", \"%2%\")") % (tmp_dir / (fn+".encoding")) % fn << endl;
+                fontscript_fout << format("Reencode(\"%1%\", 1)") % fn << endl;
             }
         }
 
         ctu->decRefCnt();
     }
 
-    fontscript_fout << boost::format("Generate(\"%1%.ttf\")") % fn << endl;
+    fontscript_fout << format("Generate(\"%1%.ttf\")") % (dest_dir / fn) << endl;
 
     export_remote_font(fn_id, ".ttf", "truetype", font);
 }

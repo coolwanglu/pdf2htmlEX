@@ -113,7 +113,7 @@ string HTMLRenderer::dump_embedded_font (GfxFont * font, long long fn_id)
     }
 
     obj.streamReset();
-    outf.open((boost::format("%1%/f%|2$x|%3%")%TMP_DIR%fn_id%suffix).str().c_str(), ofstream::binary);
+    outf.open(tmp_dir / (format("f%|1$x|%2%")%fn_id%suffix).str(), ofstream::binary);
     while((len = obj.streamGetChars(1024, (Guchar*)buf)) > 0)
     {
         outf.write(buf, len);
@@ -162,7 +162,7 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
             {
                 double w;
                 auto wid = install_whitespace(target, w);
-                html_fout << boost::format("<span class=\"w w%|1$x|\"> </span>") % wid;
+                html_fout << format("<span class=\"w w%|1$x|\"> </span>") % wid;
                 draw_tx += w / draw_scale;
             }
         }
@@ -179,11 +179,11 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
         
         // classes
         html_fout << "<div class=\"l "
-            << boost::format("f%|1$x| s%|2$x| c%|3$x|") % cur_fn_id % cur_fs_id % cur_color_id;
+            << format("f%|1$x| s%|2$x| c%|3$x|") % cur_fn_id % cur_fs_id % cur_color_id;
         
         // "t0" is the id_matrix
         if(cur_tm_id != 0)
-            html_fout << boost::format(" t%|1$x|") % cur_tm_id;
+            html_fout << format(" t%|1$x|") % cur_tm_id;
 
         {
             double x,y; // in user space
@@ -211,7 +211,7 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
             html_fout << "\"";
             double x,y;
             state->transform(state->getCurX(), state->getCurY(), &x, &y);
-            html_fout << boost::format("data-lx=\"%5%\" data-ly=\"%6%\" data-drawscale=\"%4%\" data-x=\"%1%\" data-y=\"%2%\" data-hs=\"%3%")
+            html_fout << format("data-lx=\"%5%\" data-ly=\"%6%\" data-drawscale=\"%4%\" data-x=\"%1%\" data-y=\"%2%\" data-hs=\"%3%")
                 %x%y%(state->getHorizScaling())%draw_scale%state->getLineX()%state->getLineY();
 #endif
         }

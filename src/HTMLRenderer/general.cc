@@ -23,11 +23,13 @@
 
 HTMLRenderer::HTMLRenderer(const Param * param)
     :line_opened(false)
-    ,html_fout(param->output_filename.c_str(), ofstream::binary)
-    ,allcss_fout("all.css")
-    ,fontscript_fout(TMP_DIR+"/convert.pe")
     ,image_count(0)
     ,param(param)
+    ,dest_dir(param->dest_dir)
+    ,tmp_dir(TMP_DIR)
+    ,html_fout(dest_dir / param->output_filename, ofstream::binary) // we may output utf8 characters, so use binary
+    ,allcss_fout(dest_dir / "all.css", ofstream::binary)
+    ,fontscript_fout(tmp_dir / "convert.pe", ofstream::binary)
 {
     // install default font & size
     install_font(nullptr);
@@ -76,7 +78,7 @@ void HTMLRenderer::process(PDFDoc *doc)
             doc->displayPage(bg_renderer, i, param->h_dpi2, param->v_dpi2,
                     0, true, false, false,
                     nullptr, nullptr, nullptr, nullptr);
-            bg_renderer->getBitmap()->writeImgFile(splashFormatPng, (char*)(boost::format("p%|1$x|.png")%i).str().c_str(), param->h_dpi2, param->v_dpi2);
+            bg_renderer->getBitmap()->writeImgFile(splashFormatPng, (char*)(format("p%|1$x|.png")%i).str().c_str(), param->h_dpi2, param->v_dpi2);
 
             cerr << ".";
             cerr.flush();
@@ -104,9 +106,9 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
 
     assert(!line_opened);
 
-    html_fout << boost::format("<div id=\"page-%3%\" class=\"p\" style=\"width:%1%px;height:%2%px;") % pageWidth % pageHeight % pageNum;
+    html_fout << format("<div id=\"page-%3%\" class=\"p\" style=\"width:%1%px;height:%2%px;") % pageWidth % pageHeight % pageNum;
 
-    html_fout << boost::format("background-image:url(p%|3$x|.png);background-position:0 0;background-size:%1%px %2%px;background-repeat:no-repeat;") % pageWidth % pageHeight % pageNum;
+    html_fout << format("background-image:url(p%|3$x|.png);background-position:0 0;background-size:%1%px %2%px;background-repeat:no-repeat;") % pageWidth % pageHeight % pageNum;
             
     html_fout << "\">" << endl;
 

@@ -13,6 +13,7 @@
 #include <map>
 #include <vector>
 
+#include <boost/format.hpp>
 #include <boost/filesystem/fstream.hpp>
 
 #include <OutputDev.h>
@@ -103,7 +104,7 @@ class HTMLRenderer : public OutputDev
          * remote font: to be retrieved from the web server
          * local font: to be substituted with a local (client side) font
          */
-        void export_remote_font(long long fn_id, const std::string & suffix, const std::string & format, GfxFont * font);
+        void export_remote_font(long long fn_id, const std::string & suffix, const std::string & fontfileformat, GfxFont * font);
         void export_remote_default_font(long long fn_id);
         void export_local_font(long long fn_id, GfxFont * font, const std::string & original_font_name, const std::string & cssfont);
         void export_font_size(long long fs_id, double font_size);
@@ -126,7 +127,7 @@ class HTMLRenderer : public OutputDev
         XRef * xref;
 
         // page info
-        int pageNum ;
+        int pageNum;
         double pageWidth ;
         double pageHeight ;
 
@@ -134,11 +135,11 @@ class HTMLRenderer : public OutputDev
         ////////////////////////////////////////////////////
         // states
         ////////////////////////////////////////////////////
-        bool all_changed;
-
         // if we have a pending opened line
         bool line_opened;
 
+        // any state changed
+        bool all_changed;
         // current position
         double cur_tx, cur_ty; // real text position, in text coords
         bool text_pos_changed; 
@@ -177,8 +178,6 @@ class HTMLRenderer : public OutputDev
         // styles & resources
         ////////////////////////////////////////////////////
 
-        boost::filesystem::ofstream html_fout, allcss_fout, fontscript_fout;
-
         std::unordered_map<long long, FontInfo> font_name_map;
         std::map<double, long long> font_size_map;
         std::map<double, long long> whitespace_map;
@@ -188,6 +187,8 @@ class HTMLRenderer : public OutputDev
         int image_count;
 
         const Param * param;
+        boost::filesystem::path dest_dir, tmp_dir;
+        boost::filesystem::ofstream html_fout, allcss_fout, fontscript_fout;
 };
 
 #endif /* HTMLRENDERER_H_ */

@@ -16,12 +16,14 @@ const int *int_p_NULL = nullptr;
 #include "HTMLRenderer.h"
 #include "namespace.h"
 
+using namespace boost::gil;
+
 void HTMLRenderer::drawImage(GfxState * state, Object * ref, Stream * str, int width, int height, GfxImageColorMap * colorMap, GBool interpolate, int *maskColors, GBool inlineImg)
 {
     if(maskColors)
         return;
 
-    boost::gil::rgb8_image_t img(width, height);
+    rgb8_image_t img(width, height);
     auto imgview = view(img);
     auto loc = imgview.xy_at(0,0);
 
@@ -36,7 +38,7 @@ void HTMLRenderer::drawImage(GfxState * state, Object * ref, Stream * str, int w
             GfxRGB rgb;
             colorMap->getRGB(p, &rgb);
 
-            *loc = boost::gil::rgb8_pixel_t(colToByte(rgb.r), colToByte(rgb.g), colToByte(rgb.b));
+            *loc = rgb8_pixel_t(colToByte(rgb.r), colToByte(rgb.g), colToByte(rgb.b));
 
             p += colorMap->getNumPixelComps();
 
@@ -46,7 +48,7 @@ void HTMLRenderer::drawImage(GfxState * state, Object * ref, Stream * str, int w
         loc = imgview.xy_at(0, i+1);
     }
 
-    boost::gil::png_write_view((boost::format("i%|1$x|.png")%image_count).str(), imgview);
+    png_write_view((format("i%|1$x|.png")%image_count).str(), imgview);
     
     img_stream->close();
     delete img_stream;
@@ -55,7 +57,7 @@ void HTMLRenderer::drawImage(GfxState * state, Object * ref, Stream * str, int w
 
     double * ctm = state->getCTM();
     ctm[4] = ctm[5] = 0.0;
-    html_fout << boost::format("<img class=\"i t%2%\" style=\"left:%3%px;bottom:%4%px;width:%5%px;height:%6%px;\" src=\"i%|1$x|.png\" />") % image_count % install_transform_matrix(ctm) % state->getCurX() % state->getCurY() % width % height << endl;
+    html_fout << format("<img class=\"i t%2%\" style=\"left:%3%px;bottom:%4%px;width:%5%px;height:%6%px;\" src=\"i%|1$x|.png\" />") % image_count % install_transform_matrix(ctm) % state->getCurX() % state->getCurY() % width % height << endl;
 
 
     ++ image_count;

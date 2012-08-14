@@ -15,6 +15,9 @@ struct Param
 {
     std::string owner_password, user_password;
     std::string input_filename, output_filename;
+
+    std::string dest_dir; 
+
     int first_page, last_page;
 
     double h_dpi, v_dpi;
