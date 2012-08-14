@@ -16,10 +16,7 @@
 
 #include <OutputDev.h>
 #include <GfxState.h>
-#include <CharTypes.h>
 #include <Stream.h>
-#include <Array.h>
-#include <Dict.h>
 #include <XRef.h>
 #include <Catalog.h>
 #include <Page.h>
@@ -99,9 +96,8 @@ class HTMLRenderer : public OutputDev
     protected:
         void close_cur_line();
 
-        // return the mapped font name
-        long long install_font(GfxFont * font);
 
+        long long install_font(GfxFont * font);
         static void output_to_file(void * outf, const char * data, int len);
 
         std::string dump_embedded_font (GfxFont * font, long long fn_id);
@@ -122,8 +118,6 @@ class HTMLRenderer : public OutputDev
         void export_remote_font(long long fn_id, const string & suffix, const string & format, GfxFont * font);
         void export_remote_default_font(long long fn_id);
         void export_local_font(long long fn_id, GfxFont * font, const string & original_font_name, const string & cssfont);
-        std::string general_font_family(GfxFont * font);
-
         void export_font_size(long long fs_id, double font_size);
         void export_whitespace(long long ws_id, double ws_width);
         void export_transform_matrix(long long tm_id, const double * tm);
@@ -168,7 +162,7 @@ class HTMLRenderer : public OutputDev
         GfxRGB cur_color;
         bool color_changed;
 
-        // optmize for web
+        // optimize for web
         // we try to render the final font size directly
         // to reduce the effect of ctm as much as possible
         

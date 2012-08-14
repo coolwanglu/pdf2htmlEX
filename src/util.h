@@ -17,6 +17,13 @@
 
 #include "Consts.h"
 
+// mute gcc
+namespace
+{
+    template <class T>
+    void dummy1(){ auto _ = &mapUCS2; }
+}
+
 static inline bool _equal(double x, double y) { return std::abs(x-y) < EPS; }
 static inline bool _is_positive(double x) { return x > EPS; }
 static inline bool _tm_equal(const double * tm1, const double * tm2, int size = 6)

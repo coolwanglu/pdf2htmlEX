@@ -8,6 +8,7 @@ link_directories ( ${POPPLER_LIBRARY_DIRS} )
 find_package(Boost REQUIRED COMPONENTS program_options)
 include_directories(${Boost_INCLUDE_DIRS})
 link_directories ( ${Boost_LIBRARY_DIRS} )
+include_directories(src)
 
 set(PDF2HTMLEX_VERSION "0.1")
 
@@ -23,6 +24,9 @@ add_executable(pdf2htmlEX
     src/pdf2htmlEX.cc 
     src/HTMLRenderer.h 
     src/HTMLRenderer.cc 
+    src/HTMLRenderer/state.cc
+    src/HTMLRenderer/install.cc
+    src/HTMLRenderer/export.cc
     src/BackgroundRenderer.h 
     src/BackgroundRenderer.cc 
     src/Consts.h 
