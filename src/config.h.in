@@ -1,0 +1,20 @@
+/*
+ * config.h
+ * Compile time constants
+ *
+ * by WangLu
+ */
+
+
+#ifndef CONFIG_H__
+#define CONFIG_H__
+
+#include <string>
+#include <boost/filesystem.hpp>
+
+static const std::string PDF2HTMLEX_VERSION = "@PDF2HTMLEX_VERSION@";
+static const std::string PDF2HTMLEX_PREFIX = "@CMAKE_INSTALL_PREFIX@";
+static const boost::filesystem::path PDF2HTMLEX_LIB_PATH = boost::filesystem::path(PDF2HTMLEX_PREFIX) / "lib" / "pdf2htmlEX";
+
+
+#endif //CONFIG_H__

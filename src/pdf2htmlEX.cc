@@ -27,8 +27,7 @@
 
 #include "HTMLRenderer.h"
 #include "Param.h"
-
-#define PDFTOHTMLEX_VERSION "0.1"
+#include "config.h"
 
 namespace po = boost::program_options;
 using namespace std;
@@ -102,7 +101,7 @@ static GooString* getInfoDate(Dict *infoDict, char *key) {
 
 void show_usage(void)
 {
-    cerr << "pdftohtmlEX version " << PDFTOHTMLEX_VERSION << endl;
+    cerr << "pdftohtmlEX version " << PDF2HTMLEX_VERSION << endl;
     cerr << endl;
     cerr << "Copyright 2011 Hongliang Tian (tatetian@gmail.com)" << endl;
     cerr << "Copyright 2012 Lu Wang (coolwanglu<at>gmail.com)" << endl;

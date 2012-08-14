@@ -17,6 +17,7 @@
 
 #include <boost/format.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/filesystem/fstream.hpp>
 // for gil bug
 const int *int_p_NULL = nullptr;
 #include <boost/gil/gil_all.hpp>
@@ -32,6 +33,7 @@ const int *int_p_NULL = nullptr;
 #include "BackgroundRenderer.h"
 #include "Consts.h"
 #include "util.h"
+#include "config.h"
 
 /*
  * CSS classes
@@ -120,12 +122,12 @@ void HTMLRenderer::process(PDFDoc *doc)
 
 void HTMLRenderer::write_html_head()
 {
-    html_fout << HTML_HEAD << endl;
+    html_fout << boost::filesystem::ifstream(PDF2HTMLEX_LIB_PATH / "head.html", ifstream::binary).rdbuf();
 }
 
 void HTMLRenderer::write_html_tail()
 {
-    html_fout << HTML_TAIL << endl;
+    html_fout << boost::filesystem::ifstream(PDF2HTMLEX_LIB_PATH / "tail.html", ifstream::binary).rdbuf();
 }
 
 void HTMLRenderer::startPage(int pageNum, GfxState *state) 
