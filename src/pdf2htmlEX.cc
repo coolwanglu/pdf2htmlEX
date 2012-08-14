@@ -27,12 +27,12 @@
 
 #include "HTMLRenderer.h"
 #include "Param.h"
+#include "config.h"
 #include "PaperClub.h"
-
-#define PDFTOHTMLEX_VERSION "0.1"
 
 namespace po = boost::program_options;
 using namespace std;
+using namespace boost::filesystem;
 
 Param param;
 
@@ -103,7 +103,7 @@ static GooString* getInfoDate(Dict *infoDict, char *key) {
 
 void show_usage(void)
 {
-    cerr << "pdftohtmlEX version " << PDFTOHTMLEX_VERSION << endl;
+    cerr << "pdftohtmlEX version " << PDF2HTMLEX_VERSION << endl;
     cerr << endl;
     cerr << "Copyright 2011 Hongliang Tian (tatetian@gmail.com)" << endl;
     cerr << "Copyright 2012 Lu Wang (coolwanglu<at>gmail.com)" << endl;
@@ -123,6 +123,8 @@ po::variables_map parse_options (int argc, char **argv)
         ("metadata,m", "show the document meta data in JSON")
         ("owner-password,o", po::value<string>(&param.owner_password)->default_value(""), "owner password (for encrypted files)")
         ("user-password,u", po::value<string>(&param.user_password)->default_value(""), "user password (for encrypted files)")
+        ("dest-dir", po::value<string>(&param.dest_dir)->default_value("."), "destination directory")
+        ("tmp-dir", po::value<string>(&param.tmp_dir)->default_value("/tmp/pdf2htmlEX"), "temporary directory")
         ("hdpi", po::value<double>(&param.h_dpi)->default_value(72.0), "horizontal DPI for text")
         ("vdpi", po::value<double>(&param.v_dpi)->default_value(72.0), "vertical DPI for text")
         ("hdpi2", po::value<double>(&param.h_dpi2)->default_value(144.0), "horizontal DPI for non-text")
@@ -163,6 +165,18 @@ int main(int argc, char **argv)
     if (opt_map.count("version") || opt_map.count("help") || (param.input_filename == ""))
     {
         show_usage();
+        return -1;
+    }
+
+    //prepare the directories
+    try
+    {
+        create_directories(param.dest_dir);
+        create_directories(param.tmp_dir);
+    }
+    catch (const filesystem_error& err)
+    {
+        cerr << err.what() << endl;
         return -1;
     }
 

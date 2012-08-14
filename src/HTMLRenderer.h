@@ -9,17 +9,16 @@
 #define HTMLRENDERER_H_
 
 #include <algorithm>
-#include <fstream>
 #include <unordered_map>
 #include <map>
 #include <vector>
 
+#include <boost/format.hpp>
+#include <boost/filesystem/fstream.hpp>
+
 #include <OutputDev.h>
 #include <GfxState.h>
-#include <CharTypes.h>
 #include <Stream.h>
-#include <Array.h>
-#include <Dict.h>
 #include <XRef.h>
 #include <Catalog.h>
 #include <Page.h>
@@ -31,8 +30,6 @@
 #include "Param.h"
 #include "util.h"
 
-using namespace std;
-
 class HTMLRenderer : public OutputDev
 {
     public:
@@ -41,8 +38,10 @@ class HTMLRenderer : public OutputDev
 
         void process(PDFDoc * doc);
 
-        //---- get info about output device
-
+        ////////////////////////////////////////////////////
+        // OutputDev interface
+        ////////////////////////////////////////////////////
+        
         // Does this device use upside-down coordinates?
         // (Upside-down means (0,0) is the top left corner of the page.)
         virtual GBool upsideDown() { return gFalse; }
@@ -57,19 +56,6 @@ class HTMLRenderer : public OutputDev
         // Does this device need non-text content?
         virtual GBool needNonText() { return gFalse; }
 
-        //----- initialization and control
-        virtual GBool checkPageSlice(Page *page, double hDPI, double vDPI,
-                int rotate, GBool useMediaBox, GBool crop,
-                int sliceX, int sliceY, int sliceW, int sliceH,
-                GBool printing, Catalog * catalogA,
-                GBool (* abortCheckCbk)(void *data) = NULL,
-                void * abortCheckCbkData = NULL)
-        {
-            docPage = page;
-            catalog = catalogA;
-            return gTrue;
-        }
-
         virtual void write_html_head();
         virtual void write_html_tail();
 
@@ -79,7 +65,6 @@ class HTMLRenderer : public OutputDev
         // End a page.
         virtual void endPage();
 
-        //----- update state
         /*
          * To optmize false alarms
          * We just mark as changed, and recheck if they have been changed when we are about to output a new string
@@ -97,15 +82,12 @@ class HTMLRenderer : public OutputDev
         virtual void drawImage(GfxState * state, Object * ref, Stream * str, int width, int height, GfxImageColorMap * colorMap, GBool interpolate, int *maskColors, GBool inlineImg);
 
     protected:
-        void close_cur_line();
-
-        // return the mapped font name
-        long long install_font(GfxFont * font);
-
-        static void output_to_file(void * outf, const char * data, int len);
-
         std::string dump_embedded_font (GfxFont * font, long long fn_id);
 
+        ////////////////////////////////////////////////////
+        // manage styles
+        ////////////////////////////////////////////////////
+        long long install_font(GfxFont * font);
         void install_embedded_font(GfxFont * font, const std::string & suffix, long long fn_id);
         void install_base_font(GfxFont * font, GfxFontLoc * font_loc, long long fn_id);
         void install_external_font (GfxFont * font, long long fn_id);
@@ -115,38 +97,49 @@ class HTMLRenderer : public OutputDev
         long long install_transform_matrix(const double * tm);
         long long install_color(const GfxRGB * rgb);
 
+        ////////////////////////////////////////////////////
+        // export css styles
+        ////////////////////////////////////////////////////
         /*
          * remote font: to be retrieved from the web server
          * local font: to be substituted with a local (client side) font
          */
-        void export_remote_font(long long fn_id, const string & suffix, const string & format, GfxFont * font);
+        void export_remote_font(long long fn_id, const std::string & suffix, const std::string & fontfileformat, GfxFont * font);
         void export_remote_default_font(long long fn_id);
-        void export_local_font(long long fn_id, GfxFont * font, const string & original_font_name, const string & cssfont);
-        std::string general_font_family(GfxFont * font);
-
+        void export_local_font(long long fn_id, GfxFont * font, const std::string & original_font_name, const std::string & cssfont);
         void export_font_size(long long fs_id, double font_size);
         void export_whitespace(long long ws_id, double ws_width);
         void export_transform_matrix(long long tm_id, const double * tm);
         void export_color(long long color_id, const GfxRGB * rgb);
 
+        ////////////////////////////////////////////////////
+        // state tracking 
+        ////////////////////////////////////////////////////
+        void check_state_change(GfxState * state);
+        void reset_state_track();
+        void close_cur_line();
+
+
+        ////////////////////////////////////////////////////
+        // PDF stuffs
+        ////////////////////////////////////////////////////
+        
         XRef * xref;
-        Catalog *catalog;
-        Page *docPage;
 
         // page info
-        int pageNum ;
+        int pageNum;
         double pageWidth ;
         double pageHeight ;
 
-        // state tracking when processing pdf
-        void check_state_change(GfxState * state);
-        void reset_state_track();
 
-        bool all_changed;
-
+        ////////////////////////////////////////////////////
+        // states
+        ////////////////////////////////////////////////////
         // if we have a pending opened line
         bool line_opened;
 
+        // any state changed
+        bool all_changed;
         // current position
         double cur_tx, cur_ty; // real text position, in text coords
         bool text_pos_changed; 
@@ -168,7 +161,7 @@ class HTMLRenderer : public OutputDev
         GfxRGB cur_color;
         bool color_changed;
 
-        // optmize for web
+        // optimize for web
         // we try to render the final font size directly
         // to reduce the effect of ctm as much as possible
         
@@ -181,71 +174,21 @@ class HTMLRenderer : public OutputDev
         // the position of next char, in text coords
         double draw_tx, draw_ty; 
 
-        ofstream html_fout, allcss_fout, fontscript_fout;
+        ////////////////////////////////////////////////////
+        // styles & resources
+        ////////////////////////////////////////////////////
 
-        class FontInfo{
-            public:
-                long long fn_id;
-        };
-        unordered_map<long long, FontInfo> font_name_map;
-        map<double, long long> font_size_map;
-        map<double, long long> whitespace_map;
-
-        // transform matrix
-        class TM{
-            public:
-                TM() {}
-                TM(const double * m) {memcpy(_, m, sizeof(_));}
-                bool operator < (const TM & m) const {
-                    for(int i = 0; i < 6; ++i)
-                    {
-                        if(_[i] < m._[i] - EPS)
-                            return true;
-                        if(_[i] > m._[i] + EPS)
-                            return false;
-                    }
-                    return false;
-                }
-                bool operator == (const TM & m) const {
-                    return _tm_equal(_, m._);
-                }
-                double _[6];
-        };
-
-        map<TM, long long> transform_matrix_map;
-
-        class Color{
-            public:
-                Color() {}
-                Color(const GfxRGB * rgb) { 
-                    _[0] = rgb->r;
-                    _[1] = rgb->g;
-                    _[2] = rgb->b;
-                }
-                bool operator < (const Color & c) const {
-                    for(int i = 0; i < 3; ++i)
-                    {
-                        if(_[i] < c._[i])
-                            return true;
-                        if(_[i] > c._[i])
-                            return false;
-                    }
-                    return false;
-                }
-                bool operator == (const Color & c) const {
-                    for(int i = 0; i < 3; ++i)
-                        if(_[i] != c._[i])
-                            return false;
-                    return true;
-                }
-
-                int _[3];
-        };
-        map<Color, long long> color_map; 
+        std::unordered_map<long long, FontInfo> font_name_map;
+        std::map<double, long long> font_size_map;
+        std::map<double, long long> whitespace_map;
+        std::map<TM, long long> transform_matrix_map;
+        std::map<GfxRGB, long long> color_map; 
 
         int image_count;
 
         const Param * param;
+        boost::filesystem::path dest_dir, tmp_dir;
+        boost::filesystem::ofstream html_fout, allcss_fout, fontscript_fout;
 };
 
 #endif /* HTMLRENDERER_H_ */

@@ -1,18 +1,14 @@
 #!/bin/bash
 set -e
 
+LIBDIR=@CMAKE_INSTALL_PREFIX@/lib/pdf2htmlEX
 TMPDIR=/tmp/pdf2htmlEX
 
 # prepare the temporary directory
 test -d $TMPDIR || mkdir -p $TMPDIR
 rm -f $TMPDIR/* 2>/dev/null
 
-# Get directory of the script
-SOURCE="${BASH_SOURCE[0]}"
-while [ -h "$SOURCE" ] ; do SOURCE="$(readlink "$SOURCE")"; done
-SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"/
-# Execute
-${SCRIPT_DIR}/pdftohtmlEX $* 
+$LIBDIR/pdf2htmlEX $* 
 
 if [ -f $TMPDIR/convert.pe ]; then
     echo -n "Converting fonts: "

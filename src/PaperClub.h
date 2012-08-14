@@ -8,9 +8,8 @@
 #ifndef PAPERCLUB_H__
 #define PAPERCLUB_H__
 
-#include <boost/format.hpp>
-
 #include "HTMLRenderer.h"
+#include "namespace.h"
 
 class PC_HTMLRenderer : public HTMLRenderer
 {
@@ -27,7 +26,7 @@ class PC_HTMLRenderer : public HTMLRenderer
         virtual void startPage(int pageNum, GfxState *state) 
         {
             html_fout.close();
-            html_fout.open((boost::format("%|1$x|.page")%pageNum).str().c_str(), ofstream::binary);
+            html_fout.open(dest_dir / (format("%|1$x|.page")%pageNum).str(), ofstream::binary);
 
             HTMLRenderer::startPage(pageNum, state);
         }
