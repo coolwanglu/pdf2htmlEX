@@ -20,14 +20,12 @@ class PC_HTMLRenderer : public HTMLRenderer
 
         virtual ~PC_HTMLRenderer() { }
 
-        virtual void write_html_head() { }
-        virtual void write_html_tail() { }
+        virtual void pre_process() { /* may need open all.css and write head there */ }
+        virtual void post_process() { }
 
         virtual void startPage(int pageNum, GfxState *state) 
         {
-            html_fout.close();
             html_fout.open(dest_dir / (format("%|1$x|.page")%pageNum).str(), ofstream::binary);
-
             HTMLRenderer::startPage(pageNum, state);
         }
 
