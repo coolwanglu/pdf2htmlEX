@@ -23,7 +23,6 @@ configure_file (src/config.h.in src/config.h)
 add_executable(pdf2htmlEX 
     src/pdf2htmlEX.cc 
     src/HTMLRenderer.h 
-    src/HTMLRenderer.cc 
     src/HTMLRenderer/general.cc
     src/HTMLRenderer/state.cc
     src/HTMLRenderer/install.cc
