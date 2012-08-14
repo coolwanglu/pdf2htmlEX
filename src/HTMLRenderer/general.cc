@@ -88,7 +88,6 @@ void HTMLRenderer::pre_process()
     // we may output utf8 characters, so use binary
     html_fout.open(working_dir() / param->output_filename, ofstream::binary); 
     allcss_fout.open(working_dir() / "all.css", ofstream::binary);
-    fontscript_fout.open(tmp_dir / "pdf2htmlEX.pe", ofstream::binary);
 
     if(!param->single_html)
     {
@@ -109,7 +108,6 @@ void HTMLRenderer::post_process()
 
     html_fout.close();
     allcss_fout.close();
-    fontscript_fout.close();
 
     if(param->single_html)
     {

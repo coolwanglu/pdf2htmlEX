@@ -216,7 +216,7 @@ class HTMLRenderer : public OutputDev
 
         const Param * param;
         boost::filesystem::path dest_dir, tmp_dir;
-        boost::filesystem::ofstream html_fout, allcss_fout, fontscript_fout;
+        boost::filesystem::ofstream html_fout, allcss_fout;
 };
 
 #endif /* HTMLRENDERER_H_ */
