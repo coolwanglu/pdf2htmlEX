@@ -14,10 +14,10 @@
 #include <istream>
 #include <ostream>
 #include <iterator>
+#include <iomanip>
 
-#include <boost/archive/iterators/transform_width.hpp>
-#include <boost/archive/iterators/base64_from_binary.hpp>
-
+#include <GfxState.h>
+#include <CharTypes.h>
 #include <UTF8.h>
 
 #include "Consts.h"
@@ -25,11 +25,8 @@
 using std::istream;
 using std::ostream;
 using std::istream_iterator;
-using std::ostream_iterator;
-using std::copy;
-
-using boost::archive::iterators::base64_from_binary;
-using boost::archive::iterators::transform_width;
+using std::endl;
+using std::noskipws;
 
 // mute gcc warning of unused function
 namespace
@@ -123,40 +120,61 @@ public:
     double _[6];
 };
 
-static inline void copy_base64 (ostream & out, istream & in, size_t length)
+class base64_filter
 {
-    typedef base64_from_binary < transform_width < istream_iterator<char>, 6, 8 > > base64_iter;
-    copy(base64_iter(istream_iterator<char>(in)), base64_iter(istream_iterator<char>()), ostream_iterator<char>(out));
-    switch(length % 3)
-    {
-        case 1:
-            out << '=';
-            // fall through
-        case 2:
-            out << '=';
-            // fall through
-        case 0:
-        default:
-            break;
-    }
-}
+public:
 
-static inline void copy_base64 (ostream & out, istream && in, size_t length)
-{
-    typedef base64_from_binary < transform_width < istream_iterator<char>, 6, 8 > > base64_iter;
-    copy(base64_iter(istream_iterator<char>(in)), base64_iter(istream_iterator<char>()), ostream_iterator<char>(out));
-    switch(length % 3)
+    base64_filter(istream & in)
+        : in_iter(istream_iterator<char>(in >> noskipws))
+    { }
+
+    base64_filter(istream && in)
+        : in_iter(istream_iterator<char>(in >> noskipws))
+    { }
+
+    ostream & dumpto(ostream & out)
     {
-        case 1:
+        unsigned char buf[3];
+        istream_iterator<char> end_iter;
+        int cnt = 0;
+        while(in_iter != end_iter)
+        {
+            buf[cnt++] = *(in_iter++);
+            if(cnt == 3)
+            {
+                out << base64_encoding[(buf[0] & 0xfc)>>2];
+                out << base64_encoding[((buf[0] & 0x03)<<4) | ((buf[1] & 0xf0)>>4)];
+                out << base64_encoding[((buf[1] & 0x0f)<<2) | ((buf[2] & 0xc0)>>6)];
+                out << base64_encoding[(buf[2] & 0x3f)];
+                cnt = 0;
+            }
+        } 
+        if(cnt > 0)
+        {
+            for(int i = cnt; i < 3; ++i)
+                buf[i] = 0;
+            out << base64_encoding[(buf[0] & 0xfc)>>2];
+            out << base64_encoding[((buf[0] & 0x03)<<4) | ((buf[1] & 0xf0)>>4)];
+            if(cnt > 1)
+            {
+                out << base64_encoding[(buf[1] & 0x0f)<<2];
+            }
+            else
+            {
+                out <<  '=';
+            }
             out << '=';
-            // fall through
-        case 2:
-            out << '=';
-            // fall through
-        case 0:
-        default:
-            break;
+        }
+
+        return out;
     }
-}
+
+private:
+    static constexpr const char * base64_encoding = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    istream_iterator<char> in_iter;
+};
+
+static inline ostream & operator << (ostream & out, base64_filter & bf) { return bf.dumpto(out); }
+static inline ostream & operator << (ostream & out, base64_filter && bf) { return bf.dumpto(out); }
 
 #endif //UTIL_H__

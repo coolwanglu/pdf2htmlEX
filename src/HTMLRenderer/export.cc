@@ -15,25 +15,6 @@
 
 using boost::algorithm::ifind_first;
 
-/*
- * CSS classes
- *
- * p - Page
- * l - Line
- * w - White space
- * i - Image
- *
- * 
- * Reusable CSS classes
- *
- * f<hex> - Font (also for font names)
- * s<hex> - font Size
- * w<hex> - White space
- * t<hex> - Transform matrix
- * c<hex> - Color
- *
- */
-
 void HTMLRenderer::export_remote_font(long long fn_id, const string & suffix, const string & fontfileformat, GfxFont * font)
 {
 

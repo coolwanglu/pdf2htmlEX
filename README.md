@@ -35,11 +35,11 @@ Dependency
 
 HOW TO COMPILE
 ----------------------------
-    cmake . && make
+    cmake . && make && sudo make install
 
 HOW TO USE
 ----------------------------
-    bin/pdf2htmlEX /path/to/sample.pdf
+    pdf2htmlEX /path/to/sample.pdf
 
 
 LICENSE

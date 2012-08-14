@@ -30,6 +30,31 @@
 #include "Param.h"
 #include "util.h"
 
+
+/*
+ * Naming Convention
+ *
+ * ID
+ *
+ * p<hex> - Page
+ *
+ * CSS classes
+ *
+ * p - Page
+ * l - Line
+ * w - White space
+ * i - Image
+ *
+ * Reusable CSS classes
+ *
+ * f<hex> - Font (also for font names)
+ * s<hex> - font Size
+ * w<hex> - White space
+ * t<hex> - Transform matrix
+ * c<hex> - Color
+ *
+ */
+
 class HTMLRenderer : public OutputDev
 {
     public:

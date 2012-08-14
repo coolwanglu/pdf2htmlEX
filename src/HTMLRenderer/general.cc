@@ -3,8 +3,6 @@
  *
  * Hanlding general stuffs
  *
- * TODO: better name for this file?
- *
  * by WangLu
  * 2012.08.14
  */
@@ -19,8 +17,6 @@
 #include "namespace.h"
 
 using std::flush;
-
-using boost::filesystem::file_size;
 
 HTMLRenderer::HTMLRenderer(const Param * param)
     :line_opened(false)
@@ -73,7 +69,6 @@ void HTMLRenderer::process(PDFDoc *doc)
             bg_renderer->getBitmap()->writeImgFile(splashFormatPng, (char*)(working_dir() / (format("p%|1$x|.png")%i).str()).c_str(), param->h_dpi2, param->v_dpi2);
         }
 
-
         doc->displayPage(this, i, param->h_dpi, param->v_dpi,
                 0, true, false, false,
                 nullptr, nullptr, nullptr, nullptr);
@@ -90,7 +85,8 @@ void HTMLRenderer::process(PDFDoc *doc)
 
 void HTMLRenderer::pre_process()
 {
-    html_fout.open(working_dir() / param->output_filename, ofstream::binary); // we may output utf8 characters, so use binary
+    // we may output utf8 characters, so use binary
+    html_fout.open(working_dir() / param->output_filename, ofstream::binary); 
     allcss_fout.open(working_dir() / "all.css", ofstream::binary);
     fontscript_fout.open(tmp_dir / "pdf2htmlEX.pe", ofstream::binary);
 
@@ -129,27 +125,25 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
 
     assert(!line_opened);
 
-    html_fout << format("<div id=\"page-%3%\" class=\"p\" style=\"width:%1%px;height:%2%px;") % pageWidth % pageHeight % pageNum;
+    html_fout << format("<div id=\"p%|1$x|\" class=\"p\">") % pageNum << endl;
 
-    html_fout << "background-image:url(";
+    allcss_fout << format("#p%|1$x|{width:%2%px;height:%3%px;") % pageNum % pageWidth % pageHeight;
+
+    allcss_fout << "background-image:url(";
 
     const std::string fn = (format("p%|1$x|.png") % pageNum).str();
     if(param->single_html)
     {
         auto path = tmp_dir / fn;
-        html_fout << "'data:image/png;base64,";
-        copy_base64(html_fout, ifstream(path), file_size(path));
-        html_fout << "'";
+        allcss_fout << "'data:image/png;base64," << base64_filter(ifstream(path, ifstream::binary)) << "'";
     }
     else
     {
-        html_fout << fn;
+        allcss_fout << fn;
     }
     
-    html_fout << format(");background-position:0 0;background-size:%1%px %2%px;background-repeat:no-repeat;") % pageWidth % pageHeight;
+    allcss_fout << format(");background-position:0 0;background-size:%1%px %2%px;background-repeat:no-repeat;}") % pageWidth % pageHeight;
             
-    html_fout << "\">" << endl;
-
     cur_fn_id = cur_fs_id = cur_tm_id = cur_color_id = 0;
     cur_tx = cur_ty = 0;
     cur_font_size = 0;
