@@ -12,6 +12,26 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/format.hpp>
 
+
+/*
+ * CSS classes
+ *
+ * p - Page
+ * l - Line
+ * w - White space
+ * i - Image
+ *
+ * 
+ * Reusable CSS classes
+ *
+ * f<hex> - Font (also for font names)
+ * s<hex> - font Size
+ * w<hex> - White space
+ * t<hex> - Transform matrix
+ * c<hex> - Color
+ *
+ */
+
 void HTMLRenderer::export_remote_font(long long fn_id, const string & suffix, const string & format, GfxFont * font)
 {
     allcss_fout << boost::format("@font-face{font-family:f%|1$x|;src:url(f%|1$x|%2%)format(\"%3%\");}.f%|1$x|{font-family:f%|1$x|;") % fn_id % suffix % format;
