@@ -14,6 +14,7 @@ This program is designed for scientific papers with complicate formulas and figu
 
 Features
 ----------------------------
+* Single HTML file output 
 * Precise rendering 
 * Text Selection
 * Font embedding 
@@ -40,7 +41,6 @@ HOW TO COMPILE
 HOW TO USE
 ----------------------------
     pdf2htmlEX /path/to/sample.pdf
-
 
 LICENSE
 ----------------------------

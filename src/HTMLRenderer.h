@@ -34,10 +34,6 @@
 /*
  * Naming Convention
  *
- * ID
- *
- * p<hex> - Page
- *
  * CSS classes
  *
  * p - Page

@@ -182,7 +182,7 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
 
     script_fout << format("Generate(%1%)") % (working_dir() / (fn+".ttf")) << endl;
 
-    system((boost::format("fontforge -script %1% 2>") % script_path).str().c_str());
+    system((boost::format("fontforge -script %1% 2>%2%") % script_path % (tmp_dir / "log.txt")).str().c_str());
 
     export_remote_font(fn_id, ".ttf", "truetype", font);
 }

@@ -123,24 +123,22 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
 
     assert(!line_opened);
 
-    html_fout << format("<div id=\"p%|1$x|\" class=\"p\">") % pageNum << endl;
+    html_fout << format("<div id=\"p%|1$x|\" class=\"p\" style=\"width:%2%px;height:%3%px;") % pageNum % pageWidth % pageHeight;
 
-    allcss_fout << format("#p%|1$x|{width:%2%px;height:%3%px;") % pageNum % pageWidth % pageHeight;
-
-    allcss_fout << "background-image:url(";
+    html_fout << "background-image:url(";
 
     const std::string fn = (format("p%|1$x|.png") % pageNum).str();
     if(param->single_html)
     {
         auto path = tmp_dir / fn;
-        allcss_fout << "'data:image/png;base64," << base64_filter(ifstream(path, ifstream::binary)) << "'";
+        html_fout << "'data:image/png;base64," << base64_filter(ifstream(path, ifstream::binary)) << "'";
     }
     else
     {
-        allcss_fout << fn;
+        html_fout << fn;
     }
     
-    allcss_fout << format(");background-position:0 0;background-size:%1%px %2%px;background-repeat:no-repeat;}") % pageWidth % pageHeight;
+    html_fout << format(");background-position:0 0;background-size:%1%px %2%px;background-repeat:no-repeat;\">") % pageWidth % pageHeight;
             
     cur_fn_id = cur_fs_id = cur_tm_id = cur_color_id = 0;
     cur_tx = cur_ty = 0;
