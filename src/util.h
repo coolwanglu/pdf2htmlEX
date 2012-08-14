@@ -79,5 +79,35 @@ static inline bool operator == (const GfxRGB & rgb1, const GfxRGB & rgb2)
     return ((rgb1.r == rgb2.r) && (rgb1.g == rgb2.g) && (rgb1.b == rgb1.b));
 }
 
+// we may need more info of a font in the future
+class FontInfo
+{
+public:
+    long long fn_id;
+};
+
+// wrapper of the transform matrix double[6]
+// Transform Matrix
+class TM
+{
+public:
+    TM() {}
+    TM(const double * m) {memcpy(_, m, sizeof(_));}
+    bool operator < (const TM & m) const {
+        for(int i = 0; i < 6; ++i)
+        {
+            if(_[i] < m._[i] - EPS)
+                return true;
+            if(_[i] > m._[i] + EPS)
+                return false;
+        }
+        return false;
+    }
+    bool operator == (const TM & m) const {
+        return _tm_equal(_, m._);
+    }
+    double _[6];
+};
+
 
 #endif //UTIL_H__
