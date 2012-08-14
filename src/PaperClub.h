@@ -9,7 +9,7 @@
 #define PAPERCLUB_H__
 
 #include "HTMLRenderer.h"
-#include "namespace.h"
+#include "HTMLRenderer/namespace.h"
 
 class PC_HTMLRenderer : public HTMLRenderer
 {
