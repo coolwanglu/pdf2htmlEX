@@ -166,7 +166,7 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
             {
                 double w;
                 auto wid = install_whitespace(target, w);
-                html_fout << format("<span class=\"w w%|1$x|\"> </span>") % wid;
+                html_fout << format("<span class=\"_ _%|1$x|\"> </span>") % wid;
                 draw_tx += w / draw_scale;
             }
         }
@@ -188,6 +188,13 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
         // "t0" is the id_matrix
         if(cur_tm_id != 0)
             html_fout << format(" t%|1$x|") % cur_tm_id;
+    
+        if(cur_ls_id != 0)
+            html_fout << format(" l%|1$x|") % cur_ls_id;
+
+        if(cur_ws_id != 0)
+            html_fout << format(" w%|1$x|") % cur_ws_id;
+
 
         {
             double x,y; // in user space
@@ -199,16 +206,8 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
                 << "left:" << x << "px;"
                 ;
         }
-        
-        // TODO: tracking
-        // letter & word spacing
-        if(_is_positive(state->getCharSpace()))
-            html_fout << "letter-spacing:" << state->getCharSpace() << "px;";
-        if(_is_positive(state->getWordSpace()))
-            html_fout << "word-spacing:" << state->getWordSpace() << "px;";
 
         //debug 
-        //real pos & hori_scale
         if(0)
         {
 #if 0
@@ -223,10 +222,7 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
         html_fout << "\">";
 
         line_opened = true;
-
-        draw_tx = cur_tx;
     }
-
 
     // Now ready to output
     // get the unicodes

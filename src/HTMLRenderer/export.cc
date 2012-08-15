@@ -94,11 +94,6 @@ void HTMLRenderer::export_font_size (long long fs_id, double font_size)
     allcss_fout << format(".s%|1$x|{font-size:%2%px;}") % fs_id % font_size << endl;
 }
 
-void HTMLRenderer::export_whitespace (long long ws_id, double ws_width)
-{
-    allcss_fout << format(".w%|1$x|{width:%2%px;}") % ws_id % ws_width << endl;
-}
-
 void HTMLRenderer::export_transform_matrix (long long tm_id, const double * tm)
 {
     allcss_fout << format(".t%|1$x|{") % tm_id;
@@ -128,10 +123,25 @@ void HTMLRenderer::export_transform_matrix (long long tm_id, const double * tm)
     allcss_fout << "}" << endl;
 }
 
-void HTMLRenderer::export_color(long long color_id, const GfxRGB * rgb)
+void HTMLRenderer::export_letter_space (long long ls_id, double letter_space)
+{
+    allcss_fout << format(".l%|1$x|{letter-spacing:%2%px;}") % ls_id % letter_space << endl;
+}
+
+void HTMLRenderer::export_word_space (long long ws_id, double word_space)
+{
+    allcss_fout << format(".w%|1$x|{word-spacing:%2%px;}") % ws_id % word_space << endl;
+}
+
+void HTMLRenderer::export_color (long long color_id, const GfxRGB * rgb)
 {
     allcss_fout << format(".c%|1$x|{color:rgb(%2%,%3%,%4%);}") 
         % color_id % (int)colToByte(rgb->r) % (int)colToByte(rgb->g) % (int)colToByte(rgb->b)
         << endl;
+}
+
+void HTMLRenderer::export_whitespace (long long ws_id, double ws_width)
+{
+    allcss_fout << format("._%|1$x|{width:%2%px;}") % ws_id % ws_width << endl;
 }
 

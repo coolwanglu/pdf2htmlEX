@@ -21,7 +21,7 @@
   position:absolute;
   white-space:pre;
 }
-.l > .w {
+.l > ._ {
   display:inline-block;
   font-family: monospace;
 }
