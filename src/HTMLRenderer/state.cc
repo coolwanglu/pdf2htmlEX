@@ -86,7 +86,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
     // we've been tracking the text position positively in update... function
     if(all_changed || text_pos_changed)
     {
-        need_rescale_font = true;
+        need_recheck_position = true;
     }
 
     // draw_tx, draw_ty
