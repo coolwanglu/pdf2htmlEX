@@ -25,10 +25,10 @@ struct Param
     double h_eps, v_eps;
 
     int process_nontext;
+    int single_html;
 
     int debug;
-
-    int single_html;
+    int clean_tmp;
 };
 
 

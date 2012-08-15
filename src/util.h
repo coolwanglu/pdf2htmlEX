@@ -13,7 +13,6 @@
 #include <algorithm>
 #include <istream>
 #include <ostream>
-#include <iomanip>
 
 #include <GfxState.h>
 #include <CharTypes.h>
@@ -23,8 +22,9 @@
 
 using std::istream;
 using std::ostream;
-using std::endl;
 using std::noskipws;
+using std::endl;
+using std::flush;
 
 // mute gcc warning of unused function
 namespace

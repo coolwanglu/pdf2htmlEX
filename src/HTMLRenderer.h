@@ -12,6 +12,7 @@
 #include <unordered_map>
 #include <map>
 #include <vector>
+#include <set>
 
 #include <boost/format.hpp>
 #include <boost/filesystem/fstream.hpp>
@@ -81,8 +82,6 @@ class HTMLRenderer : public OutputDev
         virtual void post_process();
         virtual void process_single_html();
 
-        virtual boost::filesystem::path working_dir() const { return (param->single_html ? tmp_dir : dest_dir); }
-
         // Start a page.
         virtual void startPage(int pageNum, GfxState *state);
 
@@ -106,6 +105,11 @@ class HTMLRenderer : public OutputDev
         virtual void drawImage(GfxState * state, Object * ref, Stream * str, int width, int height, GfxImageColorMap * colorMap, GBool interpolate, int *maskColors, GBool inlineImg);
 
     protected:
+        ////////////////////////////////////////////////////
+        // misc
+        ////////////////////////////////////////////////////
+        void add_tmp_file (const std::string & fn);
+        void clean_tmp_files ();
         std::string dump_embedded_font (GfxFont * font, long long fn_id);
 
         ////////////////////////////////////////////////////
@@ -213,6 +217,15 @@ class HTMLRenderer : public OutputDev
         const Param * param;
         boost::filesystem::path dest_dir, tmp_dir;
         boost::filesystem::ofstream html_fout, allcss_fout;
+        std::set<std::string> tmp_files;
+
+        static const std::string HEAD_HTML_FILENAME;
+        static const std::string NECK_HTML_FILENAME;
+        static const std::string TAIL_HTML_FILENAME;
+        static const std::string CSS_FILENAME;
+        static const std::string FONTFORGE_SCRIPT_FILENAME;
+        // for cross-platform purpose, use a "null" file instead of /dev/null
+        static const std::string NULL_FILENAME;
 };
 
 #endif /* HTMLRENDERER_H_ */

@@ -14,6 +14,7 @@
 #include <iostream>
 
 #include <boost/program_options.hpp>
+#include <boost/filesystem.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 
 #include <goo/GooString.h>
@@ -131,9 +132,10 @@ po::variables_map parse_options (int argc, char **argv)
         ("vdpi2", po::value<double>(&param.v_dpi2)->default_value(144.0), "vertical DPI for non-text")
         ("heps", po::value<double>(&param.h_eps)->default_value(1.0), "max tolerated horizontal offset (in pixels)")
         ("veps", po::value<double>(&param.v_eps)->default_value(1.0), "max tolerated vertical offset (in pixels)")
+        ("single-html", po::value<int>(&param.single_html)->default_value(1), "combine everything into one single HTML file")
         ("process-nontext", po::value<int>(&param.process_nontext)->default_value(1), "process nontext objects")
         ("debug", po::value<int>(&param.debug)->default_value(0), "output debug information")
-        ("single-html", po::value<int>(&param.single_html)->default_value(1), "combine everything into one single HTML file")
+        ("clean-tmp", po::value<int>(&param.clean_tmp)->default_value(1), "clean temporary files after processing")
         ;
 
     opt_hidden.add_options()
@@ -170,6 +172,15 @@ int main(int argc, char **argv)
     }
 
     //prepare the directories
+    for(const auto & p : {param.dest_dir, param.tmp_dir})
+    {
+        if(equivalent(PDF2HTMLEX_LIB_PATH, p))
+        {
+            cerr << "The specified directory \"" << p << "\" is the library path for pdf2htmlEX. Please use another one." << endl;
+            return -1;
+        }
+    }
+
     try
     {
         create_directories(param.dest_dir);

@@ -27,6 +27,7 @@ string HTMLRenderer::dump_embedded_font (GfxFont * font, long long fn_id)
     char buf[1024];
     int len;
 
+    string fn;
     ofstream outf;
 
     auto * id = font->getID();
@@ -113,7 +114,10 @@ string HTMLRenderer::dump_embedded_font (GfxFont * font, long long fn_id)
     }
 
     obj.streamReset();
-    outf.open(tmp_dir / (format("f%|1$x|%2%")%fn_id%suffix).str(), ofstream::binary);
+
+    fn = (format("f%|1$x|%2%")%fn_id%suffix).str();
+    outf.open(tmp_dir / fn , ofstream::binary);
+    add_tmp_file(fn);
     while((len = obj.streamGetChars(1024, (Guchar*)buf)) > 0)
     {
         outf.write(buf, len);

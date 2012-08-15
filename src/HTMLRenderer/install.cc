@@ -119,8 +119,9 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
     
     string fn = (format("f%|1$x|") % fn_id).str();
 
-    path script_path = tmp_dir / "pdf2htmlEX.pe";
+    path script_path = tmp_dir / FONTFORGE_SCRIPT_FILENAME;
     ofstream script_fout(script_path, ofstream::binary);
+    add_tmp_file(FONTFORGE_SCRIPT_FILENAME);
 
     script_fout << format("Open(%1%, 1)") % (tmp_dir / (fn + suffix)) << endl;
 
@@ -154,6 +155,8 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
         if(maxcode > 0)
         {
             ofstream map_fout(tmp_dir / (fn + ".encoding"));
+            add_tmp_file(fn+".encoding");
+
             int cnt = 0;
             for(int i = 0; i <= maxcode; ++i)
             {
@@ -180,9 +183,12 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
         ctu->decRefCnt();
     }
 
-    script_fout << format("Generate(%1%)") % (working_dir() / (fn+".ttf")) << endl;
+    script_fout << format("Generate(%1%)") % ((param->single_html ? tmp_dir : dest_dir) / (fn+".ttf")) << endl;
+    if(param->single_html)
+        add_tmp_file(fn+".ttf");
 
-    system((boost::format("fontforge -script %1% 2>%2%") % script_path % (tmp_dir / "log.txt")).str().c_str());
+    system((boost::format("fontforge -script %1% 2>%2%") % script_path % (tmp_dir / NULL_FILENAME)).str().c_str());
+    add_tmp_file("null");
 
     export_remote_font(fn_id, ".ttf", "truetype", font);
 }

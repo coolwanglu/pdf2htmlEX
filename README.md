@@ -30,6 +30,7 @@ Not supported yet
 
 Dependency
 ----------------------------
+* Recent version of GCC (no guarantee on other compilers)
 * libpoppler with xpdf header >= 0.20.2
 * boost c++ library (format, program options, gil, filesystem, serialization, system(which is actually required by filesystem))
 * fontforge **Please use [the lastest version](https://github.com/fontforge/fontforge)**
