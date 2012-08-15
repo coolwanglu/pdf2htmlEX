@@ -12,7 +12,7 @@ using std::string;
 
 const double EPS = 1e-6;
 
-const string TMP_DIR="/tmp/pdf2htmlEX";
+const double id_matrix[6] = {1.0, 0.0, 0.0, 1.0, 0.0, 0.0};
 
 const map<string, string> BASE_14_FONT_CSS_FONT_MAP({
    { "Courier", "Courier,monospace" },
@@ -21,8 +21,6 @@ const map<string, string> BASE_14_FONT_CSS_FONT_MAP({
    { "Symbol", "Symbol,\"Standard Symbols L\"" },
    { "ZapfDingbats", "ZapfDingbats,\"Dingbats\"" },
 });
-
-const double id_matrix[6] = {1.0, 0.0, 0.0, 1.0, 0.0, 0.0};
 
 const map<string, string> GB_ENCODED_FONT_NAME_MAP({
     {"\xCB\xCE\xCC\xE5", "SimSun"},

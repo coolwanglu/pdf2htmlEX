@@ -23,7 +23,7 @@ HTMLRenderer::HTMLRenderer(const Param * param)
     ,image_count(0)
     ,param(param)
     ,dest_dir(param->dest_dir)
-    ,tmp_dir(TMP_DIR)
+    ,tmp_dir(param->tmp_dir)
 {
     // install default font & size
     install_font(nullptr);
