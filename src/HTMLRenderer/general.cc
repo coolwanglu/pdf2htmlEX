@@ -68,17 +68,17 @@ void HTMLRenderer::process(PDFDoc *doc)
     {
         if(param->process_nontext)
         {
-            doc->displayPage(bg_renderer, i, param->h_dpi2, param->v_dpi2,
+            doc->displayPage(bg_renderer, i, param->h_dpi, param->v_dpi,
                     0, true, false, false,
                     nullptr, nullptr, nullptr, nullptr);
 
             string fn = (format("p%|1$x|.png")%i).str();
-            bg_renderer->getBitmap()->writeImgFile(splashFormatPng, (char*)((param->single_html ? tmp_dir : dest_dir) / fn) .c_str(), param->h_dpi2, param->v_dpi2);
+            bg_renderer->getBitmap()->writeImgFile(splashFormatPng, (char*)((param->single_html ? tmp_dir : dest_dir) / fn) .c_str(), param->h_dpi, param->v_dpi);
             if(param->single_html)
                 add_tmp_file(fn);
         }
 
-        doc->displayPage(this, i, param->h_dpi, param->v_dpi,
+        doc->displayPage(this, i, param->zoom * DEFAULT_DPI, param->zoom * DEFAULT_DPI,
                 0, true, false, false,
                 nullptr, nullptr, nullptr, nullptr);
 
