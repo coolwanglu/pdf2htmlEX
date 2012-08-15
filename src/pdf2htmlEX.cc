@@ -14,6 +14,7 @@
 #include <iostream>
 
 #include <boost/program_options.hpp>
+#include <boost/filesystem.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 
 #include <goo/GooString.h>
@@ -169,6 +170,15 @@ int main(int argc, char **argv)
     }
 
     //prepare the directories
+    for(const auto & p : {param.dest_dir, param.tmp_dir})
+    {
+        if(equivalent(PDF2HTMLEX_LIB_PATH, p))
+        {
+            cerr << "The specified directory \"" << p << "\" is the library path for pdf2htmlEX. Please use another one." << endl;
+            return -1;
+        }
+    }
+
     try
     {
         create_directories(param.dest_dir);

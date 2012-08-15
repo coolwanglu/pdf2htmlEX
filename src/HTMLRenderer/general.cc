@@ -94,30 +94,34 @@ void HTMLRenderer::pre_process()
     // we may output utf8 characters, so use binary
     if(param->single_html)
     {
-        html_fout.open(tmp_dir / param->output_filename, ofstream::binary); 
-        allcss_fout.open(tmp_dir / "all.css", ofstream::binary);
+        // don't use output_file directly
+        // otherwise it'll be a disaster when tmp_dir == dest_dir
+        const string tmp_output_fn = param->output_filename + ".part";
+
+        html_fout.open(tmp_dir / tmp_output_fn, ofstream::binary); 
+        allcss_fout.open(tmp_dir / CSS_FILENAME, ofstream::binary);
         
-        add_tmp_file(param->output_filename);
-        add_tmp_file("all.css");
+        add_tmp_file(tmp_output_fn);
+        add_tmp_file(CSS_FILENAME);
     }
     else
     {
         html_fout.open(dest_dir / param->output_filename, ofstream::binary); 
-        allcss_fout.open(dest_dir / "all.css", ofstream::binary);
+        allcss_fout.open(dest_dir / CSS_FILENAME, ofstream::binary);
 
-        html_fout << ifstream(PDF2HTMLEX_LIB_PATH / "head.html", ifstream::binary).rdbuf();
-        html_fout << "<link rel=\"stylesheet\" type=\"text/css\" href=\"all.css\"/>" << endl;
-        html_fout << ifstream(PDF2HTMLEX_LIB_PATH / "neck.html", ifstream::binary).rdbuf();
+        html_fout << ifstream(PDF2HTMLEX_LIB_PATH / HEAD_HTML_FILENAME, ifstream::binary).rdbuf();
+        html_fout << "<link rel=\"stylesheet\" type=\"text/css\" href=\"" << CSS_FILENAME << "\"/>" << endl;
+        html_fout << ifstream(PDF2HTMLEX_LIB_PATH / NECK_HTML_FILENAME, ifstream::binary).rdbuf();
     }
 
-    allcss_fout << ifstream(PDF2HTMLEX_LIB_PATH / "base.css", ifstream::binary).rdbuf();
+    allcss_fout << ifstream(PDF2HTMLEX_LIB_PATH / CSS_FILENAME, ifstream::binary).rdbuf();
 }
 
 void HTMLRenderer::post_process()
 {
     if(!param->single_html)
     {
-        html_fout << ifstream(PDF2HTMLEX_LIB_PATH / "tail.html", ifstream::binary).rdbuf();
+        html_fout << ifstream(PDF2HTMLEX_LIB_PATH / TAIL_HTML_FILENAME, ifstream::binary).rdbuf();
     }
 
     html_fout.close();
@@ -179,17 +183,17 @@ void HTMLRenderer::process_single_html()
 {
     ofstream out (dest_dir / param->output_filename, ofstream::binary);
 
-    out << ifstream(PDF2HTMLEX_LIB_PATH / "head.html", ifstream::binary).rdbuf();
+    out << ifstream(PDF2HTMLEX_LIB_PATH / HEAD_HTML_FILENAME , ifstream::binary).rdbuf();
 
     out << "<style type=\"text/css\">" << endl;
-    out << ifstream(tmp_dir / "all.css", ifstream::binary).rdbuf();
+    out << ifstream(tmp_dir / CSS_FILENAME, ifstream::binary).rdbuf();
     out << "</style>" << endl;
 
-    out << ifstream(PDF2HTMLEX_LIB_PATH / "neck.html", ifstream::binary).rdbuf();
+    out << ifstream(PDF2HTMLEX_LIB_PATH / NECK_HTML_FILENAME, ifstream::binary).rdbuf();
 
-    out << ifstream(tmp_dir / param->output_filename, ifstream::binary).rdbuf();
+    out << ifstream(tmp_dir / (param->output_filename + ".part"), ifstream::binary).rdbuf();
 
-    out << ifstream(PDF2HTMLEX_LIB_PATH / "tail.html", ifstream::binary).rdbuf();
+    out << ifstream(PDF2HTMLEX_LIB_PATH / TAIL_HTML_FILENAME, ifstream::binary).rdbuf();
 }
 
 void HTMLRenderer::add_tmp_file(const string & fn)
@@ -220,3 +224,9 @@ void HTMLRenderer::clean_tmp_files()
     catch(const filesystem_error &)
     { }
 }
+
+const std::string HTMLRenderer::HEAD_HTML_FILENAME = "head.html";
+const std::string HTMLRenderer::NECK_HTML_FILENAME = "neck.html";
+const std::string HTMLRenderer::TAIL_HTML_FILENAME = "tail.html";
+const std::string HTMLRenderer::CSS_FILENAME = "all.css";
+const std::string HTMLRenderer::NULL_FILENAME = "null";

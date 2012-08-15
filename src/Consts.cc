@@ -10,7 +10,6 @@
 using std::map;
 using std::string;
 
-const double EPS = 1e-6;
 
 const double id_matrix[6] = {1.0, 0.0, 0.0, 1.0, 0.0, 0.0};
 

@@ -218,6 +218,12 @@ class HTMLRenderer : public OutputDev
         boost::filesystem::path dest_dir, tmp_dir;
         boost::filesystem::ofstream html_fout, allcss_fout;
         std::set<std::string> tmp_files;
+
+        static const std::string HEAD_HTML_FILENAME;
+        static const std::string NECK_HTML_FILENAME;
+        static const std::string TAIL_HTML_FILENAME;
+        static const std::string CSS_FILENAME;
+        static const std::string NULL_FILENAME;
 };
 
 #endif /* HTMLRENDERER_H_ */

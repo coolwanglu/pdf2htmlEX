@@ -187,8 +187,7 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
     if(param->single_html)
         add_tmp_file(fn+".ttf");
 
-    // for cross-platform purpose, use a file instead of /dev/null
-    system((boost::format("fontforge -script %1% 2>%2%") % script_path % (tmp_dir / "null")).str().c_str());
+    system((boost::format("fontforge -script %1% 2>%2%") % script_path % (tmp_dir / NULL_FILENAME)).str().c_str());
     add_tmp_file("null");
 
     export_remote_font(fn_id, ".ttf", "truetype", font);
