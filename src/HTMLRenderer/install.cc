@@ -119,9 +119,9 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
     
     string fn = (format("f%|1$x|") % fn_id).str();
 
-    path script_path = tmp_dir / "pdf2htmlEX.pe";
+    path script_path = tmp_dir / FONTFORGE_SCRIPT_FILENAME;
     ofstream script_fout(script_path, ofstream::binary);
-    add_tmp_file("pdf2htmlEX.pe");
+    add_tmp_file(FONTFORGE_SCRIPT_FILENAME);
 
     script_fout << format("Open(%1%, 1)") % (tmp_dir / (fn + suffix)) << endl;
 

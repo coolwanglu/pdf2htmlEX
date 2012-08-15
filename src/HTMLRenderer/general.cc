@@ -198,12 +198,18 @@ void HTMLRenderer::process_single_html()
 
 void HTMLRenderer::add_tmp_file(const string & fn)
 {
+    if(!param->clean_tmp)
+        return;
+
     if(tmp_files.insert(fn).second && param->debug)
         cerr << "Add new temporary file: " << fn << endl;
 }
 
 void HTMLRenderer::clean_tmp_files()
 {
+    if(!param->clean_tmp)
+        return;
+
     for(const auto & fn : tmp_files)
     {
         try
@@ -230,3 +236,4 @@ const std::string HTMLRenderer::NECK_HTML_FILENAME = "neck.html";
 const std::string HTMLRenderer::TAIL_HTML_FILENAME = "tail.html";
 const std::string HTMLRenderer::CSS_FILENAME = "all.css";
 const std::string HTMLRenderer::NULL_FILENAME = "null";
+const std::string HTMLRenderer::FONTFORGE_SCRIPT_FILENAME = "pdf2htmlEX.pe";

@@ -223,6 +223,8 @@ class HTMLRenderer : public OutputDev
         static const std::string NECK_HTML_FILENAME;
         static const std::string TAIL_HTML_FILENAME;
         static const std::string CSS_FILENAME;
+        static const std::string FONTFORGE_SCRIPT_FILENAME;
+        // for cross-platform purpose, use a "null" file instead of /dev/null
         static const std::string NULL_FILENAME;
 };
 
