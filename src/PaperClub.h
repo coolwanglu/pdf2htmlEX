@@ -22,8 +22,8 @@ class PC_HTMLRenderer : public HTMLRenderer
 
         virtual void pre_process() 
         {
-            allcss_fout.open(dest_dir / "all.css", ofstream::binary);
-            allcss_fout << ifstream(PDF2HTMLEX_LIB_PATH / "base.css", ifstream::binary).rdbuf();
+            allcss_fout.open(dest_dir / CSS_FILENAME, ofstream::binary);
+            allcss_fout << ifstream(PDF2HTMLEX_LIB_PATH / CSS_FILENAME, ifstream::binary).rdbuf();
         }
 
         virtual void post_process() { }
