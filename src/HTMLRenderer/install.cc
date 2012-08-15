@@ -237,22 +237,6 @@ long long HTMLRenderer::install_font_size(double font_size)
     return new_fs_id;
 }
 
-long long HTMLRenderer::install_whitespace(double ws_width, double & actual_width)
-{
-    auto iter = whitespace_map.lower_bound(ws_width - param->h_eps);
-    if((iter != whitespace_map.end()) && (abs(iter->first - ws_width) < param->h_eps))
-    {
-        actual_width = iter->first;
-        return iter->second;
-    }
-
-    actual_width = ws_width;
-    long long new_ws_id = whitespace_map.size();
-    whitespace_map.insert(make_pair(ws_width, new_ws_id));
-    export_whitespace(new_ws_id, ws_width);
-    return new_ws_id;
-}
-
 long long HTMLRenderer::install_transform_matrix(const double * tm)
 {
     TM m(tm);
@@ -266,6 +250,30 @@ long long HTMLRenderer::install_transform_matrix(const double * tm)
     return new_tm_id;
 }
 
+long long HTMLRenderer::install_letter_space(double letter_space)
+{
+    auto iter = letter_space_map.lower_bound(letter_space - EPS);
+    if((iter != letter_space_map.end()) && (_equal(iter->first, letter_space)))
+        return iter->second;
+
+    long long new_ls_id = letter_space_map.size();
+    letter_space_map.insert(make_pair(letter_space, new_ls_id));
+    export_letter_space(new_ls_id, letter_space);
+    return new_ls_id;
+}
+
+long long HTMLRenderer::install_word_space(double word_space)
+{
+    auto iter = word_space_map.lower_bound(word_space - EPS);
+    if((iter != word_space_map.end()) && (_equal(iter->first, word_space)))
+        return iter->second;
+
+    long long new_ws_id = word_space_map.size();
+    word_space_map.insert(make_pair(word_space, new_ws_id));
+    export_word_space(new_ws_id, word_space);
+    return new_ws_id;
+}
+
 long long HTMLRenderer::install_color(const GfxRGB * rgb)
 {
     const GfxRGB & c = *rgb;
@@ -277,5 +285,22 @@ long long HTMLRenderer::install_color(const GfxRGB * rgb)
     color_map.insert(make_pair(c, new_color_id));
     export_color(new_color_id, rgb);
     return new_color_id;
+}
+
+long long HTMLRenderer::install_whitespace(double ws_width, double & actual_width)
+{
+    // ws_width is already mulitpled by draw_scale
+    auto iter = whitespace_map.lower_bound(ws_width - param->h_eps);
+    if((iter != whitespace_map.end()) && (abs(iter->first - ws_width) < param->h_eps))
+    {
+        actual_width = iter->first;
+        return iter->second;
+    }
+
+    actual_width = ws_width;
+    long long new_ws_id = whitespace_map.size();
+    whitespace_map.insert(make_pair(ws_width, new_ws_id));
+    export_whitespace(new_ws_id, ws_width);
+    return new_ws_id;
 }
 

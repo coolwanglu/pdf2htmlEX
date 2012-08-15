@@ -30,6 +30,9 @@ HTMLRenderer::HTMLRenderer(const Param * param)
     install_font_size(0);
 
     install_transform_matrix(id_matrix);
+    
+    install_letter_space(0);
+    install_word_space(0);
 
     GfxRGB black;
     black.r = black.g = black.b = 0;
@@ -158,18 +161,27 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
     
     html_fout << format(");background-position:0 0;background-size:%1%px %2%px;background-repeat:no-repeat;\">") % pageWidth % pageHeight;
             
-    cur_fn_id = cur_fs_id = cur_tm_id = cur_color_id = 0;
-    cur_tx = cur_ty = 0;
-    cur_font_size = 0;
+    cur_rise = 0;
 
+    cur_fn_id = cur_fs_id = 0;
+    cur_font_size = 0; 
+    
+    cur_tm_id = 0;
     memcpy(cur_ctm, id_matrix, sizeof(cur_ctm));
+
+    cur_ls_id = cur_ws_id = 0; 
+    cur_letter_space = cur_word_space = 0;
+
+    cur_color_id = 0;
+    cur_color.r = cur_color.g = cur_color.b = 0;
+
+    cur_tx = cur_ty = 0;
+
     memcpy(draw_ctm, id_matrix, sizeof(draw_ctm));
     draw_font_size = 0;
     draw_scale = 1.0;
     draw_tx = draw_ty = 0;
 
-    cur_color.r = cur_color.g = cur_color.b = 0;
-    
     reset_state_track();
 }
 

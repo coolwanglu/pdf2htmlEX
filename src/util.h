@@ -122,13 +122,8 @@ class base64stream
 {
 public:
 
-    base64stream(istream & in)
-        : in(&in)
-    { }
-
-    base64stream(istream && in)
-        : in(&in)
-    { }
+    base64stream(istream & in) : in(&in) { }
+    base64stream(istream && in) : in(&in) { }
 
     ostream & dumpto(ostream & out)
     {

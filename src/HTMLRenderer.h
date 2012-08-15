@@ -39,16 +39,18 @@
  *
  * p - Page
  * l - Line
- * w - White space
+ * _ - white space
  * i - Image
  *
  * Reusable CSS classes
  *
+ * t<hex> - Transform matrix
  * f<hex> - Font (also for font names)
  * s<hex> - font Size
- * w<hex> - White space
- * t<hex> - Transform matrix
+ * l<hex> - Letter spacing
+ * w<hex> - Word spacing
  * c<hex> - Color
+ * _<hex> - white space
  *
  */
 
@@ -93,13 +95,26 @@ class HTMLRenderer : public OutputDev
          * We just mark as changed, and recheck if they have been changed when we are about to output a new string
          */
         virtual void updateAll(GfxState * state);
-        virtual void updateFont(GfxState * state);
-        virtual void updateTextMat(GfxState * state);
-        virtual void updateCTM(GfxState * state, double m11, double m12, double m21, double m22, double m31, double m32);
+
+        virtual void updateRise(GfxState * state);
         virtual void updateTextPos(GfxState * state);
         virtual void updateTextShift(GfxState * state, double shift);
+
+        virtual void updateFont(GfxState * state);
+        virtual void updateCTM(GfxState * state, double m11, double m12, double m21, double m22, double m31, double m32);
+        virtual void updateTextMat(GfxState * state);
+        virtual void updateHorizScaling(GfxState * state);
+
+        virtual void updateCharSpace(GfxState * state);
+        virtual void updateWordSpace(GfxState * state);
+
         virtual void updateFillColor(GfxState * state);
 
+
+        /*
+         * Rendering
+         */
+        
         virtual void drawString(GfxState * state, GooString * s);
 
         virtual void drawImage(GfxState * state, Object * ref, Stream * str, int width, int height, GfxImageColorMap * colorMap, GBool interpolate, int *maskColors, GBool inlineImg);
@@ -121,9 +136,11 @@ class HTMLRenderer : public OutputDev
         void install_external_font (GfxFont * font, long long fn_id);
 
         long long install_font_size(double font_size);
-        long long install_whitespace(double ws_width, double & actual_width);
         long long install_transform_matrix(const double * tm);
+        long long install_letter_space(double letter_space);
+        long long install_word_space(double word_space);
         long long install_color(const GfxRGB * rgb);
+        long long install_whitespace(double ws_width, double & actual_width);
 
         ////////////////////////////////////////////////////
         // export css styles
@@ -136,9 +153,11 @@ class HTMLRenderer : public OutputDev
         void export_remote_default_font(long long fn_id);
         void export_local_font(long long fn_id, GfxFont * font, const std::string & original_font_name, const std::string & cssfont);
         void export_font_size(long long fs_id, double font_size);
-        void export_whitespace(long long ws_id, double ws_width);
         void export_transform_matrix(long long tm_id, const double * tm);
+        void export_letter_space(long long ls_id, double letter_space);
+        void export_word_space(long long ws_id, double word_space);
         void export_color(long long color_id, const GfxRGB * rgb);
+        void export_whitespace(long long ws_id, double ws_width);
 
         ////////////////////////////////////////////////////
         // state tracking 
@@ -165,26 +184,46 @@ class HTMLRenderer : public OutputDev
         ////////////////////////////////////////////////////
         // if we have a pending opened line
         bool line_opened;
-
+        
+        // The order is according to the appearance in check_state_change
         // any state changed
         bool all_changed;
+        // rise
+        double cur_rise;
+        bool rise_changed;
         // current position
         double cur_tx, cur_ty; // real text position, in text coords
         bool text_pos_changed; 
 
+        // font & size
         long long cur_fn_id;
         double cur_font_size;
         long long cur_fs_id; 
         bool font_changed;
 
+        // transform matrix
         long long cur_tm_id;
         bool ctm_changed;
         bool text_mat_changed;
-        
+        // horizontal scaling
+        bool hori_scale_changed;
         // this is CTM * TextMAT in PDF, not only CTM
-        // [4] and [5] are ignored, we'll calculate the position of the origin separately
+        // [4] and [5] are ignored,
+        // as we'll calculate the position of the origin separately
+        // TODO: changed this for images
         double cur_ctm[6]; // unscaled
 
+        // letter spacing 
+        long long cur_ls_id;
+        double cur_letter_space;
+        bool letter_space_changed;
+
+        // word spacing
+        long long cur_ws_id;
+        double cur_word_space;
+        bool word_space_changed;
+
+        // color
         long long cur_color_id;
         GfxRGB cur_color;
         bool color_changed;
@@ -208,9 +247,15 @@ class HTMLRenderer : public OutputDev
 
         std::unordered_map<long long, FontInfo> font_name_map;
         std::map<double, long long> font_size_map;
-        std::map<double, long long> whitespace_map;
+
         std::map<TM, long long> transform_matrix_map;
+
+        std::map<double, long long> letter_space_map;
+        std::map<double, long long> word_space_map;
+
         std::map<GfxRGB, long long> color_map; 
+
+        std::map<double, long long> whitespace_map;
 
         int image_count;
 
