@@ -22,7 +22,7 @@ void HTMLRenderer::export_remote_font(long long fn_id, const string & suffix, co
     const std::string fn = (format("f%|1$x|%2%") % fn_id % suffix).str();
     if(param->single_html)
     {
-        allcss_fout << "'data:font/" << fontfileformat << ";base64," << base64_filter(ifstream(tmp_dir / fn, ifstream::binary)) << "'";
+        allcss_fout << "'data:font/" << fontfileformat << ";base64," << base64stream(ifstream(tmp_dir / fn, ifstream::binary)) << "'";
     }
     else
     {
