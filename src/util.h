@@ -13,7 +13,6 @@
 #include <algorithm>
 #include <istream>
 #include <ostream>
-#include <iterator>
 #include <iomanip>
 
 #include <GfxState.h>
@@ -24,7 +23,6 @@
 
 using std::istream;
 using std::ostream;
-using std::istream_iterator;
 using std::endl;
 using std::noskipws;
 
@@ -120,41 +118,37 @@ public:
     double _[6];
 };
 
-class base64_filter
+class base64stream
 {
 public:
 
-    base64_filter(istream & in)
-        : in_iter(istream_iterator<char>(in >> noskipws))
+    base64stream(istream & in)
+        : in(&in)
     { }
 
-    base64_filter(istream && in)
-        : in_iter(istream_iterator<char>(in >> noskipws))
+    base64stream(istream && in)
+        : in(&in)
     { }
 
     ostream & dumpto(ostream & out)
     {
         unsigned char buf[3];
-        istream_iterator<char> end_iter;
-        int cnt = 0;
-        while(in_iter != end_iter)
+        while(in->read((char*)buf, 3))
         {
-            buf[cnt++] = *(in_iter++);
-            if(cnt == 3)
-            {
-                out << base64_encoding[(buf[0] & 0xfc)>>2];
-                out << base64_encoding[((buf[0] & 0x03)<<4) | ((buf[1] & 0xf0)>>4)];
-                out << base64_encoding[((buf[1] & 0x0f)<<2) | ((buf[2] & 0xc0)>>6)];
-                out << base64_encoding[(buf[2] & 0x3f)];
-                cnt = 0;
-            }
+            out << base64_encoding[(buf[0] & 0xfc)>>2]
+                << base64_encoding[((buf[0] & 0x03)<<4) | ((buf[1] & 0xf0)>>4)]
+                << base64_encoding[((buf[1] & 0x0f)<<2) | ((buf[2] & 0xc0)>>6)]
+                << base64_encoding[(buf[2] & 0x3f)];
         } 
+        auto cnt = in->gcount();
         if(cnt > 0)
         {
             for(int i = cnt; i < 3; ++i)
                 buf[i] = 0;
-            out << base64_encoding[(buf[0] & 0xfc)>>2];
-            out << base64_encoding[((buf[0] & 0x03)<<4) | ((buf[1] & 0xf0)>>4)];
+
+            out << base64_encoding[(buf[0] & 0xfc)>>2]
+                << base64_encoding[((buf[0] & 0x03)<<4) | ((buf[1] & 0xf0)>>4)];
+
             if(cnt > 1)
             {
                 out << base64_encoding[(buf[1] & 0x0f)<<2];
@@ -171,10 +165,10 @@ public:
 
 private:
     static constexpr const char * base64_encoding = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-    istream_iterator<char> in_iter;
+    istream * in;
 };
 
-static inline ostream & operator << (ostream & out, base64_filter & bf) { return bf.dumpto(out); }
-static inline ostream & operator << (ostream & out, base64_filter && bf) { return bf.dumpto(out); }
+static inline ostream & operator << (ostream & out, base64stream & bf) { return bf.dumpto(out); }
+static inline ostream & operator << (ostream & out, base64stream && bf) { return bf.dumpto(out); }
 
 #endif //UTIL_H__

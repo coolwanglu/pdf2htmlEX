@@ -131,7 +131,7 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
     if(param->single_html)
     {
         auto path = tmp_dir / fn;
-        html_fout << "'data:image/png;base64," << base64_filter(ifstream(path, ifstream::binary)) << "'";
+        html_fout << "'data:image/png;base64," << base64stream(ifstream(path, ifstream::binary)) << "'";
     }
     else
     {
