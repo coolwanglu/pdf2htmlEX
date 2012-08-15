@@ -119,7 +119,10 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
     
     string fn = (format("f%|1$x|") % fn_id).str();
 
-    fontscript_fout << format("Open(%1%, 1)") % (tmp_dir / (fn + suffix)) << endl;
+    path script_path = tmp_dir / "pdf2htmlEX.pe";
+    ofstream script_fout(script_path, ofstream::binary);
+
+    script_fout << format("Open(%1%, 1)") % (tmp_dir / (fn + suffix)) << endl;
 
     auto ctu = font->getToUnicode();
     int * code2GID = nullptr;
@@ -137,11 +140,11 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
             maxcode = 0xffff;
             if(suffix != ".ttf")
             {
-                fontscript_fout << "CIDFlatten()" << endl;
+                script_fout << "CIDFlatten()" << endl;
             }
             else
             {
-                fontscript_fout << format("Reencode(\"original\")") << endl;
+                script_fout << format("Reencode(\"original\")") << endl;
                 int len; 
                 // code2GID has been stored for embedded CID fonts
                 code2GID = dynamic_cast<GfxCIDFont*>(font)->getCodeToGIDMap(nullptr, &len);
@@ -169,15 +172,17 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
 
             if(cnt > 0)
             {
-                fontscript_fout << format("LoadEncodingFile(%1%, \"%2%\")") % (tmp_dir / (fn+".encoding")) % fn << endl;
-                fontscript_fout << format("Reencode(\"%1%\", 1)") % fn << endl;
+                script_fout << format("LoadEncodingFile(%1%, \"%2%\")") % (tmp_dir / (fn+".encoding")) % fn << endl;
+                script_fout << format("Reencode(\"%1%\", 1)") % fn << endl;
             }
         }
 
         ctu->decRefCnt();
     }
 
-    fontscript_fout << format("Generate(%1%)") % (dest_dir / (fn+".ttf")) << endl;
+    script_fout << format("Generate(%1%)") % (working_dir() / (fn+".ttf")) << endl;
+
+    system((boost::format("fontforge -script %1% 2>%2%") % script_path % (tmp_dir / "log.txt")).str().c_str());
 
     export_remote_font(fn_id, ".ttf", "truetype", font);
 }

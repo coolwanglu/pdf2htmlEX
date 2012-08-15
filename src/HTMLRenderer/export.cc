@@ -15,28 +15,21 @@
 
 using boost::algorithm::ifind_first;
 
-/*
- * CSS classes
- *
- * p - Page
- * l - Line
- * w - White space
- * i - Image
- *
- * 
- * Reusable CSS classes
- *
- * f<hex> - Font (also for font names)
- * s<hex> - font Size
- * w<hex> - White space
- * t<hex> - Transform matrix
- * c<hex> - Color
- *
- */
-
 void HTMLRenderer::export_remote_font(long long fn_id, const string & suffix, const string & fontfileformat, GfxFont * font)
 {
-    allcss_fout << format("@font-face{font-family:f%|1$x|;src:url(f%|1$x|%2%)format(\"%3%\");}.f%|1$x|{font-family:f%|1$x|;") % fn_id % suffix % fontfileformat;
+    allcss_fout << format("@font-face{font-family:f%|1$x|;src:url(") % fn_id;
+
+    const std::string fn = (format("f%|1$x|%2%") % fn_id % suffix).str();
+    if(param->single_html)
+    {
+        allcss_fout << "'data:font/" << fontfileformat << ";base64," << base64_filter(ifstream(tmp_dir / fn, ifstream::binary)) << "'";
+    }
+    else
+    {
+        allcss_fout << fn;
+    }
+
+    allcss_fout << format(")format(\"%1%\");}.f%|2$x|{font-family:f%|2$x|;") % fontfileformat % fn_id;
 
     double a = font->getAscent();
     double d = font->getDescent();

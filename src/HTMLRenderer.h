@@ -30,6 +30,27 @@
 #include "Param.h"
 #include "util.h"
 
+
+/*
+ * Naming Convention
+ *
+ * CSS classes
+ *
+ * p - Page
+ * l - Line
+ * w - White space
+ * i - Image
+ *
+ * Reusable CSS classes
+ *
+ * f<hex> - Font (also for font names)
+ * s<hex> - font Size
+ * w<hex> - White space
+ * t<hex> - Transform matrix
+ * c<hex> - Color
+ *
+ */
+
 class HTMLRenderer : public OutputDev
 {
     public:
@@ -191,7 +212,7 @@ class HTMLRenderer : public OutputDev
 
         const Param * param;
         boost::filesystem::path dest_dir, tmp_dir;
-        boost::filesystem::ofstream html_fout, allcss_fout, fontscript_fout;
+        boost::filesystem::ofstream html_fout, allcss_fout;
 };
 
 #endif /* HTMLRENDERER_H_ */

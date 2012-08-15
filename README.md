@@ -14,6 +14,7 @@ This program is designed for scientific papers with complicate formulas and figu
 
 Features
 ----------------------------
+* Single HTML file output 
 * Precise rendering 
 * Text Selection
 * Font embedding 
@@ -30,17 +31,16 @@ Not supported yet
 Dependency
 ----------------------------
 * libpoppler with xpdf header >= 0.20.2
-* boost c++ library (format, program options, gil, filesystem)
+* boost c++ library (format, program options, gil, filesystem, serialization)
 * fontforge **Please use [the lastest version](https://github.com/fontforge/fontforge)**
 
 HOW TO COMPILE
 ----------------------------
-    cmake . && make
+    cmake . && make && sudo make install
 
 HOW TO USE
 ----------------------------
-    bin/pdf2htmlEX /path/to/sample.pdf
-
+    pdf2htmlEX /path/to/sample.pdf
 
 LICENSE
 ----------------------------
