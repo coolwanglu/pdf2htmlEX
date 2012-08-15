@@ -7,8 +7,6 @@
  * 2012.08.14
  */
 
-#include <iomanip>
-
 #include <splash/SplashBitmap.h>
 
 #include "HTMLRenderer.h"
@@ -17,6 +15,8 @@
 #include "namespace.h"
 
 using std::flush;
+using boost::filesystem::remove;
+using boost::filesystem::filesystem_error;
 
 HTMLRenderer::HTMLRenderer(const Param * param)
     :line_opened(false)
@@ -37,7 +37,9 @@ HTMLRenderer::HTMLRenderer(const Param * param)
 }
 
 HTMLRenderer::~HTMLRenderer()
-{ }
+{ 
+    clean_tmp_files();
+}
 
 void HTMLRenderer::process(PDFDoc *doc)
 {
@@ -66,7 +68,11 @@ void HTMLRenderer::process(PDFDoc *doc)
             doc->displayPage(bg_renderer, i, param->h_dpi2, param->v_dpi2,
                     0, true, false, false,
                     nullptr, nullptr, nullptr, nullptr);
-            bg_renderer->getBitmap()->writeImgFile(splashFormatPng, (char*)(working_dir() / (format("p%|1$x|.png")%i).str()).c_str(), param->h_dpi2, param->v_dpi2);
+
+            string fn = (format("p%|1$x|.png")%i).str();
+            bg_renderer->getBitmap()->writeImgFile(splashFormatPng, (char*)((param->single_html ? tmp_dir : dest_dir) / fn) .c_str(), param->h_dpi2, param->v_dpi2);
+            if(param->single_html)
+                add_tmp_file(fn);
         }
 
         doc->displayPage(this, i, param->h_dpi, param->v_dpi,
@@ -86,11 +92,19 @@ void HTMLRenderer::process(PDFDoc *doc)
 void HTMLRenderer::pre_process()
 {
     // we may output utf8 characters, so use binary
-    html_fout.open(working_dir() / param->output_filename, ofstream::binary); 
-    allcss_fout.open(working_dir() / "all.css", ofstream::binary);
-
-    if(!param->single_html)
+    if(param->single_html)
     {
+        html_fout.open(tmp_dir / param->output_filename, ofstream::binary); 
+        allcss_fout.open(tmp_dir / "all.css", ofstream::binary);
+        
+        add_tmp_file(param->output_filename);
+        add_tmp_file("all.css");
+    }
+    else
+    {
+        html_fout.open(dest_dir / param->output_filename, ofstream::binary); 
+        allcss_fout.open(dest_dir / "all.css", ofstream::binary);
+
         html_fout << ifstream(PDF2HTMLEX_LIB_PATH / "head.html", ifstream::binary).rdbuf();
         html_fout << "<link rel=\"stylesheet\" type=\"text/css\" href=\"all.css\"/>" << endl;
         html_fout << ifstream(PDF2HTMLEX_LIB_PATH / "neck.html", ifstream::binary).rdbuf();
@@ -178,8 +192,31 @@ void HTMLRenderer::process_single_html()
     out << ifstream(PDF2HTMLEX_LIB_PATH / "tail.html", ifstream::binary).rdbuf();
 }
 
+void HTMLRenderer::add_tmp_file(const string & fn)
+{
+    if(tmp_files.insert(fn).second && param->debug)
+        cerr << "Add new temporary file: " << fn << endl;
+}
 
-
-
-
-
+void HTMLRenderer::clean_tmp_files()
+{
+    for(const auto & fn : tmp_files)
+    {
+        try
+        {
+            remove(tmp_dir / fn);
+            if(param->debug)
+                cerr << "Remove temporary file: " << fn << endl;
+        }
+        catch(const filesystem_error &)
+        { }
+    }
+    try
+    {
+        remove(tmp_dir);
+        if(param->debug)
+            cerr << "Remove temporary directory: " << tmp_dir << endl;
+    }
+    catch(const filesystem_error &)
+    { }
+}
