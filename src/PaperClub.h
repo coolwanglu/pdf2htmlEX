@@ -20,7 +20,12 @@ class PC_HTMLRenderer : public HTMLRenderer
 
         virtual ~PC_HTMLRenderer() { }
 
-        virtual void pre_process() { /* may need open all.css and write head there */ }
+        virtual void pre_process() 
+        {
+            allcss_fout.open(dest_dir / "all.css", ofstream::binary);
+            allcss_fout << ifstream(PDF2HTMLEX_LIB_PATH / "base.css", ifstream::binary).rdbuf();
+        }
+
         virtual void post_process() { }
 
         virtual void startPage(int pageNum, GfxState *state) 
