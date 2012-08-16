@@ -55,11 +55,14 @@ class PC_HTMLRenderer : public HTMLRenderer
             //determine padding now
             double x,y;
             state->textTransform(cur_tx, cur_ty, &x, &y);
-            string padding = (_equal(y, ty) && (x < tx + EPS)) ? "" : " ";
-            cout << x << ' ' << y << ' ' << tx << ' ' << ty << endl;
+            string padding = (_equal(y, ty) && (x < tx + param->h_eps)) ? "" : " ";
             
             // wait for status update
             HTMLRenderer::drawString(state, s);
+
+            state->textTransform(cur_tx, cur_ty, &x, &y);
+            tx = x;
+            ty = y;
 
             if(pageNum != 1) return;
 
@@ -95,9 +98,6 @@ class PC_HTMLRenderer : public HTMLRenderer
                 p += n;
                 len -= n;
             } 
-
-            tx = x;
-            ty = y;
         }
 
         double tx, ty;
