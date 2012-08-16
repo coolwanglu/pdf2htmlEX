@@ -114,7 +114,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
 
         if(!(new_fn_id == cur_fn_id))
         {
-            new_line_status = max(new_line_status, LineStatus::SPAN);
+            new_line_status = max(new_line_status, LineStatus::DIV);
             cur_fn_id = new_fn_id;
         }
 
@@ -157,7 +157,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
         double new_draw_ctm[6];
         memcpy(new_draw_ctm, cur_ctm, sizeof(new_draw_ctm));
 
-        draw_scale = sqrt(new_draw_ctm[2] * new_draw_ctm[2] + new_draw_ctm[3] * new_draw_ctm[3]);
+        draw_scale = 10*sqrt(new_draw_ctm[2] * new_draw_ctm[2] + new_draw_ctm[3] * new_draw_ctm[3]);
 
         double new_draw_font_size = cur_font_size;
         if(_is_positive(draw_scale))
@@ -173,7 +173,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
 
         if(!(_equal(new_draw_font_size, draw_font_size)))
         {
-            new_line_status = max(new_line_status, LineStatus::SPAN);
+            new_line_status = max(new_line_status, LineStatus::DIV);
             draw_font_size = new_draw_font_size;
             cur_fs_id = install_font_size(draw_font_size);
         }
@@ -318,16 +318,15 @@ void HTMLRenderer::prepare_line(GfxState * state)
             // "t0" is the id_matrix
             if(cur_tm_id != 0)
                 html_fout << format("t%|1$x| ") % cur_tm_id;
+
+            html_fout << format("f%|1$x| s%|2$x| ") % cur_fn_id % cur_fs_id;
         }
         else
         {
             assert(false && "Bad value of new_line_status");
         }
 
-        
-        // TODO: only show changed styles for <span>
-        html_fout << format("f%|1$x| s%|2$x| c%|3$x|") % cur_fn_id % cur_fs_id % cur_color_id;
-        
+        html_fout << format("c%|1$x|") % cur_color_id;
     
         if(cur_ls_id != 0)
             html_fout << format(" l%|1$x|") % cur_ls_id;

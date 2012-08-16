@@ -25,10 +25,10 @@
   color:transparent;
 }
 ::selection{
-  background: rgba(168,209,255,0.5);
+  background: rgba(127,255,255,1);
 }
 ::-moz-selection{
-  background: rgba(168,209,255,0.5);
+  background: rgba(127,255,255,1);
 }
 .i {
   position:absolute;
