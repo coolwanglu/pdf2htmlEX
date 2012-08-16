@@ -234,7 +234,7 @@ int main(int argc, char **argv)
 
     if(param.output_filename == "")
     {
-        const string s = path(param.input_filename).string();
+        const string s = path(param.input_filename).filename().string();
         if(boost::algorithm::ends_with(s, ".pdf"))
         {
             param.output_filename = s.substr(0, s.size() - 4) + ".html";
