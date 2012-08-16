@@ -63,10 +63,11 @@ class PC_HTMLRenderer : public HTMLRenderer
             auto font = state->getFont();
             if(font == nullptr) return;
 
-            if(cur_font_size < max_font_size) return;
-            if(cur_font_size > max_font_size)
+            double fs = state->getTransformedFontSize();
+            if(fs < max_font_size) return;
+            if(fs > max_font_size)
             {
-                max_font_size = cur_font_size;
+                max_font_size = fs;
                 cur_title.str("");
             }
             else
