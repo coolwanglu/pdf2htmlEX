@@ -53,7 +53,7 @@ void HTMLRenderer::drawImage(GfxState * state, Object * ref, Stream * str, int w
     img_stream->close();
     delete img_stream;
 
-    close_cur_line();
+    close_line();
 
     double * ctm = state->getCTM();
     ctm[4] = ctm[5] = 0.0;

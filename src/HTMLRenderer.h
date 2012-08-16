@@ -8,7 +8,6 @@
 #ifndef HTMLRENDERER_H_
 #define HTMLRENDERER_H_
 
-#include <algorithm>
 #include <unordered_map>
 #include <map>
 #include <vector>
@@ -164,7 +163,8 @@ class HTMLRenderer : public OutputDev
         ////////////////////////////////////////////////////
         void check_state_change(GfxState * state);
         void reset_state_track();
-        void close_cur_line();
+        void prepare_line(); // close current span or div if necessary, according to new_line_status
+        void close_line();
 
 
         ////////////////////////////////////////////////////
@@ -182,13 +182,15 @@ class HTMLRenderer : public OutputDev
         ////////////////////////////////////////////////////
         // states
         ////////////////////////////////////////////////////
-        // if we have a pending opened line
+        //line status
+        //indicating the status for current line & next line
+        //see comments: meaning for current line || meaning for next line
         enum class LineStatus
         {
-            CLOSED,
-            SPAN,
-            DIV
-        } line_status;
+            NONE, // no line is opened (last <div> is closed) || stay with the same style
+            SPAN, // there's a pending opening <span> (within a pending opening <div>) || open a new <span> if possible, otherwise a new <div>
+            DIV   // there's a pending opening <div> (but no <span>) || has to open a new <div>
+        } line_status, new_line_status;
         
         // The order is according to the appearance in check_state_change
         // any state changed

@@ -7,9 +7,12 @@
  * 2012.08.14
  */
 
+#include <algorithm>
 
 #include "HTMLRenderer.h"
 #include "namespace.h"
+
+using std::max;
 
 void HTMLRenderer::updateAll(GfxState * state) 
 { 
@@ -63,10 +66,13 @@ void HTMLRenderer::updateFillColor(GfxState * state)
 }
 void HTMLRenderer::check_state_change(GfxState * state)
 {
+    //TODO:
+    // close <span> but not <div>, to use the first style of the line
+
     // DEPENDENCY WARNING
     // don't adjust the order of state checking 
     
-    bool close_line = false;
+    new_line_status = LineStatus::NONE;
 
     bool need_recheck_position = false;
     bool need_rescale_font = false;
@@ -97,7 +103,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
         // should draw_scale be updated, we'll close the line anyway
         if(!(abs((cur_ty + cur_rise) - draw_ty) * draw_scale < param->v_eps))
         {
-            close_line = true;
+            new_line_status = max(new_line_status, LineStatus::DIV);
         }
     }
 
@@ -108,7 +114,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
 
         if(!(new_fn_id == cur_fn_id))
         {
-            close_line = true;
+            new_line_status = max(new_line_status, LineStatus::SPAN);
             cur_fn_id = new_fn_id;
         }
 
@@ -167,13 +173,13 @@ void HTMLRenderer::check_state_change(GfxState * state)
 
         if(!(_equal(new_draw_font_size, draw_font_size)))
         {
-            close_line = true;
+            new_line_status = max(new_line_status, LineStatus::SPAN);
             draw_font_size = new_draw_font_size;
             cur_fs_id = install_font_size(draw_font_size);
         }
         if(!(_tm_equal(new_draw_ctm, draw_ctm)))
         {
-            close_line = true;
+            new_line_status = max(new_line_status, LineStatus::DIV);
             memcpy(draw_ctm, new_draw_ctm, sizeof(draw_ctm));
             cur_tm_id = install_transform_matrix(draw_ctm);
         }
@@ -186,7 +192,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
         double new_letter_space = state->getCharSpace();
         if(!_equal(cur_letter_space, new_letter_space))
         {
-            close_line = true;
+            new_line_status = max(new_line_status, LineStatus::SPAN);
             cur_letter_space = new_letter_space;
             cur_ls_id = install_letter_space(cur_letter_space * draw_scale);
         }
@@ -199,14 +205,12 @@ void HTMLRenderer::check_state_change(GfxState * state)
         double new_word_space = state->getWordSpace();
         if(!_equal(cur_word_space, new_word_space))
         {
-            close_line = true;
+            new_line_status = max(new_line_status, LineStatus::SPAN);
             cur_word_space = new_word_space;
             cur_ws_id = install_word_space(cur_word_space * draw_scale);
         }
     }
 
-    // TODO, we may use nested span if only color is changed
-   
     // color
     if(all_changed || color_changed)
     {
@@ -214,17 +218,103 @@ void HTMLRenderer::check_state_change(GfxState * state)
         state->getFillRGB(&new_color);
         if(!((new_color.r == cur_color.r) && (new_color.g == cur_color.g) && (new_color.b == cur_color.b)))
         {
-            close_line = true;
+            new_line_status = max(new_line_status, LineStatus::SPAN);
             cur_color = new_color;
             cur_color_id = install_color(&new_color);
         }
     }
 
+    prepare_line();
+
+    // TODO: move the following to prepare_line ??
+    if(line_status == LineStatus::NONE)
+    {
+        new_line_status = LineStatus::DIV;
+
+        //resync position
+        draw_ty = cur_ty + cur_rise;
+        draw_tx = cur_tx;
+    }
+    else
+    {
+        assert(new_line_status != LineStatus::DIV);
+
+        // horizontal position
+        // try to merge with the last line if possible
+        double target = (cur_tx - draw_tx) * draw_scale;
+        if(abs(target) < param->h_eps)
+        {
+            // ignore it
+        }
+        else
+        {
+            // don't close a pending span here, keep the styling
+
+            if(target > param->h_eps)
+            {
+                double w;
+                auto wid = install_whitespace(target, w);
+                html_fout << format("<span class=\"_ _%|1$x|\"> </span>") % wid;
+                draw_tx += w / draw_scale;
+            }
+            else
+            {
+                // shift left
+                // TODO, create a class for this
+                html_fout << format("<span style=\"margin-left:%1%px\"></span>") % target;
+                draw_tx += target / draw_scale;
+            }
+        }
+    }
+
+    if(new_line_status != LineStatus::NONE)
+    {
+        // have to open a new tag
+        
+        if(new_line_status == LineStatus::SPAN)
+        {
+            html_fout << "<span class=\"";
+        }
+        else if (new_line_status == LineStatus::DIV)
+        {
+            // TODO: recheck descent/ascent
+            double x,y; // in user space
+            state->transform(state->getCurX(), state->getCurY(), &x, &y);
+
+            html_fout << format("<div style=\"bottom:%1%px;top:%2%px;left:%3%px;\" class=\"l ") 
+                % (y + state->getFont()->getDescent() * draw_font_size)
+                % (pageHeight - y - state->getFont()->getAscent() * draw_font_size)
+                % x;
+
+            // "t0" is the id_matrix
+            if(cur_tm_id != 0)
+                html_fout << format("t%|1$x| ") % cur_tm_id;
+        }
+        else
+        {
+            assert(false && "Bad value of new_line_status");
+        }
+
+        
+        // TODO: only show changed styles for <span>
+        html_fout << format("f%|1$x| s%|2$x| c%|3$x|") % cur_fn_id % cur_fs_id % cur_color_id;
+        
+    
+        if(cur_ls_id != 0)
+            html_fout << format(" l%|1$x|") % cur_ls_id;
+
+        if(cur_ws_id != 0)
+            html_fout << format(" w%|1$x|") % cur_ws_id;
+
+        html_fout << "\">";
+
+        line_status = new_line_status;
+    }
+
     reset_state_track();
 
-    if(close_line)
-        close_cur_line();
 }
+
 void HTMLRenderer::reset_state_track()
 {
     all_changed = false;
@@ -242,24 +332,32 @@ void HTMLRenderer::reset_state_track()
 
     color_changed = false;
 }
-void HTMLRenderer::close_cur_line()
+void HTMLRenderer::prepare_line()
 {
-    switch(line_status)
+    if((line_status == LineStatus::NONE) || (new_line_status == LineStatus::NONE))
+        return;
+
+    if(new_line_status == LineStatus::DIV)
     {
-        case LineStatus::SPAN:
-            html_fout << "</span>";
-            // fall through
-        case LineStatus::DIV:
-            html_fout << "</div>" << endl;
-            line_status = LineStatus::CLOSED;
-            break;
-
-        case LineStatus::CLOSED:
-        default:
-            break;
+        close_line();
     }
-
-    draw_ty = cur_ty + cur_rise;
-    draw_tx = cur_tx;
+    else
+    {
+        assert(new_line_status == LineStatus::SPAN);
+        if(line_status == LineStatus::SPAN)
+            html_fout << "</span>";
+        else
+            assert(line_status == LineStatus::DIV);
+        // don't change line_status
+    }
 }
+void HTMLRenderer::close_line()
+{
+    if(line_status == LineStatus::SPAN)
+        html_fout << "</span>";
+    else
+        assert(line_status == LineStatus::DIV);
 
+    html_fout << "</div>";
+    line_status = LineStatus::NONE;
+}
