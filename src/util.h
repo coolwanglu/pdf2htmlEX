@@ -103,7 +103,8 @@ public:
     TM() {}
     TM(const double * m) {memcpy(_, m, sizeof(_));}
     bool operator < (const TM & m) const {
-        for(int i = 0; i < 6; ++i)
+        // Note that we only care about the first 4 elements
+        for(int i = 0; i < 4; ++i)
         {
             if(_[i] < m._[i] - EPS)
                 return true;
@@ -113,7 +114,7 @@ public:
         return false;
     }
     bool operator == (const TM & m) const {
-        return _tm_equal(_, m._);
+        return _tm_equal(_, m._, 4);
     }
     double _[6];
 };

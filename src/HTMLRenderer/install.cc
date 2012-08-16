@@ -135,6 +135,10 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
         if(!font->isCIDFont())
         {
             maxcode = 0xff;
+            if(suffix != ".ttf")
+            {
+                script_fout << "Reencode(\"unicode\")" << endl;
+            }
         }
         else
         {
@@ -145,7 +149,7 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
             }
             else
             {
-                script_fout << format("Reencode(\"original\")") << endl;
+                script_fout << "Reencode(\"original\")" << endl;
                 int len; 
                 // code2GID has been stored for embedded CID fonts
                 code2GID = dynamic_cast<GfxCIDFont*>(font)->getCodeToGIDMap(nullptr, &len);
