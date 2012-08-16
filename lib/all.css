@@ -8,7 +8,7 @@
   overflow:auto;
   background-color:grey;
   /* for Chrome & Safari */
-  -webkit-text-stroke-width:0.2px; 
+  -webkit-text-stroke-width:0.13px; 
 }
 #pdf-main > .p {
   position:relative;
@@ -23,7 +23,7 @@
 }
 .l > ._ {
   display:inline-block;
-  font-family: monospace;
+  color:transparent;
 }
 ::selection{
   background: rgba(168,209,255,0.5);
