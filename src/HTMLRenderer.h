@@ -161,9 +161,14 @@ class HTMLRenderer : public OutputDev
         ////////////////////////////////////////////////////
         // state tracking 
         ////////////////////////////////////////////////////
+        // check updated states, and determine new_line_stauts
+        // make sure this function can be called several times consecutively without problem
         void check_state_change(GfxState * state);
-        void reset_state_track();
-        void prepare_line(); // close current span or div if necessary, according to new_line_status
+        // reset all ***_changed flags
+        void reset_state_change();
+        // prepare the line context, (close old tags, open new tags)
+        // make sure the current HTML style consistent with PDF
+        void prepare_line(GfxState * state);
         void close_line();
 
 

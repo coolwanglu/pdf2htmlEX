@@ -89,7 +89,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
     }
 
     // text position
-    // we've been tracking the text position positively in update... function
+    // we've been tracking the text position positively in the update*** functions
     if(all_changed || text_pos_changed)
     {
         need_recheck_position = true;
@@ -114,7 +114,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
 
         if(!(new_fn_id == cur_fn_id))
         {
-            new_line_status = max(new_line_status, LineStatus::SPAN);
+            new_line_status = max(new_line_status, LineStatus::DIV);
             cur_fn_id = new_fn_id;
         }
 
@@ -157,7 +157,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
         double new_draw_ctm[6];
         memcpy(new_draw_ctm, cur_ctm, sizeof(new_draw_ctm));
 
-        draw_scale = sqrt(new_draw_ctm[2] * new_draw_ctm[2] + new_draw_ctm[3] * new_draw_ctm[3]);
+        draw_scale = 10*sqrt(new_draw_ctm[2] * new_draw_ctm[2] + new_draw_ctm[3] * new_draw_ctm[3]);
 
         double new_draw_font_size = cur_font_size;
         if(_is_positive(draw_scale))
@@ -173,7 +173,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
 
         if(!(_equal(new_draw_font_size, draw_font_size)))
         {
-            new_line_status = max(new_line_status, LineStatus::SPAN);
+            new_line_status = max(new_line_status, LineStatus::DIV);
             draw_font_size = new_draw_font_size;
             cur_fs_id = install_font_size(draw_font_size);
         }
@@ -224,9 +224,48 @@ void HTMLRenderer::check_state_change(GfxState * state)
         }
     }
 
-    prepare_line();
+    reset_state_change();
+}
 
-    // TODO: move the following to prepare_line ??
+void HTMLRenderer::reset_state_change()
+{
+    all_changed = false;
+
+    rise_changed = false;
+    text_pos_changed = false;
+
+    font_changed = false;
+    ctm_changed = false;
+    text_mat_changed = false;
+    hori_scale_changed = false;
+
+    letter_space_changed = false;
+    word_space_changed = false;
+
+    color_changed = false;
+}
+void HTMLRenderer::prepare_line(GfxState * state)
+{
+    // close old tags when necessary
+    if((line_status == LineStatus::NONE) || (new_line_status == LineStatus::NONE))
+    {
+        //pass
+    }
+    else if(new_line_status == LineStatus::DIV)
+    {
+        close_line();
+    }
+    else
+    {
+        assert(new_line_status == LineStatus::SPAN);
+        if(line_status == LineStatus::SPAN)
+            html_fout << "</span>";
+        else
+            assert(line_status == LineStatus::DIV);
+        // don't change line_status
+    }
+
+    // open new tags when necessary
     if(line_status == LineStatus::NONE)
     {
         new_line_status = LineStatus::DIV;
@@ -250,20 +289,10 @@ void HTMLRenderer::check_state_change(GfxState * state)
         {
             // don't close a pending span here, keep the styling
 
-            if(target > param->h_eps)
-            {
-                double w;
-                auto wid = install_whitespace(target, w);
-                html_fout << format("<span class=\"_ _%|1$x|\"> </span>") % wid;
-                draw_tx += w / draw_scale;
-            }
-            else
-            {
-                // shift left
-                // TODO, create a class for this
-                html_fout << format("<span style=\"margin-left:%1%px\"></span>") % target;
-                draw_tx += target / draw_scale;
-            }
+            double w;
+            auto wid = install_whitespace(target, w);
+            html_fout << format("<span class=\"_ _%|1$x|\">%2%</span>") % wid % (target > 0 ? " " : "");
+            draw_tx += w / draw_scale;
         }
     }
 
@@ -289,16 +318,15 @@ void HTMLRenderer::check_state_change(GfxState * state)
             // "t0" is the id_matrix
             if(cur_tm_id != 0)
                 html_fout << format("t%|1$x| ") % cur_tm_id;
+
+            html_fout << format("f%|1$x| s%|2$x| ") % cur_fn_id % cur_fs_id;
         }
         else
         {
             assert(false && "Bad value of new_line_status");
         }
 
-        
-        // TODO: only show changed styles for <span>
-        html_fout << format("f%|1$x| s%|2$x| c%|3$x|") % cur_fn_id % cur_fs_id % cur_color_id;
-        
+        html_fout << format("c%|1$x|") % cur_color_id;
     
         if(cur_ls_id != 0)
             html_fout << format(" l%|1$x|") % cur_ls_id;
@@ -311,48 +339,12 @@ void HTMLRenderer::check_state_change(GfxState * state)
         line_status = new_line_status;
     }
 
-    reset_state_track();
-
-}
-
-void HTMLRenderer::reset_state_track()
-{
-    all_changed = false;
-
-    rise_changed = false;
-    text_pos_changed = false;
-
-    font_changed = false;
-    ctm_changed = false;
-    text_mat_changed = false;
-    hori_scale_changed = false;
-
-    letter_space_changed = false;
-    word_space_changed = false;
-
-    color_changed = false;
-}
-void HTMLRenderer::prepare_line()
-{
-    if((line_status == LineStatus::NONE) || (new_line_status == LineStatus::NONE))
-        return;
-
-    if(new_line_status == LineStatus::DIV)
-    {
-        close_line();
-    }
-    else
-    {
-        assert(new_line_status == LineStatus::SPAN);
-        if(line_status == LineStatus::SPAN)
-            html_fout << "</span>";
-        else
-            assert(line_status == LineStatus::DIV);
-        // don't change line_status
-    }
 }
 void HTMLRenderer::close_line()
 {
+    if(line_status == LineStatus::NONE)
+        return;
+
     if(line_status == LineStatus::SPAN)
         html_fout << "</span>";
     else

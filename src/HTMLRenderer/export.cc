@@ -148,6 +148,9 @@ void HTMLRenderer::export_color (long long color_id, const GfxRGB * rgb)
 
 void HTMLRenderer::export_whitespace (long long ws_id, double ws_width)
 {
-    allcss_fout << format("._%|1$x|{width:%2%px;}") % ws_id % ws_width << endl;
+    if(ws_width > 0)
+        allcss_fout << format("._%|1$x|{display:inline-block;width:%2%px;}") % ws_id % ws_width << endl;
+    else
+        allcss_fout << format("._%|1$x|{display:inline;margin-left:%2%px;}") % ws_id % ws_width << endl;
 }
 

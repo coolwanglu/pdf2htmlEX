@@ -182,7 +182,7 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
     draw_scale = 1.0;
     draw_tx = draw_ty = 0;
 
-    reset_state_track();
+    reset_state_change();
 }
 
 void HTMLRenderer::endPage() {
