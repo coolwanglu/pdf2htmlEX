@@ -98,9 +98,11 @@ void HTMLRenderer::export_transform_matrix (long long tm_id, const double * tm)
 {
     allcss_fout << format(".t%|1$x|{") % tm_id;
 
-
+    // always ignore tm[4] and tm[5] because
+    // we have already shifted the origin
+    
     // TODO: recognize common matices
-    if(_tm_equal(tm, id_matrix))
+    if(_tm_equal(tm, id_matrix, 4))
     {
         // no need to output anything
     }
@@ -115,7 +117,6 @@ void HTMLRenderer::export_transform_matrix (long long tm_id, const double * tm)
                 << -tm[2] << ','
                 << tm[3] << ',';
 
-            // we have already shifted the origin
             allcss_fout << "0,0);";
             /*
             if(prefix == "-moz-")
