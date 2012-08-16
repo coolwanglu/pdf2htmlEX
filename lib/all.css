@@ -22,7 +22,6 @@
   white-space:pre;
 }
 .l > ._ {
-  display:inline-block;
   color:transparent;
 }
 ::selection{
