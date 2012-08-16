@@ -172,14 +172,10 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
         }
         else
         {
-            close_cur_line();
-            /*
-            // TODO bug
             // shift left
             // TODO, create a class for this
             html_fout << format("<span style=\"margin-left:%1%px\"></span>") % target;
             draw_tx += target / draw_scale;
-            */
         }
     }
 
@@ -214,14 +210,13 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
         }
 
         //debug 
-        if(0)
         {
-#if 0
+#if 1
             html_fout << "\"";
             double x,y;
             state->transform(state->getCurX(), state->getCurY(), &x, &y);
-            html_fout << format("data-lx=\"%5%\" data-ly=\"%6%\" data-drawscale=\"%4%\" data-x=\"%1%\" data-y=\"%2%\" data-hs=\"%3%")
-                %x%y%(state->getHorizScaling())%draw_scale%state->getLineX()%state->getLineY();
+            html_fout << format("data-lx=\"%5%\" data-ly=\"%6%\" data-draw-x=\"%7%\" data-draw-y=\"%8%\" data-drawscale=\"%4%\" data-x=\"%1%\" data-y=\"%2%\" data-hs=\"%3%")
+                %x%y%(state->getHorizScaling())%draw_scale%state->getLineX()%state->getLineY()%draw_tx%draw_ty;
 #endif
         }
 

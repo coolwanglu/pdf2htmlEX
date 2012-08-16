@@ -133,7 +133,9 @@ void HTMLRenderer::check_state_change(GfxState * state)
         new_ctm[1] = (m1[1] * m2[0] + m1[3] * m2[1]) * hori_scale;
         new_ctm[2] = m1[0] * m2[2] + m1[2] * m2[3];
         new_ctm[3] = m1[1] * m2[2] + m1[3] * m2[3];
-        new_ctm[4] = new_ctm[5] = 0;
+        new_ctm[4] = m1[0] * m2[4] + m1[2] * m2[5] + m1[4]; 
+        new_ctm[5] = m1[1] * m2[4] + m1[3] * m2[5] + m1[5];
+        //new_ctm[4] = new_ctm[5] = 0;
 
         if(!_tm_equal(new_ctm, cur_ctm))
         {
