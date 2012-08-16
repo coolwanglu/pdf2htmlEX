@@ -172,10 +172,14 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
         }
         else
         {
+            close_cur_line();
+            /*
+            // TODO bug
             // shift left
             // TODO, create a class for this
             html_fout << format("<span style=\"margin-left:%1%px\"></span>") % target;
             draw_tx += target / draw_scale;
+            */
         }
     }
 
