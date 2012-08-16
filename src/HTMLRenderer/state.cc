@@ -244,10 +244,19 @@ void HTMLRenderer::reset_state_track()
 }
 void HTMLRenderer::close_cur_line()
 {
-    if(line_opened)
+    switch(line_status)
     {
-        html_fout << "</div>" << endl;
-        line_opened = false;
+        case LineStatus::SPAN:
+            html_fout << "</span>";
+            // fall through
+        case LineStatus::DIV:
+            html_fout << "</div>" << endl;
+            line_status = LineStatus::CLOSED;
+            break;
+
+        case LineStatus::CLOSED:
+        default:
+            break;
     }
 
     draw_ty = cur_ty + cur_rise;

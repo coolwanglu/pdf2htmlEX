@@ -157,11 +157,17 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
     check_state_change(state);
     
     // if the line is still open, try to merge with it
-    if(line_opened)
+    if(line_status != LineStatus::CLOSED)
     {
         double target = (cur_tx - draw_tx) * draw_scale;
-        if(target > -param->h_eps)
+        if(abs(target) < param->h_eps)
         {
+            // ignore it
+        }
+        else
+        {
+            // don't close a pending span here, keep the styling
+
             if(target > param->h_eps)
             {
                 double w;
@@ -169,17 +175,16 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
                 html_fout << format("<span class=\"_ _%|1$x|\"> </span>") % wid;
                 draw_tx += w / draw_scale;
             }
-        }
-        else
-        {
-            // shift left
-            // TODO, create a class for this
-            html_fout << format("<span style=\"margin-left:%1%px\"></span>") % target;
-            draw_tx += target / draw_scale;
+            else
+            {
+                // shift left
+                // TODO, create a class for this
+                html_fout << format("<span style=\"margin-left:%1%px\"></span>") % target;
+                draw_tx += target / draw_scale;
+            }
         }
     }
-
-    if(!line_opened)
+    else
     {
         // have to open a new line
         
@@ -222,7 +227,7 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
 
         html_fout << "\">";
 
-        line_opened = true;
+        line_status = LineStatus::DIV;
     }
 
     // Now ready to output

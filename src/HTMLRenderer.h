@@ -183,7 +183,12 @@ class HTMLRenderer : public OutputDev
         // states
         ////////////////////////////////////////////////////
         // if we have a pending opened line
-        bool line_opened;
+        enum class LineStatus
+        {
+            CLOSED,
+            SPAN,
+            DIV
+        } line_status;
         
         // The order is according to the appearance in check_state_change
         // any state changed

@@ -19,7 +19,7 @@ using boost::filesystem::remove;
 using boost::filesystem::filesystem_error;
 
 HTMLRenderer::HTMLRenderer(const Param * param)
-    :line_opened(false)
+    :line_status(LineStatus::CLOSED)
     ,image_count(0)
     ,param(param)
     ,dest_dir(param->dest_dir)
@@ -142,7 +142,7 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
     this->pageWidth = state->getPageWidth();
     this->pageHeight = state->getPageHeight();
 
-    assert(!line_opened);
+    assert(line_status == LineStatus::CLOSED);
 
     html_fout << format("<div id=\"p%|1$x|\" class=\"p\" style=\"width:%2%px;height:%3%px;") % pageNum % pageWidth % pageHeight;
 
