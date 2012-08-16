@@ -20,6 +20,8 @@ class PC_HTMLRenderer : public HTMLRenderer
     public:
         PC_HTMLRenderer (const Param * param)
            : HTMLRenderer(param)
+           , tx(0)
+           , ty(0)
            , max_font_size (0)
         { } 
 
@@ -51,7 +53,10 @@ class PC_HTMLRenderer : public HTMLRenderer
         virtual void drawString(GfxState * state, GooString * s)
         {
             //determine padding now
-            string padding =  (_equal(cur_ty, ty) && (cur_tx < tx + EPS)) ? "" : " ";
+            double x,y;
+            state->textTransform(cur_tx, cur_ty, &x, &y);
+            string padding = (_equal(y, ty) && (x < tx + EPS)) ? "" : " ";
+            cout << x << ' ' << y << ' ' << tx << ' ' << ty << endl;
             
             // wait for status update
             HTMLRenderer::drawString(state, s);
@@ -91,12 +96,12 @@ class PC_HTMLRenderer : public HTMLRenderer
                 len -= n;
             } 
 
-            tx = cur_tx;
-            ty = cur_ty;
+            tx = x;
+            ty = y;
         }
 
-        double max_font_size;
         double tx, ty;
+        double max_font_size;
         ostringstream cur_title;
 };
 
