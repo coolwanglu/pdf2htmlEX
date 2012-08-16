@@ -74,6 +74,29 @@ static inline void outputUnicodes(std::ostream & out, const Unicode * u, int uLe
     }
 }
 
+/* Escape as a safe Javascript string */
+static inline void outputUnicodes2(std::ostream & out, const Unicode * u, int uLen)
+{
+    for(int i = 0; i < uLen; ++i)
+    {
+        switch(u[i])
+        {
+            case '\"':
+                out << "\\\"";
+                break;
+            case '\\':
+                out << "\\\\";
+                break;
+            default:
+                {
+                    char buf[4];
+                    auto n = mapUTF8(u[i], buf, 4);
+                    out.write(buf, n);
+                }
+        }
+    }
+}
+
 static inline bool operator < (const GfxRGB & rgb1, const GfxRGB & rgb2)
 {
     if(rgb1.r < rgb2.r) return true;

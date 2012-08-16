@@ -29,6 +29,7 @@ struct Param
 
     int debug;
     int clean_tmp;
+    int only_metadata;
 };
 
 

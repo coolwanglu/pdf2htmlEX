@@ -15,37 +15,120 @@
 
 using std::ostringstream;
 
+static GooString* getInfoDate(Dict *infoDict, const char *key) {
+    Object obj;
+    char *s;
+    int year, mon, day, hour, min, sec, tz_hour, tz_minute;
+    char tz;
+    struct tm tmStruct;
+    GooString *result = NULL;
+    char buf[256];
+
+    if (infoDict->lookup(key, &obj)->isString()) {
+        s = obj.getString()->getCString();
+        // TODO do something with the timezone info
+        if ( parseDateString( s, &year, &mon, &day, &hour, &min, &sec, &tz, &tz_hour, &tz_minute ) ) {
+            tmStruct.tm_year = year - 1900;
+            tmStruct.tm_mon = mon - 1;
+            tmStruct.tm_mday = day;
+            tmStruct.tm_hour = hour;
+            tmStruct.tm_min = min;
+            tmStruct.tm_sec = sec;
+            tmStruct.tm_wday = -1;
+            tmStruct.tm_yday = -1;
+            tmStruct.tm_isdst = -1;
+            mktime(&tmStruct); // compute the tm_wday and tm_yday fields
+            if (strftime(buf, sizeof(buf), "%Y-%m-%dT%H:%M:%S+00:00", &tmStruct)) {
+                result = new GooString(buf);
+            } else {
+                result = new GooString(s);
+            }
+        } else {
+            result = new GooString(s);
+        }
+    }
+    obj.free();
+    return result;
+}
+
 class PC_HTMLRenderer : public HTMLRenderer
 {
     public:
         PC_HTMLRenderer (const Param * param)
            : HTMLRenderer(param)
            , max_font_size (0)
-        { } 
+        {} 
 
         virtual ~PC_HTMLRenderer() 
         { 
-            cerr << "Title: " << cur_title.str() << endl;
+            if(param->only_metadata) {
+                cout  << "{"
+                      << "\"title\":\"" << cur_title.str() << "\","
+                      << "\"num_pages\":" << num_pages << ","
+                      << "\"modified_date\":\"" << modified_date << "\""
+                      << "}" << endl;
+            }
         }
 
         virtual void pre_process() 
         {
-            allcss_fout.open(dest_dir / CSS_FILENAME, ofstream::binary);
-            allcss_fout << ifstream(PDF2HTMLEX_LIB_PATH / CSS_FILENAME, ifstream::binary).rdbuf();
+            if(!param->only_metadata) {
+                allcss_fout.open(dest_dir / CSS_FILENAME, ofstream::binary);
+                allcss_fout << ifstream(PDF2HTMLEX_LIB_PATH / CSS_FILENAME, ifstream::binary).rdbuf();
+            }
         }
 
-        virtual void post_process() { }
+        virtual void process(PDFDoc * doc) 
+        {
+            if(param->only_metadata) {
+                xref = doc->getXRef();
+
+                num_pages = doc->getNumPages();
+                // get meta info
+                Object info;
+                doc->getDocInfo(&info);
+                if (info.isDict()) {
+                   GooString* date = getInfoDate(info.getDict(), "ModDate");
+                   if( !date )
+                      date = getInfoDate(info.getDict(), "CreationDate");
+                   modified_date = std::string(date->getCString(), date->getLength());
+                }
+                info.free();
+                 
+                pre_process();
+
+                doc->displayPage(this, 1, param->zoom * DEFAULT_DPI, param->zoom * DEFAULT_DPI,
+                0, true, false, false,
+                nullptr, nullptr, nullptr, nullptr);
+
+                post_process();
+            }
+            else {
+                HTMLRenderer::process(doc);
+            }
+        }
+
+
+        virtual void post_process() { 
+            if(!param->only_metadata) {
+                allcss_fout.close();
+            }
+        }
 
         virtual void startPage(int pageNum, GfxState *state) 
         {
-            html_fout.open(dest_dir / (format("%|1$x|.page")%pageNum).str(), ofstream::binary);
+            if(!param->only_metadata) {
+                html_fout.open(dest_dir / (format("%|1$x|.page")%pageNum).str(), ofstream::binary);
+            }
             HTMLRenderer::startPage(pageNum, state);
         }
 
         virtual void endPage()
         {
             HTMLRenderer::endPage();
-            html_fout.close();
+            if(!param->only_metadata) {
+                html_fout.close();
+            }
         }
 
         virtual void drawString(GfxState * state, GooString * s)
@@ -86,7 +169,7 @@ class PC_HTMLRenderer : public HTMLRenderer
             while(len > 0)
             {
                 int n = font->getNextChar(p, len, &code, &u, &uLen, &dx, &dy, &ox, &oy);
-                outputUnicodes(cur_title, u, uLen);
+                outputUnicodes2(cur_title, u, uLen);
                 p += n;
                 len -= n;
             } 
@@ -98,6 +181,10 @@ class PC_HTMLRenderer : public HTMLRenderer
         double max_font_size;
         double tx, ty;
         ostringstream cur_title;
+
+  private:
+        int num_pages;
+        std::string modified_date;
 };
 
 

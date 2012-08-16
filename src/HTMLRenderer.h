@@ -59,7 +59,7 @@ class HTMLRenderer : public OutputDev
         HTMLRenderer(const Param * param);
         virtual ~HTMLRenderer();
 
-        void process(PDFDoc * doc);
+        virtual void process(PDFDoc * doc);
 
         ////////////////////////////////////////////////////
         // OutputDev interface

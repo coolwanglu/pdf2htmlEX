@@ -134,6 +134,7 @@ po::variables_map parse_options (int argc, char **argv)
         ("single-html", po::value<int>(&param.single_html)->default_value(1), "combine everything into one single HTML file")
         ("process-nontext", po::value<int>(&param.process_nontext)->default_value(1), "process nontext objects")
         ("debug", po::value<int>(&param.debug)->default_value(0), "output debug information")
+        ("only-metadata", po::value<int>(&param.only_metadata)->default_value(0), "only output metadata including title")
         ("clean-tmp", po::value<int>(&param.clean_tmp)->default_value(1), "clean temporary files after processing")
         ;
 
