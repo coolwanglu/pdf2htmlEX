@@ -20,6 +20,9 @@ using namespace boost::gil;
 
 void HTMLRenderer::drawImage(GfxState * state, Object * ref, Stream * str, int width, int height, GfxImageColorMap * colorMap, GBool interpolate, int *maskColors, GBool inlineImg)
 {
+    return OutputDev::drawImage(state,ref,str,width,height,colorMap,interpolate,maskColors,inlineImg);
+
+#if 0
     if(maskColors)
         return;
 
@@ -62,4 +65,5 @@ void HTMLRenderer::drawImage(GfxState * state, Object * ref, Stream * str, int w
 
 
     ++ image_count;
+#endif
 }
