@@ -211,7 +211,7 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
 
         //debug 
         {
-#if 1
+#if 0
             html_fout << "\"";
             double x,y;
             state->transform(state->getCurX(), state->getCurY(), &x, &y);
