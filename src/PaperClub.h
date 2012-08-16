@@ -187,6 +187,13 @@ class PC_HTMLRenderer : public HTMLRenderer
         double max_font_size;
         ostringstream cur_title;
 
+  protected: 
+        virtual long long install_font(GfxFont * font) {
+            if (param->only_metadata) 
+                return 0;
+            return HTMLRenderer::install_font(font); 
+        }
+
   private:
         int num_pages;
         std::string modified_date;
