@@ -76,7 +76,7 @@ class PC_HTMLRenderer : public HTMLRenderer
         {
             if(!param->only_metadata) {
                 allcss_fout.open(dest_dir / CSS_FILENAME, ofstream::binary);
-                allcss_fout << ifstream(PDF2HTMLEX_LIB_PATH / CSS_FILENAME, ifstream::binary).rdbuf();
+                allcss_fout << ifstream(PDF2HTMLEX_DATA_PATH / CSS_FILENAME, ifstream::binary).rdbuf();
             }
         }
 
