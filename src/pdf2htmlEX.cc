@@ -174,7 +174,7 @@ int main(int argc, char **argv)
     //prepare the directories
     for(const auto & p : {param.dest_dir, param.tmp_dir})
     {
-        if(equivalent(PDF2HTMLEX_LIB_PATH, p))
+        if(equivalent(PDF2HTMLEX_DATA_PATH, p))
         {
             cerr << "The specified directory \"" << p << "\" is the library path for pdf2htmlEX. Please use another one." << endl;
             return -1;

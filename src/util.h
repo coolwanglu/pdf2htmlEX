@@ -43,6 +43,28 @@ static inline bool _tm_equal(const double * tm1, const double * tm2, int size = 
     return true;
 }
 
+/*
+ * http://en.wikipedia.org/wiki/HTML_decimal_character_rendering
+ */
+static inline bool isLegalUnicode(Unicode u)
+{
+    /*
+    if((u == 9) || (u == 10) || (u == 13))
+        return true;
+        */
+
+    if(u <= 31) 
+        return false;
+
+    if((u >= 127) && (u <= 159))
+        return false;
+
+    if((u >= 0xd800) && (u <= 0xdfff))
+        return false;
+
+    return true;
+}
+
 static inline void outputUnicodes(std::ostream & out, const Unicode * u, int uLen)
 {
     for(int i = 0; i < uLen; ++i)
