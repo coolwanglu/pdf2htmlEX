@@ -4,7 +4,8 @@ pdf2html**EX**
 
 [**View Demo**](http://coolwanglu.github.com/pdf2htmlEX/demo/demo.html)
 
-**WINDOWS USERS: Please make sure ClearType is turned on** 
+**WINDOWS XP USERS: Please make sure ClearType is turned on** 
+
 (Control Panel -> Display -> Appearance -> Effects -> "Use the following method to smooth edges of screen fonts" -> ClearType)
 
 Introduction
