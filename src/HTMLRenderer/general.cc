@@ -112,19 +112,19 @@ void HTMLRenderer::pre_process()
         html_fout.open(dest_dir / param->output_filename, ofstream::binary); 
         allcss_fout.open(dest_dir / CSS_FILENAME, ofstream::binary);
 
-        html_fout << ifstream(PDF2HTMLEX_LIB_PATH / HEAD_HTML_FILENAME, ifstream::binary).rdbuf();
+        html_fout << ifstream(PDF2HTMLEX_DATA_PATH / HEAD_HTML_FILENAME, ifstream::binary).rdbuf();
         html_fout << "<link rel=\"stylesheet\" type=\"text/css\" href=\"" << CSS_FILENAME << "\"/>" << endl;
-        html_fout << ifstream(PDF2HTMLEX_LIB_PATH / NECK_HTML_FILENAME, ifstream::binary).rdbuf();
+        html_fout << ifstream(PDF2HTMLEX_DATA_PATH / NECK_HTML_FILENAME, ifstream::binary).rdbuf();
     }
 
-    allcss_fout << ifstream(PDF2HTMLEX_LIB_PATH / CSS_FILENAME, ifstream::binary).rdbuf();
+    allcss_fout << ifstream(PDF2HTMLEX_DATA_PATH / CSS_FILENAME, ifstream::binary).rdbuf();
 }
 
 void HTMLRenderer::post_process()
 {
     if(!param->single_html)
     {
-        html_fout << ifstream(PDF2HTMLEX_LIB_PATH / TAIL_HTML_FILENAME, ifstream::binary).rdbuf();
+        html_fout << ifstream(PDF2HTMLEX_DATA_PATH / TAIL_HTML_FILENAME, ifstream::binary).rdbuf();
     }
 
     html_fout.close();
@@ -195,17 +195,17 @@ void HTMLRenderer::process_single_html()
 {
     ofstream out (dest_dir / param->output_filename, ofstream::binary);
 
-    out << ifstream(PDF2HTMLEX_LIB_PATH / HEAD_HTML_FILENAME , ifstream::binary).rdbuf();
+    out << ifstream(PDF2HTMLEX_DATA_PATH / HEAD_HTML_FILENAME , ifstream::binary).rdbuf();
 
     out << "<style type=\"text/css\">" << endl;
     out << ifstream(tmp_dir / CSS_FILENAME, ifstream::binary).rdbuf();
     out << "</style>" << endl;
 
-    out << ifstream(PDF2HTMLEX_LIB_PATH / NECK_HTML_FILENAME, ifstream::binary).rdbuf();
+    out << ifstream(PDF2HTMLEX_DATA_PATH / NECK_HTML_FILENAME, ifstream::binary).rdbuf();
 
     out << ifstream(tmp_dir / (param->output_filename + ".part"), ifstream::binary).rdbuf();
 
-    out << ifstream(PDF2HTMLEX_LIB_PATH / TAIL_HTML_FILENAME, ifstream::binary).rdbuf();
+    out << ifstream(PDF2HTMLEX_DATA_PATH / TAIL_HTML_FILENAME, ifstream::binary).rdbuf();
 }
 
 void HTMLRenderer::add_tmp_file(const string & fn)
