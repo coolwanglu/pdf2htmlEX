@@ -196,23 +196,28 @@ void HTMLRenderer::check_state_change(GfxState * state)
          */
 
         double dy = cur_ty + cur_rise - draw_ty;
-        draw_ty += dy;
-
         double tdx = old_ctm[4] - cur_ctm[4] - cur_ctm[2] * dy;
         double tdy = old_ctm[5] - cur_ctm[5] - cur_ctm[3] * dy;
 
         if(_equal(cur_ctm[0] * tdy, cur_ctm[1] * tdx))
         {
             if(abs(cur_ctm[0]) > EPS)
+            {
                 draw_tx += tdx / cur_ctm[0];
+                draw_ty += dy;
+            }
             else if (abs(cur_ctm[1]) > EPS)
+            {
                 draw_tx += tdy / cur_ctm[1];
+                draw_ty += dy;
+            }
             else
             {
                 if((abs(tdx) < EPS) && (abs(tdy) < EPS))
                 {
                     // free
                     draw_tx = cur_tx;
+                    draw_ty += dy;
                 }
                 else
                 {
