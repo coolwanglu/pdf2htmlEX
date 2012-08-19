@@ -182,6 +182,11 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
             cerr << "TODO: non-zero origins" << endl;
         }
 
+        if (n == 1 && *p == ' ') 
+        {
+            ++nSpaces;
+        }
+
         if(uLen == 0)
         {
             // TODO
@@ -207,11 +212,6 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
 
         dx += dx1;
         dy += dy1;
-
-        if (n == 1 && *p == ' ') 
-        {
-            ++nSpaces;
-        }
 
         ++nChars;
         p += n;
