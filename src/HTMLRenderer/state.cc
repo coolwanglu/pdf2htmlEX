@@ -95,18 +95,6 @@ void HTMLRenderer::check_state_change(GfxState * state)
         need_recheck_position = true;
     }
 
-    // draw_tx, draw_ty
-    // depends: rise & text position
-    if(need_recheck_position)
-    {
-        // it's ok to use the old draw_scale
-        // should draw_scale be updated, we'll close the line anyway
-        if(!(abs((cur_ty + cur_rise) - draw_ty) * draw_scale < param->v_eps))
-        {
-            new_line_status = max(new_line_status, LineStatus::DIV);
-        }
-    }
-
     // font name & size
     if(all_changed || font_changed)
     {
@@ -125,6 +113,10 @@ void HTMLRenderer::check_state_change(GfxState * state)
             cur_font_size = new_font_size;
         }
     }  
+
+    // backup the current ctm for need_recheck_position
+    double previous_ctm[6];
+    memcpy(previous_ctm, cur_ctm, sizeof(previous_ctm));
 
     // ctm & text ctm & hori scale
     if(all_changed || ctm_changed || text_mat_changed || hori_scale_changed)
@@ -145,11 +137,13 @@ void HTMLRenderer::check_state_change(GfxState * state)
 
         if(!_tm_equal(new_ctm, cur_ctm))
         {
+            need_recheck_position = true;
             need_rescale_font = true;
             memcpy(cur_ctm, new_ctm, sizeof(cur_ctm));
         }
     }
 
+    // HERE
     // draw_ctm, draw_scale
     // depends: font size & ctm & text_ctm & hori scale
     if(need_rescale_font)
@@ -184,6 +178,73 @@ void HTMLRenderer::check_state_change(GfxState * state)
             cur_tm_id = install_transform_matrix(draw_ctm);
         }
     }
+
+    // see if we can merge with the current line
+    // depends: rise & text position & transformation
+    if(need_recheck_position)
+    {
+        bool hope = true;
+        // do not bother with draw_ctm
+        if(_tm_equal(cur_ctm, old_ctm)) {
+            // nothing to do
+        }
+        else if (_tm_equal(cur_ctm, old_ctm, 4))
+        {
+            // try harder,
+            // try to transform the old origin under the new TM
+            /*
+             * OldTM * (draw_tx, draw_ty, 1)^T = CurTM * (draw_tx + dx, draw_ty + dy, 1)^T
+             *
+             * OldTM[4] = CurTM[0] * dx + CurTM[2] * dy + CurTM[4] 
+             * OldTM[5] = CurTM[1] * dx + CurTM[3] * dy + CurTM[5] 
+             *
+             */
+
+            double tdx = old_ctm[4] - cur_ctm[4];
+            double tdy = old_ctm[5] - cur_ctm[5];
+
+            double deter = cur_ctm[0] * cur_ctm[3] - cur_ctm[1] * cur_ctm[2];
+
+            if(abs(deter) > EPS)
+            {
+                //ok, only one solution
+                draw_tx += (d*tdx - b*tdy) / deter; 
+                draw_ty += (-c*tdx + a*tdy) / deter;
+            }
+            else
+            {
+                //TODO, writing mode?
+                //prefer the same line, so dy = 0
+                if(_equal(cur_ctm[0] * old_ctm[5], cur_ctm[1] * old_ctm[4]))
+                {
+                    // just compute dx
+                    if(abs(cur_ctm[0]) > EPS)
+                        draw_tx += old_ctm[4] / cur_ctm[0];
+                    else if (abs(cur_ctm[1]) > EPS)
+                        draw_tx += old_ctm[5] / cur_ctm[1];
+                    else
+                    {
+                        // ok, just let dx = 0
+                    }
+                } 
+                else
+                {
+                }
+            }
+        }
+        else
+        {
+            // ok, have to start a new line
+            hope = false;
+        }
+        
+        // should use the draw_scale here
+        if(!(hope && (abs((cur_ty + cur_rise) - draw_ty) * draw_scale < param->v_eps)))
+        {
+            new_line_status = max(new_line_status, LineStatus::DIV);
+        }
+    }
+
 
     // letter space
     // depends: draw_scale
