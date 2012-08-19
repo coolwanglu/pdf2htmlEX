@@ -182,72 +182,51 @@ void HTMLRenderer::check_state_change(GfxState * state)
     // depends: rise & text position & transformation
     if(need_recheck_position)
     {
-        bool hope = true;
-        // do not bother with draw_ctm
-        if(_tm_equal(cur_ctm, old_ctm)) {
-            // nothing to do
-        }
-        else if (_tm_equal(cur_ctm, old_ctm, 4))
+        // try to transform the old origin under the new TM
+        /*
+         * OldTM * (draw_tx, draw_ty, 1)^T = CurTM * (draw_tx + dx, draw_ty + dy, 1)^T
+         *
+         * OldTM[4] = CurTM[0] * dx + CurTM[2] * dy + CurTM[4] 
+         * OldTM[5] = CurTM[1] * dx + CurTM[3] * dy + CurTM[5] 
+         *
+         * We just care if we can map the origin y to the same new y
+         * So just let dy = cur_y - old_y, and try to solve dx
+         *
+         * TODO, writing mode, set dx and solve dy
+         */
+
+        double dy = cur_ty + cur_rise - draw_ty;
+        draw_ty += dy;
+
+        double tdx = old_ctm[4] - cur_ctm[4] - cur_ctm[2] * dy;
+        double tdy = old_ctm[5] - cur_ctm[5] - cur_ctm[3] * dy;
+
+        if(_equal(cur_ctm[0] * tdy, cur_ctm[1] * tdx))
         {
-            // try harder,
-            // try to transform the old origin under the new TM
-            /*
-             * OldTM * (draw_tx, draw_ty, 1)^T = CurTM * (draw_tx + dx, draw_ty + dy, 1)^T
-             *
-             * OldTM[4] = CurTM[0] * dx + CurTM[2] * dy + CurTM[4] 
-             * OldTM[5] = CurTM[1] * dx + CurTM[3] * dy + CurTM[5] 
-             *
-             */
-
-            double tdx = old_ctm[4] - cur_ctm[4];
-            double tdy = old_ctm[5] - cur_ctm[5];
-
-            double deter = cur_ctm[0] * cur_ctm[3] - cur_ctm[1] * cur_ctm[2];
-
-            if(abs(deter) > EPS)
-            {
-                //ok, only one solution
-                draw_tx += (cur_ctm[3]*tdx - cur_ctm[2]*tdy) / deter; 
-                draw_ty += (-cur_ctm[1]*tdx + cur_ctm[0]*tdy) / deter;
-            }
+            if(abs(cur_ctm[0]) > EPS)
+                draw_tx += tdx / cur_ctm[0];
+            else if (abs(cur_ctm[1]) > EPS)
+                draw_tx += tdy / cur_ctm[1];
             else
             {
-                //TODO, writing mode?
-                //prefer the same line, so dy = 0
-                if(_equal(cur_ctm[0] * old_ctm[5], cur_ctm[1] * old_ctm[4]))
+                if((abs(tdx) < EPS) && (abs(tdy) < EPS))
                 {
-                    // just compute dx
-                    if(abs(cur_ctm[0]) > EPS)
-                        draw_tx += old_ctm[4] / cur_ctm[0];
-                    else if (abs(cur_ctm[1]) > EPS)
-                        draw_tx += old_ctm[5] / cur_ctm[1];
-                    else
-                    {
-                        // wo cur_ctm[0] == cur_ctm[1] == 0
-                        // while the first 4 elements of cur/old_ctm are the same, but the last 2 are not
-                        // so give up
-                        hope = false;
-                    }
-                } 
+                    // free
+                    draw_tx = cur_tx;
+                }
                 else
                 {
-                    hope = false;
+                    // fail
+                    new_line_status = max(new_line_status, LineStatus::DIV);
                 }
             }
         }
         else
         {
-            // ok, have to start a new line
-            hope = false;
-        }
-        
-        // should use the draw_scale here
-        if(!(hope && (abs((cur_ty + cur_rise) - draw_ty) * draw_scale < param->v_eps)))
-        {
+            // no solution
             new_line_status = max(new_line_status, LineStatus::DIV);
         }
     }
-
 
     // letter space
     // depends: draw_scale
