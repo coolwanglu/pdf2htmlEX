@@ -115,8 +115,8 @@ void HTMLRenderer::check_state_change(GfxState * state)
     }  
 
     // backup the current ctm for need_recheck_position
-    double previous_ctm[6];
-    memcpy(previous_ctm, cur_ctm, sizeof(previous_ctm));
+    double old_ctm[6];
+    memcpy(old_ctm, cur_ctm, sizeof(old_ctm));
 
     // ctm & text ctm & hori scale
     if(all_changed || ctm_changed || text_mat_changed || hori_scale_changed)
@@ -143,7 +143,6 @@ void HTMLRenderer::check_state_change(GfxState * state)
         }
     }
 
-    // HERE
     // draw_ctm, draw_scale
     // depends: font size & ctm & text_ctm & hori scale
     if(need_rescale_font)
@@ -171,7 +170,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
             draw_font_size = new_draw_font_size;
             cur_fs_id = install_font_size(draw_font_size);
         }
-        if(!(_tm_equal(new_draw_ctm, draw_ctm)))
+        if(!(_tm_equal(new_draw_ctm, draw_ctm, 4)))
         {
             new_line_status = max(new_line_status, LineStatus::DIV);
             memcpy(draw_ctm, new_draw_ctm, sizeof(draw_ctm));
@@ -208,8 +207,8 @@ void HTMLRenderer::check_state_change(GfxState * state)
             if(abs(deter) > EPS)
             {
                 //ok, only one solution
-                draw_tx += (d*tdx - b*tdy) / deter; 
-                draw_ty += (-c*tdx + a*tdy) / deter;
+                draw_tx += (cur_ctm[3]*tdx - cur_ctm[2]*tdy) / deter; 
+                draw_ty += (-cur_ctm[1]*tdx + cur_ctm[0]*tdy) / deter;
             }
             else
             {
@@ -224,11 +223,15 @@ void HTMLRenderer::check_state_change(GfxState * state)
                         draw_tx += old_ctm[5] / cur_ctm[1];
                     else
                     {
-                        // ok, just let dx = 0
+                        // wo cur_ctm[0] == cur_ctm[1] == 0
+                        // while the first 4 elements of cur/old_ctm are the same, but the last 2 are not
+                        // so give up
+                        hope = false;
                     }
                 } 
                 else
                 {
+                    hope = false;
                 }
             }
         }
