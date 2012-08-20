@@ -1,75 +1,102 @@
 <!DOCTYPE html>
 <html>
-
   <head>
-    <meta charset='utf-8' />
-    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
-    <meta name="description" content="pdf2htmlEX : A PDF to HTML converter" />
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=640" />
 
-    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+    <link rel="stylesheet" href="stylesheets/core.css" media="screen"/>
+    <link rel="stylesheet" href="stylesheets/mobile.css" media="handheld, only screen and (max-device-width:640px)"/>
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css"/>
 
-    <title>pdf2htmlEX</title>
+    <script type="text/javascript" src="javascripts/modernizr.js"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script type="text/javascript" src="javascripts/headsmart.min.js"></script>
+    <script type="text/javascript">
+      $(document).ready(function () {
+        $('#main_content').headsmart()
+      })
+    </script>
+    <title>pdf2htmlEX by coolwanglu</title>
   </head>
 
   <body>
+    <a id="forkme_banner" href="https://github.com/coolwanglu/pdf2htmlEX">View on GitHub</a>
+    <div class="shell">
 
-    <!-- HEADER -->
-    <div id="header_wrap" class="outer">
-        <header class="inner">
-          <a id="forkme_banner" href="https://github.com/coolwanglu/pdf2htmlEX">View on GitHub</a>
+      <header>
+        <span class="ribbon-outer">
+          <span class="ribbon-inner">
+            <h1>pdf2htmlEX</h1>
+            <h2>A PDF to HTML converter</h2>
+          </span>
+          <span class="left-tail"></span>
+          <span class="right-tail"></span>
+        </span>
+      </header>
 
-          <h1 id="project_title">pdf2htmlEX</h1>
-          <h2 id="project_tagline">A PDF to HTML converter</h2>
+      <section id="downloads">
+        <span class="inner">
+          <a href="https://github.com/coolwanglu/pdf2htmlEX/zipball/master" class="zip"><em>download</em> .ZIP</a><a href="https://github.com/coolwanglu/pdf2htmlEX/tarball/master" class="tgz"><em>download</em> .TGZ</a>
+        </span>
+      </section>
 
-            <section id="downloads">
-              <a class="zip_download_link" href="https://github.com/coolwanglu/pdf2htmlEX/zipball/master">Download this project as a .zip file</a>
-              <a class="tar_download_link" href="https://github.com/coolwanglu/pdf2htmlEX/tarball/master">Download this project as a tar.gz file</a>
-            </section>
-        </header>
-    </div>
 
-    <!-- MAIN CONTENT -->
-    <div id="main_content_wrap" class="outer">
-      <section id="main_content" class="inner">
+      <span class="banner-fix"></span>
+
+
+      <section id="main_content">
         <h1>pdf2html<strong>EX</strong>
 </h1>
 
 <p><a href="http://coolwanglu.github.com/pdf2htmlEX/demo/demo.html"><strong>View Demo</strong></a></p>
 
+<p><a href="http://coolwanglu.github.com/pdf2htmlEX/demo/chn.html"><strong>Another Demo (CJK)</strong></a></p>
+
+<p><strong>WINDOWS XP USERS: Please make sure ClearType is turned on</strong> </p>
+
+<p>(Control Panel -&gt; Display -&gt; Appearance -&gt; Effects -&gt; "Use the following method to smooth edges of screen fonts" -&gt; ClearType)</p>
+
 <h2>Introduction</h2>
 
-<p>pdf2htmlEX renders PDF files in HTML, utilizing modern technologies of html/css, aims to provide an accuracy rendering, while keeping optimized for Web display.</p>
+<p>pdf2htmlEX renders PDF files in HTML, utilizing modern Web technologies, aims to provide an accuracy rendering, while keeping optimized for Web display.</p>
 
-<p>pdf2htmlEX is optimized for recent versions of modern web browsers such as Mozilla Firefox &amp; Google Chrome.</p>
+<p>It is optimized for recent versions of modern web browsers such as Mozilla Firefox &amp; Google Chrome.</p>
+
+<p>This program is designed for scientific papers with complicate formulas and figures, so a precise rendering is also the #1 concern.</p>
 
 <h2>Features</h2>
 
 <ul>
+<li>Single HTML file output </li>
+<li>Precise rendering </li>
 <li>Text Selection</li>
-<li>Font embedding</li>
+<li>Font embedding </li>
 <li>Proper styling (Color, Transformation...)</li>
-<li>Optimization for Web</li>
-</ul>
-<h2>Not supported yet</h2>
+<li>Optimization for Web </li>
+</ul><h2>Not supported yet</h2>
+
 <ul>
+<li>Several Font types &amp; encodings</li>
 <li>Non-text object (Don't worry, they will be rendered as images)</li>
 <li>Blend Mode</li>
-<li>CJK</li>
 <li>...</li>
 </ul><h2>Dependency</h2>
 
 <ul>
+<li>Recent version of GCC (no guarantee on other compilers)</li>
 <li>libpoppler with xpdf header &gt;= 0.20.2</li>
-<li>boost c++ library (format, program options)</li>
-<li>fontforge (we will compile with libfontforge later)</li>
+<li>boost c++ library (format, program options, gil, filesystem, serialization, system(which is actually required by filesystem))</li>
+<li>fontforge <strong>Please use <a href="https://github.com/fontforge/fontforge">the lastest version</a></strong>
+</li>
 </ul><h2>HOW TO COMPILE</h2>
 
-<pre><code>cmake . &amp;&amp; make
+<pre><code>cmake . &amp;&amp; make &amp;&amp; sudo make install
 </code></pre>
 
 <h2>HOW TO USE</h2>
 
-<pre><code>bin/pdf2htmlEX /path/to/sample.pdf
+<pre><code>pdf2htmlEX /path/to/sample.pdf
 </code></pre>
 
 <h2>LICENSE</h2>
@@ -80,6 +107,7 @@
 
 <ul>
 <li>pdftops &amp; pdftohtml from poppler </li>
+<li>MuPDF</li>
 <li>PDF.js</li>
 <li>Crocodoc</li>
 <li>Google Doc</li>
@@ -92,17 +120,21 @@
 </li>
 </ul>
       </section>
-    </div>
 
-    <!-- FOOTER  -->
-    <div id="footer_wrap" class="outer">
-      <footer class="inner">
-        <p class="copyright">pdf2htmlEX maintained by <a href="https://github.com/coolwanglu">coolwanglu</a></p>
-        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      <footer>
+        <span class="ribbon-outer">
+          <span class="ribbon-inner">
+            <p>this project by <a href="https://github.com/coolwanglu">coolwanglu</a> can be found on <a href="https://github.com/coolwanglu/pdf2htmlEX">GitHub</a></p>
+          </span>
+          <span class="left-tail"></span>
+          <span class="right-tail"></span>
+        </span>
+        <p>Generated with <a href="http://pages.github.com">GitHub Pages</a> using Merlot</p>
+        <span class="octocat"></span>
       </footer>
+
     </div>
 
     
-
   </body>
 </html>
