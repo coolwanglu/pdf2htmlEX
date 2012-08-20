@@ -8,7 +8,6 @@
  */
 
 #include <iostream>
-#include <unordered_map>
 
 #include <boost/format.hpp>
 
@@ -16,8 +15,6 @@
 
 #include "HTMLRenderer.h"
 #include "namespace.h"
-
-using std::unordered_map;
 
 long long HTMLRenderer::install_font(GfxFont * font)
 {
@@ -128,8 +125,6 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
 
     script_fout << format("Open(%1%, 1)") % (tmp_dir / (fn + suffix)) << endl;
 
-    unordered_map<int,int> gid2cid;
-
     auto ctu = font->getToUnicode();
     int * code2GID = nullptr;
     if(ctu)
@@ -158,14 +153,9 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
     
                 GfxCIDFont * _font = dynamic_cast<GfxCIDFont*>(font);
 
+                int len;
                 // code2GID has been stored for embedded CID fonts
-                code2GID = _font->getCodeToGIDMap(nullptr, &maxcode);
-
-                int * p = _font->getCIDToGID();
-                int l = _font->getCIDToGIDLen();
-                for(int i = 0; i < l; ++i)
-                    gid2cid.insert(make_pair(p[i], i));
-                // ??
+                code2GID = _font->getCodeToGIDMap(nullptr, &len);
             }
         }
 
@@ -183,7 +173,7 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
                 if(n > 0)
                 {
                     ++cnt;
-                    map_fout << format("0x%|1$X|") % (code2GID ? code2GID[i] : i);
+                    map_fout << format("0x%|1$X|") % (((!font->hasToUnicodeCMap()) && code2GID) ? code2GID[i] : i);
                     for(int j = 0; j < n; ++j)
                         map_fout << format(" 0x%|1$X|") % u[j];
                     map_fout << format(" # 0x%|1$X|") % i << endl;
