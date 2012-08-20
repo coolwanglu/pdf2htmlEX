@@ -8,6 +8,7 @@
  */
 
 #include <iostream>
+#include <unordered_map>
 
 #include <boost/format.hpp>
 
@@ -15,6 +16,8 @@
 
 #include "HTMLRenderer.h"
 #include "namespace.h"
+
+using std::unordered_map;
 
 long long HTMLRenderer::install_font(GfxFont * font)
 {
@@ -125,7 +128,7 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
 
     script_fout << format("Open(%1%, 1)") % (tmp_dir / (fn + suffix)) << endl;
 
-    unordered_map<int,int> gid2code;
+    unordered_map<int,int> gid2cid;
 
     auto ctu = font->getToUnicode();
     int * code2GID = nullptr;
