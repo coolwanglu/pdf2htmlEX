@@ -8,11 +8,14 @@
  */
 
 #include <iostream>
+#include <algorithm>
 
 #include <boost/format.hpp>
 
 #include "HTMLRenderer.h"
 #include "namespace.h"
+
+using std::all_of;
 
 string HTMLRenderer::dump_embedded_font (GfxFont * font, long long fn_id)
 {
@@ -187,27 +190,10 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
             ++nSpaces;
         }
 
-        if(uLen == 0)
+        if(uLen > 0)
         {
-            // TODO
-#if 0
-            CharCode c = 0;
-            for(int i = 0; i < n; ++i)
-            {
-                c = (c<<8) | (code&0xff);
-                code >>= 8;
-            }
-            for(int i = 0; i < n; ++i)
-            {
-                Unicode u = (c&0xff);
-                c >>= 8;
-                outputUnicodes(html_fout, &u, 1);
-            }
-#endif
-        }
-        else
-        {
-            outputUnicodes(html_fout, u, uLen);
+            if(all_of(u, u+uLen, isLegalUnicode))
+                outputUnicodes(html_fout, u, uLen);
         }
 
         dx += dx1;

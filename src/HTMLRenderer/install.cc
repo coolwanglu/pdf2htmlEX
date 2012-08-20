@@ -125,6 +125,8 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
 
     script_fout << format("Open(%1%, 1)") % (tmp_dir / (fn + suffix)) << endl;
 
+    unordered_map<int,int> gid2code;
+
     auto ctu = font->getToUnicode();
     int * code2GID = nullptr;
     if(ctu)
@@ -150,9 +152,17 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
             else
             {
                 script_fout << "Reencode(\"original\")" << endl;
-                int len; 
+    
+                GfxCIDFont * _font = dynamic_cast<GfxCIDFont*>(font);
+
                 // code2GID has been stored for embedded CID fonts
-                code2GID = dynamic_cast<GfxCIDFont*>(font)->getCodeToGIDMap(nullptr, &len);
+                code2GID = _font->getCodeToGIDMap(nullptr, &maxcode);
+
+                int * p = _font->getCIDToGID();
+                int l = _font->getCIDToGIDLen();
+                for(int i = 0; i < l; ++i)
+                    gid2cid.insert(make_pair(p[i], i));
+                // ??
             }
         }
 
