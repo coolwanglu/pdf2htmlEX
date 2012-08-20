@@ -106,19 +106,6 @@ void HTMLRenderer::pre_process()
     }
 
     allcss_fout << ifstream(PDF2HTMLEX_DATA_PATH / CSS_FILENAME, ifstream::binary).rdbuf();
-
-    // install default values
-    install_font(nullptr);
-    install_font_size(0);
-
-    install_transform_matrix(id_matrix);
-    
-    install_letter_space(0);
-    install_word_space(0);
-
-    GfxRGB black;
-    black.r = black.g = black.b = 0;
-    install_color(&black);
 }
 
 void HTMLRenderer::post_process()
@@ -184,6 +171,7 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
     draw_tx = draw_ty = 0;
 
     reset_state_change();
+    all_changed = true;
 }
 
 void HTMLRenderer::endPage() {
