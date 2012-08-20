@@ -363,24 +363,14 @@ void HTMLRenderer::prepare_line(GfxState * state)
                 % (pageHeight - y - state->getFont()->getAscent() * draw_font_size)
                 % x;
 
-            // "t0" is the id_matrix
-            if(cur_tm_id != 0)
-                html_fout << format("t%|1$x| ") % cur_tm_id;
-
-            html_fout << format("f%|1$x| s%|2$x| ") % cur_fn_id % cur_fs_id;
+            html_fout << format("t%|1$x| f%|2$x| s%|3$x| ") % cur_tm_id % cur_fn_id % cur_fs_id;
         }
         else
         {
             assert(false && "Bad value of new_line_status");
         }
 
-        html_fout << format("c%|1$x|") % cur_color_id;
-    
-        if(cur_ls_id != 0)
-            html_fout << format(" l%|1$x|") % cur_ls_id;
-
-        if(cur_ws_id != 0)
-            html_fout << format(" w%|1$x|") % cur_ws_id;
+        html_fout << format("c%|1$x| l%|2$x| w%|3$x|") % cur_color_id % cur_ls_id % cur_ws_id;
 
         html_fout << "\">";
 
