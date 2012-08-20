@@ -171,6 +171,7 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
     draw_tx = draw_ty = 0;
 
     reset_state_change();
+
     all_changed = true;
 }
 
