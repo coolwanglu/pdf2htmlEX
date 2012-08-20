@@ -21,6 +21,7 @@ struct Param
     int first_page, last_page;
 
     double zoom;
+    double font_size_multiplier;
     double h_dpi, v_dpi;
     double h_eps, v_eps;
 
