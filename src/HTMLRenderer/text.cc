@@ -198,7 +198,8 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
         }
         else
         {
-            // TODO: consider horiz scaling
+            // should not consider hozi scaling here
+            // will be handled by draw_ctm
             double target = dx1 + state->getCharSpace();
             if(n == 1 && *p == ' ')
                 target += state->getWordSpace();
@@ -216,7 +217,7 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
         len -= n;
     }
 
-    // TODO, horiz_scaling is merged into ctm now, 
+    // horiz_scaling is merged into ctm now, 
     // so the coordinate system is ugly
     dx = (dx * state->getFontSize() 
             + nChars * state->getCharSpace() 
