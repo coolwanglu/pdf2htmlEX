@@ -155,7 +155,8 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
                 GfxCIDFont * _font = dynamic_cast<GfxCIDFont*>(font);
 
                 // code2GID has been stored for embedded CID fonts
-                code2GID = _font->getCodeToGIDMap(nullptr, &code2GID_len);
+                code2GID = _font->getCIDToGID();
+                code2GID_len = _font->getCIDToGIDLen();
             }
         }
 
