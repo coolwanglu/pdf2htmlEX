@@ -10,25 +10,25 @@
   /* for Chrome & Safari */
   -webkit-text-stroke-width:0.13px; 
 }
-.p {
+#pdf-main .p {
   position:relative;
   margin:13px auto;
   background-color:white;
   overflow:hidden;
 }
-.l {
+#pdf-main .l {
   position:absolute;
   white-space:pre;
 }
-._ {
+#pdf-main ._ {
   color:transparent;
 }
-::selection{
+#pdf-main ::selection{
   background: rgba(127,255,255,1);
 }
-::-moz-selection{
+#pdf-main ::-moz-selection{
   background: rgba(127,255,255,1);
 }
-.i {
+#pdf-main .i {
   position:absolute;
 }

@@ -23,8 +23,6 @@
 #include <PDFDoc.h>
 #include <PDFDocFactory.h>
 #include <GlobalParams.h>
-#include <Error.h>
-#include <DateInfo.h>
 
 #include "HTMLRenderer.h"
 #include "Param.h"
@@ -42,65 +40,12 @@ PDFDoc *doc = nullptr;
 GooString *fileName = nullptr;
 GooString *ownerPW, *userPW;
 
-GooString *docTitle = nullptr;
-GooString *author = nullptr, *keywords = nullptr, *subject = nullptr, *date = nullptr;
-
 HTMLRenderer *htmlOut = nullptr;
 
 int finished = -1;
 
 po::options_description opt_visible("Options"), opt_hidden, opt_all;
 po::positional_options_description opt_positional;
-
-//====================helper functions=========================================
-/*
-static GooString* getInfoString(Dict *infoDict, char *key) {
-    Object obj;
-    GooString *s1 = nullptr;
-
-    if (infoDict->lookup(key, &obj)->isString()) {
-        s1 = new GooString(obj.getString());
-    }
-    obj.free();
-    return s1;
-}
-
-static GooString* getInfoDate(Dict *infoDict, char *key) {
-    Object obj;
-    char *s;
-    int year, mon, day, hour, min, sec, tz_hour, tz_minute;
-    char tz;
-    struct tm tmStruct;
-    GooString *result = nullptr;
-    char buf[256];
-
-    if (infoDict->lookup(key, &obj)->isString()) {
-        s = obj.getString()->getCString();
-        // TODO do something with the timezone info
-        if ( parseDateString( s, &year, &mon, &day, &hour, &min, &sec, &tz, &tz_hour, &tz_minute ) ) {
-            tmStruct.tm_year = year - 1900;
-            tmStruct.tm_mon = mon - 1;
-            tmStruct.tm_mday = day;
-            tmStruct.tm_hour = hour;
-            tmStruct.tm_min = min;
-            tmStruct.tm_sec = sec;
-            tmStruct.tm_wday = -1;
-            tmStruct.tm_yday = -1;
-            tmStruct.tm_isdst = -1;
-            mktime(&tmStruct); // compute the tm_wday and tm_yday fields
-            if (strftime(buf, sizeof(buf), "%Y-%m-%dT%H:%M:%S+00:00", &tmStruct)) {
-                result = new GooString(buf);
-            } else {
-                result = new GooString(s);
-            }
-        } else {
-            result = new GooString(s);
-        }
-    }
-    obj.free();
-    return result;
-}
-*/
 
 void show_usage(void)
 {
@@ -121,12 +66,12 @@ po::variables_map parse_options (int argc, char **argv)
         ("first-page,f", po::value<int>(&param.first_page)->default_value(1), "first page to process")
         ("last-page,l", po::value<int>(&param.last_page)->default_value(numeric_limits<int>::max()), "last page to process")
         ("version,v", "show copyright and version info")
-        ("metadata,m", "show the document meta data in JSON")
         ("owner-password,o", po::value<string>(&param.owner_password)->default_value(""), "owner password (for encrypted files)")
         ("user-password,u", po::value<string>(&param.user_password)->default_value(""), "user password (for encrypted files)")
         ("dest-dir", po::value<string>(&param.dest_dir)->default_value("."), "destination directory")
         ("tmp-dir", po::value<string>(&param.tmp_dir)->default_value("/tmp/pdf2htmlEX"), "temporary directory")
         ("zoom", po::value<double>(&param.zoom)->default_value(1.0), "zoom ratio")
+        ("font-size-multiplier", po::value<double>(&param.font_size_multiplier)->default_value(10.0), "setting a value greater than 1 would increase the rendering accuracy")
         ("hdpi", po::value<double>(&param.h_dpi)->default_value(144.0), "horizontal DPI for non-text")
         ("vdpi", po::value<double>(&param.v_dpi)->default_value(144.0), "vertical DPI for non-text")
         ("heps", po::value<double>(&param.h_eps)->default_value(1.0), "max tolerated horizontal offset (in pixels)")
@@ -160,8 +105,6 @@ po::variables_map parse_options (int argc, char **argv)
     }
 }
 
-
-//====================entry point==============================================
 int main(int argc, char **argv)
 {
     auto opt_map = parse_options(argc, argv);
@@ -218,22 +161,6 @@ int main(int argc, char **argv)
     param.first_page = min(max(param.first_page, 1), doc->getNumPages());
     param.last_page = min(max(param.last_page, param.first_page), doc->getNumPages());
 
-    /*
-    // get meta info
-    doc->getDocInfo(&info);
-    if (info.isDict()) {
-        docTitle = getInfoString(info.getDict(), "Title");
-        author = getInfoString(info.getDict(), "Author");
-        keywords = getInfoString(info.getDict(), "Keywords");
-        subject = getInfoString(info.getDict(), "Subject");
-        date = getInfoDate(info.getDict(), "ModDate");
-        if( !date )
-            date = getInfoDate(info.getDict(), "CreationDate");
-    }
-    info.free();
-    if( !docTitle ) docTitle = fileName->copy();
-    */
-
     if(param.output_filename == "")
     {
         const string s = path(param.input_filename).filename().string();
@@ -249,27 +176,7 @@ int main(int argc, char **argv)
 
     htmlOut = new PC_HTMLRenderer(&param);
     htmlOut->process(doc);
-
-    {
-        /*
-        escapeHTMLString(docTitle);
-        if(author) escapeHTMLString(author);
-        if(date) escapeHTMLString(date);
-
-        printf("{\"doc_id\": \"\", \"title\":\"%s\", \"author\":\"%s\",\"mod_date\":\"%s\",\n",
-                docTitle->getCString(), 
-                author? author->getCString():"", 
-                date? date->getCString():"");
-        printf("\"pages\":[\n");
-        */
-    }
-
     delete htmlOut;
-    delete docTitle;
-    if( author ) delete author;
-    if( keywords ) delete keywords;
-    if( subject ) delete subject;
-    if( date ) delete date;
 
     finished = 0;
 

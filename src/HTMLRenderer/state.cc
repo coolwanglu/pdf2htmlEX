@@ -95,18 +95,6 @@ void HTMLRenderer::check_state_change(GfxState * state)
         need_recheck_position = true;
     }
 
-    // draw_tx, draw_ty
-    // depends: rise & text position
-    if(need_recheck_position)
-    {
-        // it's ok to use the old draw_scale
-        // should draw_scale be updated, we'll close the line anyway
-        if(!(abs((cur_ty + cur_rise) - draw_ty) * draw_scale < param->v_eps))
-        {
-            new_line_status = max(new_line_status, LineStatus::DIV);
-        }
-    }
-
     // font name & size
     if(all_changed || font_changed)
     {
@@ -125,6 +113,10 @@ void HTMLRenderer::check_state_change(GfxState * state)
             cur_font_size = new_font_size;
         }
     }  
+
+    // backup the current ctm for need_recheck_position
+    double old_ctm[6];
+    memcpy(old_ctm, cur_ctm, sizeof(old_ctm));
 
     // ctm & text ctm & hori scale
     if(all_changed || ctm_changed || text_mat_changed || hori_scale_changed)
@@ -145,6 +137,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
 
         if(!_tm_equal(new_ctm, cur_ctm))
         {
+            need_recheck_position = true;
             need_rescale_font = true;
             memcpy(cur_ctm, new_ctm, sizeof(cur_ctm));
         }
@@ -157,7 +150,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
         double new_draw_ctm[6];
         memcpy(new_draw_ctm, cur_ctm, sizeof(new_draw_ctm));
 
-        draw_scale = 10*sqrt(new_draw_ctm[2] * new_draw_ctm[2] + new_draw_ctm[3] * new_draw_ctm[3]);
+        draw_scale = (param->font_size_multiplier) * sqrt(new_draw_ctm[2] * new_draw_ctm[2] + new_draw_ctm[3] * new_draw_ctm[3]);
 
         double new_draw_font_size = cur_font_size;
         if(_is_positive(draw_scale))
@@ -177,11 +170,66 @@ void HTMLRenderer::check_state_change(GfxState * state)
             draw_font_size = new_draw_font_size;
             cur_fs_id = install_font_size(draw_font_size);
         }
-        if(!(_tm_equal(new_draw_ctm, draw_ctm)))
+        if(!(_tm_equal(new_draw_ctm, draw_ctm, 4)))
         {
             new_line_status = max(new_line_status, LineStatus::DIV);
             memcpy(draw_ctm, new_draw_ctm, sizeof(draw_ctm));
             cur_tm_id = install_transform_matrix(draw_ctm);
+        }
+    }
+
+    // see if we can merge with the current line
+    // depends: rise & text position & transformation
+    if(need_recheck_position)
+    {
+        // try to transform the old origin under the new TM
+        /*
+         * OldTM * (draw_tx, draw_ty, 1)^T = CurTM * (draw_tx + dx, draw_ty + dy, 1)^T
+         *
+         * OldTM[4] = CurTM[0] * dx + CurTM[2] * dy + CurTM[4] 
+         * OldTM[5] = CurTM[1] * dx + CurTM[3] * dy + CurTM[5] 
+         *
+         * We just care if we can map the origin y to the same new y
+         * So just let dy = cur_y - old_y, and try to solve dx
+         *
+         * TODO, writing mode, set dx and solve dy
+         */
+
+        double dy = cur_ty + cur_rise - draw_ty;
+        double tdx = old_ctm[4] - cur_ctm[4] - cur_ctm[2] * dy;
+        double tdy = old_ctm[5] - cur_ctm[5] - cur_ctm[3] * dy;
+
+        if(_equal(cur_ctm[0] * tdy, cur_ctm[1] * tdx))
+        {
+            if(abs(cur_ctm[0]) > EPS)
+            {
+                draw_tx += tdx / cur_ctm[0];
+                draw_ty += dy;
+            }
+            else if (abs(cur_ctm[1]) > EPS)
+            {
+                draw_tx += tdy / cur_ctm[1];
+                draw_ty += dy;
+            }
+            else
+            {
+                if((abs(tdx) < EPS) && (abs(tdy) < EPS))
+                {
+                    // free
+                    draw_tx = cur_tx;
+                    draw_ty += dy;
+                }
+                else
+                {
+                    // fail
+                    new_line_status = max(new_line_status, LineStatus::DIV);
+                }
+            }
+        }
+        else
+        {
+            // no solution
+            new_line_status = max(new_line_status, LineStatus::DIV);
         }
     }
 
@@ -315,24 +363,14 @@ void HTMLRenderer::prepare_line(GfxState * state)
                 % (pageHeight - y - state->getFont()->getAscent() * draw_font_size)
                 % x;
 
-            // "t0" is the id_matrix
-            if(cur_tm_id != 0)
-                html_fout << format("t%|1$x| ") % cur_tm_id;
-
-            html_fout << format("f%|1$x| s%|2$x| ") % cur_fn_id % cur_fs_id;
+            html_fout << format("t%|1$x| f%|2$x| s%|3$x| ") % cur_tm_id % cur_fn_id % cur_fs_id;
         }
         else
         {
             assert(false && "Bad value of new_line_status");
         }
 
-        html_fout << format("c%|1$x|") % cur_color_id;
-    
-        if(cur_ls_id != 0)
-            html_fout << format(" l%|1$x|") % cur_ls_id;
-
-        if(cur_ws_id != 0)
-            html_fout << format(" w%|1$x|") % cur_ws_id;
+        html_fout << format("c%|1$x| l%|2$x| w%|3$x|") % cur_color_id % cur_ls_id % cur_ws_id;
 
         html_fout << "\">";
 

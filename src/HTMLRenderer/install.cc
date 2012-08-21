@@ -127,6 +127,7 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
 
     auto ctu = font->getToUnicode();
     int * code2GID = nullptr;
+    int code2GID_len = 0;
     if(ctu)
     {
         // TODO: ctu could be CID2Unicode for CID fonts
@@ -150,9 +151,12 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
             else
             {
                 script_fout << "Reencode(\"original\")" << endl;
-                int len; 
+    
+                GfxCIDFont * _font = dynamic_cast<GfxCIDFont*>(font);
+
                 // code2GID has been stored for embedded CID fonts
-                code2GID = dynamic_cast<GfxCIDFont*>(font)->getCodeToGIDMap(nullptr, &len);
+                code2GID = _font->getCIDToGID();
+                code2GID_len = _font->getCIDToGIDLen();
             }
         }
 
@@ -170,7 +174,7 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
                 if(n > 0)
                 {
                     ++cnt;
-                    map_fout << format("0x%|1$X|") % (code2GID ? code2GID[i] : i);
+                    map_fout << format("0x%|1$X|") % ((code2GID && (i < code2GID_len))? code2GID[i] : i);
                     for(int j = 0; j < n; ++j)
                         map_fout << format(" 0x%|1$X|") % u[j];
                     map_fout << format(" # 0x%|1$X|") % i << endl;
@@ -194,7 +198,7 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
     if(system((boost::format("fontforge -script %1% 2>%2%") % script_path % (tmp_dir / NULL_FILENAME)).str().c_str()) != 0)
         cerr << "Warning: fontforge failed." << endl;
 
-    add_tmp_file("null");
+    add_tmp_file(NULL_FILENAME);
 
     export_remote_font(fn_id, ".ttf", "truetype", font);
 }

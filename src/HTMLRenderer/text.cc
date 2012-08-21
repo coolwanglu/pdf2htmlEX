@@ -8,11 +8,14 @@
  */
 
 #include <iostream>
+#include <algorithm>
 
 #include <boost/format.hpp>
 
 #include "HTMLRenderer.h"
 #include "namespace.h"
+
+using std::all_of;
 
 string HTMLRenderer::dump_embedded_font (GfxFont * font, long long fn_id)
 {
@@ -182,42 +185,40 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
             cerr << "TODO: non-zero origins" << endl;
         }
 
-        if(uLen == 0)
-        {
-            // TODO
-#if 0
-            CharCode c = 0;
-            for(int i = 0; i < n; ++i)
-            {
-                c = (c<<8) | (code&0xff);
-                code >>= 8;
-            }
-            for(int i = 0; i < n; ++i)
-            {
-                Unicode u = (c&0xff);
-                c >>= 8;
-                outputUnicodes(html_fout, &u, 1);
-            }
-#endif
-        }
-        else
-        {
-            outputUnicodes(html_fout, u, uLen);
-        }
-
-        dx += dx1;
-        dy += dy1;
-
         if (n == 1 && *p == ' ') 
         {
             ++nSpaces;
         }
+
+        if((uLen > 0) && (all_of(u, u+uLen, isLegalUnicode)))
+        {
+            outputUnicodes(html_fout, u, uLen);
+            dx += dx1;
+            dy += dy1;
+        }
+        else
+        {
+            // should not consider hozi scaling here
+            // will be handled by draw_ctm
+            double target = dx1 + state->getCharSpace();
+            if(n == 1 && *p == ' ')
+                target += state->getWordSpace();
+            
+            double w;
+            auto wid = install_whitespace(target * draw_scale, w);
+            html_fout << format("<span class=\"_ _%|1$x|\">%2%</span>") % wid % (target > 0 ? " " : "");
+            dx += target;
+            dy += dy1;
+        }
+
 
         ++nChars;
         p += n;
         len -= n;
     }
 
+    // horiz_scaling is merged into ctm now, 
+    // so the coordinate system is ugly
     dx = (dx * state->getFontSize() 
             + nChars * state->getCharSpace() 
             + nSpaces * state->getWordSpace()) * state->getHorizScaling();

@@ -102,29 +102,22 @@ void HTMLRenderer::export_transform_matrix (long long tm_id, const double * tm)
     // we have already shifted the origin
     
     // TODO: recognize common matices
-    if(_tm_equal(tm, id_matrix, 4))
+    for(const string & prefix : {"", "-ms-", "-moz-", "-webkit-", "-o-"})
     {
-        // no need to output anything
-    }
-    else
-    {
-        for(const string & prefix : {"", "-ms-", "-moz-", "-webkit-", "-o-"})
-        {
-            // PDF use a different coordinate system from Web
-            allcss_fout << prefix << "transform:matrix("
-                << tm[0] << ','
-                << -tm[1] << ','
-                << -tm[2] << ','
-                << tm[3] << ',';
+        // PDF use a different coordinate system from Web
+        allcss_fout << prefix << "transform:matrix("
+            << tm[0] << ','
+            << -tm[1] << ','
+            << -tm[2] << ','
+            << tm[3] << ',';
 
-            allcss_fout << "0,0);";
-            /*
-            if(prefix == "-moz-")
-                allcss_fout << format("%1%px,%2%px);") % tm[4] % -tm[5];
-            else
-                allcss_fout << format("%1%,%2%);") % tm[4] % -tm[5];
-                */
-        }
+        allcss_fout << "0,0);";
+        /*
+        if(prefix == "-moz-")
+            allcss_fout << format("%1%px,%2%px);") % tm[4] % -tm[5];
+        else
+            allcss_fout << format("%1%,%2%);") % tm[4] % -tm[5];
+            */
     }
     allcss_fout << "}" << endl;
 }
