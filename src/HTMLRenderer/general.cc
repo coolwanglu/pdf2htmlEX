@@ -14,6 +14,7 @@
 #include "config.h"
 #include "namespace.h"
 
+using std::fixed;
 using std::flush;
 using boost::filesystem::remove;
 using boost::filesystem::filesystem_error;
@@ -104,6 +105,9 @@ void HTMLRenderer::pre_process()
         html_fout << "<link rel=\"stylesheet\" type=\"text/css\" href=\"" << CSS_FILENAME << "\"/>" << endl;
         html_fout << ifstream(PDF2HTMLEX_DATA_PATH / NECK_HTML_FILENAME, ifstream::binary).rdbuf();
     }
+
+    html_fout << fixed;
+    allcss_fout << fixed;
 
     allcss_fout << ifstream(PDF2HTMLEX_DATA_PATH / CSS_FILENAME, ifstream::binary).rdbuf();
 }
