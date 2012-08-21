@@ -190,20 +190,34 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
             ++nSpaces;
         }
 
-        if(uLen > 0)
+        if((uLen > 0) && (all_of(u, u+uLen, isLegalUnicode)))
         {
-            if(all_of(u, u+uLen, isLegalUnicode))
-                outputUnicodes(html_fout, u, uLen);
+            outputUnicodes(html_fout, u, uLen);
+            dx += dx1;
+            dy += dy1;
+        }
+        else
+        {
+            // TODO: consider horiz scaling
+            double target = dx1 + state->getCharSpace();
+            if(n == 1 && *p == ' ')
+                target += state->getWordSpace();
+            
+            double w;
+            auto wid = install_whitespace(target * draw_scale, w);
+            html_fout << format("<span class=\"_ _%|1$x|\">%2%</span>") % wid % (target > 0 ? " " : "");
+            dx += target;
+            dy += dy1;
         }
 
-        dx += dx1;
-        dy += dy1;
 
         ++nChars;
         p += n;
         len -= n;
     }
 
+    // TODO, horiz_scaling is merged into ctm now, 
+    // so the coordinate system is ugly
     dx = (dx * state->getFontSize() 
             + nChars * state->getCharSpace() 
             + nSpaces * state->getWordSpace()) * state->getHorizScaling();
