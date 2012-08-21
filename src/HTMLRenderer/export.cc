@@ -40,6 +40,8 @@ void HTMLRenderer::export_remote_font(long long fn_id, const string & suffix, co
         allcss_fout << prefix << "transform-origin:0% " << (r*100.0) << "%;";
     }
 
+    // TODO: may move line-height to drawString
+    // as a & d are not useful sometimes
     allcss_fout << "line-height:" << (a-d) << ";";
 
     allcss_fout << "}" << endl;
