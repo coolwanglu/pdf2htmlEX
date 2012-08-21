@@ -127,6 +127,7 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
 
     auto ctu = font->getToUnicode();
     int * code2GID = nullptr;
+    int code2GID_len;
     if(ctu)
     {
         // TODO: ctu could be CID2Unicode for CID fonts
@@ -153,9 +154,8 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
     
                 GfxCIDFont * _font = dynamic_cast<GfxCIDFont*>(font);
 
-                int len;
                 // code2GID has been stored for embedded CID fonts
-                code2GID = _font->getCodeToGIDMap(nullptr, &len);
+                code2GID = _font->getCodeToGIDMap(nullptr, &code2GID_len);
             }
         }
 
@@ -173,7 +173,7 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
                 if(n > 0)
                 {
                     ++cnt;
-                    map_fout << format("0x%|1$X|") % (((!font->hasToUnicodeCMap()) && code2GID) ? code2GID[i] : i);
+                    map_fout << format("0x%|1$X|") % ((code2GID && (i < code2GID_len))? code2GID[i] : i);
                     for(int j = 0; j < n; ++j)
                         map_fout << format(" 0x%|1$X|") % u[j];
                     map_fout << format(" # 0x%|1$X|") % i << endl;
