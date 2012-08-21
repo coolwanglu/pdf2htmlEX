@@ -151,27 +151,27 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
             
     cur_rise = 0;
 
-    cur_fn_id = cur_fs_id = 0;
-    cur_font_size = 0; 
+    draw_scale = 1.0;
+
+    cur_fn_id = install_font(nullptr);
+    cur_font_size = draw_font_size = 0;
+    cur_fs_id = install_font_size(cur_font_size);
     
-    cur_tm_id = 0;
     memcpy(cur_ctm, id_matrix, sizeof(cur_ctm));
+    memcpy(draw_ctm, id_matrix, sizeof(draw_ctm));
+    cur_tm_id = install_transform_matrix(draw_ctm);
 
-    cur_ls_id = cur_ws_id = 0; 
     cur_letter_space = cur_word_space = 0;
+    cur_ls_id = install_letter_space(cur_letter_space);
+    cur_ws_id = install_word_space(cur_word_space);
 
-    cur_color_id = 0;
     cur_color.r = cur_color.g = cur_color.b = 0;
+    cur_color_id = install_color(&cur_color);
 
     cur_tx = cur_ty = 0;
-
-    memcpy(draw_ctm, id_matrix, sizeof(draw_ctm));
-    draw_font_size = 0;
-    draw_scale = 1.0;
     draw_tx = draw_ty = 0;
 
     reset_state_change();
-
     all_changed = true;
 }
 
