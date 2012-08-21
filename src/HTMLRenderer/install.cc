@@ -127,7 +127,7 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
 
     auto ctu = font->getToUnicode();
     int * code2GID = nullptr;
-    int code2GID_len;
+    int code2GID_len = 0;
     if(ctu)
     {
         // TODO: ctu could be CID2Unicode for CID fonts
