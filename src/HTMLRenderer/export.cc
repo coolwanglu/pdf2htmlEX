@@ -31,17 +31,6 @@ void HTMLRenderer::export_remote_font(long long fn_id, const string & suffix, co
 
     allcss_fout << format(")format(\"%1%\");}.f%|2$x|{font-family:f%|2$x|;") % fontfileformat % fn_id;
 
-    double a = font->getAscent();
-    double d = font->getDescent();
-    double r = _is_positive(a-d) ? (a/(a-d)) : 1.0;
-
-    for(const string & prefix : {"", "-ms-", "-moz-", "-webkit-", "-o-"})
-    {
-        allcss_fout << prefix << "transform-origin:0% " << (r*100.0) << "%;";
-    }
-
-    allcss_fout << "line-height:" << (a-d) << ";";
-
     allcss_fout << "}" << endl;
 }
 
@@ -73,17 +62,6 @@ void HTMLRenderer::export_local_font(long long fn_id, GfxFont * font, const stri
         allcss_fout << "font-style:oblique;";
     else if(font->isItalic())
         allcss_fout << "font-style:italic;";
-
-    double a = font->getAscent();
-    double d = font->getDescent();
-    double r = _is_positive(a-d) ? (a/(a-d)) : 1.0;
-
-    for(const string & prefix : {"", "-ms-", "-moz-", "-webkit-", "-o-"})
-    {
-        allcss_fout << prefix << "transform-origin:0% " << (r*100.0) << "%;";
-    }
-
-    allcss_fout << "line-height:" << (a-d) << ";";
 
     allcss_fout << "}" << endl;
 }

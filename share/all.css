@@ -20,6 +20,16 @@
 #pdf-main .l {
   position:absolute;
   white-space:pre;
+  font-size:0;
+  transform-origin:0% 100%;
+  -ms-transform-origin:0% 100%;
+  -moz-transform-origin:0% 100%;
+  -webkit-transform-origin:0% 100%;
+  -o-transform-origin:0% 100%;
+}
+#pdf-main span {
+  vertical-align: baseline;
+  line-height:0;
 }
 #pdf-main ._ {
   color:transparent;
