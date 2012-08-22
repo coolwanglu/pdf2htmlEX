@@ -1,32 +1,26 @@
 #pdf-main {
-  font-family: sans-serif;
+/*  font-family: sans-serif;
   position:absolute;
   top:0;
   left:0;
   bottom:0;
   right:0;
   overflow:auto;
-  background-color:grey;
+  background-color:grey;*/
   /* for Chrome & Safari */
-  -webkit-text-stroke-width:0.13px; 
+  /*-webkit-text-stroke-width:0.13px; */
 }
-#pdf-main .p {
+.p {
   position:relative;
   overflow:hidden;
 }
-#pdf-main .l {
+.l {
   position:absolute;
   white-space:pre;
 }
-#pdf-main ._ {
+._ {
   color:transparent;
 }
-#pdf-main ::selection{
-  background: rgba(127,255,255,1);
-}
-#pdf-main ::-moz-selection{
-  background: rgba(127,255,255,1);
-}
-#pdf-main .i {
+.i {
   position:absolute;
 }

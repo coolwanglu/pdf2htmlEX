@@ -63,6 +63,9 @@ class PC_HTMLRenderer : public HTMLRenderer
            , tx(0)
            , ty(0)
            , max_font_size (0)
+           , num_pages(0)
+           , first_page_width(0)
+           , first_page_height(0)
         {} 
 
         virtual ~PC_HTMLRenderer() 
@@ -71,7 +74,9 @@ class PC_HTMLRenderer : public HTMLRenderer
                 cout  << "{"
                       << "\"title\":\"" << cur_title.str() << "\","
                       << "\"num_pages\":" << num_pages << ","
-                      << "\"modified_date\":\"" << modified_date << "\""
+                      << "\"modified_date\":\"" << modified_date << "\","
+                      << "\"width\":" << first_page_width << ","
+                      << "\"height\":" << first_page_height
                       << "}" << endl;
             }
         }
@@ -98,7 +103,8 @@ class PC_HTMLRenderer : public HTMLRenderer
                    GooString* date = getInfoDate(info.getDict(), "ModDate");
                    if( !date )
                       date = getInfoDate(info.getDict(), "CreationDate");
-                   modified_date = std::string(date->getCString(), date->getLength());
+                   if( date )
+                      modified_date = std::string(date->getCString(), date->getLength());
                 }
                 info.free();
                  
@@ -128,6 +134,10 @@ class PC_HTMLRenderer : public HTMLRenderer
                 html_fout.open(dest_dir / (format("%|1$x|.page")%pageNum).str(), ofstream::binary);
                 html_fout << fixed;
             }
+            
+            this->first_page_width = state->getPageWidth();
+            this->first_page_height = state->getPageHeight();
+
             HTMLRenderer::startPage(pageNum, state);
         }
 
@@ -203,6 +213,8 @@ class PC_HTMLRenderer : public HTMLRenderer
   private:
         int num_pages;
         std::string modified_date;
+        int first_page_width;
+        int first_page_height;
 };
 
 
