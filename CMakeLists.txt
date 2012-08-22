@@ -39,5 +39,5 @@ add_executable(pdf2htmlEX
 target_link_libraries(pdf2htmlEX poppler boost_program_options boost_filesystem boost_system)
 
 install (TARGETS pdf2htmlEX DESTINATION bin)
-file (GLOB libfiles lib/*)
-install (FILES ${libfiles} DESTINATION lib/pdf2htmlEX)
+file (GLOB datafiles share/*)
+install (FILES ${datafiles} DESTINATION share/pdf2htmlEX)

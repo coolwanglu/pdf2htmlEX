@@ -14,6 +14,7 @@
 #include "config.h"
 #include "namespace.h"
 
+using std::fixed;
 using std::flush;
 using boost::filesystem::remove;
 using boost::filesystem::filesystem_error;
@@ -25,18 +26,6 @@ HTMLRenderer::HTMLRenderer(const Param * param)
     ,dest_dir(param->dest_dir)
     ,tmp_dir(param->tmp_dir)
 {
-    // install default font & size
-    install_font(nullptr);
-    install_font_size(0);
-
-    install_transform_matrix(id_matrix);
-    
-    install_letter_space(0);
-    install_word_space(0);
-
-    GfxRGB black;
-    black.r = black.g = black.b = 0;
-    install_color(&black);
 }
 
 HTMLRenderer::~HTMLRenderer()
@@ -112,19 +101,22 @@ void HTMLRenderer::pre_process()
         html_fout.open(dest_dir / param->output_filename, ofstream::binary); 
         allcss_fout.open(dest_dir / CSS_FILENAME, ofstream::binary);
 
-        html_fout << ifstream(PDF2HTMLEX_LIB_PATH / HEAD_HTML_FILENAME, ifstream::binary).rdbuf();
+        html_fout << ifstream(PDF2HTMLEX_DATA_PATH / HEAD_HTML_FILENAME, ifstream::binary).rdbuf();
         html_fout << "<link rel=\"stylesheet\" type=\"text/css\" href=\"" << CSS_FILENAME << "\"/>" << endl;
-        html_fout << ifstream(PDF2HTMLEX_LIB_PATH / NECK_HTML_FILENAME, ifstream::binary).rdbuf();
+        html_fout << ifstream(PDF2HTMLEX_DATA_PATH / NECK_HTML_FILENAME, ifstream::binary).rdbuf();
     }
 
-    allcss_fout << ifstream(PDF2HTMLEX_LIB_PATH / CSS_FILENAME, ifstream::binary).rdbuf();
+    html_fout << fixed;
+    allcss_fout << fixed;
+
+    allcss_fout << ifstream(PDF2HTMLEX_DATA_PATH / CSS_FILENAME, ifstream::binary).rdbuf();
 }
 
 void HTMLRenderer::post_process()
 {
     if(!param->single_html)
     {
-        html_fout << ifstream(PDF2HTMLEX_LIB_PATH / TAIL_HTML_FILENAME, ifstream::binary).rdbuf();
+        html_fout << ifstream(PDF2HTMLEX_DATA_PATH / TAIL_HTML_FILENAME, ifstream::binary).rdbuf();
     }
 
     html_fout.close();
@@ -163,26 +155,28 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
             
     cur_rise = 0;
 
-    cur_fn_id = cur_fs_id = 0;
-    cur_font_size = 0; 
+    draw_scale = 1.0;
+
+    cur_fn_id = install_font(nullptr);
+    cur_font_size = draw_font_size = 0;
+    cur_fs_id = install_font_size(cur_font_size);
     
-    cur_tm_id = 0;
     memcpy(cur_ctm, id_matrix, sizeof(cur_ctm));
+    memcpy(draw_ctm, id_matrix, sizeof(draw_ctm));
+    cur_tm_id = install_transform_matrix(draw_ctm);
 
-    cur_ls_id = cur_ws_id = 0; 
     cur_letter_space = cur_word_space = 0;
+    cur_ls_id = install_letter_space(cur_letter_space);
+    cur_ws_id = install_word_space(cur_word_space);
 
-    cur_color_id = 0;
     cur_color.r = cur_color.g = cur_color.b = 0;
+    cur_color_id = install_color(&cur_color);
 
     cur_tx = cur_ty = 0;
-
-    memcpy(draw_ctm, id_matrix, sizeof(draw_ctm));
-    draw_font_size = 0;
-    draw_scale = 1.0;
     draw_tx = draw_ty = 0;
 
     reset_state_change();
+    all_changed = true;
 }
 
 void HTMLRenderer::endPage() {
@@ -195,17 +189,17 @@ void HTMLRenderer::process_single_html()
 {
     ofstream out (dest_dir / param->output_filename, ofstream::binary);
 
-    out << ifstream(PDF2HTMLEX_LIB_PATH / HEAD_HTML_FILENAME , ifstream::binary).rdbuf();
+    out << ifstream(PDF2HTMLEX_DATA_PATH / HEAD_HTML_FILENAME , ifstream::binary).rdbuf();
 
     out << "<style type=\"text/css\">" << endl;
     out << ifstream(tmp_dir / CSS_FILENAME, ifstream::binary).rdbuf();
     out << "</style>" << endl;
 
-    out << ifstream(PDF2HTMLEX_LIB_PATH / NECK_HTML_FILENAME, ifstream::binary).rdbuf();
+    out << ifstream(PDF2HTMLEX_DATA_PATH / NECK_HTML_FILENAME, ifstream::binary).rdbuf();
 
     out << ifstream(tmp_dir / (param->output_filename + ".part"), ifstream::binary).rdbuf();
 
-    out << ifstream(PDF2HTMLEX_LIB_PATH / TAIL_HTML_FILENAME, ifstream::binary).rdbuf();
+    out << ifstream(PDF2HTMLEX_DATA_PATH / TAIL_HTML_FILENAME, ifstream::binary).rdbuf();
 }
 
 void HTMLRenderer::add_tmp_file(const string & fn)

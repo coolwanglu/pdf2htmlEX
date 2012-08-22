@@ -8,12 +8,16 @@
 #ifndef PAPERCLUB_H__
 #define PAPERCLUB_H__
 
+#include <iostream>
 #include <sstream>
+
+#include <DateInfo.h>
 
 #include "HTMLRenderer.h"
 #include "HTMLRenderer/namespace.h"
 
 using std::ostringstream;
+using std::fixed;
 
 static GooString* getInfoDate(Dict *infoDict, const char *key) {
     Object obj;
@@ -76,7 +80,8 @@ class PC_HTMLRenderer : public HTMLRenderer
         {
             if(!param->only_metadata) {
                 allcss_fout.open(dest_dir / CSS_FILENAME, ofstream::binary);
-                allcss_fout << ifstream(PDF2HTMLEX_LIB_PATH / CSS_FILENAME, ifstream::binary).rdbuf();
+                allcss_fout << fixed;
+                allcss_fout << ifstream(PDF2HTMLEX_DATA_PATH / CSS_FILENAME, ifstream::binary).rdbuf();
             }
         }
 
@@ -121,6 +126,7 @@ class PC_HTMLRenderer : public HTMLRenderer
         {
             if(!param->only_metadata) {
                 html_fout.open(dest_dir / (format("%|1$x|.page")%pageNum).str(), ofstream::binary);
+                html_fout << fixed;
             }
             HTMLRenderer::startPage(pageNum, state);
         }
