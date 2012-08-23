@@ -7,6 +7,12 @@
  * 2012.08.14
  */
 
+/*
+ * TODO
+ * use relative positioning for rise
+ * negative offset of span
+ */
+
 #include <algorithm>
 
 #include "HTMLRenderer.h"
@@ -313,41 +319,12 @@ void HTMLRenderer::prepare_line(GfxState * state)
         // don't change line_status
     }
 
-    // open new tags when necessary
     if(line_status == LineStatus::NONE)
-    {
         new_line_status = LineStatus::DIV;
-
-        //resync position
-        draw_ty = cur_ty + cur_rise;
-        draw_tx = cur_tx;
-    }
-    else
-    {
-        assert(new_line_status != LineStatus::DIV);
-
-        // horizontal position
-        // try to merge with the last line if possible
-        double target = cur_tx - draw_tx;
-        if(abs(target) < param->h_eps)
-        {
-            // ignore it
-        }
-        else
-        {
-            // don't close a pending span here, keep the styling
-
-            double w;
-            auto wid = install_whitespace(target * draw_scale, w);
-            html_fout << format("<span class=\"_ _%|1$x|\">%2%</span>") % wid % (target > 0 ? " " : "");
-            draw_tx += w / draw_scale;
-        }
-    }
 
     if(new_line_status != LineStatus::NONE)
     {
         // have to open a new tag
-        
         if (new_line_status == LineStatus::DIV)
         {
             // TODO: recheck descent/ascent
@@ -356,6 +333,10 @@ void HTMLRenderer::prepare_line(GfxState * state)
 
             html_fout << format("<div style=\"bottom:%1%px;left:%2%px;\" class=\"l t%|3$x|\"><em></em>") 
                 % y % x % cur_tm_id;
+
+            //resync position
+            draw_ty = cur_ty + cur_rise;
+            draw_tx = cur_tx;
 
         }
         else if(new_line_status == LineStatus::SPAN)
@@ -370,10 +351,25 @@ void HTMLRenderer::prepare_line(GfxState * state)
         html_fout << format("<span class=\"f%|1$x| s%|2$x| c%|3$x| l%|4$x| w%|5$x|\">") 
             % cur_fn_id % cur_fs_id % cur_color_id % cur_ls_id % cur_ws_id;
 
-        //line_status = new_line_status;
         line_status = LineStatus::SPAN;
     }
 
+    // align horizontal position
+    // try to merge with the last line if possible
+    double target = cur_tx - draw_tx;
+    if(abs(target) < param->h_eps)
+    {
+        // ignore it
+    }
+    else
+    {
+        // don't close a pending span here, keep the styling
+
+        double w;
+        auto wid = install_whitespace(target * draw_scale, w);
+        html_fout << format("<span class=\"_ _%|1$x|\">%2%</span>") % wid % (target > 0 ? " " : "");
+        draw_tx += w / draw_scale;
+    }
 }
 void HTMLRenderer::close_line()
 {

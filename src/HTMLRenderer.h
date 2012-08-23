@@ -1,8 +1,7 @@
 /*
  * HTMLRenderer.h
  *
- *  Created on: Mar 15, 2011
- *      Author: tian
+ * by WangLu
  */
 
 #ifndef HTMLRENDERER_H_
