@@ -364,6 +364,10 @@ void HTMLRenderer::prepare_line(GfxState * state)
                 % x;
 
             html_fout << format("t%|1$x| f%|2$x| s%|3$x| ") % cur_tm_id % cur_fn_id % cur_fs_id;
+
+            //resync position
+            draw_ty = cur_ty + cur_rise;
+            draw_tx = cur_tx;
         }
         else
         {

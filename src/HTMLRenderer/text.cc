@@ -167,6 +167,7 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
 
     double dx = 0;
     double dy = 0;
+    double dxerr = 0;
     double dx1,dy1;
     double ox, oy;
 
@@ -176,6 +177,11 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
 
     CharCode code;
     Unicode *u = nullptr;
+
+    double fs = state->getFontSize();
+    double cs = state->getCharSpace();
+    double ws = state->getWordSpace();
+    double hs = state->getHorizScaling();
 
     while (len > 0) {
         auto n = font->getNextChar(p, len, &code, &u, &uLen, &dx1, &dy1, &ox, &oy);
@@ -193,24 +199,24 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
         if((uLen > 0) && (all_of(u, u+uLen, isLegalUnicode)))
         {
             outputUnicodes(html_fout, u, uLen);
-            dx += dx1;
-            dy += dy1;
         }
         else
         {
             // should not consider hozi scaling here
             // will be handled by draw_ctm
-            double target = dx1 + state->getCharSpace();
+            double target = dx1 * fs + state->getCharSpace();
             if(n == 1 && *p == ' ')
                 target += state->getWordSpace();
             
             double w;
             auto wid = install_whitespace(target * draw_scale, w);
             html_fout << format("<span class=\"_ _%|1$x|\">%2%</span>") % wid % (target > 0 ? " " : "");
-            dx += target;
-            dy += dy1;
+            
+            dxerr += w/draw_scale - target;
         }
 
+        dx += dx1;
+        dy += dy1;
 
         ++nChars;
         p += n;
@@ -219,15 +225,13 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
 
     // horiz_scaling is merged into ctm now, 
     // so the coordinate system is ugly
-    dx = (dx * state->getFontSize() 
-            + nChars * state->getCharSpace() 
-            + nSpaces * state->getWordSpace()) * state->getHorizScaling();
+    dx = (dx * fs + nChars * cs + nSpaces * ws) * hs;
     
-    dy *= state->getFontSize();
+    dy *= fs;
 
     cur_tx += dx;
     cur_ty += dy;
         
-    draw_tx += dx;
+    draw_tx += dx + dxerr * state->getFontSize() * state->getHorizScaling();
     draw_ty += dy;
 }
