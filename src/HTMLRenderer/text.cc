@@ -204,7 +204,7 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
         {
             // should not consider hozi scaling here
             // will be handled by draw_ctm
-            double target = dx1 * fs + state->getCharSpace();
+            double target = dx1 * fs + cs;
             if(n == 1 && *p == ' ')
                 target += state->getWordSpace();
             
