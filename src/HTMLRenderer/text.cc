@@ -102,7 +102,7 @@ string HTMLRenderer::dump_embedded_font (GfxFont * font, long long fn_id)
     }
     else if (dict->lookup("FontFile", &obj)->isStream())
     {
-        suffix = ".ttf";
+        suffix = ".pfa";
     }
     else
     {

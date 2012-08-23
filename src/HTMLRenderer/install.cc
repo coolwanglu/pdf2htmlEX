@@ -12,6 +12,7 @@
 #include <boost/format.hpp>
 
 #include <CharCodeToUnicode.h>
+#include <fofi/FoFiTrueType.h>
 
 #include "HTMLRenderer.h"
 #include "namespace.h"
@@ -130,25 +131,39 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
     int code2GID_len = 0;
     if(ctu)
     {
-        // TODO: ctu could be CID2Unicode for CID fonts
         int maxcode = 0;
 
         if(!font->isCIDFont())
         {
-            maxcode = 0xff;
-            if(suffix != ".ttf")
+            if(suffix == ".ttf")
             {
+                maxcode = 0xff;
+                script_fout << "Reencode(\"original\")" << endl;
+                int buflen;
+                char * buf = nullptr;
+                if((buf = font->readEmbFontFile(xref, &buflen)))
+                {
+                    FoFiTrueType *fftt = nullptr;
+                    if((fftt = FoFiTrueType::make(buf, buflen)))
+                    {
+                        code2GID = dynamic_cast<Gfx8BitFont*>(font)->getCodeToGIDMap(fftt);
+                        code2GID_len = 256;
+                        delete fftt;
+                    }
+                    gfree(buf);
+                }
+            }
+            else
+            {
+                // don't reencode non-ttf 8bit fonts with ToUnicode
+                maxcode = 0;
                 script_fout << "Reencode(\"unicode\")" << endl;
             }
         }
         else
         {
             maxcode = 0xffff;
-            if(suffix != ".ttf")
-            {
-                script_fout << "CIDFlatten()" << endl;
-            }
-            else
+            if(suffix == ".ttf")
             {
                 script_fout << "Reencode(\"original\")" << endl;
     
@@ -157,6 +172,10 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
                 // code2GID has been stored for embedded CID fonts
                 code2GID = _font->getCIDToGID();
                 code2GID_len = _font->getCIDToGIDLen();
+            }
+            else
+            {
+                script_fout << "CIDFlatten()" << endl;
             }
         }
 
