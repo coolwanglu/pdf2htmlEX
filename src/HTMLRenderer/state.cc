@@ -328,7 +328,7 @@ void HTMLRenderer::prepare_line(GfxState * state)
 
         // horizontal position
         // try to merge with the last line if possible
-        double target = (cur_tx - draw_tx) * draw_scale;
+        double target = cur_tx - draw_tx;
         if(abs(target) < param->h_eps)
         {
             // ignore it
@@ -338,7 +338,7 @@ void HTMLRenderer::prepare_line(GfxState * state)
             // don't close a pending span here, keep the styling
 
             double w;
-            auto wid = install_whitespace(target, w);
+            auto wid = install_whitespace(target * draw_scale, w);
             html_fout << format("<span class=\"_ _%|1$x|\">%2%</span>") % wid % (target > 0 ? " " : "");
             draw_tx += w / draw_scale;
         }
