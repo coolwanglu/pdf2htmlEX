@@ -135,9 +135,9 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
 
         if(!font->isCIDFont())
         {
+            maxcode = 0xff;
             if(suffix == ".ttf")
             {
-                maxcode = 0xff;
                 script_fout << "Reencode(\"original\")" << endl;
                 int buflen;
                 char * buf = nullptr;
@@ -155,8 +155,6 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
             }
             else
             {
-                // don't reencode non-ttf 8bit fonts with ToUnicode
-                maxcode = 0;
                 script_fout << "Reencode(\"unicode\")" << endl;
             }
         }
