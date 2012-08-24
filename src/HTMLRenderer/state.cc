@@ -10,7 +10,6 @@
 /*
  * TODO
  * use relative positioning for rise
- * negative offset of span
  */
 
 #include <algorithm>
