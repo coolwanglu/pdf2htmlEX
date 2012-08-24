@@ -320,7 +320,28 @@ void HTMLRenderer::prepare_line(GfxState * state)
     }
 
     if(line_status == LineStatus::NONE)
+    {
         new_line_status = LineStatus::DIV;
+    }
+    else
+    {
+        // align horizontal position
+        // try to merge with the last line if possible
+        double target = cur_tx - draw_tx;
+        if(abs(target) < param->h_eps)
+        {
+            // ignore it
+        }
+        else
+        {
+            // don't close a pending span here, keep the styling
+
+            double w;
+            auto wid = install_whitespace(target * draw_scale, w);
+            html_fout << format("<span class=\"_ _%|1$x|\">%2%</span>") % wid % (target > 0 ? " " : "");
+            draw_tx += w / draw_scale;
+        }
+    }
 
     if(new_line_status != LineStatus::NONE)
     {
@@ -352,23 +373,6 @@ void HTMLRenderer::prepare_line(GfxState * state)
             % cur_fn_id % cur_fs_id % cur_color_id % cur_ls_id % cur_ws_id;
 
         line_status = LineStatus::SPAN;
-    }
-
-    // align horizontal position
-    // try to merge with the last line if possible
-    double target = cur_tx - draw_tx;
-    if(abs(target) < param->h_eps)
-    {
-        // ignore it
-    }
-    else
-    {
-        // don't close a pending span here, keep the styling
-
-        double w;
-        auto wid = install_whitespace(target * draw_scale, w);
-        html_fout << format("<span class=\"_ _%|1$x|\">%2%</span>") % wid % (target > 0 ? " " : "");
-        draw_tx += w / draw_scale;
     }
 }
 void HTMLRenderer::close_line()
