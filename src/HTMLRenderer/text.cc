@@ -185,7 +185,7 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
 
     while (len > 0) {
         auto n = font->getNextChar(p, len, &code, &u, &uLen, &dx1, &dy1, &ox, &oy);
-
+        
         if(!(_equal(ox, 0) && _equal(oy, 0)))
         {
             cerr << "TODO: non-zero origins" << endl;
@@ -195,6 +195,8 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
         {
             ++nSpaces;
         }
+        
+        // TODO: don't use ToUnicode Map for nonttf fonts
 
         if((uLen > 0) && (all_of(u, u+uLen, isLegalUnicode)))
         {
