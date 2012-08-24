@@ -197,8 +197,21 @@ void HTMLRenderer::check_state_change(GfxState * state)
         {
             if(abs(cur_ctm[0]) > EPS)
             {
+                //debug
+                html_fout<<"<em data-x=\"";
+                for(int i = 0; i < 6; ++i)
+                    html_fout << old_ctm[i] << ' ';
+                html_fout << draw_tx << ' ' << draw_ty << "\"></em>";
+
                 draw_tx += tdx / cur_ctm[0];
                 draw_ty += dy;
+
+                //debug
+                html_fout<<"<em data-x=\"";
+                for(int i = 0; i < 6; ++i)
+                    html_fout << cur_ctm[i] << ' ';
+                html_fout << draw_tx << ' ' << draw_ty << ' ' << cur_tx << ' ' << cur_ty << "\"></em>";
+
             }
             else if (abs(cur_ctm[1]) > EPS)
             {
@@ -323,11 +336,12 @@ void HTMLRenderer::prepare_line(GfxState * state)
     {
         new_line_status = LineStatus::DIV;
     }
-    else
+    
+    if(new_line_status != LineStatus::DIV)
     {
         // align horizontal position
         // try to merge with the last line if possible
-        double target = cur_tx - draw_tx;
+        double target = (cur_tx - draw_tx) * draw_scale;
         if(abs(target) < param->h_eps)
         {
             // ignore it
@@ -335,9 +349,8 @@ void HTMLRenderer::prepare_line(GfxState * state)
         else
         {
             // don't close a pending span here, keep the styling
-
             double w;
-            auto wid = install_whitespace(target * draw_scale, w);
+            auto wid = install_whitespace(target, w);
             html_fout << format("<span class=\"_ _%|1$x|\">%2%</span>") % wid % (target > 0 ? " " : "");
             draw_tx += w / draw_scale;
         }
@@ -358,7 +371,6 @@ void HTMLRenderer::prepare_line(GfxState * state)
             //resync position
             draw_ty = cur_ty;
             draw_tx = cur_tx;
-
         }
         else if(new_line_status == LineStatus::SPAN)
         {
