@@ -9,7 +9,7 @@
 
 /*
  * TODO
- * use relative positioning for rise
+ * optimize lines using nested <span> (reuse classes)
  */
 
 #include <algorithm>
@@ -81,17 +81,6 @@ void HTMLRenderer::check_state_change(GfxState * state)
 
     bool need_recheck_position = false;
     bool need_rescale_font = false;
-
-    // rise
-    if(all_changed || rise_changed)
-    {
-        double new_rise = state->getRise();
-        if(!_equal(cur_rise, new_rise))
-        {
-            need_recheck_position = true;
-            cur_rise = new_rise;
-        }
-    }
 
     // text position
     // we've been tracking the text position positively in the update*** functions
@@ -200,7 +189,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
          * TODO, writing mode, set dx and solve dy
          */
 
-        double dy = cur_ty + cur_rise - draw_ty;
+        double dy = cur_ty - draw_ty;
         double tdx = old_ctm[4] - cur_ctm[4] - cur_ctm[2] * dy;
         double tdy = old_ctm[5] - cur_ctm[5] - cur_ctm[3] * dy;
 
@@ -274,6 +263,18 @@ void HTMLRenderer::check_state_change(GfxState * state)
             new_line_status = max(new_line_status, LineStatus::SPAN);
             cur_color = new_color;
             cur_color_id = install_color(&new_color);
+        }
+    }
+
+    // rise
+    if(all_changed || rise_changed)
+    {
+        double new_rise = state->getRise();
+        if(!_equal(cur_rise, new_rise))
+        {
+            new_line_status = max(new_line_status, LineStatus::SPAN);
+            cur_rise = new_rise;
+            cur_rise_id = install_rise(new_rise * draw_scale);
         }
     }
 
@@ -355,7 +356,7 @@ void HTMLRenderer::prepare_line(GfxState * state)
                 % y % x % cur_tm_id;
 
             //resync position
-            draw_ty = cur_ty + cur_rise;
+            draw_ty = cur_ty;
             draw_tx = cur_tx;
 
         }
@@ -368,8 +369,8 @@ void HTMLRenderer::prepare_line(GfxState * state)
             assert(false && "Bad value of new_line_status");
         }
 
-        html_fout << format("<span class=\"f%|1$x| s%|2$x| c%|3$x| l%|4$x| w%|5$x|\">") 
-            % cur_fn_id % cur_fs_id % cur_color_id % cur_ls_id % cur_ws_id;
+        html_fout << format("<span class=\"f%|1$x| s%|2$x| c%|3$x| l%|4$x| w%|5$x| r%|6$x|\">") 
+            % cur_fn_id % cur_fs_id % cur_color_id % cur_ls_id % cur_ws_id % cur_rise_id;
 
         line_status = LineStatus::SPAN;
     }

@@ -28,8 +28,9 @@
   -o-transform-origin:0% 100%;
 }
 #pdf-main span {
-  vertical-align: baseline;
+  position:relative;
   line-height:0;
+  vertical-align: baseline;
 }
 #pdf-main ._ {
   color:transparent;

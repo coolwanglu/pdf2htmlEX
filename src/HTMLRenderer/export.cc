@@ -125,3 +125,8 @@ void HTMLRenderer::export_whitespace (long long ws_id, double ws_width)
         allcss_fout << format("._%|1$x|{display:inline;margin-left:%2%px;}") % ws_id % ws_width << endl;
 }
 
+void HTMLRenderer::export_rise (long long rise_id, double rise)
+{
+    allcss_fout << format(".r%|1$x|{top:%2%px;}") % rise_id % (-rise) << endl;
+}
+

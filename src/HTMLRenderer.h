@@ -49,6 +49,7 @@
  * w<hex> - Word spacing
  * c<hex> - Color
  * _<hex> - white space
+ * r<hex> - Rise
  *
  */
 
@@ -139,6 +140,7 @@ class HTMLRenderer : public OutputDev
         long long install_word_space(double word_space);
         long long install_color(const GfxRGB * rgb);
         long long install_whitespace(double ws_width, double & actual_width);
+        long long install_rise(double rise);
 
         ////////////////////////////////////////////////////
         // export css styles
@@ -156,6 +158,7 @@ class HTMLRenderer : public OutputDev
         void export_word_space(long long ws_id, double word_space);
         void export_color(long long color_id, const GfxRGB * rgb);
         void export_whitespace(long long ws_id, double ws_width);
+        void export_rise(long long rise_id, double rise);
 
         ////////////////////////////////////////////////////
         // state tracking 
@@ -199,9 +202,6 @@ class HTMLRenderer : public OutputDev
         // The order is according to the appearance in check_state_change
         // any state changed
         bool all_changed;
-        // rise
-        double cur_rise;
-        bool rise_changed;
         // current position
         double cur_tx, cur_ty; // real text position, in text coords
         bool text_pos_changed; 
@@ -239,6 +239,11 @@ class HTMLRenderer : public OutputDev
         GfxRGB cur_color;
         bool color_changed;
 
+        // rise
+        long long cur_rise_id;
+        double cur_rise;
+        bool rise_changed;
+
         // optimize for web
         // we try to render the final font size directly
         // to reduce the effect of ctm as much as possible
@@ -267,6 +272,7 @@ class HTMLRenderer : public OutputDev
         std::map<GfxRGB, long long> color_map; 
 
         std::map<double, long long> whitespace_map;
+        std::map<double, long long> rise_map;
 
         int image_count;
 

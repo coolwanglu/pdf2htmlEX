@@ -153,8 +153,6 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
     
     html_fout << format(");background-position:0 0;background-size:%1%px %2%px;background-repeat:no-repeat;\">") % pageWidth % pageHeight;
             
-    cur_rise = 0;
-
     draw_scale = 1.0;
 
     cur_fn_id = install_font(nullptr);
@@ -171,6 +169,9 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
 
     cur_color.r = cur_color.g = cur_color.b = 0;
     cur_color_id = install_color(&cur_color);
+
+    cur_rise = 0;
+    cur_rise_id = install_rise(cur_rise);
 
     cur_tx = cur_ty = 0;
     draw_tx = draw_ty = 0;
