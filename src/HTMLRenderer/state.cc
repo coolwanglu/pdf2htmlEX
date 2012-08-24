@@ -197,21 +197,8 @@ void HTMLRenderer::check_state_change(GfxState * state)
         {
             if(abs(cur_ctm[0]) > EPS)
             {
-                //debug
-                html_fout<<"<em data-x=\"";
-                for(int i = 0; i < 6; ++i)
-                    html_fout << old_ctm[i] << ' ';
-                html_fout << draw_tx << ' ' << draw_ty << "\"></em>";
-
                 draw_tx += tdx / cur_ctm[0];
                 draw_ty += dy;
-
-                //debug
-                html_fout<<"<em data-x=\"";
-                for(int i = 0; i < 6; ++i)
-                    html_fout << cur_ctm[i] << ' ';
-                html_fout << draw_tx << ' ' << draw_ty << ' ' << cur_tx << ' ' << cur_ty << "\"></em>";
-
             }
             else if (abs(cur_ctm[1]) > EPS)
             {
