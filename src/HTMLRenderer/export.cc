@@ -55,12 +55,12 @@ void HTMLRenderer::export_local_font(long long fn_id, GfxFont * font, const stri
     allcss_fout << format(".f%|1$x|{") % fn_id;
     allcss_fout << "font-family:" << ((cssfont == "") ? (original_font_name + "," + general_font_family(font)) : cssfont) << ";";
 
-    if(font->isBold())
+    if(font->isBold() || ifind_first(original_font_name, "bold"))
         allcss_fout << "font-weight:bold;";
 
     if(ifind_first(original_font_name, "oblique"))
         allcss_fout << "font-style:oblique;";
-    else if(font->isItalic())
+    else if(font->isItalic() || ifind_first(original_font_name, "italic"))
         allcss_fout << "font-style:italic;";
 
     allcss_fout << "}" << endl;
