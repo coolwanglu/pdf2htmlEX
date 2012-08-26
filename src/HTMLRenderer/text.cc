@@ -204,17 +204,8 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
         }
         else
         {
-            // should not consider hozi scaling here
-            // will be handled by draw_ctm
-            double target = dx1 * fs + cs;
-            if(n == 1 && *p == ' ')
-                target += state->getWordSpace();
-            
-            double w;
-            auto wid = install_whitespace(target * draw_scale, w);
-            html_fout << format("<span class=\"_ _%|1$x|\">%2%</span>") % wid % (target > 0 ? " " : "");
-            
-            dxerr += w/draw_scale - target;
+            Unicode u = 0xE000 + code;
+            outputUnicodes(html_fout, &u, 1);
         }
 
         dx += dx1;

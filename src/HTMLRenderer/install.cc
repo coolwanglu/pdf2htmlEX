@@ -17,6 +17,8 @@
 #include "HTMLRenderer.h"
 #include "namespace.h"
 
+using std::all_of;
+
 long long HTMLRenderer::install_font(GfxFont * font)
 {
     assert(sizeof(long long) == 2*sizeof(int));
@@ -117,7 +119,7 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
      * 
      * generate an encoding file and let fontforge handle it.
      */
-    
+
     string fn = (format("f%|1$x|") % fn_id).str();
 
     path script_path = tmp_dir / FONTFORGE_SCRIPT_FILENAME;
@@ -129,84 +131,98 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
     auto ctu = font->getToUnicode();
     int * code2GID = nullptr;
     int code2GID_len = 0;
-    if(ctu)
-    {
-        int maxcode = 0;
+    int maxcode = 0;
 
-        if(!font->isCIDFont())
+    // if we cannot map to unicode through ctu, map the char to private Unicode values
+    auto map_to_unicode = [&ctu, this](int c, Unicode ** u)->int
+    {
+        int n = 0;
+        if(ctu)
         {
-            maxcode = 0xff;
-            if(suffix == ".ttf")
+            n = ctu->mapToUnicode(c, u);
+        }
+
+        if((n == 0) || (!all_of(*u, (*u)+n, isLegalUnicode)))
+        {
+            static Unicode _ = 0;
+            _ = c + 0xE000;
+            *u = &_;
+            n = 1;
+        }
+
+        return n;
+    };
+
+    if(!font->isCIDFont())
+    {
+        maxcode = 0xff;
+        if(suffix == ".ttf")
+        {
+            int buflen;
+            char * buf = nullptr;
+            if((buf = font->readEmbFontFile(xref, &buflen)))
             {
-                script_fout << "Reencode(\"original\")" << endl;
-                int buflen;
-                char * buf = nullptr;
-                if((buf = font->readEmbFontFile(xref, &buflen)))
+                FoFiTrueType *fftt = nullptr;
+                if((fftt = FoFiTrueType::make(buf, buflen)))
                 {
-                    FoFiTrueType *fftt = nullptr;
-                    if((fftt = FoFiTrueType::make(buf, buflen)))
-                    {
-                        code2GID = dynamic_cast<Gfx8BitFont*>(font)->getCodeToGIDMap(fftt);
-                        code2GID_len = 256;
-                        delete fftt;
-                    }
-                    gfree(buf);
+                    code2GID = dynamic_cast<Gfx8BitFont*>(font)->getCodeToGIDMap(fftt);
+                    code2GID_len = 256;
+                    delete fftt;
                 }
-            }
-            else
-            {
-                script_fout << "Reencode(\"unicode\")" << endl;
+                gfree(buf);
             }
         }
         else
         {
-            maxcode = 0xffff;
-            if(suffix == ".ttf")
-            {
-                script_fout << "Reencode(\"original\")" << endl;
-    
-                GfxCIDFont * _font = dynamic_cast<GfxCIDFont*>(font);
-
-                // code2GID has been stored for embedded CID fonts
-                code2GID = _font->getCIDToGID();
-                code2GID_len = _font->getCIDToGIDLen();
-            }
-            else
-            {
-                script_fout << "CIDFlatten()" << endl;
-            }
+            script_fout << "Reencode(\"unicode\")" << endl;
         }
-
-        if(maxcode > 0)
-        {
-            ofstream map_fout(tmp_dir / (fn + ".encoding"));
-            add_tmp_file(fn+".encoding");
-
-            int cnt = 0;
-            for(int i = 0; i <= maxcode; ++i)
-            {
-                Unicode * u;
-                auto n = ctu->mapToUnicode(i, &u);
-                // not sure what to do when n > 1
-                if(n > 0)
-                {
-                    ++cnt;
-                    map_fout << format("0x%|1$X|") % ((code2GID && (i < code2GID_len))? code2GID[i] : i);
-                    for(int j = 0; j < n; ++j)
-                        map_fout << format(" 0x%|1$X|") % u[j];
-                    map_fout << format(" # 0x%|1$X|") % i << endl;
-                }
-            }
-
-            if(cnt > 0)
-            {
-                script_fout << format("LoadEncodingFile(%1%, \"%2%\")") % (tmp_dir / (fn+".encoding")) % fn << endl;
-                script_fout << format("Reencode(\"%1%\", 1)") % fn << endl;
-            }
-        }
-
-        ctu->decRefCnt();
     }
+    else
+    {
+        maxcode = 0xffff;
+        if(suffix == ".ttf")
+        {
+            script_fout << "Reencode(\"original\")" << endl;
+
+            GfxCIDFont * _font = dynamic_cast<GfxCIDFont*>(font);
+
+            // code2GID has been stored for embedded CID fonts
+            code2GID = _font->getCIDToGID();
+            code2GID_len = _font->getCIDToGIDLen();
+        }
+        else
+        {
+            script_fout << "CIDFlatten()" << endl;
+        }
+    }
+
+    if(maxcode > 0)
+    {
+        ofstream map_fout(tmp_dir / (fn + ".encoding"));
+        add_tmp_file(fn+".encoding");
+
+        int cnt = 0;
+        for(int i = 0; i <= maxcode; ++i)
+        {
+            Unicode * u;
+            int n = map_to_unicode(i, &u);
+            // not sure what to do when n > 1
+            ++cnt;
+            map_fout << format("0x%|1$X|") % ((code2GID && (i < code2GID_len))? code2GID[i] : i);
+            for(int j = 0; j < n; ++j)
+                map_fout << format(" 0x%|1$X|") % u[j];
+            map_fout << format(" # 0x%|1$X|") % i << endl;
+        }
+
+        if(cnt > 0)
+        {
+            script_fout << format("LoadEncodingFile(%1%, \"%2%\")") % (tmp_dir / (fn+".encoding")) % fn << endl;
+            script_fout << format("Reencode(\"%1%\", 1)") % fn << endl;
+        }
+    }
+
+    if(ctu)
+        ctu->decRefCnt();
 
     script_fout << format("Generate(%1%)") % ((param->single_html ? tmp_dir : dest_dir) / (fn+".ttf")) << endl;
     if(param->single_html)
