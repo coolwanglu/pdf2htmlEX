@@ -243,4 +243,3 @@ const std::string HTMLRenderer::NECK_HTML_FILENAME = "neck.html";
 const std::string HTMLRenderer::TAIL_HTML_FILENAME = "tail.html";
 const std::string HTMLRenderer::CSS_FILENAME = "all.css";
 const std::string HTMLRenderer::NULL_FILENAME = "null";
-const std::string HTMLRenderer::FONTFORGE_SCRIPT_FILENAME = "pdf2htmlEX.pe";

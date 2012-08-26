@@ -122,9 +122,9 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
 
     string fn = (format("f%|1$x|") % fn_id).str();
 
-    path script_path = tmp_dir / FONTFORGE_SCRIPT_FILENAME;
+    path script_path = tmp_dir / (fn + ".pe");
     ofstream script_fout(script_path, ofstream::binary);
-    add_tmp_file(FONTFORGE_SCRIPT_FILENAME);
+    add_tmp_file(fn+".pe");
 
     script_fout << format("Open(%1%, 1)") % (tmp_dir / (fn + suffix)) << endl;
 
@@ -134,23 +134,21 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
     int maxcode = 0;
 
     // if we cannot map to unicode through ctu, map the char to private Unicode values
-    auto map_to_unicode = [&ctu, this](int c, Unicode ** u)->int
+    auto map_to_unicode = [&ctu](int c)->Unicode
     {
+        Unicode *u;
         int n = 0;
         if(ctu)
         {
-            n = ctu->mapToUnicode(c, u);
+            n = ctu->mapToUnicode(c, &u);
         }
 
-        if((n == 0) || (!all_of(*u, (*u)+n, isLegalUnicode)))
+        if((n == 0) || (n > 1) || (!isLegalUnicode(*u)))
         {
-            static Unicode _ = 0;
-            _ = c + 0xE000;
-            *u = &_;
-            n = 1;
+            return (Unicode)(c + 0xE000);
         }
-
-        return n;
+        else
+            return *u;
     };
 
     if(!font->isCIDFont())
@@ -158,6 +156,8 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
         maxcode = 0xff;
         if(suffix == ".ttf")
         {
+            /*
+            script_fout << "Reencode(\"original\")" << endl;
             int buflen;
             char * buf = nullptr;
             if((buf = font->readEmbFontFile(xref, &buflen)))
@@ -171,15 +171,18 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
                 }
                 gfree(buf);
             }
+            */
         }
         else
         {
-            script_fout << "Reencode(\"unicode\")" << endl;
+            // 1 pfa do not need this
+//            script_fout << "Reencode(\"unicode\")" << endl;
         }
     }
     else
     {
         maxcode = 0xffff;
+
         if(suffix == ".ttf")
         {
             script_fout << "Reencode(\"original\")" << endl;
@@ -196,30 +199,18 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
         }
     }
 
-    if(maxcode > 0)
+    ofstream map_fout(tmp_dir / (fn + ".encoding"));
+    add_tmp_file(fn+".encoding");
+
+    for(int i = 0; i <= maxcode; ++i)
     {
-        ofstream map_fout(tmp_dir / (fn + ".encoding"));
-        add_tmp_file(fn+".encoding");
-
-        int cnt = 0;
-        for(int i = 0; i <= maxcode; ++i)
-        {
-            Unicode * u;
-            int n = map_to_unicode(i, &u);
-            // not sure what to do when n > 1
-            ++cnt;
-            map_fout << format("0x%|1$X|") % ((code2GID && (i < code2GID_len))? code2GID[i] : i);
-            for(int j = 0; j < n; ++j)
-                map_fout << format(" 0x%|1$X|") % u[j];
-            map_fout << format(" # 0x%|1$X|") % i << endl;
-        }
-
-        if(cnt > 0)
-        {
-            script_fout << format("LoadEncodingFile(%1%, \"%2%\")") % (tmp_dir / (fn+".encoding")) % fn << endl;
-            script_fout << format("Reencode(\"%1%\", 1)") % fn << endl;
-        }
+        map_fout << format("0x%|1$X|") % ((code2GID && (i < code2GID_len))? code2GID[i] : i);
+        map_fout << format(" 0x%|1$X|") % map_to_unicode(i);
+        map_fout << format(" # 0x%|1$X|") % i << endl;
     }
+
+    script_fout << format("LoadEncodingFile(%1%, \"%2%\")") % (tmp_dir / (fn+".encoding")) % fn << endl;
+    script_fout << format("Reencode(\"%1%\", 1)") % fn << endl;
 
     if(ctu)
         ctu->decRefCnt();
