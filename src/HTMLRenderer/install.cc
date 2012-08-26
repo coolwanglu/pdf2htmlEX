@@ -156,7 +156,6 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
         maxcode = 0xff;
         if(suffix == ".ttf")
         {
-            /*
             script_fout << "Reencode(\"original\")" << endl;
             int buflen;
             char * buf = nullptr;
@@ -171,12 +170,14 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
                 }
                 gfree(buf);
             }
-            */
+        }
+        else if (suffix == ".cff")
+        {
+            script_fout << "Reencode(\"unicode\")" << endl;
         }
         else
         {
-            // 1 pfa do not need this
-//            script_fout << "Reencode(\"unicode\")" << endl;
+            // pass
         }
     }
     else
