@@ -143,12 +143,7 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
             n = ctu->mapToUnicode(c, &u);
         }
 
-        if((n == 0) || (n > 1) || (!isLegalUnicode(*u)))
-        {
-            return (Unicode)(c + 0xE000);
-        }
-        else
-            return *u;
+        return check_unicode(u, n, c);
     };
 
     if(!font->isCIDFont())

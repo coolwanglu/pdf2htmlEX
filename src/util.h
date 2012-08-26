@@ -65,6 +65,14 @@ static inline bool isLegalUnicode(Unicode u)
     return true;
 }
 
+static inline Unicode check_unicode(Unicode * u, int len, CharCode code)
+{
+    if((len == 0) || (len > 1) || (!isLegalUnicode(*u)))
+        return (Unicode)(code + 0xE000);
+    else
+        return *u;
+}
+
 static inline void outputUnicodes(std::ostream & out, const Unicode * u, int uLen)
 {
     for(int i = 0; i < uLen; ++i)

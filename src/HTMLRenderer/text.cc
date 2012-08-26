@@ -196,17 +196,8 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
             ++nSpaces;
         }
         
-        // TODO: don't use ToUnicode Map for nonttf fonts
-
-        if((uLen > 0) && (all_of(u, u+uLen, isLegalUnicode)))
-        {
-            outputUnicodes(html_fout, u, uLen);
-        }
-        else
-        {
-            Unicode u = 0xE000 + code;
-            outputUnicodes(html_fout, &u, 1);
-        }
+        Unicode uu = check_unicode(u, uLen, code);
+        outputUnicodes(html_fout, &uu, 1);
 
         dx += dx1;
         dy += dy1;
