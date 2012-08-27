@@ -11,6 +11,11 @@ link_directories ( ${Boost_LIBRARY_DIRS} )
 include_directories(src)
 
 set(PDF2HTMLEX_VERSION "0.1")
+set(ARCHIVE_NAME pdf2htmlex-${PDF2HTMLEX_VERSION})
+add_custom_target(dist
+    COMMAND git archive --prefix=${ARCHIVE_NAME}/ HEAD
+        | bzip2 > ${CMAKE_BINARY_DIR}/${ARCHIVE_NAME}.tar.bz2
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wunused-function")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
