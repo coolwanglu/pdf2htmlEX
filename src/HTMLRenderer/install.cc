@@ -202,51 +202,48 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
 
     bool use_tounicode = ((suffix == ".ttf") || (param->always_apply_tounicode));
 
-    if(use_tounicode)
+    auto ctu = font->getToUnicode();
+
+    ofstream map_fout(tmp_dir / (fn + ".encoding"));
+    add_tmp_file(fn+".encoding");
+
+    int cnt = 0;
+    for(int i = 0; i <= maxcode; ++i)
     {
-        auto ctu = font->getToUnicode();
+        if((suffix != ".ttf") && (font_8bit != nullptr) && (font_8bit->getCharName(i) == nullptr))
+            continue;
 
-        ofstream map_fout(tmp_dir / (fn + ".encoding"));
-        add_tmp_file(fn+".encoding");
+        ++ cnt;
+        map_fout << format("0x%|1$X|") % ((code2GID && (i < code2GID_len))? code2GID[i] : i);
 
-        int cnt = 0;
-        for(int i = 0; i <= maxcode; ++i)
+        Unicode u, *pu=&u;
+
+        if(use_tounicode)
         {
-            if((suffix != ".ttf") && (font_8bit != nullptr) && (font_8bit->getCharName(i) == nullptr))
-                continue;
-
-            ++ cnt;
-            map_fout << format("0x%|1$X|") % ((code2GID && (i < code2GID_len))? code2GID[i] : i);
-
-            Unicode u, *pu=&u;
-
-            if(use_tounicode)
-            {
-                int n = 0;
-                if(ctu)
-                    n = ctu->mapToUnicode(i, &pu);
-                u = check_unicode(pu, n, i, font);
-            }
-            else
-            {
-                u = unicode_from_font(i, font);
-            }
-
-            map_fout << format(" 0x%|1$X|") % u;
-            map_fout << format(" # 0x%|1$X|") % i;
-
-            map_fout << endl;
+            int n = 0;
+            if(ctu)
+                n = ctu->mapToUnicode(i, &pu);
+            u = check_unicode(pu, n, i, font);
+        }
+        else
+        {
+            u = unicode_from_font(i, font);
         }
 
-        if(cnt > 0)
-        {
-            script_fout << format("LoadEncodingFile(%1%, \"%2%\")") % (tmp_dir / (fn+".encoding")) % fn << endl;
-            script_fout << format("Reencode(\"%1%\", 1)") % fn << endl;
-        }
+        map_fout << format(" 0x%|1$X|") % u;
+        map_fout << format(" # 0x%|1$X|") % i;
 
-        if(ctu)
-            ctu->decRefCnt();
+        map_fout << endl;
     }
+
+    if(cnt > 0)
+    {
+        script_fout << format("LoadEncodingFile(%1%, \"%2%\")") % (tmp_dir / (fn+".encoding")) % fn << endl;
+        script_fout << format("Reencode(\"%1%\", 1)") % fn << endl;
+    }
+
+    if(ctu)
+        ctu->decRefCnt();
 
     script_fout << format("Generate(%1%)") % ((param->single_html ? tmp_dir : dest_dir) / (fn+".ttf")) << endl;
     if(param->single_html)
