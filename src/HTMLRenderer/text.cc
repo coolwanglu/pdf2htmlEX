@@ -130,28 +130,6 @@ string HTMLRenderer::dump_embedded_font (GfxFont * font, long long fn_id)
         }
         outf.close();
         obj.streamClose();
-
-        /*
-         * Pre re-encode the font such that it's consistent with the encoding used by PDF
-         */
-        auto output_to_file = [](void * stream, const char * data, int len)->void
-        {
-            reinterpret_cast<ostream*>(stream)->write(data, len);
-        };
-
-        if(suffix == ".cff")
-        {
-            auto f = FoFiType1C::load((char*)((tmp_dir/(fn+suffix)).c_str()));
-
-            suffix = ".pfa";
-            outf.open(tmp_dir / (fn + suffix), ofstream::binary);
-            add_tmp_file(fn+suffix);
-
-            f->convertToType1(nullptr, (const char **)dynamic_cast<Gfx8BitFont*>(font)->getEncoding(), false, output_to_file, &outf);
-            outf.close();
-
-            delete f;
-        }
     }
     catch(int) 
     {
@@ -226,10 +204,7 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
             ++nSpaces;
         }
         
-        Unicode uu = (cur_font_info.use_tounicode 
-                            ? check_unicode(u, uLen, code, font)
-                            : (isLegalUnicode(code) ? code : map_to_private(code)) 
-                     );
+        Unicode uu = (cur_font_info.use_tounicode ? check_unicode(u, uLen, code, font) : unicode_from_font(code, font));
         outputUnicodes(html_fout, &uu, 1);
 
         dx += dx1;

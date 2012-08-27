@@ -88,6 +88,27 @@ static inline Unicode map_to_private(CharCode code)
 }
 
 /*
+ * Try to determine the Unicode value directly from the information in the font
+ */
+static inline Unicode unicode_from_font (CharCode code, GfxFont * font)
+{
+    if(!font->isCIDFont())
+    {
+        char * cname = dynamic_cast<Gfx8BitFont*>(font)->getCharName(code);
+        // may be untranslated ligature
+        if(cname)
+        {
+            Unicode ou = globalParams->mapNameToUnicode(cname);
+
+            if(isLegalUnicode(ou))
+                return ou;
+        }
+    }
+
+    return map_to_private(code);
+}
+
+/*
  * We have to use a single Unicode value to reencode fonts
  * if we got multi-unicode values, it might be expanded ligature, try to restore it
  * if we cannot figure it out at the end, use a private mapping
@@ -103,20 +124,7 @@ static inline Unicode check_unicode(Unicode * u, int len, CharCode code, GfxFont
             return *u;
     }
 
-    if(!font->isCIDFont())
-    {
-        char * cname = dynamic_cast<Gfx8BitFont*>(font)->getCharName(code);
-        // may be untranslated ligature
-        if(cname)
-        {
-            Unicode ou = globalParams->mapNameToUnicode(cname);
-
-            if(isLegalUnicode(ou))
-                return ou;
-        }
-    }
-
-    return map_to_private(code);
+    return unicode_from_font(code, font);
 }
 
 static inline void outputUnicodes(std::ostream & out, const Unicode * u, int uLen)
