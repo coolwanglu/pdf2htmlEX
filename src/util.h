@@ -69,12 +69,7 @@ static inline bool isLegalUnicode(Unicode u)
     return true;
 }
 
-/*
- * We have to use a single Unicode value to reencode fonts
- * if we got multi-unicode values, it might be expanded ligature, try to restore it
- * if we cannot figure it out at the end, use a private mapping
- */
-static inline Unicode check_unicode(Unicode * u, int len, CharCode code, GfxFont * font)
+static inline Unicode map_to_private(CharCode code)
 {
     Unicode private_mapping = (Unicode)(code + 0xE000);
     if(private_mapping > 0xF8FF)
@@ -89,10 +84,18 @@ static inline Unicode check_unicode(Unicode * u, int len, CharCode code, GfxFont
             }
         }
     }
+    return private_mapping;
+}
 
-
+/*
+ * We have to use a single Unicode value to reencode fonts
+ * if we got multi-unicode values, it might be expanded ligature, try to restore it
+ * if we cannot figure it out at the end, use a private mapping
+ */
+static inline Unicode check_unicode(Unicode * u, int len, CharCode code, GfxFont * font)
+{
     if(len == 0)
-        return private_mapping;
+        return map_to_private(code);
 
     if(len == 1)
     {
@@ -113,7 +116,7 @@ static inline Unicode check_unicode(Unicode * u, int len, CharCode code, GfxFont
         }
     }
 
-    return private_mapping;
+    return map_to_private(code);
 }
 
 static inline void outputUnicodes(std::ostream & out, const Unicode * u, int uLen)
@@ -165,7 +168,8 @@ static inline bool operator == (const GfxRGB & rgb1, const GfxRGB & rgb2)
 class FontInfo
 {
 public:
-    long long fn_id;
+    long long id;
+    bool use_tounicode;
 };
 
 // wrapper of the transform matrix double[6]

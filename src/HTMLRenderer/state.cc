@@ -92,12 +92,12 @@ void HTMLRenderer::check_state_change(GfxState * state)
     // font name & size
     if(all_changed || font_changed)
     {
-        long long new_fn_id = install_font(state->getFont());
+        FontInfo new_font_info = install_font(state->getFont());
 
-        if(!(new_fn_id == cur_fn_id))
+        if(!(new_font_info.id == cur_font_info.id))
         {
             new_line_status = max(new_line_status, LineStatus::SPAN);
-            cur_fn_id = new_fn_id;
+            cur_font_info = new_font_info;
         }
 
         double new_font_size = state->getFontSize();
@@ -369,7 +369,7 @@ void HTMLRenderer::prepare_line(GfxState * state)
         }
 
         html_fout << format("<span class=\"f%|1$x| s%|2$x| c%|3$x| l%|4$x| w%|5$x| r%|6$x|\">") 
-            % cur_fn_id % cur_fs_id % cur_color_id % cur_ls_id % cur_ws_id % cur_rise_id;
+            % cur_font_info.id % cur_fs_id % cur_color_id % cur_ls_id % cur_ws_id % cur_rise_id;
 
         line_status = LineStatus::SPAN;
     }

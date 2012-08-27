@@ -129,7 +129,7 @@ class HTMLRenderer : public OutputDev
         ////////////////////////////////////////////////////
         // manage styles
         ////////////////////////////////////////////////////
-        long long install_font(GfxFont * font);
+        FontInfo install_font(GfxFont * font);
         void install_embedded_font(GfxFont * font, const std::string & suffix, long long fn_id);
         void install_base_font(GfxFont * font, GfxFontLoc * font_loc, long long fn_id);
         void install_external_font (GfxFont * font, long long fn_id);
@@ -207,7 +207,7 @@ class HTMLRenderer : public OutputDev
         bool text_pos_changed; 
 
         // font & size
-        long long cur_fn_id;
+        FontInfo cur_font_info;
         double cur_font_size;
         long long cur_fs_id; 
         bool font_changed;

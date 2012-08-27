@@ -12,6 +12,8 @@
 
 #include <boost/format.hpp>
 
+#include <fofi/FoFiType1C.h>
+
 #include "HTMLRenderer.h"
 #include "namespace.h"
 
@@ -19,116 +21,143 @@ using std::all_of;
 
 string HTMLRenderer::dump_embedded_font (GfxFont * font, long long fn_id)
 {
-    // mupdf consulted
-    
-    Object ref_obj, font_obj, font_obj2, fontdesc_obj;
     Object obj, obj1, obj2;
-    Dict * dict = nullptr;
+    Object font_obj, font_obj2, fontdesc_obj;
+    string suffix;
 
-    string suffix, subtype;
-
-    char buf[1024];
-    int len;
-
-    string fn;
-    ofstream outf;
-
-    auto * id = font->getID();
-    ref_obj.initRef(id->num, id->gen);
-    ref_obj.fetch(xref, &font_obj);
-    ref_obj.free();
-
-    if(!font_obj.isDict())
+    try
     {
-        cerr << "Font object is not a dictionary" << endl;
-        goto err;
-    }
+        // mupdf consulted
+        string subtype;
 
-    dict = font_obj.getDict();
-    if(dict->lookup("DescendantFonts", &font_obj2)->isArray())
-    {
-        if(font_obj2.arrayGetLength() == 0)
+        auto * id = font->getID();
+
+        Object ref_obj;
+        ref_obj.initRef(id->num, id->gen);
+        ref_obj.fetch(xref, &font_obj);
+        ref_obj.free();
+
+        if(!font_obj.isDict())
         {
-            cerr << "Warning: empty DescendantFonts array" << endl;
+            cerr << "Font object is not a dictionary" << endl;
+            throw 0;
         }
-        else
+
+        Dict * dict = font_obj.getDict();
+        if(dict->lookup("DescendantFonts", &font_obj2)->isArray())
         {
-            if(font_obj2.arrayGetLength() > 1)
-                cerr << "TODO: multiple entries in DescendantFonts array" << endl;
-
-            if(font_obj2.arrayGet(0, &obj2)->isDict())
+            if(font_obj2.arrayGetLength() == 0)
             {
-                dict = obj2.getDict();
-            }
-        }
-    }
-
-    if(!dict->lookup("FontDescriptor", &fontdesc_obj)->isDict())
-    {
-        cerr << "Cannot find FontDescriptor " << endl;
-        goto err;
-    }
-
-    dict = fontdesc_obj.getDict();
-    
-    if(dict->lookup("FontFile3", &obj)->isStream())
-    {
-        if(obj.streamGetDict()->lookup("Subtype", &obj1)->isName())
-        {
-            subtype = obj1.getName();
-            if(subtype == "Type1C")
-            {
-                suffix = ".cff";
-            }
-            else if (subtype == "CIDFontType0C")
-            {
-                suffix = ".cid";
+                cerr << "Warning: empty DescendantFonts array" << endl;
             }
             else
             {
-                cerr << "Unknown subtype: " << subtype << endl;
-                goto err;
+                if(font_obj2.arrayGetLength() > 1)
+                    cerr << "TODO: multiple entries in DescendantFonts array" << endl;
+
+                if(font_obj2.arrayGet(0, &obj2)->isDict())
+                {
+                    dict = obj2.getDict();
+                }
             }
+        }
+
+        if(!dict->lookup("FontDescriptor", &fontdesc_obj)->isDict())
+        {
+            cerr << "Cannot find FontDescriptor " << endl;
+            throw 0;
+        }
+
+        dict = fontdesc_obj.getDict();
+
+        if(dict->lookup("FontFile3", &obj)->isStream())
+        {
+            if(obj.streamGetDict()->lookup("Subtype", &obj1)->isName())
+            {
+                subtype = obj1.getName();
+                if(subtype == "Type1C")
+                {
+                    suffix = ".cff";
+                }
+                else if (subtype == "CIDFontType0C")
+                {
+                    suffix = ".cid";
+                }
+                else
+                {
+                    cerr << "Unknown subtype: " << subtype << endl;
+                    throw 0;
+                }
+            }
+            else
+            {
+                cerr << "Invalid subtype in font descriptor" << endl;
+                throw 0;
+            }
+        }
+        else if (dict->lookup("FontFile2", &obj)->isStream())
+        { 
+            suffix = ".ttf";
+        }
+        else if (dict->lookup("FontFile", &obj)->isStream())
+        {
+            suffix = ".pfa";
         }
         else
         {
-            cerr << "Invalid subtype in font descriptor" << endl;
-            goto err;
+            cerr << "Cannot find FontFile for dump" << endl;
+            throw 0;
+        }
+
+        if(suffix == "")
+        {
+            cerr << "Font type unrecognized" << endl;
+            throw 0;
+        }
+
+        obj.streamReset();
+
+        string fn = (format("f%|1$x|")%fn_id).str();
+        ofstream outf;
+        outf.open(tmp_dir / (fn + suffix), ofstream::binary);
+        add_tmp_file(fn+suffix);
+
+        char buf[1024];
+        int len;
+        while((len = obj.streamGetChars(1024, (Guchar*)buf)) > 0)
+        {
+            outf.write(buf, len);
+        }
+        outf.close();
+        obj.streamClose();
+
+        /*
+         * Pre re-encode the font such that it's consistent with the encoding used by PDF
+         */
+        auto output_to_file = [](void * stream, const char * data, int len)->void
+        {
+            reinterpret_cast<ostream*>(stream)->write(data, len);
+        };
+
+        if(suffix == ".cff")
+        {
+            auto f = FoFiType1C::load((char*)((tmp_dir/(fn+suffix)).c_str()));
+
+            suffix = ".pfa";
+            outf.open(tmp_dir / (fn + suffix), ofstream::binary);
+            add_tmp_file(fn+suffix);
+
+            f->convertToType1(nullptr, (const char **)dynamic_cast<Gfx8BitFont*>(font)->getEncoding(), false, output_to_file, &outf);
+            outf.close();
+
+            delete f;
         }
     }
-    else if (dict->lookup("FontFile2", &obj)->isStream())
-    { 
-        suffix = ".ttf";
-    }
-    else if (dict->lookup("FontFile", &obj)->isStream())
+    catch(int) 
     {
-        suffix = ".pfa";
-    }
-    else
-    {
-        cerr << "Cannot find FontFile for dump" << endl;
-        goto err;
+        cerr << format("Someting wrong when trying to dump font %|1$x|") % fn_id << endl;
     }
 
-    if(suffix == "")
-    {
-        cerr << "Font type unrecognized" << endl;
-        goto err;
-    }
-
-    obj.streamReset();
-
-    fn = (format("f%|1$x|%2%")%fn_id%suffix).str();
-    outf.open(tmp_dir / fn , ofstream::binary);
-    add_tmp_file(fn);
-    while((len = obj.streamGetChars(1024, (Guchar*)buf)) > 0)
-    {
-        outf.write(buf, len);
-    }
-    outf.close();
-    obj.streamClose();
-
-err:
     obj2.free();
     obj1.free();
     obj.free();
@@ -136,6 +165,7 @@ err:
     fontdesc_obj.free();
     font_obj2.free();
     font_obj.free();
+
     return suffix;
 }
 
@@ -196,7 +226,10 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
             ++nSpaces;
         }
         
-        Unicode uu = check_unicode(u, uLen, code, font);
+        Unicode uu = (cur_font_info.use_tounicode 
+                            ? check_unicode(u, uLen, code, font)
+                            : (isLegalUnicode(code) ? code : map_to_private(code)) 
+                     );
         outputUnicodes(html_fout, &uu, 1);
 
         dx += dx1;

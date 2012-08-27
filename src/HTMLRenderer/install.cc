@@ -19,7 +19,7 @@
 
 using std::all_of;
 
-long long HTMLRenderer::install_font(GfxFont * font)
+FontInfo HTMLRenderer::install_font(GfxFont * font)
 {
     assert(sizeof(long long) == 2*sizeof(int));
                 
@@ -27,16 +27,16 @@ long long HTMLRenderer::install_font(GfxFont * font)
 
     auto iter = font_name_map.find(fn_id);
     if(iter != font_name_map.end())
-        return iter->second.fn_id;
+        return iter->second;
 
     long long new_fn_id = font_name_map.size(); 
 
-    font_name_map.insert(make_pair(fn_id, FontInfo({new_fn_id})));
+    auto cur_info_iter = font_name_map.insert(make_pair(fn_id, FontInfo({new_fn_id, true}))).first;
 
     if(font == nullptr)
     {
         export_remote_default_font(new_fn_id);
-        return new_fn_id;
+        return cur_info_iter->second;
     }
 
     if(param->debug)
@@ -48,12 +48,12 @@ long long HTMLRenderer::install_font(GfxFont * font)
     if(font->getType() == fontType3) {
         cerr << "Type 3 fonts are unsupported and will be rendered as Image" << endl;
         export_remote_default_font(new_fn_id);
-        return new_fn_id;
+        return cur_info_iter->second;
     }
     if(font->getWMode()) {
         cerr << "Writing mode is unsupported and will be rendered as Image" << endl;
         export_remote_default_font(new_fn_id);
-        return new_fn_id;
+        return cur_info_iter->second;
     }
 
     auto * font_loc = font->locateFont(xref, gTrue);
@@ -66,6 +66,10 @@ long long HTMLRenderer::install_font(GfxFont * font)
                     string suffix = dump_embedded_font(font, new_fn_id);
                     if(suffix != "")
                     {
+                        if(!((suffix == ".ttf") || (param->always_apply_tounicode)))
+                        {
+                            cur_info_iter->second.use_tounicode = false;
+                        }
                         install_embedded_font(font, suffix, new_fn_id);
                     }
                     else
@@ -92,8 +96,7 @@ long long HTMLRenderer::install_font(GfxFont * font)
         export_remote_default_font(new_fn_id);
     }
       
-    return new_fn_id;
-
+    return cur_info_iter->second;
 }
 
 // TODO
@@ -129,7 +132,6 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
 
     script_fout << format("Open(%1%, 1)") % (tmp_dir / (fn + suffix)) << endl;
 
-    auto ctu = font->getToUnicode();
     int * code2GID = nullptr;
     int code2GID_len = 0;
     int maxcode = 0;
@@ -153,10 +155,6 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
                 }
                 gfree(buf);
             }
-        }
-        else if (suffix == ".cff")
-        {
-            script_fout << "Reencode(\"unicode\")" << endl;
         }
         else
         {
@@ -183,6 +181,9 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
         }
     }
 
+    bool use_tounicode = ((suffix == ".ttf") || (param->always_apply_tounicode));
+    auto ctu = font->getToUnicode();
+
     ofstream map_fout(tmp_dir / (fn + ".encoding"));
     add_tmp_file(fn+".encoding");
 
@@ -190,18 +191,22 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
     {
         map_fout << format("0x%|1$X|") % ((code2GID && (i < code2GID_len))? code2GID[i] : i);
 
-        Unicode u, *pu;
-        int n = 0;
-        if(ctu)
-            n = ctu->mapToUnicode(i, &pu);
+        Unicode u, *pu=&u;
 
-        u = check_unicode(pu, n, i, font);
+        if(use_tounicode)
+        {
+            int n = 0;
+            if(ctu)
+                n = ctu->mapToUnicode(i, &pu);
+            u = check_unicode(pu, n, i, font);
+        }
+        else
+        {
+            u = isLegalUnicode(i) ? i : map_to_private(i);
+        }
 
         map_fout << format(" 0x%|1$X|") % u;
         map_fout << format(" # 0x%|1$X|") % i;
-
-        for(int j = 0; j < n; ++j)
-            map_fout << format(" 0x%|1$X|") % pu[j];
 
         map_fout << endl;
     }

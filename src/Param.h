@@ -27,6 +27,7 @@ struct Param
 
     int process_nontext;
     int single_html;
+    int always_apply_tounicode;
 
     int debug;
     int clean_tmp;

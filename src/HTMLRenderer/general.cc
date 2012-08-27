@@ -155,7 +155,7 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
             
     draw_scale = 1.0;
 
-    cur_fn_id = install_font(nullptr);
+    cur_font_info = install_font(nullptr);
     cur_font_size = draw_font_size = 0;
     cur_fs_id = install_font_size(cur_font_size);
     
