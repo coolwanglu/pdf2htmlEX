@@ -4,7 +4,7 @@ import os
 
 outf = open('out.html','w')
 
-outf.write('<html><body><div style="position:absolute;top:0;left:0;width:80%;height:100%;"><iframe width="100%" height="100%" name="pdf"></iframe></div><div style="position:absolute;top:0;right:0;width:21%;height:100%;">')
+outf.write('<html><body><div style="position:absolute;top:0;left:0;width:80%;height:100%;"><iframe width="100%" height="100%" name="pdf"></iframe></div><div style="position:absolute;top:0;right:0;width:20%;height:100%;text-align:right;">')
 
 for f in os.listdir('pdf'):
     if not f.lower().endswith('.pdf'):
