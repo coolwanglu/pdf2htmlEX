@@ -66,11 +66,7 @@ FontInfo HTMLRenderer::install_font(GfxFont * font)
                     string suffix = dump_embedded_font(font, new_fn_id);
                     if(suffix != "")
                     {
-                        if(!((suffix == ".ttf") || (param->always_apply_tounicode)))
-                        {
-                            cur_info_iter->second.use_tounicode = false;
-                        }
-                        install_embedded_font(font, suffix, new_fn_id);
+                        install_embedded_font(font, suffix, new_fn_id, cur_info_iter->second.use_tounicode);
                     }
                     else
                     {
@@ -101,7 +97,7 @@ FontInfo HTMLRenderer::install_font(GfxFont * font)
 
 // TODO
 // add a new function and move to text.cc
-void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, long long fn_id)
+void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, long long fn_id, bool & use_tounicode)
 {
     // TODO Should use standard way to handle CID fonts
     /*
@@ -137,7 +133,6 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
     int maxcode = 0;
 
     Gfx8BitFont * font_8bit = nullptr;
-    GfxCIDFont * font_cid = nullptr;
 
     if(!font->isCIDFont())
     {
@@ -180,7 +175,6 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
     }
     else
     {
-        font_cid = dynamic_cast<GfxCIDFont*>(font);
         maxcode = 0xffff;
 
         if(suffix == ".ttf")
@@ -199,8 +193,7 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
         }
     }
     
-
-    bool use_tounicode = ((suffix == ".ttf") || (param->always_apply_tounicode));
+    use_tounicode = ((suffix == ".ttf") || (font->isCIDFont()) || (param->always_apply_tounicode));
 
     auto ctu = font->getToUnicode();
 

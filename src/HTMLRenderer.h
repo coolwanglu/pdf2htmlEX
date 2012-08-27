@@ -130,7 +130,7 @@ class HTMLRenderer : public OutputDev
         // manage styles
         ////////////////////////////////////////////////////
         FontInfo install_font(GfxFont * font);
-        void install_embedded_font(GfxFont * font, const std::string & suffix, long long fn_id);
+        void install_embedded_font(GfxFont * font, const std::string & suffix, long long fn_id, bool & use_tounicode);
         void install_base_font(GfxFont * font, GfxFontLoc * font_loc, long long fn_id);
         void install_external_font (GfxFont * font, long long fn_id);
 
