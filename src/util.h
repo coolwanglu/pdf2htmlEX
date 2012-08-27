@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <istream>
 #include <ostream>
+#include <iostream>
 
 #include <GfxState.h>
 #include <GfxFont.h>
@@ -27,6 +28,7 @@ using std::ostream;
 using std::noskipws;
 using std::endl;
 using std::flush;
+using std::cerr;
 
 // mute gcc warning of unused function
 namespace
@@ -75,6 +77,19 @@ static inline bool isLegalUnicode(Unicode u)
 static inline Unicode check_unicode(Unicode * u, int len, CharCode code, GfxFont * font)
 {
     Unicode private_mapping = (Unicode)(code + 0xE000);
+    if(private_mapping > 0xF8FF)
+    {
+        private_mapping = (Unicode)((private_mapping - 0xF8FF) + 0xF0000);
+        if(private_mapping > 0xFFFFD)
+        {
+            private_mapping = (Unicode)((private_mapping - 0xFFFFD) + 0x100000);
+            if(private_mapping > 0x10FFFD)
+            {
+                cerr << "Warning: all private use unicode are used" << endl;
+            }
+        }
+    }
+
 
     if(len == 0)
         return private_mapping;
