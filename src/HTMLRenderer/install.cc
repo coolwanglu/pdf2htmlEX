@@ -42,6 +42,7 @@ long long HTMLRenderer::install_font(GfxFont * font)
     if(param->debug)
     {
         cerr << "Install font: (" << (font->getID()->num) << ' ' << (font->getID()->gen) << ") -> " << format("f%|1$x|")%new_fn_id << endl;
+        cerr << "Ascent: " << (font->getAscent()) << " Descent: " << (font->getDescent()) << endl;
     }
 
     if(font->getType() == fontType3) {
@@ -133,19 +134,6 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
     int code2GID_len = 0;
     int maxcode = 0;
 
-    // if we cannot map to unicode through ctu, map the char to private Unicode values
-    auto map_to_unicode = [&ctu](int c)->Unicode
-    {
-        Unicode *u;
-        int n = 0;
-        if(ctu)
-        {
-            n = ctu->mapToUnicode(c, &u);
-        }
-
-        return check_unicode(u, n, c);
-    };
-
     if(!font->isCIDFont())
     {
         maxcode = 0xff;
@@ -201,8 +189,21 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
     for(int i = 0; i <= maxcode; ++i)
     {
         map_fout << format("0x%|1$X|") % ((code2GID && (i < code2GID_len))? code2GID[i] : i);
-        map_fout << format(" 0x%|1$X|") % map_to_unicode(i);
-        map_fout << format(" # 0x%|1$X|") % i << endl;
+
+        Unicode u, *pu;
+        int n = 0;
+        if(ctu)
+            n = ctu->mapToUnicode(i, &pu);
+
+        u = check_unicode(pu, n, i, font);
+
+        map_fout << format(" 0x%|1$X|") % u;
+        map_fout << format(" # 0x%|1$X|") % i;
+
+        for(int j = 0; j < n; ++j)
+            map_fout << format(" 0x%|1$X|") % pu[j];
+
+        map_fout << endl;
     }
 
     script_fout << format("LoadEncodingFile(%1%, \"%2%\")") % (tmp_dir / (fn+".encoding")) % fn << endl;

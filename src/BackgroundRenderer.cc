@@ -18,5 +18,6 @@ void BackgroundRenderer::drawChar(GfxState *state, double x, double y,
   double originX, double originY,
   CharCode code, int nBytes, Unicode *u, int uLen)
 {
+    SplashOutputDev::drawChar(state,x,y,dx,dy,originX,originY,code, nBytes, u, uLen);
 }
 

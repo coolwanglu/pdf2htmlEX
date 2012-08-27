@@ -19,7 +19,6 @@
 }
 #pdf-main .l {
   position:absolute;
-  height:0;
   white-space:pre;
   font-size:1px;
   transform-origin:0% 100%;

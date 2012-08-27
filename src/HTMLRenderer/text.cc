@@ -196,7 +196,7 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
             ++nSpaces;
         }
         
-        Unicode uu = check_unicode(u, uLen, code);
+        Unicode uu = check_unicode(u, uLen, code, font);
         outputUnicodes(html_fout, &uu, 1);
 
         dx += dx1;

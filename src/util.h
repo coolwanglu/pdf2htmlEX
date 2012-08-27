@@ -15,8 +15,10 @@
 #include <ostream>
 
 #include <GfxState.h>
+#include <GfxFont.h>
 #include <CharTypes.h>
 #include <UTF8.h>
+#include <GlobalParams.h>
 
 #include "Consts.h"
 
@@ -65,12 +67,38 @@ static inline bool isLegalUnicode(Unicode u)
     return true;
 }
 
-static inline Unicode check_unicode(Unicode * u, int len, CharCode code)
+/*
+ * We have to use a single Unicode value to reencode fonts
+ * if we got multi-unicode values, it might be expanded ligature, try to restore it
+ * if we cannot figure it out at the end, use a private mapping
+ */
+static inline Unicode check_unicode(Unicode * u, int len, CharCode code, GfxFont * font)
 {
-    if((len == 0) || (len > 1) || (!isLegalUnicode(*u)))
-        return (Unicode)(code + 0xE000);
-    else
-        return *u;
+    Unicode private_mapping = (Unicode)(code + 0xE000);
+
+    if(len == 0)
+        return private_mapping;
+
+    if(len == 1)
+    {
+        if(isLegalUnicode(*u))
+            return *u;
+    }
+
+    if(!font->isCIDFont())
+    {
+        char * cname = dynamic_cast<Gfx8BitFont*>(font)->getCharName(code);
+        // may be untranslated ligature
+        if(cname)
+        {
+            Unicode ou = globalParams->mapNameToUnicode(cname);
+
+            if(isLegalUnicode(ou))
+                return ou;
+        }
+    }
+
+    return private_mapping;
 }
 
 static inline void outputUnicodes(std::ostream & out, const Unicode * u, int uLen)

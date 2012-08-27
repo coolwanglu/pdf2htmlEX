@@ -352,8 +352,8 @@ void HTMLRenderer::prepare_line(GfxState * state)
             double x,y; // in user space
             state->transform(state->getCurX(), state->getCurY(), &x, &y);
 
-            html_fout << format("<div style=\"bottom:%1%px;left:%2%px;\" class=\"l t%|3$x|\"><em></em>") 
-                % y % x % cur_tm_id;
+            html_fout << format("<div style=\"left:%1%px;bottom:%2%px;\" class=\"l t%|3$x|\"><em></em>") 
+                % x % y % cur_tm_id;
 
             //resync position
             draw_ty = cur_ty;
