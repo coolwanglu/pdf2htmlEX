@@ -1,0 +1,10 @@
+Format-Specification: http://svn.debian.org/wsvn/dep/web/deps/dep5.mdwn?op=file&rev=173
+Upstream-Name: pdf2htmlEX
+Source: <http://github.com/coolwanglu/pdf2htmlEX>
+Upstream-Contact:
+ WANG Lu <coolwanglu(a)gmail.com>.
+
+Files: *
+Copyright © 2012 WANG Lu <coolwanglu@gmail.com>
+License: GPL-3+
+

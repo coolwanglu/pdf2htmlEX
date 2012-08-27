@@ -1,0 +1,13 @@
+Source: pdf2htmlex
+Section: utils
+Priority: extra
+Maintainer: WANG Lu <coolwanglu@gmail.com>
+Build-Depends: cmake (>= 2.6.0), debhelper (>= 8), libpoppler-dev (>= 0.20.3), libboost-filesystem-dev, libboost-program-options-dev
+Standards-Version: 3.9.2
+Homepage: http://github.com/coolwanglu/pdf2htmlEX
+
+Package: pdf2htmlex
+Architecture: any
+Depends: libpoppler (>= 0.20.3), fontforge, libboost-filesystem1.46.1, libboost-progam-options1.46.1,
+Description: Converts PDF to HTML without losing format
+ pdf2htmlEX converts PDF to HTML while retaining text, format & style as much as possible
