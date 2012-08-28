@@ -99,27 +99,6 @@ FontInfo HTMLRenderer::install_font(GfxFont * font)
 // add a new function and move to text.cc
 void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, long long fn_id, bool & use_tounicode)
 {
-    // TODO Should use standard way to handle CID fonts
-    /*
-     * How it works:
-     *
-     * 1.dump the font file directly from the font descriptor and put the glyphs into the correct slots
-     *
-     * for nonCID
-     * nothing need to do
-     *
-     * for CID + nonTrueType
-     * Flatten the font 
-     *
-     * for CID Truetype
-     * Just use glyph order, and later we'll map GID (instead of char code) to Unicode
-     *
-     *
-     * 2. map charcode (or GID for CID truetype) to Unicode
-     * 
-     * generate an encoding file and let fontforge handle it.
-     */
-
     string fn = (format("f%|1$x|") % fn_id).str();
 
     path script_path = tmp_dir / (fn + ".pe");
@@ -134,6 +113,22 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
 
     Gfx8BitFont * font_8bit = nullptr;
 
+    /*
+     * Step 1
+     * dump the font file directly from the font descriptor and put the glyphs into the correct slots
+     *
+     * for 8bit + nonTrueType
+     * re-encoding the font using a PostScript encoding list (glyph id <-> glpyh name)
+     *
+     * for 8bit + TrueType
+     * sort the glpyhs as the original order, and later will map GID (instead of char code) to Unicode
+     *
+     * for CID + nonTrueType
+     * Flatten the font 
+     *
+     * for CID Truetype
+     * same as 8bitTrueType, except for that we have to check 65536 charcodes
+     */
     if(!font->isCIDFont())
     {
         font_8bit = dynamic_cast<Gfx8BitFont*>(font);
@@ -193,6 +188,18 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
         }
     }
     
+    /*
+     * Step 2
+     * map charcode (or GID for CID truetype)
+     * generate an Consortium encoding file and let fontforge handle it.
+     *
+     * - Always map to Unicode for 8bit TrueType fonts and CID fonts
+     *
+     * - For 8bit nonTruetype fonts:
+     *   Try to calculate the correct Unicode value from the glyph names, unless param->always_apply_tounicode is set
+     * 
+     */
+
     use_tounicode = ((suffix == ".ttf") || (font->isCIDFont()) || (param->always_apply_tounicode));
 
     auto ctu = font->getToUnicode();
