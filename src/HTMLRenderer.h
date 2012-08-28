@@ -255,6 +255,8 @@ class HTMLRenderer : public OutputDev
         double draw_scale; 
 
         // the position of next char, in text coords
+        // this is actual position (in HTML), which might be different from cur_tx/ty (in PDF)
+        // also keep in mind that they are not the final position, as they will be transform by CTM (also true for cur_tx/ty)
         double draw_tx, draw_ty; 
 
         ////////////////////////////////////////////////////
