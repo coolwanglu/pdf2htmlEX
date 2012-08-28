@@ -9,7 +9,7 @@
 
 (Control Panel -> Display -> Appearance -> Effects -> "Use the following method to smooth edges of screen fonts" -> ClearType)
 
-# Introduction
+## Introduction
 
 pdf2htmlEX renders PDF files in HTML, utilizing modern Web technologies, aims to provide an accuracy rendering, while keeping optimized for Web display.
 
@@ -17,7 +17,7 @@ It is optimized for modern web browsers such as Mozilla Firefox & Google Chrome.
 
 This program is designed for scientific papers with complicate formulas and figures, so a precise rendering is also the #1 concern. But of course general PDF files are also supported.
 
-# Features
+## Features
 
 * Single HTML file output 
 * Precise rendering 
@@ -26,22 +26,22 @@ This program is designed for scientific papers with complicate formulas and figu
 * Proper styling (Color, Transformation...)
 * Optimization for Web 
 
-## Not supported yet
+### Not supported yet
 
 * Type 3 fonts
 * Non-text object (Don't worry, they will be rendered as images)
 
-# Get started
+## Get started
 
-## Ubuntu PPA
+### Ubuntu PPA
 
 There is a Ubuntu PPA set up at [here](https://launchpad.net/~coolwanglu/+archive/pdf2htmlex).
 
 Make sure you install *fontforge* with either the latest version of the one in the PPA.
 
-## Build from srouce
+### Build from srouce
 
-### Dependency
+#### Dependency
 ----------------------------
 * CMake 
 * compilers support C++11
@@ -49,7 +49,7 @@ Make sure you install *fontforge* with either the latest version of the one in t
 * boost c++ library (format, program options, gil, filesystem, serialization, system(which is actually required by filesystem))
 * fontforge **Please use [the lastest version](https://github.com/fontforge/fontforge)**
 
-### Compiling
+#### Compiling
 ----------------------------
     cmake . && make && sudo make install
 
@@ -59,11 +59,11 @@ Make sure you install *fontforge* with either the latest version of the one in t
 
     pdf2htmlEX --help
 
-# LICENSE
+## LICENSE
 
 GPLv3
 
-# Credits
+## Credits
 
 The following projects have been consulted for pdf2htmlEX:
 
@@ -73,11 +73,11 @@ The following projects have been consulted for pdf2htmlEX:
 * Crocodoc
 * Google Doc
 
-# Contact
+## Contact
 
 * Lu Wang <coolwanglu@gmail.com>
 
-## Special Thanks
+### Special Thanks
 
 * Hongliang Tian <tatetian@gmail.com>
 
