@@ -8,7 +8,7 @@ link_directories ( ${POPPLER_LIBRARY_DIRS} )
 find_package(Boost REQUIRED COMPONENTS program_options filesystem system)
 include_directories(${Boost_INCLUDE_DIRS})
 link_directories ( ${Boost_LIBRARY_DIRS} )
-include_directories(src)
+include_directories(${CMAKE_SOURCE_DIR}/src)
 
 set(PDF2HTMLEX_VERSION "0.1")
 set(ARCHIVE_NAME pdf2htmlex-${PDF2HTMLEX_VERSION})
@@ -22,7 +22,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2")
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ggdb")
 
-configure_file (src/config.h.in src/config.h)
+configure_file (${CMAKE_SOURCE_DIR}/src/config.h.in ${CMAKE_SOURCE_DIR}/src/config.h)
 
 add_executable(pdf2htmlEX 
     src/pdf2htmlEX.cc 
