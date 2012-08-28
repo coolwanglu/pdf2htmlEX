@@ -42,7 +42,7 @@ Make sure you install *fontforge* with either the latest version of the one in t
 ### Build from srouce
 
 #### Dependency
-----------------------------
+
 * CMake 
 * compilers support C++11
 * libpoppler with xpdf header >= 0.20.2
@@ -50,11 +50,11 @@ Make sure you install *fontforge* with either the latest version of the one in t
 * fontforge **Please use [the lastest version](https://github.com/fontforge/fontforge)**
 
 #### Compiling
-----------------------------
+
     cmake . && make && sudo make install
 
 ## Usage
-----------------------------
+
     pdf2htmlEX /path/to/foobar.pdf
 
     pdf2htmlEX --help

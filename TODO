@@ -1,0 +1,19 @@
+z-index for space span
+fake space detection
+manpage
+
+option to break ligatures
+check if we can add information to the font, and let browsers show ligatures automatically
+
+use absolute positioning for long whitespace
+solution/workaround for latex math fonts
+
+wiki page
+- why the html looks ugly : use a modern web browser, use Linux/Mac, (enabling ClearType for Windows XP)
+- why got incorrect text after copy&paste : try ligature or always-apply-unicode
+- why text are so small : set --zoom or zoom in the page
+- why images are blurred : set higher dpi
+
+custom html/css
+native support for image
+native support for draw

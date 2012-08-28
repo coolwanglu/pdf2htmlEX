@@ -1,9 +1,7 @@
-//========================================================================
 // pdftohtmlEX.cc
 //
-// Copyright (C) 2011 by Hongliang TIAN(tatetian@gmail.com)
-// Copyright (C) 2012 by Lu Wang coolwanglu<at>gmail.com
-//========================================================================
+// Copyright (C) 2012 Lu Wang coolwanglu<at>gmail.com
+
 #include <cstdio>
 #include <cstdlib>
 #include <cstddef>
@@ -50,7 +48,6 @@ void show_usage(void)
 {
     cerr << "pdftohtmlEX version " << PDF2HTMLEX_VERSION << endl;
     cerr << endl;
-    cerr << "Copyright 2011 Hongliang Tian (tatetian@gmail.com)" << endl;
     cerr << "Copyright 2012 Lu Wang (coolwanglu<at>gmail.com)" << endl;
     cerr << endl;
     cerr << "Usage: pdf2htmlEX [Options] <PDF-file>" << endl;
