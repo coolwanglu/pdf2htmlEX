@@ -1,5 +1,4 @@
-pdf2html**EX**
-=============================
+# pdf2html**EX**
 
 
 [**View Demo**](http://coolwanglu.github.com/pdf2htmlEX/demo/demo.html)
@@ -10,59 +9,75 @@ pdf2html**EX**
 
 (Control Panel -> Display -> Appearance -> Effects -> "Use the following method to smooth edges of screen fonts" -> ClearType)
 
-Introduction
------------------------------
+# Introduction
+
 pdf2htmlEX renders PDF files in HTML, utilizing modern Web technologies, aims to provide an accuracy rendering, while keeping optimized for Web display.
 
-It is optimized for recent versions of modern web browsers such as Mozilla Firefox & Google Chrome.
+It is optimized for modern web browsers such as Mozilla Firefox & Google Chrome.
 
-This program is designed for scientific papers with complicate formulas and figures, so a precise rendering is also the #1 concern.
+This program is designed for scientific papers with complicate formulas and figures, so a precise rendering is also the #1 concern. But of course general PDF files are also supported.
 
-Features
-----------------------------
+# Features
+
 * Single HTML file output 
 * Precise rendering 
 * Text Selection
-* Font embedding 
+* Font embedding & reencoding for Web
 * Proper styling (Color, Transformation...)
 * Optimization for Web 
 
-Not supported yet
-----------------------------
-* Several Font types & encodings
-* Non-text object (Don't worry, they will be rendered as images)
-* Blend Mode
-* ...
+## Not supported yet
 
-Dependency
+* Type 3 fonts
+* Non-text object (Don't worry, they will be rendered as images)
+
+# Get started
+
+## Ubuntu PPA
+
+There is a Ubuntu PPA set up at [here](https://launchpad.net/~coolwanglu/+archive/pdf2htmlex).
+
+Make sure you install *fontforge* with either the latest version of the one in the PPA.
+
+## Build from srouce
+
+### Dependency
 ----------------------------
-* Recent version of GCC (no guarantee on other compilers)
+* CMake 
+* compilers support C++11
 * libpoppler with xpdf header >= 0.20.2
 * boost c++ library (format, program options, gil, filesystem, serialization, system(which is actually required by filesystem))
 * fontforge **Please use [the lastest version](https://github.com/fontforge/fontforge)**
 
-HOW TO COMPILE
+### Compiling
 ----------------------------
     cmake . && make && sudo make install
 
-HOW TO USE
+## Usage
 ----------------------------
-    pdf2htmlEX /path/to/sample.pdf
+    pdf2htmlEX /path/to/foobar.pdf
 
-LICENSE
-----------------------------
+    pdf2htmlEX --help
+
+# LICENSE
+
 GPLv3
 
+# Credits
 
-We would like to acknowledge the following projects that have been consulted while writing this program:
+The following projects have been consulted for pdf2htmlEX:
+
 * pdftops & pdftohtml from poppler 
 * MuPDF
 * PDF.js
 * Crocodoc
 * Google Doc
 
-AUTHORS
-----------------------------
+# Contact
+
 * Lu Wang <coolwanglu@gmail.com>
+
+## Special Thanks
+
 * Hongliang Tian <tatetian@gmail.com>
 
