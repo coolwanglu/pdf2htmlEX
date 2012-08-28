@@ -23,7 +23,7 @@ except:
     print 'Cannot get revision number'
     sys.exit(-1)
 
-today_timestr = time.strftime('%Y%m%d')
+today_timestr = time.strftime('%Y%m%d%H%M')
 package='pdf2htmlex'
 projectname='pdf2htmlEX'
 try:
@@ -32,7 +32,7 @@ except:
     print 'Cannot get package name and version number'
     sys.exit(-1)
 
-deb_version = version+'-2~git'+today_timestr+'r'+rev
+deb_version = version+'-3~git'+today_timestr+'r'+rev
 full_deb_version = deb_version+'-0ubuntu1'
 
 #check if we need to update debian/changelog
