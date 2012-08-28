@@ -49,7 +49,7 @@ else:
 print
 print 'Building...'
 # handling files
-if os.system('rm CMakeCache.txt && cmake . && make dist') != 0:
+if os.system('(rm CMakeCache.txt || true) && cmake . && make dist') != 0:
     print 'Failed in creating tarball'
     sys.exit(-1)
 
