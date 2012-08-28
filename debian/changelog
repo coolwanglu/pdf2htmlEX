@@ -1,4 +1,10 @@
-pdf2htmlex (0.1-1~svn20120828r99a3a-0ubuntu1) precise; urgency=low
+pdf2htmlex (0.1-2~git20120828rf083f-0ubuntu1) precise; urgency=low
+
+  * Fix version for package 
+
+ -- WANG Lu <coolwanglu@gmail.com>  Tue, 28 Aug 2012 13:46:09 +0800
+
+pdf2htmlex (0.1-1~git20120828rf083f-0ubuntu1) precise; urgency=low
 
   * Initial release.
 
