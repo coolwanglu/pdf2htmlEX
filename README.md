@@ -37,7 +37,7 @@ This program is designed for scientific papers with complicate formulas and figu
 
 There is a Ubuntu PPA set up at [here](https://launchpad.net/~coolwanglu/+archive/pdf2htmlex).
 
-Make sure you install *fontforge* with either the latest version of the one in the PPA.
+Something wrong with the **fontforge** in the PPA, please install the latest git version instead.
 
 ### Build from srouce
 
