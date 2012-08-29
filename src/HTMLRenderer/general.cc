@@ -109,7 +109,7 @@ void HTMLRenderer::pre_process()
     html_fout << fixed;
     allcss_fout << fixed;
 
-    allcss_fout << ifstream(PDF2HTMLEX_DATA_PATH / CSS_FILENAME, ifstream::binary).rdbuf();
+    allcss_fout << ifstream(PDF2HTMLEX_DATA_PATH / CSS_FILENAME, ifstream::binary).rdbuf(); 
 }
 
 void HTMLRenderer::post_process()

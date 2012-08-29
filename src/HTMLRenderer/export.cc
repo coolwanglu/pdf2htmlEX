@@ -12,6 +12,7 @@
 
 #include "HTMLRenderer.h"
 #include "namespace.h"
+#include "config.h"
 
 using boost::algorithm::ifind_first;
 
@@ -29,9 +30,7 @@ void HTMLRenderer::export_remote_font(long long fn_id, const string & suffix, co
         allcss_fout << fn;
     }
 
-    allcss_fout << format(")format(\"%1%\");}.f%|2$x|{font-family:f%|2$x|;") % fontfileformat % fn_id;
-
-    allcss_fout << "}" << endl;
+    allcss_fout << format(")format(\"%1%\");}.f%|2$x|{font-family:f%|2$x|;}") % fontfileformat % fn_id << endl;
 }
 
 static string general_font_family(GfxFont * font)
@@ -65,7 +64,6 @@ void HTMLRenderer::export_local_font(long long fn_id, GfxFont * font, const stri
 
     allcss_fout << "}" << endl;
 }
-
 
 void HTMLRenderer::export_font_size (long long fs_id, double font_size)
 {

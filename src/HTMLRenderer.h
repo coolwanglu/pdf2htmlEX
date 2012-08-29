@@ -152,6 +152,7 @@ class HTMLRenderer : public OutputDev
         void export_remote_font(long long fn_id, const std::string & suffix, const std::string & fontfileformat, GfxFont * font);
         void export_remote_default_font(long long fn_id);
         void export_local_font(long long fn_id, GfxFont * font, const std::string & original_font_name, const std::string & cssfont);
+
         void export_font_size(long long fs_id, double font_size);
         void export_transform_matrix(long long tm_id, const double * tm);
         void export_letter_space(long long ls_id, double letter_space);
