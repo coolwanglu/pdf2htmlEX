@@ -1,16 +1,18 @@
-z-index for space span
-fake space detection -> Unicode U+200B
+better solution for ascent/descent (cross-platform, embeded/not)
+
+fake space detection
+take care of spaces (simulate by <span>)
+
 manpage
 
 disable selection if we know unicode is wrong
 
-compress div/span
+compress div/span states
 
 option to break ligatures
 check if we can add information to the font, and let browsers show ligatures automatically
 
 use absolute positioning for long whitespace
-solution/workaround for latex math fonts
 
 ==Future==
 custom html/css
