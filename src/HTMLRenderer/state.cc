@@ -338,7 +338,7 @@ void HTMLRenderer::prepare_line(GfxState * state)
             // don't close a pending span here, keep the styling
             double w;
             auto wid = install_whitespace(target, w);
-            html_fout << format("<span class=\"_ _%|1$x|\">%2%</span>") % wid % (target > 0 ? " " : "");
+            line_buf << format("<span class=\"_ _%|1$x|\">%2%</span>") % wid % (target > 0 ? " " : "");
             draw_tx += w / draw_scale;
         }
     }
@@ -348,18 +348,9 @@ void HTMLRenderer::prepare_line(GfxState * state)
         // have to open a new tag
         if (new_line_status == LineStatus::DIV)
         {
-            // TODO: recheck descent/ascent
-            double x,y; // in user space
-            state->transform(state->getCurX(), state->getCurY(), &x, &y);
-
-            // TODO class for height
-            html_fout << format("<div style=\"left:%1%px;bottom:%2%px;height:%4%px;line-height:%5%px;\" class=\"l t%|3$x|\">")
-                % x
-                % y
-                % cur_tm_id
-                % (cur_font_info.ascent * draw_font_size)
-                % (2 * cur_font_info.ascent * draw_font_size)
-                ;
+            state->transform(state->getCurX(), state->getCurY(), &line_x, &line_y);
+            line_tm_id = cur_tm_id;
+            line_height = cur_font_info.ascent * draw_font_size;
 
             //resync position
             draw_ty = cur_ty;
@@ -374,8 +365,9 @@ void HTMLRenderer::prepare_line(GfxState * state)
             assert(false && "Bad value of new_line_status");
         }
 
-        html_fout << format("<span class=\"f%|1$x| s%|2$x| c%|3$x| l%|4$x| w%|5$x| r%|6$x|\">") 
+        line_buf << format("<span class=\"f%|1$x| s%|2$x| c%|3$x| l%|4$x| w%|5$x| r%|6$x|\">") 
             % cur_font_info.id % cur_fs_id % cur_color_id % cur_ls_id % cur_ws_id % cur_rise_id;
+        line_height = max(line_height, cur_font_info.ascent * draw_font_size);
 
         line_status = LineStatus::SPAN;
     }
@@ -385,6 +377,17 @@ void HTMLRenderer::close_line()
     if(line_status == LineStatus::NONE)
         return;
 
+    // TODO class for height
+    html_fout << format("<div style=\"left:%1%px;bottom:%2%px;height:%4%px;line-height:%5%px;\" class=\"l t%|3$x|\">")
+        % line_x
+        % (line_y + 1)
+        % line_tm_id
+        % line_height
+        % (line_height * 2)
+        ;
+    html_fout << line_buf.rdbuf();
+    line_buf.str("");
+
     if(line_status == LineStatus::SPAN)
         html_fout << "</span>";
     else
@@ -392,4 +395,5 @@ void HTMLRenderer::close_line()
 
     html_fout << "</div>";
     line_status = LineStatus::NONE;
+
 }

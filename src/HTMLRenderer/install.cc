@@ -40,10 +40,12 @@ FontInfo HTMLRenderer::install_font(GfxFont * font)
         return cur_info_iter->second;
     }
 
+    cur_info_iter->second.ascent = font->getAscent();
+    cur_info_iter->second.descent = font->getDescent();
+
     if(param->debug)
     {
         cerr << "Install font: (" << (font->getID()->num) << ' ' << (font->getID()->gen) << ") -> " << format("f%|1$x|")%new_fn_id << endl;
-        cerr << "Ascent: " << (font->getAscent()) << " Descent: " << (font->getDescent()) << endl;
     }
 
     if(font->getType() == fontType3) {
@@ -251,6 +253,7 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
         add_tmp_file(fn+".ttf");
 
     script_fout << format("Generate(%1%)") % dest << endl;
+    script_fout << "Close()" << endl;
     script_fout << format("Open(%1%, 1)") % dest << endl;
 
     for(const string & s1 : {"Win", "Typo", "HHead"})
@@ -260,9 +263,6 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
             script_fout << "Print(GetOS2Value(\"" << s1 << s2 << "\"))" << endl;
         }
     }
-    script_fout << "SetOS2Value(\"TypoLineGap\", 0)" << endl;
-    script_fout << "SetOS2Value(\"HHeadLineGap\", 0)" << endl;
-    script_fout << format("Generate(%1%)") % dest << endl;
 
     if(system((boost::format("fontforge -script %1% 1>%2% 2>%3%") % script_path % (tmp_dir / (fn+".info")) % (tmp_dir / NULL_FILENAME)).str().c_str()) != 0)
         cerr << "Warning: fontforge failed." << endl;
@@ -274,14 +274,22 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
     int WinAsc, WinDes, TypoAsc, TypoDes, HHeadAsc, HHeadDes;
     if(ifstream(tmp_dir / (fn+".info")) >> WinAsc >> WinDes >> TypoAsc >> TypoDes >> HHeadAsc >> HHeadDes)
     {
-        double em = TypoAsc - TypoDes;
-        info.ascent = ((double)HHeadAsc) / em;
-        info.descent = ((double)HHeadDes) / em;
+        int em = TypoAsc - TypoDes;
+        if(em != 0)
+        {
+            info.ascent = ((double)HHeadAsc) / em;
+            info.descent = ((double)HHeadDes) / em;
+        }
+        else
+        {
+            info.ascent = 0;
+            info.descent = 0;
+        }
     }
-    else
+
+    if(param->debug)
     {
-        info.ascent = font->getAscent();
-        info.descent = font->getDescent();
+        cerr << "Ascent: " << info.ascent << " Descent: " << info.descent << endl;
     }
 
     export_remote_font(info, ".ttf", "truetype", font);

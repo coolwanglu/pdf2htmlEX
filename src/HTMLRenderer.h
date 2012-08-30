@@ -11,6 +11,7 @@
 #include <map>
 #include <vector>
 #include <set>
+#include <sstream>
 
 #include <boost/format.hpp>
 #include <boost/filesystem/fstream.hpp>
@@ -259,6 +260,13 @@ class HTMLRenderer : public OutputDev
         // this is actual position (in HTML), which might be different from cur_tx/ty (in PDF)
         // also keep in mind that they are not the final position, as they will be transform by CTM (also true for cur_tx/ty)
         double draw_tx, draw_ty; 
+
+        // some metrics have to be determined after all elements in the lines have been seen
+        // TODO: add a class for these
+        double line_x, line_y;
+        long long line_tm_id;
+        double line_height;
+        std::stringstream line_buf; 
 
         ////////////////////////////////////////////////////
         // styles & resources

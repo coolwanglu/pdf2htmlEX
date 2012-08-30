@@ -205,7 +205,7 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
         }
         
         Unicode uu = (cur_font_info.use_tounicode ? check_unicode(u, uLen, code, font) : unicode_from_font(code, font));
-        outputUnicodes(html_fout, &uu, 1);
+        outputUnicodes(line_buf, &uu, 1);
 
         dx += dx1;
         dy += dy1;
