@@ -8,6 +8,7 @@
  */
 
 #include <iostream>
+#include <cmath>
 
 #include <boost/format.hpp>
 
@@ -18,6 +19,7 @@
 #include "namespace.h"
 
 using std::all_of;
+using std::round;
 
 FontInfo HTMLRenderer::install_font(GfxFont * font)
 {
@@ -257,7 +259,10 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
 
     for(const string & key : {"Win", "Typo", "HHead"})
     {
-        script_fout << "SetOS2Value(\"" << key << "Ascent\", 0)" << endl;
+        script_fout << format("SetOS2Value(\"%1%Ascent\", %2%)") % key % (int)round(font->getAscent() * 1000) << endl;
+        script_fout << format("SetOS2Value(\"%1%AscentIsOffset\", 0)") % key << endl;
+        script_fout << format("SetOS2Value(\"%1%Descent\", %2%)") % key % (int)round(-font->getDescent() * 1000) << endl;
+        script_fout << format("SetOS2Value(\"%1%DescentIsOffset\", 0)") % key << endl;
     }
     script_fout << format("Generate(%1%)") % ((param->single_html ? tmp_dir : dest_dir) / (fn+".ttf")) << endl;
     if(param->single_html)

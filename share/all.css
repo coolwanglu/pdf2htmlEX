@@ -19,8 +19,6 @@
 .l {
   position:absolute;
   white-space:pre;
-  line-height:0;
-  height:0;
   font-size:0;
   transform-origin:0% 0%;
   -ms-transform-origin:0% 0%;

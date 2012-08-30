@@ -352,8 +352,11 @@ void HTMLRenderer::prepare_line(GfxState * state)
             double x,y; // in user space
             state->transform(state->getCurX(), state->getCurY(), &x, &y);
 
-            html_fout << format("<div style=\"left:%1%px;top:%2%px;\" class=\"l t%|3$x|\">")
-                % x % (pageHeight-y) % cur_tm_id;
+            html_fout << format("<div style=\"left:%1%px;top:%2%px;bottom:%3%px;\" class=\"l t%|4$x|\">")
+                % x 
+                % (pageHeight - y - state->getFont()->getAscent() * draw_font_size)
+                % (y + state->getFont()->getDescent() * draw_font_size)
+                % cur_tm_id;
 
             //resync position
             draw_ty = cur_ty;
