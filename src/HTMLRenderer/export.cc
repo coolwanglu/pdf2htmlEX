@@ -30,7 +30,7 @@ void HTMLRenderer::export_remote_font(long long fn_id, const string & suffix, co
         allcss_fout << fn;
     }
 
-    allcss_fout << format(")format(\"%1%\");}.f%|2$x|{font-family:f%|2$x|;}") % fontfileformat % fn_id << endl;
+    allcss_fout << format(")format(\"%1%\");}.f%|2$x|{font-family:f%|2$x|;line-height:%3%;}") % fontfileformat % fn_id % (font->getAscent() - font->getDescent()) << endl;
 }
 
 static string general_font_family(GfxFont * font)
@@ -61,6 +61,8 @@ void HTMLRenderer::export_local_font(long long fn_id, GfxFont * font, const stri
         allcss_fout << "font-style:oblique;";
     else if(font->isItalic() || ifind_first(original_font_name, "italic"))
         allcss_fout << "font-style:italic;";
+
+    allcss_fout << "line-height:" << (font->getAscent() - font->getDescent()) << ";";
 
     allcss_fout << "}" << endl;
 }

@@ -1,5 +1,7 @@
 better solution for ascent/descent (cross-platform, embeded/not)
 
+option to embed local matched fonts for non-embedded ones
+
 fake space detection
 take care of spaces (simulate by <span>)
 

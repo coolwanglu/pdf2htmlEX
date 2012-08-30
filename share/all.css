@@ -20,11 +20,11 @@
   position:absolute;
   white-space:pre;
   font-size:0;
-  transform-origin:0% 0%;
-  -ms-transform-origin:0% 0%;
-  -moz-transform-origin:0% 0%;
-  -webkit-transform-origin:0% 0%;
-  -o-transform-origin:0% 0%;
+  transform-origin:0% 190%;
+  -ms-transform-origin:0% 100%;
+  -moz-transform-origin:0% 100%;
+  -webkit-transform-origin:0% 100%;
+  -o-transform-origin:0% 100%;
 }
 span {
   position:relative;

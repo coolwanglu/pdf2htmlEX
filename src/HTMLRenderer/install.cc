@@ -247,23 +247,6 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
     if(ctu)
         ctu->decRefCnt();
 
-    /*
-     * Fontforge cannot set the ***Ascent value for nonTTF fonts
-     * So save to a temp ttf file and open it again
-     */
-    string tmpfn = fn + "_.ttf";
-    add_tmp_file(tmpfn);
-
-    script_fout << format("Generate(%1%)") % (tmp_dir / tmpfn) << endl;
-    script_fout << format("Open(%1%)") % (tmp_dir / tmpfn) << endl;
-
-    for(const string & key : {"Win", "Typo", "HHead"})
-    {
-        script_fout << format("SetOS2Value(\"%1%Ascent\", %2%)") % key % (int)round(font->getAscent() * 1000) << endl;
-        script_fout << format("SetOS2Value(\"%1%AscentIsOffset\", 0)") % key << endl;
-        script_fout << format("SetOS2Value(\"%1%Descent\", %2%)") % key % (int)round(-font->getDescent() * 1000) << endl;
-        script_fout << format("SetOS2Value(\"%1%DescentIsOffset\", 0)") % key << endl;
-    }
     script_fout << format("Generate(%1%)") % ((param->single_html ? tmp_dir : dest_dir) / (fn+".ttf")) << endl;
     if(param->single_html)
         add_tmp_file(fn+".ttf");
