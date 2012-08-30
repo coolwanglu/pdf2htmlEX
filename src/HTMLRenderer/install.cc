@@ -9,6 +9,7 @@
 
 #include <iostream>
 #include <cmath>
+#include <algorithm>
 
 #include <boost/format.hpp>
 
@@ -19,6 +20,8 @@
 #include "namespace.h"
 
 using std::all_of;
+using std::max;
+using std::min;
 
 FontInfo HTMLRenderer::install_font(GfxFont * font)
 {
@@ -277,8 +280,15 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
         int em = TypoAsc - TypoDes;
         if(em != 0)
         {
-            info.ascent = ((double)HHeadAsc) / em;
-            info.descent = ((double)HHeadDes) / em;
+            /*
+            int a = max(WinAsc, max(TypoAsc, HHeadAsc));
+            int d = min(-WinDes, min(TypoDes, HHeadDes));
+            */
+            int a = WinAsc;
+            int d = -WinDes;
+
+            info.ascent = ((double)a) / em;
+            info.descent = ((double)d) / em;
         }
         else
         {

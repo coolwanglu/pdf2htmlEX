@@ -265,7 +265,7 @@ class HTMLRenderer : public OutputDev
         // TODO: add a class for these
         double line_x, line_y;
         long long line_tm_id;
-        double line_height;
+        double line_ascent, line_height;
         std::stringstream line_buf; 
 
         ////////////////////////////////////////////////////
