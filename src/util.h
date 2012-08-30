@@ -14,6 +14,7 @@
 #include <istream>
 #include <ostream>
 #include <iostream>
+#include <cmath>
 
 #include <GfxState.h>
 #include <GfxFont.h>
@@ -29,6 +30,7 @@ using std::noskipws;
 using std::endl;
 using std::flush;
 using std::cerr;
+using std::floor;
 
 // mute gcc warning of unused function
 namespace
@@ -178,6 +180,7 @@ class FontInfo
 public:
     long long id;
     bool use_tounicode;
+    double ascent, descent;
 };
 
 // wrapper of the transform matrix double[6]

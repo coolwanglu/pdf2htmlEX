@@ -16,21 +16,22 @@
 
 using boost::algorithm::ifind_first;
 
-void HTMLRenderer::export_remote_font(long long fn_id, const string & suffix, const string & fontfileformat, GfxFont * font)
+void HTMLRenderer::export_remote_font(const FontInfo & info, const string & suffix, const string & fontfileformat, GfxFont * font)
 {
-    allcss_fout << format("@font-face{font-family:f%|1$x|;src:url(") % fn_id;
+    allcss_fout << format("@font-face{font-family:f%|1$x|;src:url(") % info.id;
 
-    const std::string fn = (format("f%|1$x|%2%") % fn_id % suffix).str();
+    const std::string fn = (format("f%|1$x|") % info.id).str();
     if(param->single_html)
     {
-        allcss_fout << "'data:font/" << fontfileformat << ";base64," << base64stream(ifstream(tmp_dir / fn, ifstream::binary)) << "'";
+        allcss_fout << "'data:font/" << fontfileformat << ";base64," << base64stream(ifstream(tmp_dir / (fn+suffix), ifstream::binary)) << "'";
     }
     else
     {
-        allcss_fout << fn;
+        allcss_fout << (fn+suffix);
     }
+    
 
-    allcss_fout << format(")format(\"%1%\");}.f%|2$x|{font-family:f%|2$x|;line-height:%3%;}") % fontfileformat % fn_id % (font->getAscent() - font->getDescent()) << endl;
+    allcss_fout << format(")format(\"%1%\");}.f%|2$x|{font-family:f%|2$x|;line-height:%3%;}") % fontfileformat % info.id % (info.ascent - info.descent) << endl;
 }
 
 static string general_font_family(GfxFont * font)

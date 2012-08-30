@@ -19,7 +19,6 @@
 #include "namespace.h"
 
 using std::all_of;
-using std::round;
 
 FontInfo HTMLRenderer::install_font(GfxFont * font)
 {
@@ -68,7 +67,7 @@ FontInfo HTMLRenderer::install_font(GfxFont * font)
                     string suffix = dump_embedded_font(font, new_fn_id);
                     if(suffix != "")
                     {
-                        install_embedded_font(font, suffix, new_fn_id, cur_info_iter->second.use_tounicode);
+                        install_embedded_font(font, suffix, new_fn_id, cur_info_iter->second);
                     }
                     else
                     {
@@ -99,7 +98,7 @@ FontInfo HTMLRenderer::install_font(GfxFont * font)
 
 // TODO
 // add a new function and move to text.cc
-void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, long long fn_id, bool & use_tounicode)
+void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, long long fn_id, FontInfo & info)
 {
     string fn = (format("f%|1$x|") % fn_id).str();
 
@@ -202,7 +201,7 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
      * 
      */
 
-    use_tounicode = ((suffix == ".ttf") || (font->isCIDFont()) || (param->always_apply_tounicode));
+    info.use_tounicode = ((suffix == ".ttf") || (font->isCIDFont()) || (param->always_apply_tounicode));
 
     auto ctu = font->getToUnicode();
 
@@ -220,7 +219,7 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
 
         Unicode u, *pu=&u;
 
-        if(use_tounicode)
+        if(info.use_tounicode)
         {
             int n = 0;
             if(ctu)
@@ -247,16 +246,45 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
     if(ctu)
         ctu->decRefCnt();
 
-    script_fout << format("Generate(%1%)") % ((param->single_html ? tmp_dir : dest_dir) / (fn+".ttf")) << endl;
+    auto dest = ((param->single_html ? tmp_dir : dest_dir) / (fn+".ttf"));
     if(param->single_html)
         add_tmp_file(fn+".ttf");
 
-    if(system((boost::format("fontforge -script %1% 2>%2%") % script_path % (tmp_dir / NULL_FILENAME)).str().c_str()) != 0)
+    script_fout << format("Generate(%1%)") % dest << endl;
+    script_fout << format("Open(%1%, 1)") % dest << endl;
+
+    for(const string & s1 : {"Win", "Typo", "HHead"})
+    {
+        for(const string & s2 : {"Ascent", "Descent"})
+        {
+            script_fout << "Print(GetOS2Value(\"" << s1 << s2 << "\"))" << endl;
+        }
+    }
+    script_fout << "SetOS2Value(\"TypoLineGap\", 0)" << endl;
+    script_fout << "SetOS2Value(\"HHeadLineGap\", 0)" << endl;
+    script_fout << format("Generate(%1%)") % dest << endl;
+
+    if(system((boost::format("fontforge -script %1% 1>%2% 2>%3%") % script_path % (tmp_dir / (fn+".info")) % (tmp_dir / NULL_FILENAME)).str().c_str()) != 0)
         cerr << "Warning: fontforge failed." << endl;
 
+    add_tmp_file(fn+".info");
     add_tmp_file(NULL_FILENAME);
 
-    export_remote_font(fn_id, ".ttf", "truetype", font);
+    // read metric
+    int WinAsc, WinDes, TypoAsc, TypoDes, HHeadAsc, HHeadDes;
+    if(ifstream(tmp_dir / (fn+".info")) >> WinAsc >> WinDes >> TypoAsc >> TypoDes >> HHeadAsc >> HHeadDes)
+    {
+        double em = TypoAsc - TypoDes;
+        info.ascent = ((double)HHeadAsc) / em;
+        info.descent = ((double)HHeadDes) / em;
+    }
+    else
+    {
+        info.ascent = font->getAscent();
+        info.descent = font->getDescent();
+    }
+
+    export_remote_font(info, ".ttf", "truetype", font);
 }
 
 void HTMLRenderer::install_base_font(GfxFont * font, GfxFontLoc * font_loc, long long fn_id)

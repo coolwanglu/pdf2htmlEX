@@ -354,11 +354,11 @@ void HTMLRenderer::prepare_line(GfxState * state)
 
             // TODO class for height
             html_fout << format("<div style=\"left:%1%px;bottom:%2%px;height:%4%px;line-height:%5%px;\" class=\"l t%|3$x|\">")
-                % x 
+                % x
                 % y
                 % cur_tm_id
-                % (state->getFont()->getAscent() * draw_font_size)
-                % (2*(state->getFont()->getAscent() * draw_font_size))
+                % (cur_font_info.ascent * draw_font_size)
+                % (2 * cur_font_info.ascent * draw_font_size)
                 ;
 
             //resync position

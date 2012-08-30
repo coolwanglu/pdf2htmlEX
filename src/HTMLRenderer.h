@@ -130,7 +130,7 @@ class HTMLRenderer : public OutputDev
         // manage styles
         ////////////////////////////////////////////////////
         FontInfo install_font(GfxFont * font);
-        void install_embedded_font(GfxFont * font, const std::string & suffix, long long fn_id, bool & use_tounicode);
+        void install_embedded_font(GfxFont * font, const std::string & suffix, long long fn_id, FontInfo & info);
         void install_base_font(GfxFont * font, GfxFontLoc * font_loc, long long fn_id);
         void install_external_font (GfxFont * font, long long fn_id);
 
@@ -149,7 +149,7 @@ class HTMLRenderer : public OutputDev
          * remote font: to be retrieved from the web server
          * local font: to be substituted with a local (client side) font
          */
-        void export_remote_font(long long fn_id, const std::string & suffix, const std::string & fontfileformat, GfxFont * font);
+        void export_remote_font(const FontInfo & info, const std::string & suffix, const std::string & fontfileformat, GfxFont * font);
         void export_remote_default_font(long long fn_id);
         void export_local_font(long long fn_id, GfxFont * font, const std::string & original_font_name, const std::string & cssfont);
 

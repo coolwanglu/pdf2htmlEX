@@ -19,7 +19,7 @@
 .l {
   position:absolute;
   white-space:pre;
-  font-size:0;
+  font-size:1px;
   transform-origin:0% 190%;
   -ms-transform-origin:0% 100%;
   -moz-transform-origin:0% 100%;
