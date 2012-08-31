@@ -59,24 +59,33 @@ po::variables_map parse_options (int argc, char **argv)
 {
     opt_visible.add_options()
         ("help", "show all options")
-        ("first-page,f", po::value<int>(&param.first_page)->default_value(1), "first page to process")
-        ("last-page,l", po::value<int>(&param.last_page)->default_value(numeric_limits<int>::max()), "last page to process")
         ("version,v", "show copyright and version info")
+
         ("owner-password,o", po::value<string>(&param.owner_password)->default_value(""), "owner password (for encrypted files)")
         ("user-password,u", po::value<string>(&param.user_password)->default_value(""), "user password (for encrypted files)")
+
         ("dest-dir", po::value<string>(&param.dest_dir)->default_value("."), "destination directory")
         ("tmp-dir", po::value<string>(&param.tmp_dir)->default_value("/tmp/pdf2htmlEX"), "temporary directory")
+
+        ("first-page,f", po::value<int>(&param.first_page)->default_value(1), "first page to process")
+        ("last-page,l", po::value<int>(&param.last_page)->default_value(numeric_limits<int>::max()), "last page to process")
+
         ("zoom", po::value<double>(&param.zoom)->default_value(1.0), "zoom ratio")
-        ("font-size-multiplier", po::value<double>(&param.font_size_multiplier)->default_value(10.0), "setting a value greater than 1 would increase the rendering accuracy")
         ("hdpi", po::value<double>(&param.h_dpi)->default_value(144.0), "horizontal DPI for non-text")
         ("vdpi", po::value<double>(&param.v_dpi)->default_value(144.0), "vertical DPI for non-text")
+
+        ("process-nontext", po::value<int>(&param.process_nontext)->default_value(1), "process nontext objects")
+        ("single-html", po::value<int>(&param.single_html)->default_value(1), "combine everything into one single HTML file")
+
         ("heps", po::value<double>(&param.h_eps)->default_value(1.0), "max tolerated horizontal offset (in pixels)")
         ("veps", po::value<double>(&param.v_eps)->default_value(1.0), "max tolerated vertical offset (in pixels)")
-        ("single-html", po::value<int>(&param.single_html)->default_value(1), "combine everything into one single HTML file")
+        ("space-threshold", po::value<double>(&param.space_threshold)->default_value(1.0/6), "distance no thiner than (threshold * em) will be considered as a space character")
+        ("font-size-multiplier", po::value<double>(&param.font_size_multiplier)->default_value(10.0), "setting a value greater than 1 would increase the rendering accuracy")
         ("always-apply-tounicode", po::value<int>(&param.always_apply_tounicode)->default_value(0), "ToUnicode map is ignore for non-TTF fonts unless this switch is on")
+
         ("font-suffix", po::value<string>(&param.font_suffix)->default_value(".ttf"), "suffix for extracted font files")
         ("font-format", po::value<string>(&param.font_format)->default_value("truetype"), "format for extracted font files")
-        ("process-nontext", po::value<int>(&param.process_nontext)->default_value(1), "process nontext objects")
+
         ("debug", po::value<int>(&param.debug)->default_value(0), "output debug information")
         ("clean-tmp", po::value<int>(&param.clean_tmp)->default_value(1), "clean temporary files after processing")
         ;

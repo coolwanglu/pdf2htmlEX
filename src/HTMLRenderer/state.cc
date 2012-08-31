@@ -338,7 +338,8 @@ void HTMLRenderer::prepare_line(GfxState * state)
             // don't close a pending span here, keep the styling
             double w;
             auto wid = install_whitespace(target, w);
-            line_buf << format("<span class=\"_ _%|1$x|\">%2%</span>") % wid % (target > 0 ? " " : "");
+            double threshold = draw_font_size * (cur_font_info.ascent - cur_font_info.descent) * (param->space_threshold);
+            line_buf << format("<span class=\"_ _%|1$x|\">%2%</span>") % wid % (target > (threshold - EPS) ? " " : "");
             draw_tx += w / draw_scale;
         }
     }
