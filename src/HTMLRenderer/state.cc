@@ -18,6 +18,7 @@
 #include "namespace.h"
 
 using std::max;
+using std::abs;
 
 void HTMLRenderer::updateAll(GfxState * state) 
 { 

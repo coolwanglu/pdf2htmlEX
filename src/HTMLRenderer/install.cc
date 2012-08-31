@@ -19,6 +19,8 @@
 #include "namespace.h"
 #include "util.h"
 
+using std::abs;
+
 FontInfo HTMLRenderer::install_font(GfxFont * font)
 {
     assert(sizeof(long long) == 2*sizeof(int));
