@@ -11,6 +11,6 @@ option to break ligatures
 check if we can add information to the font, and let browsers show ligatures automatically
 
 ==Future==
-custom html/css
+custom html/css dir
 native support for image
 native support for draw
