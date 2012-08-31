@@ -50,9 +50,9 @@ void HTMLRenderer::export_remote_default_font(long long fn_id)
     allcss_fout << format(".f%|1$x|{font-family:sans-serif;color:transparent;visibility:hidden;}")%fn_id << endl;
 }
 
-void HTMLRenderer::export_local_font(long long fn_id, GfxFont * font, const string & original_font_name, const string & cssfont)
+void HTMLRenderer::export_local_font(const FontInfo & info, GfxFont * font, const string & original_font_name, const string & cssfont)
 {
-    allcss_fout << format(".f%|1$x|{") % fn_id;
+    allcss_fout << format(".f%|1$x|{") % info.id;
     allcss_fout << "font-family:" << ((cssfont == "") ? (original_font_name + "," + general_font_family(font)) : cssfont) << ";";
 
     if(font->isBold() || ifind_first(original_font_name, "bold"))
@@ -63,7 +63,7 @@ void HTMLRenderer::export_local_font(long long fn_id, GfxFont * font, const stri
     else if(font->isItalic() || ifind_first(original_font_name, "italic"))
         allcss_fout << "font-style:italic;";
 
-    allcss_fout << "line-height:" << (font->getAscent() - font->getDescent()) << ";";
+    allcss_fout << "line-height:" << (info.ascent - info.descent) << ";";
 
     allcss_fout << "}" << endl;
 }

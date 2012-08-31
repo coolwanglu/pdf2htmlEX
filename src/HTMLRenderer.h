@@ -126,7 +126,7 @@ class HTMLRenderer : public OutputDev
         void add_tmp_file (const std::string & fn);
         void clean_tmp_files ();
         boost::filesystem::path dump_embedded_font (GfxFont * font, long long fn_id);
-        void embed_font(const boost::filesystem::path & filepath, GfxFont * font, FontInfo & info);
+        void embed_font(const boost::filesystem::path & filepath, GfxFont * font, FontInfo & info, bool get_metric_only = false);
 
         ////////////////////////////////////////////////////
         // manage styles
@@ -153,7 +153,7 @@ class HTMLRenderer : public OutputDev
          */
         void export_remote_font(const FontInfo & info, const std::string & suffix, const std::string & fontfileformat, GfxFont * font);
         void export_remote_default_font(long long fn_id);
-        void export_local_font(long long fn_id, GfxFont * font, const std::string & original_font_name, const std::string & cssfont);
+        void export_local_font(const FontInfo & info, GfxFont * font, const std::string & original_font_name, const std::string & cssfont);
 
         void export_font_size(long long fs_id, double font_size);
         void export_transform_matrix(long long tm_id, const double * tm);

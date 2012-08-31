@@ -15,6 +15,7 @@
 
 #include "HTMLRenderer.h"
 #include "namespace.h"
+#include "util.h"
 
 FontInfo HTMLRenderer::install_font(GfxFont * font)
 {
@@ -102,12 +103,12 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, FontInfo & info)
 
 void HTMLRenderer::install_base_font(GfxFont * font, GfxFontLoc * font_loc, FontInfo & info)
 {
+    GfxFontLoc * localfontloc = font->locateFont(xref, gFalse);
     if(param->embed_base_font)
     {
-        GfxFontLoc * fontloc = font->locateFont(xref, gFalse);
-        if(fontloc != nullptr)
+        if(localfontloc != nullptr)
         {
-            embed_font(path(fontloc->path->getCString()), font, info);
+            embed_font(path(localfontloc->path->getCString()), font, info);
             export_remote_font(info, param->font_suffix, param->font_format, font);
             return;
         }
@@ -130,13 +131,22 @@ void HTMLRenderer::install_base_font(GfxFont * font, GfxFontLoc * font_loc, Font
     else
         cssfont = iter->second;
 
-    info.ascent = font->getAscent();
-    info.descent = font->getDescent();
+    // still try to get an idea of read ascent/descent
+    if(localfontloc != nullptr)
+    {
+        // fill in ascent/descent only, do not embed
+        embed_font(path(localfontloc->path->getCString()), font, info, true);
+    }
+    else
+    {
+        info.ascent = font->getAscent();
+        info.descent = font->getDescent();
+    }
 
-    export_local_font(info.id, font, psname, cssfont);
+    export_local_font(info, font, psname, cssfont);
 }
 
-void HTMLRenderer::install_external_font( GfxFont * font, FontInfo & info)
+void HTMLRenderer::install_external_font(GfxFont * font, FontInfo & info)
 {
     string fontname(font->getName()->getCString());
 
@@ -148,7 +158,7 @@ void HTMLRenderer::install_external_font( GfxFont * font, FontInfo & info)
         cerr << "Warning: workaround for font names in bad encodings." << endl;
     }
 
-    export_local_font(info.id, font, fontname, "");
+    export_local_font(info, font, fontname, "");
 }
     
 long long HTMLRenderer::install_font_size(double font_size)

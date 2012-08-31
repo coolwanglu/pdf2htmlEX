@@ -1,7 +1,7 @@
 /*
  * text.ccc
  *
- * Handling text and relative stuffs
+ * Handling text & font, and relative stuffs
  *
  * by WangLu
  * 2012.08.14
@@ -153,7 +153,7 @@ path HTMLRenderer::dump_embedded_font (GfxFont * font, long long fn_id)
     return filepath;
 }
 
-void HTMLRenderer::embed_font(const path & filepath, GfxFont * font, FontInfo & info)
+void HTMLRenderer::embed_font(const path & filepath, GfxFont * font, FontInfo & info, bool get_metric_only)
 {
     string suffix = filepath.extension().string();
     to_lower(suffix);
@@ -172,131 +172,138 @@ void HTMLRenderer::embed_font(const path & filepath, GfxFont * font, FontInfo & 
 
     Gfx8BitFont * font_8bit = nullptr;
 
-    /*
-     * Step 1
-     * dump the font file directly from the font descriptor and put the glyphs into the correct slots
-     *
-     * for 8bit + nonTrueType
-     * re-encoding the font using a PostScript encoding list (glyph id <-> glpyh name)
-     *
-     * for 8bit + TrueType
-     * sort the glpyhs as the original order, and later will map GID (instead of char code) to Unicode
-     *
-     * for CID + nonTrueType
-     * Flatten the font 
-     *
-     * for CID Truetype
-     * same as 8bitTrueType, except for that we have to check 65536 charcodes
-     */
-    if(!font->isCIDFont())
+    if(get_metric_only)
     {
-        font_8bit = dynamic_cast<Gfx8BitFont*>(font);
-        maxcode = 0xff;
-        if((suffix == ".ttf") || (suffix == ".ttc") || (suffix == ".otf"))
-        {
-            script_fout << "Reencode(\"original\")" << endl;
-            FoFiTrueType *fftt = nullptr;
-            if((fftt = FoFiTrueType::load((char*)filepath.c_str())) != nullptr)
-            {
-                code2GID = font_8bit->getCodeToGIDMap(fftt);
-                code2GID_len = 256;
-                delete fftt;
-            }
-        }
-        else
-        {
-            // move the slot such that it's consistent with the encoding seen in PDF
-            ofstream out(tmp_dir / (fn + "_.encoding"));
-            add_tmp_file(fn+"_.encoding");
-
-            out << format("/%1% [") % fn << endl;
-            for(int i = 0; i < 256; ++i)
-            {
-                auto cn = font_8bit->getCharName(i);
-                out << "/" << ((cn == nullptr) ? ".notdef" : cn) << endl;
-            }
-            out << "] def" << endl;
-
-            script_fout << format("LoadEncodingFile(%1%)") % (tmp_dir / (fn+"_.encoding")) << endl;
-            script_fout << format("Reencode(\"%1%\")") % fn << endl;
-        }
+        info.use_tounicode = false;
     }
     else
     {
-        maxcode = 0xffff;
-
-        if(suffix == ".ttf")
+        /*
+         * Step 1
+         * dump the font file directly from the font descriptor and put the glyphs into the correct slots
+         *
+         * for 8bit + nonTrueType
+         * re-encoding the font using a PostScript encoding list (glyph id <-> glpyh name)
+         *
+         * for 8bit + TrueType
+         * sort the glpyhs as the original order, and later will map GID (instead of char code) to Unicode
+         *
+         * for CID + nonTrueType
+         * Flatten the font 
+         *
+         * for CID Truetype
+         * same as 8bitTrueType, except for that we have to check 65536 charcodes
+         */
+        if(!font->isCIDFont())
         {
-            script_fout << "Reencode(\"original\")" << endl;
+            font_8bit = dynamic_cast<Gfx8BitFont*>(font);
+            maxcode = 0xff;
+            if((suffix == ".ttf") || (suffix == ".ttc") || (suffix == ".otf"))
+            {
+                script_fout << "Reencode(\"original\")" << endl;
+                FoFiTrueType *fftt = nullptr;
+                if((fftt = FoFiTrueType::load((char*)filepath.c_str())) != nullptr)
+                {
+                    code2GID = font_8bit->getCodeToGIDMap(fftt);
+                    code2GID_len = 256;
+                    delete fftt;
+                }
+            }
+            else
+            {
+                // move the slot such that it's consistent with the encoding seen in PDF
+                ofstream out(tmp_dir / (fn + "_.encoding"));
+                add_tmp_file(fn+"_.encoding");
 
-            GfxCIDFont * _font = dynamic_cast<GfxCIDFont*>(font);
+                out << format("/%1% [") % fn << endl;
+                for(int i = 0; i < 256; ++i)
+                {
+                    auto cn = font_8bit->getCharName(i);
+                    out << "/" << ((cn == nullptr) ? ".notdef" : cn) << endl;
+                }
+                out << "] def" << endl;
 
-            // code2GID has been stored for embedded CID fonts
-            code2GID = _font->getCIDToGID();
-            code2GID_len = _font->getCIDToGIDLen();
+                script_fout << format("LoadEncodingFile(%1%)") % (tmp_dir / (fn+"_.encoding")) << endl;
+                script_fout << format("Reencode(\"%1%\")") % fn << endl;
+            }
         }
         else
         {
-            script_fout << "CIDFlatten()" << endl;
+            maxcode = 0xffff;
+
+            if(suffix == ".ttf")
+            {
+                script_fout << "Reencode(\"original\")" << endl;
+
+                GfxCIDFont * _font = dynamic_cast<GfxCIDFont*>(font);
+
+                // code2GID has been stored for embedded CID fonts
+                code2GID = _font->getCIDToGID();
+                code2GID_len = _font->getCIDToGIDLen();
+            }
+            else
+            {
+                script_fout << "CIDFlatten()" << endl;
+            }
         }
-    }
-    
-    /*
-     * Step 2
-     * map charcode (or GID for CID truetype)
-     * generate an Consortium encoding file and let fontforge handle it.
-     *
-     * - Always map to Unicode for 8bit TrueType fonts and CID fonts
-     *
-     * - For 8bit nonTruetype fonts:
-     *   Try to calculate the correct Unicode value from the glyph names, unless param->always_apply_tounicode is set
-     * 
-     */
 
-    info.use_tounicode = ((suffix == ".ttf") || (font->isCIDFont()) || (param->always_apply_tounicode));
+        /*
+         * Step 2
+         * map charcode (or GID for CID truetype)
+         * generate an Consortium encoding file and let fontforge handle it.
+         *
+         * - Always map to Unicode for 8bit TrueType fonts and CID fonts
+         *
+         * - For 8bit nonTruetype fonts:
+         *   Try to calculate the correct Unicode value from the glyph names, unless param->always_apply_tounicode is set
+         * 
+         */
 
-    auto ctu = font->getToUnicode();
+        info.use_tounicode = ((suffix == ".ttf") || (font->isCIDFont()) || (param->always_apply_tounicode));
 
-    ofstream map_fout(tmp_dir / (fn + ".encoding"));
-    add_tmp_file(fn+".encoding");
+        auto ctu = font->getToUnicode();
 
-    int cnt = 0;
-    for(int i = 0; i <= maxcode; ++i)
-    {
-        if((suffix != ".ttf") && (font_8bit != nullptr) && (font_8bit->getCharName(i) == nullptr))
-            continue;
+        ofstream map_fout(tmp_dir / (fn + ".encoding"));
+        add_tmp_file(fn+".encoding");
 
-        ++ cnt;
-        map_fout << format("0x%|1$X|") % ((code2GID && (i < code2GID_len))? code2GID[i] : i);
-
-        Unicode u, *pu=&u;
-
-        if(info.use_tounicode)
+        int cnt = 0;
+        for(int i = 0; i <= maxcode; ++i)
         {
-            int n = 0;
-            if(ctu)
-                n = ctu->mapToUnicode(i, &pu);
-            u = check_unicode(pu, n, i, font);
+            if((suffix != ".ttf") && (font_8bit != nullptr) && (font_8bit->getCharName(i) == nullptr))
+                continue;
+
+            ++ cnt;
+            map_fout << format("0x%|1$X|") % ((code2GID && (i < code2GID_len))? code2GID[i] : i);
+
+            Unicode u, *pu=&u;
+
+            if(info.use_tounicode)
+            {
+                int n = 0;
+                if(ctu)
+                    n = ctu->mapToUnicode(i, &pu);
+                u = check_unicode(pu, n, i, font);
+            }
+            else
+            {
+                u = unicode_from_font(i, font);
+            }
+
+            map_fout << format(" 0x%|1$X|") % u;
+            map_fout << format(" # 0x%|1$X|") % i;
+
+            map_fout << endl;
         }
-        else
+
+        if(cnt > 0)
         {
-            u = unicode_from_font(i, font);
+            script_fout << format("LoadEncodingFile(%1%, \"%2%\")") % (tmp_dir / (fn+".encoding")) % fn << endl;
+            script_fout << format("Reencode(\"%1%\", 1)") % fn << endl;
         }
 
-        map_fout << format(" 0x%|1$X|") % u;
-        map_fout << format(" # 0x%|1$X|") % i;
-
-        map_fout << endl;
+        if(ctu)
+            ctu->decRefCnt();
     }
-
-    if(cnt > 0)
-    {
-        script_fout << format("LoadEncodingFile(%1%, \"%2%\")") % (tmp_dir / (fn+".encoding")) % fn << endl;
-        script_fout << format("Reencode(\"%1%\", 1)") % fn << endl;
-    }
-
-    if(ctu)
-        ctu->decRefCnt();
 
     auto dest = ((param->single_html ? tmp_dir : dest_dir) / (fn+(param->font_suffix)));
     if(param->single_html)
@@ -307,9 +314,10 @@ void HTMLRenderer::embed_font(const path & filepath, GfxFont * font, FontInfo & 
      * Firefox & Chrome interprets the values in different ways
      * Trying to unify them 
      */
-    script_fout << format("Generate(%1%)") % dest << endl;
+    add_tmp_file(fn + "_.ttf");
+    script_fout << format("Generate(%1%)") % (tmp_dir / (fn + "_.ttf")) << endl;
     script_fout << "Close()" << endl;
-    script_fout << format("Open(%1%, 1)") % dest << endl;
+    script_fout << format("Open(%1%, 1)") % (tmp_dir / (fn + "_.ttf")) << endl;
     script_fout << ifstream(PDF2HTMLEX_DATA_PATH / UNIFY_SCRIPT_FILENAME).rdbuf();
     script_fout << format("Generate(%1%)") % dest << endl;
     script_fout.close();
@@ -346,8 +354,6 @@ void HTMLRenderer::embed_font(const path & filepath, GfxFont * font, FontInfo & 
     {
         cerr << "Ascent: " << info.ascent << " Descent: " << info.descent << endl;
     }
-
-    export_remote_font(info, param->font_suffix, param->font_format, font);
 }
 
 void HTMLRenderer::drawString(GfxState * state, GooString * s)
