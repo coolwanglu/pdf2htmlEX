@@ -314,6 +314,7 @@ void HTMLRenderer::embed_font(const path & filepath, GfxFont * font, FontInfo & 
      * Firefox & Chrome interprets the values in different ways
      * Trying to unify them 
      */
+    // Generate an intermediate ttf font in order to retrieve the metrics
     add_tmp_file(fn + "_.ttf");
     script_fout << format("Generate(%1%)") % (tmp_dir / (fn + "_.ttf")) << endl;
     script_fout << "Close()" << endl;
