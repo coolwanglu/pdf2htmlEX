@@ -251,9 +251,9 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
     if(ctu)
         ctu->decRefCnt();
 
-    auto dest = ((param->single_html ? tmp_dir : dest_dir) / (fn+".ttf"));
+    auto dest = ((param->single_html ? tmp_dir : dest_dir) / (fn+(param->font_suffix)));
     if(param->single_html)
-        add_tmp_file(fn+".ttf");
+        add_tmp_file(fn+(param->font_suffix));
 
     script_fout << format("Generate(%1%)") % dest << endl;
     script_fout << "Close()" << endl;
@@ -266,6 +266,17 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
             script_fout << "Print(GetOS2Value(\"" << s1 << s2 << "\"))" << endl;
         }
     }
+
+
+    /*
+     * Firefox & Chrome interprets the values in different ways
+     * Trying to unify them 
+     */
+    script_fout << "a=GetOS2Value(\"TypoAscent\")" << endl;
+    script_fout << "d=GetOS2Value(\"TypoDescent\")" << endl;
+    script_fout << "SetOS2Value(\"TypoAscent\", 0)" << endl;
+    script_fout << "SetOS2Value(\"TypoDescent\", -a-d)" << endl;
+    script_fout << format("Generate(%1%)") % dest << endl;
 
     if(system((boost::format("fontforge -script %1% 1>%2% 2>%3%") % script_path % (tmp_dir / (fn+".info")) % (tmp_dir / NULL_FILENAME)).str().c_str()) != 0)
         cerr << "Warning: fontforge failed." << endl;
@@ -302,7 +313,7 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
         cerr << "Ascent: " << info.ascent << " Descent: " << info.descent << endl;
     }
 
-    export_remote_font(info, ".ttf", "truetype", font);
+    export_remote_font(info, param->font_suffix, param->font_format, font);
 }
 
 void HTMLRenderer::install_base_font(GfxFont * font, GfxFontLoc * font_loc, long long fn_id)

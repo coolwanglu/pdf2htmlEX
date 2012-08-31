@@ -29,6 +29,8 @@ struct Param
     int single_html;
     int always_apply_tounicode;
 
+    std::string font_suffix, font_format;
+
     int debug;
     int clean_tmp;
 };
