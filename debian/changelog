@@ -1,3 +1,9 @@
+pdf2htmlex (0.2-3~git201209010002rfe7b3-0ubuntu1) precise; urgency=low
+
+  * update license 
+
+ -- WANG Lu <coolwanglu@gmail.com>  Sat, 01 Sep 2012 00:02:23 +0800
+
 pdf2htmlex (0.2-3~git201208312351rd12b8-0ubuntu1) precise; urgency=low
 
   * 0.2dev, many bugs fixed 
