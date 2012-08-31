@@ -172,11 +172,9 @@ void HTMLRenderer::embed_font(const path & filepath, GfxFont * font, FontInfo & 
 
     Gfx8BitFont * font_8bit = nullptr;
 
-    if(get_metric_only)
-    {
-        info.use_tounicode = false;
-    }
-    else
+    info.use_tounicode = ((suffix == ".ttf") || (font->isCIDFont()) || (param->always_apply_tounicode));
+
+    if(!get_metric_only)
     {
         /*
          * Step 1
@@ -258,8 +256,6 @@ void HTMLRenderer::embed_font(const path & filepath, GfxFont * font, FontInfo & 
          *   Try to calculate the correct Unicode value from the glyph names, unless param->always_apply_tounicode is set
          * 
          */
-
-        info.use_tounicode = ((suffix == ".ttf") || (font->isCIDFont()) || (param->always_apply_tounicode));
 
         auto ctu = font->getToUnicode();
 
