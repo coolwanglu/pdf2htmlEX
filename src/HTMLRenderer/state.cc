@@ -190,40 +190,45 @@ void HTMLRenderer::check_state_change(GfxState * state)
          * TODO, writing mode, set dx and solve dy
          */
 
-        double dy = cur_ty - draw_ty;
-        double tdx = old_ctm[4] - cur_ctm[4] - cur_ctm[2] * dy;
-        double tdy = old_ctm[5] - cur_ctm[5] - cur_ctm[3] * dy;
-
-        if(_equal(cur_ctm[0] * tdy, cur_ctm[1] * tdx))
+        bool merged = false;
+        if(_tm_equal(old_ctm, cur_ctm, 4))
         {
-            if(abs(cur_ctm[0]) > EPS)
+            double dy = cur_ty - draw_ty;
+            double tdx = old_ctm[4] - cur_ctm[4] - cur_ctm[2] * dy;
+            double tdy = old_ctm[5] - cur_ctm[5] - cur_ctm[3] * dy;
+
+            if(_equal(cur_ctm[0] * tdy, cur_ctm[1] * tdx))
             {
-                draw_tx += tdx / cur_ctm[0];
-                draw_ty += dy;
-            }
-            else if (abs(cur_ctm[1]) > EPS)
-            {
-                draw_tx += tdy / cur_ctm[1];
-                draw_ty += dy;
-            }
-            else
-            {
-                if((abs(tdx) < EPS) && (abs(tdy) < EPS))
+                if(abs(cur_ctm[0]) > EPS)
                 {
-                    // free
-                    draw_tx = cur_tx;
+                    draw_tx += tdx / cur_ctm[0];
                     draw_ty += dy;
+                    merged = true;
+                }
+                else if (abs(cur_ctm[1]) > EPS)
+                {
+                    draw_tx += tdy / cur_ctm[1];
+                    draw_ty += dy;
+                    merged = true;
                 }
                 else
                 {
-                    // fail
-                    new_line_status = max(new_line_status, LineStatus::DIV);
+                    if((abs(tdx) < EPS) && (abs(tdy) < EPS))
+                    {
+                        // free
+                        draw_tx = cur_tx;
+                        draw_ty += dy;
+                        merged = true;
+                    }
+                    // else fail
                 }
             }
+            //else no solution
         }
-        else
+        // else force new lien
+
+        if(!merged)
         {
-            // no solution
             new_line_status = max(new_line_status, LineStatus::DIV);
         }
     }
