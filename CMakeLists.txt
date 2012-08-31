@@ -46,3 +46,4 @@ target_link_libraries(pdf2htmlEX poppler boost_program_options boost_filesystem 
 install (TARGETS pdf2htmlEX DESTINATION bin)
 file (GLOB datafiles share/*)
 install (FILES ${datafiles} DESTINATION share/pdf2htmlEX)
+install (FILES pdf2htmlEX.1 DESTINATION man/man1)
