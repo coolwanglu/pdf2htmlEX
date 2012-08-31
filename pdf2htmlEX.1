@@ -1,0 +1,62 @@
+.TH pdf2htmlEX 1 "Aug 31, 2012" "pdf2htmlEX 0.1"
+.SH NAME
+.PP
+.nf
+  pdf2htmlEX \- Converts PDF to HTML without losing text and format.
+.fi
+
+.SH USAGE
+.PP
+.nf
+  pdf2htmlEX [options] <input\-filename> [<output\-filename>]
+.fi
+
+.SH DESCRIPTION
+.PP
+pdf2htmlEX is a utility that converts PDF files to HTML files.
+
+Unlike traditional PDF-to-HTML converters, pdf2htmlEX tries its best to render the PDF precisely, maintain proper styling, and retain text. Text in the converted HTML file is usually selectable and copyable.
+
+.SH OPTIONS
+.TP
+.B --help
+show all options
+.TP
+.B -v, --version
+show copyright and version
+.TP
+.B -o, --owner-password <password>
+specify owner password
+.TP
+.B -u, --user-password <password>
+specify user password
+.TP
+.B --dest-dir <dir>
+specify destination folder
+
+Default value is "."
+.TP
+.B --tmp-dir <dir>
+specify a folder for intermediate files
+
+Default value is "/tmp/pdf2htmlEX"
+.TP
+.B -f, --first-page <num>
+specify the first page to process
+
+Default value is 1
+.TP
+.B -l, --last-page <num>
+specify the last page to process
+
+Default value is the last page.
+.TP
+.B --zoom <ratio>
+specify the zoom ratio of the HTML file
+
+Default value is 1.0
+
+.TP
+.B --hpdi <dpi>
+--vpdi <dpi>
+Test
