@@ -125,15 +125,16 @@ class HTMLRenderer : public OutputDev
         ////////////////////////////////////////////////////
         void add_tmp_file (const std::string & fn);
         void clean_tmp_files ();
-        std::string dump_embedded_font (GfxFont * font, long long fn_id);
+        boost::filesystem::path dump_embedded_font (GfxFont * font, long long fn_id);
+        void embed_font(const boost::filesystem::path & filepath, GfxFont * font, FontInfo & info, bool get_metric_only = false);
 
         ////////////////////////////////////////////////////
         // manage styles
         ////////////////////////////////////////////////////
         FontInfo install_font(GfxFont * font);
-        void install_embedded_font(GfxFont * font, const std::string & suffix, long long fn_id, FontInfo & info);
-        void install_base_font(GfxFont * font, GfxFontLoc * font_loc, long long fn_id);
-        void install_external_font (GfxFont * font, long long fn_id);
+        void install_embedded_font(GfxFont * font, FontInfo & info);
+        void install_base_font(GfxFont * font, GfxFontLoc * font_loc, FontInfo & info);
+        void install_external_font (GfxFont * font, FontInfo & info);
 
         long long install_font_size(double font_size);
         long long install_transform_matrix(const double * tm);
@@ -152,7 +153,7 @@ class HTMLRenderer : public OutputDev
          */
         void export_remote_font(const FontInfo & info, const std::string & suffix, const std::string & fontfileformat, GfxFont * font);
         void export_remote_default_font(long long fn_id);
-        void export_local_font(long long fn_id, GfxFont * font, const std::string & original_font_name, const std::string & cssfont);
+        void export_local_font(const FontInfo & info, GfxFont * font, const std::string & original_font_name, const std::string & cssfont);
 
         void export_font_size(long long fs_id, double font_size);
         void export_transform_matrix(long long tm_id, const double * tm);

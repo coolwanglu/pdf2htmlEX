@@ -19,7 +19,7 @@ if (-td > d)
     d = -td
 endif
 if (-hd > d)
-    d = -hd)
+    d = -hd
 endif
 SetOS2Value("WinAscent", a)
 SetOS2Value("WinDescent", d)
@@ -28,3 +28,4 @@ SetOS2Value("HHeadDescent", -d)
 Print(ta-td)
 Print(a)
 Print(d)
+# script end
