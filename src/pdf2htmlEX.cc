@@ -76,6 +76,8 @@ po::variables_map parse_options (int argc, char **argv)
 
         ("process-nontext", po::value<int>(&param.process_nontext)->default_value(1), "process nontext objects")
         ("single-html", po::value<int>(&param.single_html)->default_value(1), "combine everything into one single HTML file")
+        ("embed-base-font", po::value<int>(&param.embed_base_font)->default_value(1), "embed local matched font for base 14 fonts in the PDF file")
+        ("embed-external-font", po::value<int>(&param.embed_external_font)->default_value(0), "embed local matched font for external fonts in the PDF file")
 
         ("heps", po::value<double>(&param.h_eps)->default_value(1.0), "max tolerated horizontal offset (in pixels)")
         ("veps", po::value<double>(&param.v_eps)->default_value(1.0), "max tolerated vertical offset (in pixels)")

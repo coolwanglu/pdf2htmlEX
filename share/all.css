@@ -1,3 +1,5 @@
+/* Base CSS */
+/* by Wang Lu */
 #pdf-main {
   position:absolute;
   top:0;
@@ -42,3 +44,4 @@ span {
 .i {
   position:absolute;
 }
+/* Base CSS END */

@@ -125,15 +125,16 @@ class HTMLRenderer : public OutputDev
         ////////////////////////////////////////////////////
         void add_tmp_file (const std::string & fn);
         void clean_tmp_files ();
-        std::string dump_embedded_font (GfxFont * font, long long fn_id);
+        boost::filesystem::path dump_embedded_font (GfxFont * font, long long fn_id);
+        void embed_font(const boost::filesystem::path & filepath, GfxFont * font, FontInfo & info);
 
         ////////////////////////////////////////////////////
         // manage styles
         ////////////////////////////////////////////////////
         FontInfo install_font(GfxFont * font);
-        void install_embedded_font(GfxFont * font, const std::string & suffix, long long fn_id, FontInfo & info);
-        void install_base_font(GfxFont * font, GfxFontLoc * font_loc, long long fn_id);
-        void install_external_font (GfxFont * font, long long fn_id);
+        void install_embedded_font(GfxFont * font, FontInfo & info);
+        void install_base_font(GfxFont * font, GfxFontLoc * font_loc, FontInfo & info);
+        void install_external_font (GfxFont * font, FontInfo & info);
 
         long long install_font_size(double font_size);
         long long install_transform_matrix(const double * tm);

@@ -28,3 +28,4 @@ SetOS2Value("HHeadDescent", -d)
 Print(ta-td)
 Print(a)
 Print(d)
+# script end
