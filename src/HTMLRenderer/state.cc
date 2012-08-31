@@ -380,12 +380,11 @@ void HTMLRenderer::close_line()
         return;
 
     // TODO class for height
-    html_fout << format("<div style=\"left:%1%px;bottom:%2%px;height:%4%px;line-height:%5%px;\" class=\"l t%|3$x|\">")
+    html_fout << format("<div style=\"left:%1%px;bottom:%2%px;height:%4%px;\" class=\"l t%|3$x|\">")
         % line_x
         % line_y
         % line_tm_id
         % line_ascent
-        % (line_ascent * 2) // TODO: why?
         ;
     html_fout << line_buf.rdbuf();
     line_buf.str("");

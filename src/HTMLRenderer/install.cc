@@ -255,6 +255,17 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
     if(param->single_html)
         add_tmp_file(fn+(param->font_suffix));
 
+    /*
+     * [Win|Typo|HHead][Ascent|Descent]
+     * Firefox & Chrome interprets the values in different ways
+     * Trying to unify them 
+     *
+     * .pfa does not have such mess, convert to it and back
+     */
+    add_tmp_file(fn+"_.pfa");
+    script_fout << format("Generate(%1%)") % (tmp_dir / (fn+"_.pfa")) << endl;
+    script_fout << "Close()" << endl;
+    script_fout << format("Open(%1%, 1)") % (tmp_dir / (fn+"_.pfa")) << endl;
     script_fout << format("Generate(%1%)") % dest << endl;
     script_fout << "Close()" << endl;
     script_fout << format("Open(%1%, 1)") % dest << endl;
@@ -267,11 +278,6 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
         }
     }
 
-
-    /*
-     * Firefox & Chrome interprets the values in different ways
-     * Trying to unify them 
-     */
     script_fout << "a=GetOS2Value(\"TypoAscent\")" << endl;
     script_fout << "d=GetOS2Value(\"TypoDescent\")" << endl;
     script_fout << "SetOS2Value(\"TypoAscent\", 0)" << endl;
