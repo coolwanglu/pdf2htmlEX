@@ -13,6 +13,8 @@
 
 #include <boost/format.hpp>
 
+#include "Param.h"
+
 #include "HTMLRenderer.h"
 #include "namespace.h"
 #include "util.h"
@@ -85,8 +87,6 @@ FontInfo HTMLRenderer::install_font(GfxFont * font)
     return cur_info_iter->second;
 }
 
-// TODO
-// add a new function and move to text.cc
 void HTMLRenderer::install_embedded_font(GfxFont * font, FontInfo & info)
 {
     auto path = dump_embedded_font(font, info.id);
@@ -156,6 +156,17 @@ void HTMLRenderer::install_external_font(GfxFont * font, FontInfo & info)
     {
         fontname = iter->second;
         cerr << "Warning: workaround for font names in bad encodings." << endl;
+    }
+
+    //debug
+    GooString gfn(fontname.c_str());
+    GooString * path = globalParams->findFontFile(&gfn);
+
+    cerr << "Find: " << fontname << endl;
+    if(path)
+    {
+        cerr << "MATCHED: " << path->getCString() << endl;
+        delete path;
     }
 
     export_local_font(info, font, fontname, "");
