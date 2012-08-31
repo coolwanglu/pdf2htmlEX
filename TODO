@@ -1,9 +1,5 @@
-vertical position of non-embeded
-
-option to embed local matched fonts for non-embedded ones
-
-fake space detection
 take care of spaces (simulate by <span>)
+use absolute positioning for long whitespace
 
 manpage
 
@@ -14,9 +10,7 @@ compress div/span states
 option to break ligatures
 check if we can add information to the font, and let browsers show ligatures automatically
 
-use absolute positioning for long whitespace
-
 ==Future==
-custom html/css
+custom html/css dir
 native support for image
 native support for draw

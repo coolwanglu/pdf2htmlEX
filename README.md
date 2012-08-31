@@ -62,7 +62,7 @@ Make sure you install fontforge in the PPA or [the git version](https://github.c
 
 ## LICENSE
 
-GPLv3
+GPLv2 & GPLv3 Dual licensed
 
 ## Credits
 

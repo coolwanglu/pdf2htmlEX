@@ -103,6 +103,9 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, FontInfo & info)
 
 void HTMLRenderer::install_base_font(GfxFont * font, GfxFontLoc * font_loc, FontInfo & info)
 {
+    string psname(font_loc->path->getCString());
+    string basename = psname.substr(0, psname.find('-'));
+
     GfxFontLoc * localfontloc = font->locateFont(xref, gFalse);
     if(param->embed_base_font)
     {
@@ -110,17 +113,17 @@ void HTMLRenderer::install_base_font(GfxFont * font, GfxFontLoc * font_loc, Font
         {
             embed_font(path(localfontloc->path->getCString()), font, info);
             export_remote_font(info, param->font_suffix, param->font_format, font);
+            delete localfontloc;
             return;
         }
         else
         {
-            cerr << format("Cannot embed base font: f%|1$x|") % info.id << endl;
+            cerr << format("Cannot embed base font: f%|1$x| %2%") % info.id % psname << endl;
+            // fallback to exporting by name
         }
 
     }
 
-    string psname(font_loc->path->getCString());
-    string basename = psname.substr(0, psname.find('-'));
     string cssfont;
     auto iter = BASE_14_FONT_CSS_FONT_MAP.find(basename);
     if(iter == BASE_14_FONT_CSS_FONT_MAP.end())
@@ -136,6 +139,7 @@ void HTMLRenderer::install_base_font(GfxFont * font, GfxFontLoc * font_loc, Font
     {
         // fill in ascent/descent only, do not embed
         embed_font(path(localfontloc->path->getCString()), font, info, true);
+        delete localfontloc;
     }
     else
     {
@@ -158,15 +162,36 @@ void HTMLRenderer::install_external_font(GfxFont * font, FontInfo & info)
         cerr << "Warning: workaround for font names in bad encodings." << endl;
     }
 
-    //debug
     GooString gfn(fontname.c_str());
-    GooString * path = globalParams->findFontFile(&gfn);
+    GfxFontLoc * localfontloc = font->locateFont(xref, gFalse);
 
-    cerr << "Find: " << fontname << endl;
-    if(path)
+    if(param->embed_external_font)
     {
-        cerr << "MATCHED: " << path->getCString() << endl;
-        delete path;
+        if(localfontloc != nullptr)
+        {
+            embed_font(path(localfontloc->path->getCString()), font, info);
+            export_remote_font(info, param->font_suffix, param->font_format, font);
+            delete localfontloc;
+            return;
+        }
+        else
+        {
+            cerr << format("Cannot embed external font: f%|1$x| %2%") % info.id % fontname << endl;
+            // fallback to exporting by name
+        }
+    }
+
+    // still try to get an idea of read ascent/descent
+    if(localfontloc != nullptr)
+    {
+        // fill in ascent/descent only, do not embed
+        embed_font(path(localfontloc->path->getCString()), font, info, true);
+        delete localfontloc;
+    }
+    else
+    {
+        info.ascent = font->getAscent();
+        info.descent = font->getDescent();
     }
 
     export_local_font(info, font, fontname, "");
