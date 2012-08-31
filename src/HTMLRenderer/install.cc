@@ -18,6 +18,7 @@
 
 #include "HTMLRenderer.h"
 #include "namespace.h"
+#include "config.h"
 
 using std::all_of;
 using std::max;
@@ -259,30 +260,13 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
      * [Win|Typo|HHead][Ascent|Descent]
      * Firefox & Chrome interprets the values in different ways
      * Trying to unify them 
-     *
-     * .pfa does not have such mess, convert to it and back
      */
-    add_tmp_file(fn+"_.pfa");
-    script_fout << format("Generate(%1%)") % (tmp_dir / (fn+"_.pfa")) << endl;
-    script_fout << "Close()" << endl;
-    script_fout << format("Open(%1%, 1)") % (tmp_dir / (fn+"_.pfa")) << endl;
     script_fout << format("Generate(%1%)") % dest << endl;
     script_fout << "Close()" << endl;
     script_fout << format("Open(%1%, 1)") % dest << endl;
-
-    for(const string & s1 : {"Win", "Typo", "HHead"})
-    {
-        for(const string & s2 : {"Ascent", "Descent"})
-        {
-            script_fout << "Print(GetOS2Value(\"" << s1 << s2 << "\"))" << endl;
-        }
-    }
-
-    script_fout << "a=GetOS2Value(\"TypoAscent\")" << endl;
-    script_fout << "d=GetOS2Value(\"TypoDescent\")" << endl;
-    script_fout << "SetOS2Value(\"TypoAscent\", 0)" << endl;
-    script_fout << "SetOS2Value(\"TypoDescent\", -a-d)" << endl;
+    script_fout << ifstream(PDF2HTMLEX_DATA_PATH / UNIFY_SCRIPT_FILENAME).rdbuf();
     script_fout << format("Generate(%1%)") % dest << endl;
+    script_fout.close();
 
     if(system((boost::format("fontforge -script %1% 1>%2% 2>%3%") % script_path % (tmp_dir / (fn+".info")) % (tmp_dir / NULL_FILENAME)).str().c_str()) != 0)
         cerr << "Warning: fontforge failed." << endl;
@@ -291,21 +275,13 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, 
     add_tmp_file(NULL_FILENAME);
 
     // read metric
-    int WinAsc, WinDes, TypoAsc, TypoDes, HHeadAsc, HHeadDes;
-    if(ifstream(tmp_dir / (fn+".info")) >> WinAsc >> WinDes >> TypoAsc >> TypoDes >> HHeadAsc >> HHeadDes)
+    int em, ascent, descent;
+    if(ifstream(tmp_dir / (fn+".info")) >> em >> ascent >> descent)
     {
-        int em = TypoAsc - TypoDes;
         if(em != 0)
         {
-            /*
-            int a = max(WinAsc, max(TypoAsc, HHeadAsc));
-            int d = min(-WinDes, min(TypoDes, HHeadDes));
-            */
-            int a = WinAsc;
-            int d = -WinDes;
-
-            info.ascent = ((double)a) / em;
-            info.descent = ((double)d) / em;
+            info.ascent = ((double)ascent) / em;
+            info.descent = -((double)descent) / em;
         }
         else
         {
