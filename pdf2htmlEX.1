@@ -15,48 +15,56 @@
 .PP
 pdf2htmlEX is a utility that converts PDF files to HTML files.
 
-Unlike traditional PDF-to-HTML converters, pdf2htmlEX tries its best to render the PDF precisely, maintain proper styling, and retain text. Text in the converted HTML file is usually selectable and copyable.
+pdf2htmlEX tries its best to render the PDF precisely, maintain proper styling, while retaining text and optmizing for Web.
+
+Fonts are extracted form PDF and then embedded into HTML (Type 3 fonts are not supported). Text in the converted HTML file is usually selectable and copyable. 
+
+Other objects are rendered as images and also embedded.
 
 .SH OPTIONS
 .TP
 .B --help
-show all options
+Show all options
 .TP
 .B -v, --version
-show copyright and version
+Show copyright and version
 .TP
 .B -o, --owner-password <password>
-specify owner password
+Specify owner password
 .TP
 .B -u, --user-password <password>
-specify user password
+Specify user password
 .TP
-.B --dest-dir <dir>
-specify destination folder
-
-Default value is "."
+.B --dest-dir <dir> (Default: ".")
+Specify destination folder
 .TP
-.B --tmp-dir <dir>
-specify a folder for intermediate files
-
-Default value is "/tmp/pdf2htmlEX"
+.B --tmp-dir <dir> (Default: "/tmp/pdf2htmlEX")
+Specify a folder for intermediate files
 .TP
-.B -f, --first-page <num>
-specify the first page to process
-
-Default value is 1
+.B -f, --first-page <num> (Default: 1)
+Specify the first page to process
 .TP
-.B -l, --last-page <num>
-specify the last page to process
-
-Default value is the last page.
+.B -l, --last-page <num> (Default: last page)
+Specify the last page to process
 .TP
-.B --zoom <ratio>
-specify the zoom ratio of the HTML file
-
-Default value is 1.0
-
+.B --zoom <ratio> (Default: 1.0)
+Specify the zoom ratio of the HTML file
 .TP
-.B --hpdi <dpi>
---vpdi <dpi>
-Test
+.B --hpdi <dpi>, --vpdi <dpi> (Default: 144)
+Specify the horizontal and vertical DPI for images
+.TP
+.B --process-nontext <0|1> (Default: 1)
+Whether to process non-text objects (as images)
+.TP
+.B --single-html <0|1> (Default: 1)
+Whether to embed everything into one HTML file.
+
+If switched out, there will be several files generated along with the HTML file including files for fonts, css, images.
+.TP
+.B --embed-base-font <0|1> (Default: 1)
+Whether to embed base 14 fonts.
+
+There are several base font defined in PDF standards, which are supposed to be provided by the PDF reader.
+
+If this switch is on, local matched font will be used and embedded; otherwise only font names are exported such that the font matched 
+
