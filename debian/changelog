@@ -1,3 +1,9 @@
+pdf2htmlex (0.2-3~git201208312351rd12b8-0ubuntu1) precise; urgency=low
+
+  * 0.2dev, many bugs fixed 
+
+ -- WANG Lu <coolwanglu@gmail.com>  Fri, 31 Aug 2012 23:51:57 +0800
+
 pdf2htmlex (0.1-3~git201208281638r1addb-0ubuntu1) precise; urgency=low
 
   * Add debian files 
