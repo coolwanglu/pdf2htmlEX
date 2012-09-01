@@ -2,11 +2,12 @@ option to break ligatures
 
 compress div/span states
 
+multiple charcode mapped to a same glyph
+
 take care of spaces (simulate by <span>)
 use absolute positioning for long whitespace
 
 disable selection if we know unicode is wrong
-
 
 ==Future==
 check if we can add information to the font, and let browsers show ligatures automatically
