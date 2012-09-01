@@ -1,0 +1,31 @@
+# script piece to unify the metrics
+# by WangLu
+# 2012.08.31
+wa = GetOS2Value("WinAscent")
+wd = GetOS2Value("WinDescent")
+ta = GetOS2Value("TypoAscent")
+td = GetOS2Value("TypoDescent")
+ha = GetOS2Value("HHeadAscent")
+hd = GetOS2Value("HHeadDescent")
+a = wa
+if (ta > a)
+    a = ta
+endif
+if (ha > a)
+    a = ha
+endif
+d = wd
+if (-td > d)
+    d = -td
+endif
+if (-hd > d)
+    d = -hd
+endif
+SetOS2Value("WinAscent", a)
+SetOS2Value("WinDescent", d)
+SetOS2Value("HHeadAscent", a)
+SetOS2Value("HHeadDescent", -d)
+Print(ta-td)
+Print(a)
+Print(d)
+# script end

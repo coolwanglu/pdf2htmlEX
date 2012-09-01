@@ -18,14 +18,6 @@ void BackgroundRenderer::drawChar(GfxState *state, double x, double y,
   double originX, double originY,
   CharCode code, int nBytes, Unicode *u, int uLen)
 {
-    auto font = state->getFont();
-    if((font->getType() == fontType3) 
-            || (font->getWMode()) 
-            || (uLen == 0) 
-            || (!all_of(u, u+uLen, isLegalUnicode))
-      )
-    {
-        SplashOutputDev::drawChar(state, x, y, dx, dy, originX, originY, code, nBytes, u, uLen);
-    }
+//    SplashOutputDev::drawChar(state,x,y,dx,dy,originX,originY,code, nBytes, u, uLen);
 }
 

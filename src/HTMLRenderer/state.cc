@@ -7,12 +7,18 @@
  * 2012.08.14
  */
 
+/*
+ * TODO
+ * optimize lines using nested <span> (reuse classes)
+ */
+
 #include <algorithm>
 
 #include "HTMLRenderer.h"
 #include "namespace.h"
 
 using std::max;
+using std::abs;
 
 void HTMLRenderer::updateAll(GfxState * state) 
 { 
@@ -77,17 +83,6 @@ void HTMLRenderer::check_state_change(GfxState * state)
     bool need_recheck_position = false;
     bool need_rescale_font = false;
 
-    // rise
-    if(all_changed || rise_changed)
-    {
-        double new_rise = state->getRise();
-        if(!_equal(cur_rise, new_rise))
-        {
-            need_recheck_position = true;
-            cur_rise = new_rise;
-        }
-    }
-
     // text position
     // we've been tracking the text position positively in the update*** functions
     if(all_changed || text_pos_changed)
@@ -98,12 +93,12 @@ void HTMLRenderer::check_state_change(GfxState * state)
     // font name & size
     if(all_changed || font_changed)
     {
-        long long new_fn_id = install_font(state->getFont());
+        FontInfo new_font_info = install_font(state->getFont());
 
-        if(!(new_fn_id == cur_fn_id))
+        if(!(new_font_info.id == cur_font_info.id))
         {
-            new_line_status = max(new_line_status, LineStatus::DIV);
-            cur_fn_id = new_fn_id;
+            new_line_status = max(new_line_status, LineStatus::SPAN);
+            cur_font_info = new_font_info;
         }
 
         double new_font_size = state->getFontSize();
@@ -166,7 +161,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
 
         if(!(_equal(new_draw_font_size, draw_font_size)))
         {
-            new_line_status = max(new_line_status, LineStatus::DIV);
+            new_line_status = max(new_line_status, LineStatus::SPAN);
             draw_font_size = new_draw_font_size;
             cur_fs_id = install_font_size(draw_font_size);
         }
@@ -195,40 +190,45 @@ void HTMLRenderer::check_state_change(GfxState * state)
          * TODO, writing mode, set dx and solve dy
          */
 
-        double dy = cur_ty + cur_rise - draw_ty;
-        double tdx = old_ctm[4] - cur_ctm[4] - cur_ctm[2] * dy;
-        double tdy = old_ctm[5] - cur_ctm[5] - cur_ctm[3] * dy;
-
-        if(_equal(cur_ctm[0] * tdy, cur_ctm[1] * tdx))
+        bool merged = false;
+        if(_tm_equal(old_ctm, cur_ctm, 4))
         {
-            if(abs(cur_ctm[0]) > EPS)
+            double dy = cur_ty - draw_ty;
+            double tdx = old_ctm[4] - cur_ctm[4] - cur_ctm[2] * dy;
+            double tdy = old_ctm[5] - cur_ctm[5] - cur_ctm[3] * dy;
+
+            if(_equal(cur_ctm[0] * tdy, cur_ctm[1] * tdx))
             {
-                draw_tx += tdx / cur_ctm[0];
-                draw_ty += dy;
-            }
-            else if (abs(cur_ctm[1]) > EPS)
-            {
-                draw_tx += tdy / cur_ctm[1];
-                draw_ty += dy;
-            }
-            else
-            {
-                if((abs(tdx) < EPS) && (abs(tdy) < EPS))
+                if(abs(cur_ctm[0]) > EPS)
                 {
-                    // free
-                    draw_tx = cur_tx;
+                    draw_tx += tdx / cur_ctm[0];
                     draw_ty += dy;
+                    merged = true;
+                }
+                else if (abs(cur_ctm[1]) > EPS)
+                {
+                    draw_tx += tdy / cur_ctm[1];
+                    draw_ty += dy;
+                    merged = true;
                 }
                 else
                 {
-                    // fail
-                    new_line_status = max(new_line_status, LineStatus::DIV);
+                    if((abs(tdx) < EPS) && (abs(tdy) < EPS))
+                    {
+                        // free
+                        draw_tx = cur_tx;
+                        draw_ty += dy;
+                        merged = true;
+                    }
+                    // else fail
                 }
             }
+            //else no solution
         }
-        else
+        // else force new lien
+
+        if(!merged)
         {
-            // no solution
             new_line_status = max(new_line_status, LineStatus::DIV);
         }
     }
@@ -269,6 +269,18 @@ void HTMLRenderer::check_state_change(GfxState * state)
             new_line_status = max(new_line_status, LineStatus::SPAN);
             cur_color = new_color;
             cur_color_id = install_color(&new_color);
+        }
+    }
+
+    // rise
+    if(all_changed || rise_changed)
+    {
+        double new_rise = state->getRise();
+        if(!_equal(cur_rise, new_rise))
+        {
+            new_line_status = max(new_line_status, LineStatus::SPAN);
+            cur_rise = new_rise;
+            cur_rise_id = install_rise(new_rise * draw_scale);
         }
     }
 
@@ -313,20 +325,14 @@ void HTMLRenderer::prepare_line(GfxState * state)
         // don't change line_status
     }
 
-    // open new tags when necessary
     if(line_status == LineStatus::NONE)
     {
         new_line_status = LineStatus::DIV;
-
-        //resync position
-        draw_ty = cur_ty + cur_rise;
-        draw_tx = cur_tx;
     }
-    else
+    
+    if(new_line_status != LineStatus::DIV)
     {
-        assert(new_line_status != LineStatus::DIV);
-
-        // horizontal position
+        // align horizontal position
         // try to merge with the last line if possible
         double target = (cur_tx - draw_tx) * draw_scale;
         if(abs(target) < param->h_eps)
@@ -336,10 +342,10 @@ void HTMLRenderer::prepare_line(GfxState * state)
         else
         {
             // don't close a pending span here, keep the styling
-
             double w;
             auto wid = install_whitespace(target, w);
-            html_fout << format("<span class=\"_ _%|1$x|\">%2%</span>") % wid % (target > 0 ? " " : "");
+            double threshold = draw_font_size * (cur_font_info.ascent - cur_font_info.descent) * (param->space_threshold);
+            line_buf << format("<span class=\"_ _%|1$x|\">%2%</span>") % wid % (target > (threshold - EPS) ? " " : "");
             draw_tx += w / draw_scale;
         }
     }
@@ -347,41 +353,48 @@ void HTMLRenderer::prepare_line(GfxState * state)
     if(new_line_status != LineStatus::NONE)
     {
         // have to open a new tag
-        
-        if(new_line_status == LineStatus::SPAN)
+        if (new_line_status == LineStatus::DIV)
         {
-            html_fout << "<span class=\"";
+            state->transform(state->getCurX(), state->getCurY(), &line_x, &line_y);
+            line_tm_id = cur_tm_id;
+            line_ascent = cur_font_info.ascent * draw_font_size;
+            line_height = (cur_font_info.ascent - cur_font_info.descent) * draw_font_size;
+
+            //resync position
+            draw_ty = cur_ty;
+            draw_tx = cur_tx;
         }
-        else if (new_line_status == LineStatus::DIV)
+        else if(new_line_status == LineStatus::SPAN)
         {
-            // TODO: recheck descent/ascent
-            double x,y; // in user space
-            state->transform(state->getCurX(), state->getCurY(), &x, &y);
-
-            html_fout << format("<div style=\"bottom:%1%px;top:%2%px;left:%3%px;\" class=\"l ") 
-                % (y + state->getFont()->getDescent() * draw_font_size)
-                % (pageHeight - y - state->getFont()->getAscent() * draw_font_size)
-                % x;
-
-            html_fout << format("t%|1$x| f%|2$x| s%|3$x| ") % cur_tm_id % cur_fn_id % cur_fs_id;
+            // pass
         }
         else
         {
             assert(false && "Bad value of new_line_status");
         }
 
-        html_fout << format("c%|1$x| l%|2$x| w%|3$x|") % cur_color_id % cur_ls_id % cur_ws_id;
+        line_buf << format("<span class=\"f%|1$x| s%|2$x| c%|3$x| l%|4$x| w%|5$x| r%|6$x|\">") 
+            % cur_font_info.id % cur_fs_id % cur_color_id % cur_ls_id % cur_ws_id % cur_rise_id;
+        line_ascent = max(line_ascent, cur_font_info.ascent * draw_font_size);
+        line_height = max(line_height, (cur_font_info.ascent - cur_font_info.descent) * draw_font_size);
 
-        html_fout << "\">";
-
-        line_status = new_line_status;
+        line_status = LineStatus::SPAN;
     }
-
 }
 void HTMLRenderer::close_line()
 {
     if(line_status == LineStatus::NONE)
         return;
+
+    // TODO class for height
+    html_fout << format("<div style=\"left:%1%px;bottom:%2%px;height:%4%px;\" class=\"l t%|3$x|\">")
+        % line_x
+        % line_y
+        % line_tm_id
+        % line_ascent
+        ;
+    html_fout << line_buf.rdbuf();
+    line_buf.str("");
 
     if(line_status == LineStatus::SPAN)
         html_fout << "</span>";
@@ -390,4 +403,5 @@ void HTMLRenderer::close_line()
 
     html_fout << "</div>";
     line_status = LineStatus::NONE;
+
 }

@@ -8,15 +8,20 @@
  */
 
 #include <iostream>
+#include <cmath>
+#include <algorithm>
 
 #include <boost/format.hpp>
 
-#include <CharCodeToUnicode.h>
+#include "Param.h"
 
 #include "HTMLRenderer.h"
 #include "namespace.h"
+#include "util.h"
 
-long long HTMLRenderer::install_font(GfxFont * font)
+using std::abs;
+
+FontInfo HTMLRenderer::install_font(GfxFont * font)
 {
     assert(sizeof(long long) == 2*sizeof(int));
                 
@@ -24,17 +29,20 @@ long long HTMLRenderer::install_font(GfxFont * font)
 
     auto iter = font_name_map.find(fn_id);
     if(iter != font_name_map.end())
-        return iter->second.fn_id;
+        return iter->second;
 
     long long new_fn_id = font_name_map.size(); 
 
-    font_name_map.insert(make_pair(fn_id, FontInfo({new_fn_id})));
+    auto cur_info_iter = font_name_map.insert(make_pair(fn_id, FontInfo({new_fn_id, true}))).first;
 
     if(font == nullptr)
     {
         export_remote_default_font(new_fn_id);
-        return new_fn_id;
+        return cur_info_iter->second;
     }
+
+    cur_info_iter->second.ascent = font->getAscent();
+    cur_info_iter->second.descent = font->getDescent();
 
     if(param->debug)
     {
@@ -44,12 +52,12 @@ long long HTMLRenderer::install_font(GfxFont * font)
     if(font->getType() == fontType3) {
         cerr << "Type 3 fonts are unsupported and will be rendered as Image" << endl;
         export_remote_default_font(new_fn_id);
-        return new_fn_id;
+        return cur_info_iter->second;
     }
     if(font->getWMode()) {
         cerr << "Writing mode is unsupported and will be rendered as Image" << endl;
         export_remote_default_font(new_fn_id);
-        return new_fn_id;
+        return cur_info_iter->second;
     }
 
     auto * font_loc = font->locateFont(xref, gTrue);
@@ -58,23 +66,13 @@ long long HTMLRenderer::install_font(GfxFont * font)
         switch(font_loc -> locType)
         {
             case gfxFontLocEmbedded:
-                {
-                    string suffix = dump_embedded_font(font, new_fn_id);
-                    if(suffix != "")
-                    {
-                        install_embedded_font(font, suffix, new_fn_id);
-                    }
-                    else
-                    {
-                        export_remote_default_font(new_fn_id);
-                    }
-                }
+                install_embedded_font(font, cur_info_iter->second);
                 break;
             case gfxFontLocExternal:
-                install_external_font(font, new_fn_id);
+                install_external_font(font, cur_info_iter->second);
                 break;
             case gfxFontLocResident:
-                install_base_font(font, font_loc, new_fn_id);
+                install_base_font(font, font_loc, cur_info_iter->second);
                 break;
             default:
                 cerr << "TODO: other font loc" << endl;
@@ -88,125 +86,46 @@ long long HTMLRenderer::install_font(GfxFont * font)
         export_remote_default_font(new_fn_id);
     }
       
-    return new_fn_id;
-
+    return cur_info_iter->second;
 }
 
-// TODO
-// add a new function and move to text.cc
-void HTMLRenderer::install_embedded_font(GfxFont * font, const string & suffix, long long fn_id)
+void HTMLRenderer::install_embedded_font(GfxFont * font, FontInfo & info)
 {
-    // TODO Should use standard way to handle CID fonts
-    /*
-     * How it works:
-     *
-     * 1.dump the font file directly from the font descriptor and put the glyphs into the correct slots
-     *
-     * for nonCID
-     * nothing need to do
-     *
-     * for CID + nonTrueType
-     * Flatten the font 
-     *
-     * for CID Truetype
-     * Just use glyph order, and later we'll map GID (instead of char code) to Unicode
-     *
-     *
-     * 2. map charcode (or GID for CID truetype) to Unicode
-     * 
-     * generate an encoding file and let fontforge handle it.
-     */
-    
-    string fn = (format("f%|1$x|") % fn_id).str();
-
-    path script_path = tmp_dir / FONTFORGE_SCRIPT_FILENAME;
-    ofstream script_fout(script_path, ofstream::binary);
-    add_tmp_file(FONTFORGE_SCRIPT_FILENAME);
-
-    script_fout << format("Open(%1%, 1)") % (tmp_dir / (fn + suffix)) << endl;
-
-    auto ctu = font->getToUnicode();
-    int * code2GID = nullptr;
-    int code2GID_len = 0;
-    if(ctu)
+    auto path = dump_embedded_font(font, info.id);
+    if(path != "")
     {
-        // TODO: ctu could be CID2Unicode for CID fonts
-        int maxcode = 0;
-
-        if(!font->isCIDFont())
-        {
-            maxcode = 0xff;
-            if(suffix != ".ttf")
-            {
-                script_fout << "Reencode(\"unicode\")" << endl;
-            }
-        }
-        else
-        {
-            maxcode = 0xffff;
-            if(suffix != ".ttf")
-            {
-                script_fout << "CIDFlatten()" << endl;
-            }
-            else
-            {
-                script_fout << "Reencode(\"original\")" << endl;
-    
-                GfxCIDFont * _font = dynamic_cast<GfxCIDFont*>(font);
-
-                // code2GID has been stored for embedded CID fonts
-                code2GID = _font->getCIDToGID();
-                code2GID_len = _font->getCIDToGIDLen();
-            }
-        }
-
-        if(maxcode > 0)
-        {
-            ofstream map_fout(tmp_dir / (fn + ".encoding"));
-            add_tmp_file(fn+".encoding");
-
-            int cnt = 0;
-            for(int i = 0; i <= maxcode; ++i)
-            {
-                Unicode * u;
-                auto n = ctu->mapToUnicode(i, &u);
-                // not sure what to do when n > 1
-                if(n > 0)
-                {
-                    ++cnt;
-                    map_fout << format("0x%|1$X|") % ((code2GID && (i < code2GID_len))? code2GID[i] : i);
-                    for(int j = 0; j < n; ++j)
-                        map_fout << format(" 0x%|1$X|") % u[j];
-                    map_fout << format(" # 0x%|1$X|") % i << endl;
-                }
-            }
-
-            if(cnt > 0)
-            {
-                script_fout << format("LoadEncodingFile(%1%, \"%2%\")") % (tmp_dir / (fn+".encoding")) % fn << endl;
-                script_fout << format("Reencode(\"%1%\", 1)") % fn << endl;
-            }
-        }
-
-        ctu->decRefCnt();
+        embed_font(path, font, info);
+        export_remote_font(info, param->font_suffix, param->font_format, font);
     }
-
-    script_fout << format("Generate(%1%)") % ((param->single_html ? tmp_dir : dest_dir) / (fn+".ttf")) << endl;
-    if(param->single_html)
-        add_tmp_file(fn+".ttf");
-
-    if(system((boost::format("fontforge -script %1% 2>%2%") % script_path % (tmp_dir / NULL_FILENAME)).str().c_str()) != 0)
-        cerr << "Warning: fontforge failed." << endl;
-
-    add_tmp_file(NULL_FILENAME);
-
-    export_remote_font(fn_id, ".ttf", "truetype", font);
+    else
+    {
+        export_remote_default_font(info.id);
+    }
 }
 
-void HTMLRenderer::install_base_font(GfxFont * font, GfxFontLoc * font_loc, long long fn_id)
+void HTMLRenderer::install_base_font(GfxFont * font, GfxFontLoc * font_loc, FontInfo & info)
 {
     string psname(font_loc->path->getCString());
     string basename = psname.substr(0, psname.find('-'));
+
+    GfxFontLoc * localfontloc = font->locateFont(xref, gFalse);
+    if(param->embed_base_font)
+    {
+        if(localfontloc != nullptr)
+        {
+            embed_font(path(localfontloc->path->getCString()), font, info);
+            export_remote_font(info, param->font_suffix, param->font_format, font);
+            delete localfontloc;
+            return;
+        }
+        else
+        {
+            cerr << format("Cannot embed base font: f%|1$x| %2%") % info.id % psname << endl;
+            // fallback to exporting by name
+        }
+
+    }
+
     string cssfont;
     auto iter = BASE_14_FONT_CSS_FONT_MAP.find(basename);
     if(iter == BASE_14_FONT_CSS_FONT_MAP.end())
@@ -217,10 +136,23 @@ void HTMLRenderer::install_base_font(GfxFont * font, GfxFontLoc * font_loc, long
     else
         cssfont = iter->second;
 
-    export_local_font(fn_id, font, psname, cssfont);
+    // still try to get an idea of read ascent/descent
+    if(localfontloc != nullptr)
+    {
+        // fill in ascent/descent only, do not embed
+        embed_font(path(localfontloc->path->getCString()), font, info, true);
+        delete localfontloc;
+    }
+    else
+    {
+        info.ascent = font->getAscent();
+        info.descent = font->getDescent();
+    }
+
+    export_local_font(info, font, psname, cssfont);
 }
 
-void HTMLRenderer::install_external_font( GfxFont * font, long long fn_id)
+void HTMLRenderer::install_external_font(GfxFont * font, FontInfo & info)
 {
     string fontname(font->getName()->getCString());
 
@@ -232,7 +164,39 @@ void HTMLRenderer::install_external_font( GfxFont * font, long long fn_id)
         cerr << "Warning: workaround for font names in bad encodings." << endl;
     }
 
-    export_local_font(fn_id, font, fontname, "");
+    GooString gfn(fontname.c_str());
+    GfxFontLoc * localfontloc = font->locateFont(xref, gFalse);
+
+    if(param->embed_external_font)
+    {
+        if(localfontloc != nullptr)
+        {
+            embed_font(path(localfontloc->path->getCString()), font, info);
+            export_remote_font(info, param->font_suffix, param->font_format, font);
+            delete localfontloc;
+            return;
+        }
+        else
+        {
+            cerr << format("Cannot embed external font: f%|1$x| %2%") % info.id % fontname << endl;
+            // fallback to exporting by name
+        }
+    }
+
+    // still try to get an idea of read ascent/descent
+    if(localfontloc != nullptr)
+    {
+        // fill in ascent/descent only, do not embed
+        embed_font(path(localfontloc->path->getCString()), font, info, true);
+        delete localfontloc;
+    }
+    else
+    {
+        info.ascent = font->getAscent();
+        info.descent = font->getDescent();
+    }
+
+    export_local_font(info, font, fontname, "");
 }
     
 long long HTMLRenderer::install_font_size(double font_size)
@@ -314,3 +278,16 @@ long long HTMLRenderer::install_whitespace(double ws_width, double & actual_widt
     return new_ws_id;
 }
 
+long long HTMLRenderer::install_rise(double rise)
+{
+    auto iter = rise_map.lower_bound(rise - param->v_eps);
+    if((iter != rise_map.end()) && (abs(iter->first - rise) < param->v_eps))
+    {
+        return iter->second;
+    }
+
+    long long new_rise_id = rise_map.size();
+    rise_map.insert(make_pair(rise, new_rise_id));
+    export_rise(new_rise_id, rise);
+    return new_rise_id;
+}

@@ -1,8 +1,7 @@
 /*
  * HTMLRenderer.h
  *
- *  Created on: Mar 15, 2011
- *      Author: tian
+ * by WangLu
  */
 
 #ifndef HTMLRENDERER_H_
@@ -12,6 +11,7 @@
 #include <map>
 #include <vector>
 #include <set>
+#include <sstream>
 
 #include <boost/format.hpp>
 #include <boost/filesystem/fstream.hpp>
@@ -50,6 +50,7 @@
  * w<hex> - Word spacing
  * c<hex> - Color
  * _<hex> - white space
+ * r<hex> - Rise
  *
  */
 
@@ -124,15 +125,16 @@ class HTMLRenderer : public OutputDev
         ////////////////////////////////////////////////////
         void add_tmp_file (const std::string & fn);
         void clean_tmp_files ();
-        std::string dump_embedded_font (GfxFont * font, long long fn_id);
+        boost::filesystem::path dump_embedded_font (GfxFont * font, long long fn_id);
+        void embed_font(const boost::filesystem::path & filepath, GfxFont * font, FontInfo & info, bool get_metric_only = false);
 
         ////////////////////////////////////////////////////
         // manage styles
         ////////////////////////////////////////////////////
-        virtual long long install_font(GfxFont * font);
-        void install_embedded_font(GfxFont * font, const std::string & suffix, long long fn_id);
-        void install_base_font(GfxFont * font, GfxFontLoc * font_loc, long long fn_id);
-        void install_external_font (GfxFont * font, long long fn_id);
+        virtual FontInfo install_font(GfxFont * font);
+        void install_embedded_font(GfxFont * font, FontInfo & info);
+        void install_base_font(GfxFont * font, GfxFontLoc * font_loc, FontInfo & info);
+        void install_external_font (GfxFont * font, FontInfo & info);
 
         long long install_font_size(double font_size);
         long long install_transform_matrix(const double * tm);
@@ -140,6 +142,7 @@ class HTMLRenderer : public OutputDev
         long long install_word_space(double word_space);
         long long install_color(const GfxRGB * rgb);
         long long install_whitespace(double ws_width, double & actual_width);
+        long long install_rise(double rise);
 
         ////////////////////////////////////////////////////
         // export css styles
@@ -148,15 +151,17 @@ class HTMLRenderer : public OutputDev
          * remote font: to be retrieved from the web server
          * local font: to be substituted with a local (client side) font
          */
-        void export_remote_font(long long fn_id, const std::string & suffix, const std::string & fontfileformat, GfxFont * font);
+        void export_remote_font(const FontInfo & info, const std::string & suffix, const std::string & fontfileformat, GfxFont * font);
         void export_remote_default_font(long long fn_id);
-        void export_local_font(long long fn_id, GfxFont * font, const std::string & original_font_name, const std::string & cssfont);
+        void export_local_font(const FontInfo & info, GfxFont * font, const std::string & original_font_name, const std::string & cssfont);
+
         void export_font_size(long long fs_id, double font_size);
         void export_transform_matrix(long long tm_id, const double * tm);
         void export_letter_space(long long ls_id, double letter_space);
         void export_word_space(long long ws_id, double word_space);
         void export_color(long long color_id, const GfxRGB * rgb);
         void export_whitespace(long long ws_id, double ws_width);
+        void export_rise(long long rise_id, double rise);
 
         ////////////////////////////////////////////////////
         // state tracking 
@@ -200,15 +205,12 @@ class HTMLRenderer : public OutputDev
         // The order is according to the appearance in check_state_change
         // any state changed
         bool all_changed;
-        // rise
-        double cur_rise;
-        bool rise_changed;
         // current position
         double cur_tx, cur_ty; // real text position, in text coords
         bool text_pos_changed; 
 
         // font & size
-        long long cur_fn_id;
+        FontInfo cur_font_info;
         double cur_font_size;
         long long cur_fs_id; 
         bool font_changed;
@@ -240,6 +242,11 @@ class HTMLRenderer : public OutputDev
         GfxRGB cur_color;
         bool color_changed;
 
+        // rise
+        long long cur_rise_id;
+        double cur_rise;
+        bool rise_changed;
+
         // optimize for web
         // we try to render the final font size directly
         // to reduce the effect of ctm as much as possible
@@ -251,7 +258,16 @@ class HTMLRenderer : public OutputDev
         double draw_scale; 
 
         // the position of next char, in text coords
+        // this is actual position (in HTML), which might be different from cur_tx/ty (in PDF)
+        // also keep in mind that they are not the final position, as they will be transform by CTM (also true for cur_tx/ty)
         double draw_tx, draw_ty; 
+
+        // some metrics have to be determined after all elements in the lines have been seen
+        // TODO: add a class for these
+        double line_x, line_y;
+        long long line_tm_id;
+        double line_ascent, line_height;
+        std::stringstream line_buf; 
 
         ////////////////////////////////////////////////////
         // styles & resources
@@ -268,6 +284,7 @@ class HTMLRenderer : public OutputDev
         std::map<GfxRGB, long long> color_map; 
 
         std::map<double, long long> whitespace_map;
+        std::map<double, long long> rise_map;
 
         int image_count;
 
@@ -280,7 +297,7 @@ class HTMLRenderer : public OutputDev
         static const std::string NECK_HTML_FILENAME;
         static const std::string TAIL_HTML_FILENAME;
         static const std::string CSS_FILENAME;
-        static const std::string FONTFORGE_SCRIPT_FILENAME;
+        static const std::string UNIFY_SCRIPT_FILENAME;
         // for cross-platform purpose, use a "null" file instead of /dev/null
         static const std::string NULL_FILENAME;
 };

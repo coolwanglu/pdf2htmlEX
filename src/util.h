@@ -13,10 +13,14 @@
 #include <algorithm>
 #include <istream>
 #include <ostream>
+#include <iostream>
+#include <cmath>
 
 #include <GfxState.h>
+#include <GfxFont.h>
 #include <CharTypes.h>
 #include <UTF8.h>
+#include <GlobalParams.h>
 
 #include "Consts.h"
 
@@ -25,6 +29,8 @@ using std::ostream;
 using std::noskipws;
 using std::endl;
 using std::flush;
+using std::cerr;
+using std::floor;
 
 // mute gcc warning of unused function
 namespace
@@ -63,6 +69,64 @@ static inline bool isLegalUnicode(Unicode u)
         return false;
 
     return true;
+}
+
+static inline Unicode map_to_private(CharCode code)
+{
+    Unicode private_mapping = (Unicode)(code + 0xE000);
+    if(private_mapping > 0xF8FF)
+    {
+        private_mapping = (Unicode)((private_mapping - 0xF8FF) + 0xF0000);
+        if(private_mapping > 0xFFFFD)
+        {
+            private_mapping = (Unicode)((private_mapping - 0xFFFFD) + 0x100000);
+            if(private_mapping > 0x10FFFD)
+            {
+                cerr << "Warning: all private use unicode are used" << endl;
+            }
+        }
+    }
+    return private_mapping;
+}
+
+/*
+ * Try to determine the Unicode value directly from the information in the font
+ */
+static inline Unicode unicode_from_font (CharCode code, GfxFont * font)
+{
+    if(!font->isCIDFont())
+    {
+        char * cname = dynamic_cast<Gfx8BitFont*>(font)->getCharName(code);
+        // may be untranslated ligature
+        if(cname)
+        {
+            Unicode ou = globalParams->mapNameToUnicode(cname);
+
+            if(isLegalUnicode(ou))
+                return ou;
+        }
+    }
+
+    return map_to_private(code);
+}
+
+/*
+ * We have to use a single Unicode value to reencode fonts
+ * if we got multi-unicode values, it might be expanded ligature, try to restore it
+ * if we cannot figure it out at the end, use a private mapping
+ */
+static inline Unicode check_unicode(Unicode * u, int len, CharCode code, GfxFont * font)
+{
+    if(len == 0)
+        return map_to_private(code);
+
+    if(len == 1)
+    {
+        if(isLegalUnicode(*u))
+            return *u;
+    }
+
+    return unicode_from_font(code, font);
 }
 
 static inline void outputUnicodes(std::ostream & out, const Unicode * u, int uLen)
@@ -137,7 +201,9 @@ static inline bool operator == (const GfxRGB & rgb1, const GfxRGB & rgb2)
 class FontInfo
 {
 public:
-    long long fn_id;
+    long long id;
+    bool use_tounicode;
+    double ascent, descent;
 };
 
 // wrapper of the transform matrix double[6]

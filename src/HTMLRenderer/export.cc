@@ -12,39 +12,26 @@
 
 #include "HTMLRenderer.h"
 #include "namespace.h"
+#include "config.h"
 
 using boost::algorithm::ifind_first;
 
-void HTMLRenderer::export_remote_font(long long fn_id, const string & suffix, const string & fontfileformat, GfxFont * font)
+void HTMLRenderer::export_remote_font(const FontInfo & info, const string & suffix, const string & fontfileformat, GfxFont * font)
 {
-    allcss_fout << format("@font-face{font-family:f%|1$x|;src:url(") % fn_id;
+    allcss_fout << format("@font-face{font-family:f%|1$x|;src:url(") % info.id;
 
-    const std::string fn = (format("f%|1$x|%2%") % fn_id % suffix).str();
+    const std::string fn = (format("f%|1$x|") % info.id).str();
     if(param->single_html)
     {
-        allcss_fout << "'data:font/" << fontfileformat << ";base64," << base64stream(ifstream(tmp_dir / fn, ifstream::binary)) << "'";
+        allcss_fout << "'data:font/" << fontfileformat << ";base64," << base64stream(ifstream(tmp_dir / (fn+suffix), ifstream::binary)) << "'";
     }
     else
     {
-        allcss_fout << fn;
+        allcss_fout << (fn+suffix);
     }
+    
 
-    allcss_fout << format(")format(\"%1%\");}.f%|2$x|{font-family:f%|2$x|;") % fontfileformat % fn_id;
-
-    double a = font->getAscent();
-    double d = font->getDescent();
-    double r = _is_positive(a-d) ? (a/(a-d)) : 1.0;
-
-    for(const string & prefix : {"", "-ms-", "-moz-", "-webkit-", "-o-"})
-    {
-        allcss_fout << prefix << "transform-origin:0% " << (r*100.0) << "%;";
-    }
-
-    // TODO: may move line-height to drawString
-    // as a & d are not useful sometimes
-    allcss_fout << "line-height:" << (a-d) << ";";
-
-    allcss_fout << "}" << endl;
+    allcss_fout << format(")format(\"%1%\");}.f%|2$x|{font-family:f%|2$x|;line-height:%3%;}") % fontfileformat % info.id % (info.ascent - info.descent) << endl;
 }
 
 static string general_font_family(GfxFont * font)
@@ -63,33 +50,23 @@ void HTMLRenderer::export_remote_default_font(long long fn_id)
     allcss_fout << format(".f%|1$x|{font-family:sans-serif;color:transparent;visibility:hidden;}")%fn_id << endl;
 }
 
-void HTMLRenderer::export_local_font(long long fn_id, GfxFont * font, const string & original_font_name, const string & cssfont)
+void HTMLRenderer::export_local_font(const FontInfo & info, GfxFont * font, const string & original_font_name, const string & cssfont)
 {
-    allcss_fout << format(".f%|1$x|{") % fn_id;
+    allcss_fout << format(".f%|1$x|{") % info.id;
     allcss_fout << "font-family:" << ((cssfont == "") ? (original_font_name + "," + general_font_family(font)) : cssfont) << ";";
 
-    if(font->isBold())
+    if(font->isBold() || ifind_first(original_font_name, "bold"))
         allcss_fout << "font-weight:bold;";
 
     if(ifind_first(original_font_name, "oblique"))
         allcss_fout << "font-style:oblique;";
-    else if(font->isItalic())
+    else if(font->isItalic() || ifind_first(original_font_name, "italic"))
         allcss_fout << "font-style:italic;";
 
-    double a = font->getAscent();
-    double d = font->getDescent();
-    double r = _is_positive(a-d) ? (a/(a-d)) : 1.0;
-
-    for(const string & prefix : {"", "-ms-", "-moz-", "-webkit-", "-o-"})
-    {
-        allcss_fout << prefix << "transform-origin:0% " << (r*100.0) << "%;";
-    }
-
-    allcss_fout << "line-height:" << (a-d) << ";";
+    allcss_fout << "line-height:" << (info.ascent - info.descent) << ";";
 
     allcss_fout << "}" << endl;
 }
-
 
 void HTMLRenderer::export_font_size (long long fs_id, double font_size)
 {
@@ -147,5 +124,10 @@ void HTMLRenderer::export_whitespace (long long ws_id, double ws_width)
         allcss_fout << format("._%|1$x|{display:inline-block;width:%2%px;}") % ws_id % ws_width << endl;
     else
         allcss_fout << format("._%|1$x|{display:inline;margin-left:%2%px;}") % ws_id % ws_width << endl;
+}
+
+void HTMLRenderer::export_rise (long long rise_id, double rise)
+{
+    allcss_fout << format(".r%|1$x|{top:%2%px;}") % rise_id % (-rise) << endl;
 }
 

@@ -1,13 +1,25 @@
-.p {
+ .p {
   position:relative;
   overflow:hidden;
+  /* for Chrome & Safari */
+  -webkit-text-stroke-width:0.13px; 
 }
 .l {
   position:absolute;
   white-space:pre;
+  font-size:1px;
+  transform-origin:0% 190%;
+  -ms-transform-origin:0% 100%;
+  -moz-transform-origin:0% 100%;
+  -webkit-transform-origin:0% 100%;
+  -o-transform-origin:0% 100%;
 }
 ._ {
   color:transparent;
+}
+.p span {
+  position:relative;
+  vertical-align: baseline;
 }
 .i {
   position:absolute;

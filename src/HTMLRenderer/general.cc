@@ -109,7 +109,7 @@ void HTMLRenderer::pre_process()
     html_fout << fixed;
     allcss_fout << fixed;
 
-    allcss_fout << ifstream(PDF2HTMLEX_DATA_PATH / CSS_FILENAME, ifstream::binary).rdbuf();
+    allcss_fout << ifstream(PDF2HTMLEX_DATA_PATH / CSS_FILENAME, ifstream::binary).rdbuf(); 
 }
 
 void HTMLRenderer::post_process()
@@ -153,11 +153,9 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
     
     html_fout << format(");background-position:0 0;background-size:%1%px %2%px;background-repeat:no-repeat;\">") % pageWidth % pageHeight;
             
-    cur_rise = 0;
-
     draw_scale = 1.0;
 
-    cur_fn_id = install_font(nullptr);
+    cur_font_info = install_font(nullptr);
     cur_font_size = draw_font_size = 0;
     cur_fs_id = install_font_size(cur_font_size);
     
@@ -171,6 +169,9 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
 
     cur_color.r = cur_color.g = cur_color.b = 0;
     cur_color_id = install_color(&cur_color);
+
+    cur_rise = 0;
+    cur_rise_id = install_rise(cur_rise);
 
     cur_tx = cur_ty = 0;
     draw_tx = draw_ty = 0;
@@ -241,5 +242,5 @@ const std::string HTMLRenderer::HEAD_HTML_FILENAME = "head.html";
 const std::string HTMLRenderer::NECK_HTML_FILENAME = "neck.html";
 const std::string HTMLRenderer::TAIL_HTML_FILENAME = "tail.html";
 const std::string HTMLRenderer::CSS_FILENAME = "all.css";
+const std::string HTMLRenderer::UNIFY_SCRIPT_FILENAME = "unify.pe";
 const std::string HTMLRenderer::NULL_FILENAME = "null";
-const std::string HTMLRenderer::FONTFORGE_SCRIPT_FILENAME = "pdf2htmlEX.pe";
