@@ -33,11 +33,17 @@ This program is designed for scientific papers with complicate formulas and figu
 
 ## Get started
 
-### Ubuntu PPA
+### Ubuntu 
 
 There is a Ubuntu PPA set up at [here](https://launchpad.net/~coolwanglu/+archive/pdf2htmlex).
 
 Make sure you install fontforge in the PPA or [the git version](https://github.com/fontforge/fontforge).
+
+### ArchLinux
+
+Special thanks to Arthur Titeica for the [AUR Package](https://aur.archlinux.org/packages.php?ID=62426).
+
+Please also update your fontforge-git.
 
 
 ### Build from source
