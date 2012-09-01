@@ -236,7 +236,7 @@ void HTMLRenderer::embed_font(const path & filepath, GfxFont * font, FontInfo & 
                         {
                             if(!name_conflict_warned)
                             {
-                                name_conflict_warned = false;
+                                name_conflict_warned = true;
                                 //TODO: may be resolved using advanced font properties?
                                 cerr << "Warning: encoding confliction detected in font: " << fn << endl;
                             }
