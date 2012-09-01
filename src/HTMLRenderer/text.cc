@@ -9,6 +9,7 @@
 
 #include <iostream>
 #include <algorithm>
+#include <unordered_set>
 
 #include <boost/format.hpp>
 #include <boost/algorithm/string.hpp>
@@ -22,6 +23,7 @@
 #include "config.h"
 
 using boost::algorithm::to_lower;
+using std::unordered_set;
 
 path HTMLRenderer::dump_embedded_font (GfxFont * font, long long fn_id)
 {
@@ -212,12 +214,35 @@ void HTMLRenderer::embed_font(const path & filepath, GfxFont * font, FontInfo & 
                 // move the slot such that it's consistent with the encoding seen in PDF
                 ofstream out(tmp_dir / (fn + "_.encoding"));
                 add_tmp_file(fn+"_.encoding");
+                
+                unordered_set<string> nameset;
+                bool name_conflict_warned = false;
 
                 out << format("/%1% [") % fn << endl;
                 for(int i = 0; i < 256; ++i)
                 {
                     auto cn = font_8bit->getCharName(i);
-                    out << "/" << ((cn == nullptr) ? ".notdef" : cn) << endl;
+                    if(cn == nullptr)
+                    {
+                        out << "/.notdef" << endl;
+                    }
+                    else
+                    {
+                        if(nameset.insert(string(cn)).second)
+                        {
+                            out << "/" << cn << endl;
+                        }
+                        else
+                        {
+                            if(!name_conflict_warned)
+                            {
+                                name_conflict_warned = false;
+                                //TODO: may be resolved using advanced font properties?
+                                cerr << "Warning: encoding confliction detected in font: " << fn << endl;
+                            }
+                            out << "/.notdef" << endl;
+                        }
+                    }
                 }
                 out << "] def" << endl;
 
