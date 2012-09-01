@@ -41,7 +41,7 @@ Make sure you install fontforge in the PPA or [the git version](https://github.c
 
 ### ArchLinux
 
-Special thanks to Arthur Titeica for the [AUG Package](https://aur.archlinux.org/packages.php?ID=62426).
+Special thanks to Arthur Titeica for the [AUR Package](https://aur.archlinux.org/packages.php?ID=62426).
 
 Please also update your fontforge-git.
 
