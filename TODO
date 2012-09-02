@@ -1,4 +1,8 @@
+link fontforge instead of script
+
 option to break ligatures
+
+detect duplicate base fonts when embedding
 
 compress div/span states
 
