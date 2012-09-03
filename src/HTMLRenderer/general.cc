@@ -20,6 +20,10 @@ using std::flush;
 using boost::filesystem::remove;
 using boost::filesystem::filesystem_error;
 
+static void dummy(void *, ErrorCategory, int pos, char *)
+{
+}
+
 HTMLRenderer::HTMLRenderer(const Param * param)
     :line_status(LineStatus::NONE)
     ,image_count(0)
@@ -27,6 +31,9 @@ HTMLRenderer::HTMLRenderer(const Param * param)
     ,dest_dir(param->dest_dir)
     ,tmp_dir(param->tmp_dir)
 {
+    //disable error function of poppler
+    setErrorCallback(&dummy, nullptr);
+
     ff_init();
     cur_mapping = new int32_t [0x10000];
 }
