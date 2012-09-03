@@ -1,5 +1,5 @@
 /*
- * text.ccc
+ * text.cc
  *
  * Handling text & font, and relative stuffs
  *
@@ -9,6 +9,7 @@
 
 #include <iostream>
 #include <algorithm>
+#include <unordered_set>
 
 #include <boost/format.hpp>
 #include <boost/algorithm/string.hpp>
@@ -17,11 +18,13 @@
 #include <CharCodeToUnicode.h>
 #include <fofi/FoFiTrueType.h>
 
+#include "ff/ff.h"
 #include "HTMLRenderer.h"
 #include "namespace.h"
 #include "config.h"
 
 using boost::algorithm::to_lower;
+using std::unordered_set;
 
 path HTMLRenderer::dump_embedded_font (GfxFont * font, long long fn_id)
 {
@@ -160,11 +163,7 @@ void HTMLRenderer::embed_font(const path & filepath, GfxFont * font, FontInfo & 
 
     string fn = (format("f%|1$x|") % info.id).str();
 
-    path script_path = tmp_dir / (fn + ".pe");
-    ofstream script_fout(script_path, ofstream::binary);
-    add_tmp_file(fn+".pe");
-
-    script_fout << format("Open(%1%, 1)") % filepath << endl;
+    ff_load_font(filepath.c_str());
 
     int * code2GID = nullptr;
     int code2GID_len = 0;
@@ -198,7 +197,7 @@ void HTMLRenderer::embed_font(const path & filepath, GfxFont * font, FontInfo & 
             maxcode = 0xff;
             if((suffix == ".ttf") || (suffix == ".ttc") || (suffix == ".otf"))
             {
-                script_fout << "Reencode(\"original\")" << endl;
+                ff_reencode("original", 0);
                 FoFiTrueType *fftt = nullptr;
                 if((fftt = FoFiTrueType::load((char*)filepath.c_str())) != nullptr)
                 {
@@ -210,19 +209,38 @@ void HTMLRenderer::embed_font(const path & filepath, GfxFont * font, FontInfo & 
             else
             {
                 // move the slot such that it's consistent with the encoding seen in PDF
-                ofstream out(tmp_dir / (fn + "_.encoding"));
-                add_tmp_file(fn+"_.encoding");
+                
+                unordered_set<string> nameset;
+                bool name_conflict_warned = false;
 
-                out << format("/%1% [") % fn << endl;
+                memset(cur_mapping2, 0, 256 * sizeof(char*));
+
                 for(int i = 0; i < 256; ++i)
                 {
                     auto cn = font_8bit->getCharName(i);
-                    out << "/" << ((cn == nullptr) ? ".notdef" : cn) << endl;
+                    if(cn == nullptr)
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        if(nameset.insert(string(cn)).second)
+                        {
+                            cur_mapping2[i] = cn;    
+                        }
+                        else
+                        {
+                            if(!name_conflict_warned)
+                            {
+                                name_conflict_warned = true;
+                                //TODO: may be resolved using advanced font properties?
+                                cerr << "Warning: encoding confliction detected in font: " << fn << endl;
+                            }
+                        }
+                    }
                 }
-                out << "] def" << endl;
 
-                script_fout << format("LoadEncodingFile(%1%)") % (tmp_dir / (fn+"_.encoding")) << endl;
-                script_fout << format("Reencode(\"%1%\")") % fn << endl;
+                ff_reencode_raw2(cur_mapping2, 256, 0);
             }
         }
         else
@@ -231,7 +249,7 @@ void HTMLRenderer::embed_font(const path & filepath, GfxFont * font, FontInfo & 
 
             if(suffix == ".ttf")
             {
-                script_fout << "Reencode(\"original\")" << endl;
+                ff_reencode("original", 0);
 
                 GfxCIDFont * _font = dynamic_cast<GfxCIDFont*>(font);
 
@@ -241,7 +259,7 @@ void HTMLRenderer::embed_font(const path & filepath, GfxFont * font, FontInfo & 
             }
             else
             {
-                script_fout << "CIDFlatten()" << endl;
+                ff_cidflatten();
             }
         }
 
@@ -257,48 +275,37 @@ void HTMLRenderer::embed_font(const path & filepath, GfxFont * font, FontInfo & 
          * 
          */
 
-        auto ctu = font->getToUnicode();
 
-        ofstream map_fout(tmp_dir / (fn + ".encoding"));
-        add_tmp_file(fn+".encoding");
-
-        int cnt = 0;
-        for(int i = 0; i <= maxcode; ++i)
         {
-            if((suffix != ".ttf") && (font_8bit != nullptr) && (font_8bit->getCharName(i) == nullptr))
-                continue;
+            auto ctu = font->getToUnicode();
+            memset(cur_mapping, 0, maxcode * sizeof(int32_t));
 
-            ++ cnt;
-            map_fout << format("0x%|1$X|") % ((code2GID && (i < code2GID_len))? code2GID[i] : i);
-
-            Unicode u, *pu=&u;
-
-            if(info.use_tounicode)
+            for(int i = 0; i <= maxcode; ++i)
             {
-                int n = 0;
-                if(ctu)
-                    n = ctu->mapToUnicode(i, &pu);
-                u = check_unicode(pu, n, i, font);
-            }
-            else
-            {
-                u = unicode_from_font(i, font);
+                if((suffix != ".ttf") && (font_8bit != nullptr) && (font_8bit->getCharName(i) == nullptr))
+                {
+                    continue;
+                }
+
+                Unicode u, *pu=&u;
+                if(info.use_tounicode)
+                {
+                    int n = ctu ? (ctu->mapToUnicode(i, &pu)) : 0;
+                    u = check_unicode(pu, n, i, font);
+                }
+                else
+                {
+                    u = unicode_from_font(i, font);
+                }
+
+                cur_mapping[((code2GID && (i < code2GID_len))? code2GID[i] : i)] = u;
             }
 
-            map_fout << format(" 0x%|1$X|") % u;
-            map_fout << format(" # 0x%|1$X|") % i;
+            ff_reencode_raw(cur_mapping, maxcode, 1);
 
-            map_fout << endl;
+            if(ctu)
+                ctu->decRefCnt();
         }
-
-        if(cnt > 0)
-        {
-            script_fout << format("LoadEncodingFile(%1%, \"%2%\")") % (tmp_dir / (fn+".encoding")) % fn << endl;
-            script_fout << format("Reencode(\"%1%\", 1)") % fn << endl;
-        }
-
-        if(ctu)
-            ctu->decRefCnt();
     }
 
     auto dest = ((param->single_html ? tmp_dir : dest_dir) / (fn+(param->font_suffix)));
@@ -311,41 +318,36 @@ void HTMLRenderer::embed_font(const path & filepath, GfxFont * font, FontInfo & 
      * Trying to unify them 
      */
     // Generate an intermediate ttf font in order to retrieve the metrics
-    add_tmp_file(fn + "_.ttf");
-    script_fout << format("Generate(%1%)") % (tmp_dir / (fn + "_.ttf")) << endl;
-    script_fout << "Close()" << endl;
-    script_fout << format("Open(%1%, 1)") % (tmp_dir / (fn + "_.ttf")) << endl;
-    script_fout << ifstream(PDF2HTMLEX_DATA_PATH / UNIFY_SCRIPT_FILENAME).rdbuf();
-    script_fout << format("Generate(%1%)") % dest << endl;
-    script_fout.close();
+    // TODO: see if we can get the values without save/load
+    
+    string tmp_fn = fn+"_.ttf";
+    add_tmp_file(tmp_fn);
+    auto tmp_path = tmp_dir / tmp_fn;
+    ff_save(tmp_path.c_str());
+    ff_close();
+    ff_load_font(tmp_path.c_str());
 
-    if(system((boost::format("fontforge -script %1% 1>%2% 2>%3%") % script_path % (tmp_dir / (fn+".info")) % (tmp_dir / NULL_FILENAME)).str().c_str()) != 0)
-        cerr << "Warning: fontforge failed." << endl;
+    int em = ff_get_em_size();
+    int ascent = ff_get_max_ascent();
+    int descent = ff_get_max_descent();
 
-    add_tmp_file(fn+".info");
-    add_tmp_file(NULL_FILENAME);
+    ff_set_ascent(ascent);
+    ff_set_descent(descent);
+    ff_save(dest.c_str());
+    ff_close();
 
-    // read metric
-    int em, ascent, descent;
-    if(ifstream(tmp_dir / (fn+".info")) >> em >> ascent >> descent)
+    if(em != 0)
     {
-        if(em != 0)
-        {
-            info.ascent = ((double)ascent) / em;
-            info.descent = -((double)descent) / em;
-        }
-        else
-        {
-            info.ascent = 0;
-            info.descent = 0;
-        }
+        info.ascent = ((double)ascent) / em;
+        info.descent = -((double)descent) / em;
     }
     else
     {
-        cerr << "Warning: cannot read font info for " << fn << endl;
-        info.ascent = font->getAscent();
-        info.descent = font->getDescent();
+        info.ascent = 0;
+        info.descent = 0;
     }
+
+    // read metric
 
     if(param->debug)
     {

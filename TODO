@@ -1,16 +1,21 @@
-take care of spaces (simulate by <span>)
-use absolute positioning for long whitespace
+cmake - pkgconfig - fontforge - python
 
-manpage
+option to break ligatures
 
-disable selection if we know unicode is wrong
+detect duplicate base fonts when embedding
 
 compress div/span states
 
-option to break ligatures
-check if we can add information to the font, and let browsers show ligatures automatically
+multiple charcode mapped to a same glyph
+re-encoded only used glyphs
+
+take care of spaces (simulate by <span>)
+use absolute positioning for long whitespace
+
+disable selection if we know unicode is wrong
 
 ==Future==
+check if we can add information to the font, and let browsers show ligatures automatically
 custom html/css dir
 native support for image
 native support for draw

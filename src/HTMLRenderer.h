@@ -12,6 +12,7 @@
 #include <vector>
 #include <set>
 #include <sstream>
+#include <cstdint>
 
 #include <boost/format.hpp>
 #include <boost/filesystem/fstream.hpp>
@@ -269,6 +270,10 @@ class HTMLRenderer : public OutputDev
         double line_ascent, line_height;
         std::stringstream line_buf; 
 
+        // for font reencoding
+        int32_t * cur_mapping;
+        char ** cur_mapping2;
+
         ////////////////////////////////////////////////////
         // styles & resources
         ////////////////////////////////////////////////////
@@ -297,9 +302,6 @@ class HTMLRenderer : public OutputDev
         static const std::string NECK_HTML_FILENAME;
         static const std::string TAIL_HTML_FILENAME;
         static const std::string CSS_FILENAME;
-        static const std::string UNIFY_SCRIPT_FILENAME;
-        // for cross-platform purpose, use a "null" file instead of /dev/null
-        static const std::string NULL_FILENAME;
 };
 
 #endif /* HTMLRENDERER_H_ */

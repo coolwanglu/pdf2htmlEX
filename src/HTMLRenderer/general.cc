@@ -13,11 +13,16 @@
 #include "BackgroundRenderer.h"
 #include "config.h"
 #include "namespace.h"
+#include "ff/ff.h"
 
 using std::fixed;
 using std::flush;
 using boost::filesystem::remove;
 using boost::filesystem::filesystem_error;
+
+static void dummy(void *, ErrorCategory, int pos, char *)
+{
+}
 
 HTMLRenderer::HTMLRenderer(const Param * param)
     :line_status(LineStatus::NONE)
@@ -26,11 +31,19 @@ HTMLRenderer::HTMLRenderer(const Param * param)
     ,dest_dir(param->dest_dir)
     ,tmp_dir(param->tmp_dir)
 {
+    //disable error function of poppler
+    setErrorCallback(&dummy, nullptr);
+
+    ff_init();
+    cur_mapping = new int32_t [0x10000];
+    cur_mapping2 = new char* [0x100];
 }
 
 HTMLRenderer::~HTMLRenderer()
 { 
     clean_tmp_files();
+    delete [] cur_mapping;
+    delete [] cur_mapping2;
 }
 
 void HTMLRenderer::process(PDFDoc *doc)
@@ -242,5 +255,3 @@ const std::string HTMLRenderer::HEAD_HTML_FILENAME = "head.html";
 const std::string HTMLRenderer::NECK_HTML_FILENAME = "neck.html";
 const std::string HTMLRenderer::TAIL_HTML_FILENAME = "tail.html";
 const std::string HTMLRenderer::CSS_FILENAME = "all.css";
-const std::string HTMLRenderer::UNIFY_SCRIPT_FILENAME = "unify.pe";
-const std::string HTMLRenderer::NULL_FILENAME = "null";
