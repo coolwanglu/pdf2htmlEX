@@ -204,9 +204,9 @@ class PC_HTMLRenderer : public HTMLRenderer
         ostringstream cur_title;
 
   protected: 
-        virtual long long install_font(GfxFont * font) {
+        virtual FontInfo install_font(GfxFont * font) {
             if (param->only_metadata) 
-                return 0;
+                return FontInfo({0,0,0,0});
             return HTMLRenderer::install_font(font); 
         }
 
