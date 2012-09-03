@@ -42,6 +42,13 @@ static int max(int a, int b)
     return (a>b) ? a : b;
 }
 
+static void dummy(const char * format, ...)
+{
+    va_list al;
+    va_start(al, format);
+    va_end(al);
+}
+
 void ff_init(void)
 {
     InitSimpleStuff();
@@ -49,6 +56,9 @@ void ff_init(void)
         default_encoding=FindOrMakeEncoding("ISO8859-1");
     if ( default_encoding==NULL )
         default_encoding=&custom;	/* In case iconv is broken */
+
+    //disable error output of Fontforge
+    ui_interface->logwarning = &dummy;
 }
 void ff_load_font(const char * filename)
 {
@@ -77,6 +87,28 @@ void ff_reencode(const char * encname, int force)
     Encoding * enc = FindOrMakeEncoding(encname);
     if(!enc)
         err("Unknown encoding %s\n", encname);
+
+    if(force)
+    {
+        SFForceEncoding(cur_font, cur_font->fv->map, enc);
+    }
+    else
+    {
+        EncMapFree(cur_font->fv->map);
+        cur_font->fv->map= EncMapFromEncoding(cur_font, enc);
+    }
+
+    SFReplaceEncodingBDFProps(cur_font, cur_font->fv->map);
+}
+
+void ff_reencode_raw(int32 * mapping, int mapping_len, int force)
+{
+    Encoding * enc = calloc(1, sizeof(Encoding));
+    enc->only_1byte = enc->has_1byte = true;
+    enc->char_cnt = mapping_len;
+    enc->unicode = (int32_t*)malloc(mapping_len * sizeof(int32_t));
+    memcpy(enc->unicode, mapping, mapping_len * sizeof(int32_t));
+    enc->enc_name = strcopy("");
 
     if(force)
     {

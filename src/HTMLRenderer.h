@@ -12,6 +12,7 @@
 #include <vector>
 #include <set>
 #include <sstream>
+#include <cstdint>
 
 #include <boost/format.hpp>
 #include <boost/filesystem/fstream.hpp>
@@ -268,6 +269,9 @@ class HTMLRenderer : public OutputDev
         long long line_tm_id;
         double line_ascent, line_height;
         std::stringstream line_buf; 
+
+        // for font reencoding
+        int32_t * cur_mapping;
 
         ////////////////////////////////////////////////////
         // styles & resources

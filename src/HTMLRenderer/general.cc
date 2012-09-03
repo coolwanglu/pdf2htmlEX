@@ -28,11 +28,13 @@ HTMLRenderer::HTMLRenderer(const Param * param)
     ,tmp_dir(param->tmp_dir)
 {
     ff_init();
+    cur_mapping = new int32_t [0x10000];
 }
 
 HTMLRenderer::~HTMLRenderer()
 { 
     clean_tmp_files();
+    delete [] cur_mapping;
 }
 
 void HTMLRenderer::process(PDFDoc *doc)

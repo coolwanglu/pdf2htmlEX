@@ -209,6 +209,7 @@ void HTMLRenderer::embed_font(const path & filepath, GfxFont * font, FontInfo & 
             else
             {
                 // move the slot such that it's consistent with the encoding seen in PDF
+                // TODO: build encoding directly
                 ofstream out(tmp_dir / (fn + "_.encoding"));
                 add_tmp_file(fn+"_.encoding");
                 
@@ -277,31 +278,24 @@ void HTMLRenderer::embed_font(const path & filepath, GfxFont * font, FontInfo & 
          * - For 8bit nonTruetype fonts:
          *   Try to calculate the correct Unicode value from the glyph names, unless param->always_apply_tounicode is set
          * 
-         * TODO: build Encoding directly, without read/write files
          */
 
-        auto ctu = font->getToUnicode();
-        int cnt = 0;
 
         {
-            ofstream map_fout(tmp_dir / (fn + ".encoding"));
-            add_tmp_file(fn+".encoding");
+            auto ctu = font->getToUnicode();
+            memset(cur_mapping, 0, maxcode * sizeof(int32_t));
 
             for(int i = 0; i <= maxcode; ++i)
             {
                 if((suffix != ".ttf") && (font_8bit != nullptr) && (font_8bit->getCharName(i) == nullptr))
+                {
                     continue;
-
-                ++ cnt;
-                map_fout << format("0x%|1$X|") % ((code2GID && (i < code2GID_len))? code2GID[i] : i);
+                }
 
                 Unicode u, *pu=&u;
-
                 if(info.use_tounicode)
                 {
-                    int n = 0;
-                    if(ctu)
-                        n = ctu->mapToUnicode(i, &pu);
+                    int n = ctu ? (ctu->mapToUnicode(i, &pu)) : 0;
                     u = check_unicode(pu, n, i, font);
                 }
                 else
@@ -309,21 +303,14 @@ void HTMLRenderer::embed_font(const path & filepath, GfxFont * font, FontInfo & 
                     u = unicode_from_font(i, font);
                 }
 
-                map_fout << format(" 0x%|1$X|") % u;
-                map_fout << format(" # 0x%|1$X|") % i;
-
-                map_fout << endl;
+                cur_mapping[((code2GID && (i < code2GID_len))? code2GID[i] : i)] = u;
             }
-        }
 
-        if(cnt > 0)
-        {
-            ff_load_encoding((tmp_dir / (fn+".encoding")).c_str(), fn.c_str());
-            ff_reencode(fn.c_str(), 1);
-        }
+            ff_reencode_raw(cur_mapping, maxcode, 1);
 
-        if(ctu)
-            ctu->decRefCnt();
+            if(ctu)
+                ctu->decRefCnt();
+        }
     }
 
     auto dest = ((param->single_html ? tmp_dir : dest_dir) / (fn+(param->font_suffix)));

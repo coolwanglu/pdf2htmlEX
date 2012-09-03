@@ -10,14 +10,19 @@
  * 2012.09.03
  */
 
+
 #ifdef __cplusplus
+#include <cstdint>
 extern "C" {
+#else
+#include <stdint.h>
 #endif
 
 void ff_init(void);
 void ff_load_font(const char * filename);
 void ff_load_encoding(const char * filename, const char * encname);
 void ff_reencode(const char * encname, int force);
+void ff_reencode_raw(int32_t * mapping, int mapping_len, int force);
 void ff_cidflatten(void);
 void ff_save(const char * filename);
 void ff_close(void);
