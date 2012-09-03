@@ -17,7 +17,7 @@
 
 #include "ff.h"
 
-SplineFont * cur_font = NULL;
+FontViewBase * cur_fv = NULL;
 
 static void err(const char * format, ...)
 {
@@ -63,14 +63,16 @@ void ff_init(void)
 void ff_load_font(const char * filename)
 {
     char * _filename = strcopy(filename);
-    cur_font = LoadSplineFont(_filename, 1);
+    SplineFont * font = LoadSplineFont(_filename, 1);
     free(_filename);
 
-    if(!cur_font)
+    if(!font)
         err("Cannot load font %s\n", filename);
 
-    if(!cur_font->fv)
-        FVAppend(_FontViewCreate(cur_font));
+    if(!font->fv)
+        FVAppend(_FontViewCreate(font));
+
+    cur_fv = font->fv;
 }
 
 /*
@@ -88,15 +90,15 @@ static void ff_do_reencode(Encoding * encoding, int force)
 {
     if(force)
     {
-        SFForceEncoding(cur_font, cur_font->fv->map, encoding);
+        SFForceEncoding(cur_fv->sf, cur_fv->map, encoding);
     }
     else
     {
-        EncMapFree(cur_font->fv->map);
-        cur_font->fv->map= EncMapFromEncoding(cur_font, encoding);
+        EncMapFree(cur_fv->map);
+        cur_fv->map= EncMapFromEncoding(cur_fv->sf, encoding);
     }
 
-    SFReplaceEncodingBDFProps(cur_font, cur_font->fv->map);
+    SFReplaceEncodingBDFProps(cur_fv->sf, cur_fv->map);
 }
 
 
@@ -147,11 +149,9 @@ void ff_reencode_raw2(char ** mapping, int mapping_len, int force)
 
 void ff_cidflatten(void)
 {
-    printf("cid flatten\n");
-
-    if(!cur_font->cidmaster)
+    if(!cur_fv->sf->cidmaster)
         err("Cannot flatten a non-CID font");
-    SFFlatten(cur_font->cidmaster);
+    SFFlatten(cur_fv->sf->cidmaster);
 }
 
 void ff_save(const char * filename)
@@ -159,8 +159,8 @@ void ff_save(const char * filename)
     char * _filename = strcopy(filename);
     char * _ = strcopy("");
 
-    int r = GenerateScript(cur_font, _filename
-            , _, -1, -1, NULL, NULL, cur_font->fv->map, NULL, ly_fore);
+    int r = GenerateScript(cur_fv->sf, _filename
+            , _, -1, -1, NULL, NULL, cur_fv->map, NULL, ly_fore);
     
     free(_);
     free(_filename);
@@ -171,40 +171,40 @@ void ff_save(const char * filename)
 
 void ff_close(void)
 {
-    FontViewClose(cur_font->fv);
-    cur_font = NULL;
+    FontViewClose(cur_fv);
+    cur_fv = NULL;
 }
 
 int ff_get_em_size(void)
 {
-    return (cur_font->pfminfo.os2_typoascent - cur_font->pfminfo.os2_typodescent);
+    return (cur_fv->sf->pfminfo.os2_typoascent - cur_fv->sf->pfminfo.os2_typodescent);
 }
 
 int ff_get_max_ascent(void)
 {
-    return max(cur_font->pfminfo.os2_winascent,
-            max(cur_font->pfminfo.os2_typoascent,
-                cur_font->pfminfo.hhead_ascent));
+    return max(cur_fv->sf->pfminfo.os2_winascent,
+            max(cur_fv->sf->pfminfo.os2_typoascent,
+                cur_fv->sf->pfminfo.hhead_ascent));
 }
 
 int ff_get_max_descent(void)
 {
-    return max(cur_font->pfminfo.os2_windescent,
-            max(-cur_font->pfminfo.os2_typodescent,
-                -cur_font->pfminfo.hhead_descent));
+    return max(cur_fv->sf->pfminfo.os2_windescent,
+            max(-cur_fv->sf->pfminfo.os2_typodescent,
+                -cur_fv->sf->pfminfo.hhead_descent));
 }
 
 void ff_set_ascent(int a)
 {
-    cur_font->pfminfo.os2_winascent = a;
-    cur_font->pfminfo.os2_typoascent = a;
-    cur_font->pfminfo.hhead_ascent = a;
+    cur_fv->sf->pfminfo.os2_winascent = a;
+    cur_fv->sf->pfminfo.os2_typoascent = a;
+    cur_fv->sf->pfminfo.hhead_ascent = a;
 }
 
 void ff_set_descent(int d)
 {
-    cur_font->pfminfo.os2_windescent = d;
-    cur_font->pfminfo.os2_typodescent = -d;
-    cur_font->pfminfo.hhead_descent = -d;
+    cur_fv->sf->pfminfo.os2_windescent = d;
+    cur_fv->sf->pfminfo.os2_typodescent = -d;
+    cur_fv->sf->pfminfo.hhead_descent = -d;
 }
 
