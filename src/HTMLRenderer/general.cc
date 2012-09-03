@@ -13,6 +13,7 @@
 #include "BackgroundRenderer.h"
 #include "config.h"
 #include "namespace.h"
+#include "ff/ff.h"
 
 using std::fixed;
 using std::flush;
@@ -26,6 +27,7 @@ HTMLRenderer::HTMLRenderer(const Param * param)
     ,dest_dir(param->dest_dir)
     ,tmp_dir(param->tmp_dir)
 {
+    ff_init();
 }
 
 HTMLRenderer::~HTMLRenderer()
@@ -242,5 +244,3 @@ const std::string HTMLRenderer::HEAD_HTML_FILENAME = "head.html";
 const std::string HTMLRenderer::NECK_HTML_FILENAME = "neck.html";
 const std::string HTMLRenderer::TAIL_HTML_FILENAME = "tail.html";
 const std::string HTMLRenderer::CSS_FILENAME = "all.css";
-const std::string HTMLRenderer::UNIFY_SCRIPT_FILENAME = "unify.pe";
-const std::string HTMLRenderer::NULL_FILENAME = "null";

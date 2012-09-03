@@ -1,3 +1,5 @@
+cmake - pkgconfig - fontforge - python
+
 link fontforge instead of script
 
 option to break ligatures

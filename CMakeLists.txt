@@ -9,6 +9,9 @@ find_package(Boost REQUIRED COMPONENTS program_options filesystem system)
 include_directories(${Boost_INCLUDE_DIRS})
 link_directories ( ${Boost_LIBRARY_DIRS} )
 include_directories(${CMAKE_SOURCE_DIR}/src)
+pkg_check_modules(FONTFORGE REQUIRED fontforge)
+include_directories(${FONTFORGE_INCLUDE_DIRS})
+link_directories ( ${FONTFORGE_LIBRARY_DIRS} )
 
 set(PDF2HTMLEX_VERSION "0.2")
 set(ARCHIVE_NAME pdf2htmlex-${PDF2HTMLEX_VERSION})
@@ -17,10 +20,14 @@ add_custom_target(dist
         | bzip2 > ${CMAKE_BINARY_DIR}/${ARCHIVE_NAME}.tar.bz2
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 
+set(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wunused-function")
+#set(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} -O2")
+set(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} -ggdb")
+
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wunused-function")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2")
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ggdb")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ggdb")
 
 configure_file (${CMAKE_SOURCE_DIR}/src/config.h.in ${CMAKE_SOURCE_DIR}/src/config.h)
 
@@ -34,6 +41,8 @@ add_executable(pdf2htmlEX
     src/HTMLRenderer/text.cc
     src/HTMLRenderer/image.cc
     src/HTMLRenderer/namespace.h
+    src/ff/ff.h
+    src/ff/ff.c
     src/BackgroundRenderer.h 
     src/BackgroundRenderer.cc 
     src/Consts.h 
@@ -41,7 +50,7 @@ add_executable(pdf2htmlEX
     src/util.h
     src/config.h)
 
-target_link_libraries(pdf2htmlEX poppler boost_program_options boost_filesystem boost_system)
+target_link_libraries(pdf2htmlEX poppler boost_program_options boost_filesystem boost_system fontforge python2.7)
 
 install (TARGETS pdf2htmlEX DESTINATION bin)
 file (GLOB datafiles share/*)
