@@ -209,26 +209,24 @@ void HTMLRenderer::embed_font(const path & filepath, GfxFont * font, FontInfo & 
             else
             {
                 // move the slot such that it's consistent with the encoding seen in PDF
-                // TODO: build encoding directly
-                ofstream out(tmp_dir / (fn + "_.encoding"));
-                add_tmp_file(fn+"_.encoding");
                 
                 unordered_set<string> nameset;
                 bool name_conflict_warned = false;
 
-                out << format("/%1% [") % fn << endl;
+                memset(cur_mapping2, 0, 256 * sizeof(char*));
+
                 for(int i = 0; i < 256; ++i)
                 {
                     auto cn = font_8bit->getCharName(i);
                     if(cn == nullptr)
                     {
-                        out << "/.notdef" << endl;
+                        continue;
                     }
                     else
                     {
                         if(nameset.insert(string(cn)).second)
                         {
-                            out << "/" << cn << endl;
+                            cur_mapping2[i] = cn;    
                         }
                         else
                         {
@@ -238,14 +236,11 @@ void HTMLRenderer::embed_font(const path & filepath, GfxFont * font, FontInfo & 
                                 //TODO: may be resolved using advanced font properties?
                                 cerr << "Warning: encoding confliction detected in font: " << fn << endl;
                             }
-                            out << "/.notdef" << endl;
                         }
                     }
                 }
-                out << "] def" << endl;
 
-                ff_load_encoding((tmp_dir / (fn+"_.encoding")).c_str(), nullptr);
-                ff_reencode(fn.c_str(), 0);
+                ff_reencode_raw2(cur_mapping2, 256, 0);
             }
         }
         else

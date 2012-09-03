@@ -73,6 +73,7 @@ void ff_load_font(const char * filename)
         FVAppend(_FontViewCreate(cur_font));
 }
 
+/*
 void ff_load_encoding(const char * filename, const char * encname)
 {
     char * _filename = strcopy(filename);
@@ -81,6 +82,23 @@ void ff_load_encoding(const char * filename, const char * encname)
     free(_encname);
     free(_filename);
 }
+*/
+
+static void ff_do_reencode(Encoding * encoding, int force)
+{
+    if(force)
+    {
+        SFForceEncoding(cur_font, cur_font->fv->map, encoding);
+    }
+    else
+    {
+        EncMapFree(cur_font->fv->map);
+        cur_font->fv->map= EncMapFromEncoding(cur_font, encoding);
+    }
+
+    SFReplaceEncodingBDFProps(cur_font, cur_font->fv->map);
+}
+
 
 void ff_reencode(const char * encname, int force)
 {
@@ -88,17 +106,7 @@ void ff_reencode(const char * encname, int force)
     if(!enc)
         err("Unknown encoding %s\n", encname);
 
-    if(force)
-    {
-        SFForceEncoding(cur_font, cur_font->fv->map, enc);
-    }
-    else
-    {
-        EncMapFree(cur_font->fv->map);
-        cur_font->fv->map= EncMapFromEncoding(cur_font, enc);
-    }
-
-    SFReplaceEncodingBDFProps(cur_font, cur_font->fv->map);
+    ff_do_reencode(enc, force);
 }
 
 void ff_reencode_raw(int32 * mapping, int mapping_len, int force)
@@ -110,17 +118,31 @@ void ff_reencode_raw(int32 * mapping, int mapping_len, int force)
     memcpy(enc->unicode, mapping, mapping_len * sizeof(int32_t));
     enc->enc_name = strcopy("");
 
-    if(force)
+    ff_do_reencode(enc, force);
+}
+
+void ff_reencode_raw2(char ** mapping, int mapping_len, int force)
+{
+    Encoding * enc = calloc(1, sizeof(Encoding));
+    enc->enc_name = strcopy("");
+    enc->char_cnt = mapping_len;
+    enc->unicode = (int32_t*)malloc(mapping_len * sizeof(int32_t));
+    enc->psnames = (char**)calloc(mapping_len, sizeof(char*));
+    int i;
+    for(i = 0; i < mapping_len; ++i)
     {
-        SFForceEncoding(cur_font, cur_font->fv->map, enc);
-    }
-    else
-    {
-        EncMapFree(cur_font->fv->map);
-        cur_font->fv->map= EncMapFromEncoding(cur_font, enc);
+        if(mapping[i])
+        {
+            enc->unicode[i] = UniFromName(mapping[i], ui_none, &custom);
+            enc->psnames[i] = strcopy(mapping[i]);
+        }
+        else
+        {
+            enc->unicode[i] = -1;
+        }
     }
 
-    SFReplaceEncodingBDFProps(cur_font, cur_font->fv->map);
+    ff_do_reencode(enc, force);
 }
 
 void ff_cidflatten(void)

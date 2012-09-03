@@ -272,6 +272,7 @@ class HTMLRenderer : public OutputDev
 
         // for font reencoding
         int32_t * cur_mapping;
+        char ** cur_mapping2;
 
         ////////////////////////////////////////////////////
         // styles & resources

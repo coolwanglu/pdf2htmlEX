@@ -36,12 +36,14 @@ HTMLRenderer::HTMLRenderer(const Param * param)
 
     ff_init();
     cur_mapping = new int32_t [0x10000];
+    cur_mapping2 = new char* [0x100];
 }
 
 HTMLRenderer::~HTMLRenderer()
 { 
     clean_tmp_files();
     delete [] cur_mapping;
+    delete [] cur_mapping2;
 }
 
 void HTMLRenderer::process(PDFDoc *doc)
