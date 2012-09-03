@@ -1,3 +1,9 @@
+pdf2htmlex (0.2-3~git201209030158r926cf-0ubuntu1) precise; urgency=low
+
+  * Fix dependency of libpoppler27 
+
+ -- WANG Lu <coolwanglu@gmail.com>  Mon, 03 Sep 2012 01:58:42 +0800
+
 pdf2htmlex (0.2-3~git201209010002rfe7b3-0ubuntu1) precise; urgency=low
 
   * update license 
