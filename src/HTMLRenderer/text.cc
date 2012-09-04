@@ -394,11 +394,6 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
     CharCode code;
     Unicode *u = nullptr;
 
-    double fs = state->getFontSize();
-    double cs = state->getCharSpace();
-    double ws = state->getWordSpace();
-    double hs = state->getHorizScaling();
-
     while (len > 0) {
         auto n = font->getNextChar(p, len, &code, &u, &uLen, &dx1, &dy1, &ox, &oy);
         
@@ -423,15 +418,17 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
         len -= n;
     }
 
+    double hs = state->getHorizScaling();
+
     // horiz_scaling is merged into ctm now, 
     // so the coordinate system is ugly
-    dx = (dx * fs + nChars * cs + nSpaces * ws) * hs;
+    dx = (dx * cur_font_size + nChars * cur_letter_space + nSpaces * cur_word_space) * hs;
     
-    dy *= fs;
+    dy *= cur_font_size;
 
     cur_tx += dx;
     cur_ty += dy;
         
-    draw_tx += dx + dxerr * state->getFontSize() * state->getHorizScaling();
+    draw_tx += dx + dxerr * cur_font_size * hs;
     draw_ty += dy;
 }
