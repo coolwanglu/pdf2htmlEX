@@ -46,6 +46,7 @@ add_executable(pdf2htmlEX
     src/HTMLRenderer/text.cc
     src/HTMLRenderer/image.cc
     src/HTMLRenderer/namespace.h
+    src/HTMLRenderer/LineBuffer.cc
     src/ff/ff.h
     src/ff/ff.c
     src/BackgroundRenderer.h 

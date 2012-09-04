@@ -21,7 +21,7 @@
 
 using std::abs;
 
-FontInfo HTMLRenderer::install_font(GfxFont * font)
+const FontInfo * HTMLRenderer::install_font(GfxFont * font)
 {
     assert(sizeof(long long) == 2*sizeof(int));
                 
@@ -29,7 +29,7 @@ FontInfo HTMLRenderer::install_font(GfxFont * font)
 
     auto iter = font_name_map.find(fn_id);
     if(iter != font_name_map.end())
-        return iter->second;
+        return &(iter->second);
 
     long long new_fn_id = font_name_map.size(); 
 
@@ -38,7 +38,7 @@ FontInfo HTMLRenderer::install_font(GfxFont * font)
     if(font == nullptr)
     {
         export_remote_default_font(new_fn_id);
-        return cur_info_iter->second;
+        return &(cur_info_iter->second);
     }
 
     cur_info_iter->second.ascent = font->getAscent();
@@ -52,12 +52,12 @@ FontInfo HTMLRenderer::install_font(GfxFont * font)
     if(font->getType() == fontType3) {
         cerr << "Type 3 fonts are unsupported and will be rendered as Image" << endl;
         export_remote_default_font(new_fn_id);
-        return cur_info_iter->second;
+        return &(cur_info_iter->second);
     }
     if(font->getWMode()) {
         cerr << "Writing mode is unsupported and will be rendered as Image" << endl;
         export_remote_default_font(new_fn_id);
-        return cur_info_iter->second;
+        return &(cur_info_iter->second);
     }
 
     auto * font_loc = font->locateFont(xref, gTrue);
@@ -86,7 +86,7 @@ FontInfo HTMLRenderer::install_font(GfxFont * font)
         export_remote_default_font(new_fn_id);
     }
       
-    return cur_info_iter->second;
+    return &(cur_info_iter->second);
 }
 
 void HTMLRenderer::install_embedded_font(GfxFont * font, FontInfo & info)

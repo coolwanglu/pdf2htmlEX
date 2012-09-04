@@ -25,7 +25,8 @@ static void dummy(void *, ErrorCategory, int pos, char *)
 }
 
 HTMLRenderer::HTMLRenderer(const Param * param)
-    :line_status(LineStatus::NONE)
+    :line_opened(false)
+    ,line_buf(this)
     ,image_count(0)
     ,param(param)
     ,dest_dir(param->dest_dir)
@@ -147,7 +148,7 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
     this->pageWidth = state->getPageWidth();
     this->pageHeight = state->getPageHeight();
 
-    assert(line_status == LineStatus::NONE);
+    assert((!line_opened) && "Open line in startPage detected!");
 
     html_fout << format("<div id=\"p%|1$x|\" class=\"p\" style=\"width:%2%px;height:%3%px;") % pageNum % pageWidth % pageHeight;
 
