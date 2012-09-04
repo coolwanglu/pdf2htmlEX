@@ -13,6 +13,11 @@ pkg_check_modules(FONTFORGE REQUIRED fontforge)
 include_directories(${FONTFORGE_INCLUDE_DIRS})
 link_directories ( ${FONTFORGE_LIBRARY_DIRS} )
 
+message("*************")
+message("fontforge may not be preparing fontforge.pc correctly")
+message("consider adding -lfontforge -lpython2.7 if you see lots of linking error")
+message("*************")
+
 set(PDF2HTMLEX_VERSION "0.2")
 set(ARCHIVE_NAME pdf2htmlex-${PDF2HTMLEX_VERSION})
 add_custom_target(dist
@@ -21,13 +26,13 @@ add_custom_target(dist
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 
 set(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wunused-function")
-#set(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} -O2")
-set(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} -ggdb")
+set(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} -O2")
+#set(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} -ggdb")
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wunused-function")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ggdb")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ggdb")
 
 configure_file (${CMAKE_SOURCE_DIR}/src/config.h.in ${CMAKE_SOURCE_DIR}/src/config.h)
 

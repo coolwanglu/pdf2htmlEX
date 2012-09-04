@@ -82,6 +82,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
 
     bool need_recheck_position = false;
     bool need_rescale_font = false;
+    bool draw_scale_changed = false;
 
     // text position
     // we've been tracking the text position positively in the update*** functions
@@ -145,18 +146,24 @@ void HTMLRenderer::check_state_change(GfxState * state)
         double new_draw_ctm[6];
         memcpy(new_draw_ctm, cur_ctm, sizeof(new_draw_ctm));
 
-        draw_scale = (param->font_size_multiplier) * sqrt(new_draw_ctm[2] * new_draw_ctm[2] + new_draw_ctm[3] * new_draw_ctm[3]);
+        double new_draw_scale = (param->font_size_multiplier) * sqrt(new_draw_ctm[2] * new_draw_ctm[2] + new_draw_ctm[3] * new_draw_ctm[3]);
 
         double new_draw_font_size = cur_font_size;
-        if(_is_positive(draw_scale))
+        if(_is_positive(new_draw_scale))
         {
-            new_draw_font_size *= draw_scale;
+            new_draw_font_size *= new_draw_scale;
             for(int i = 0; i < 4; ++i)
-                new_draw_ctm[i] /= draw_scale;
+                new_draw_ctm[i] /= new_draw_scale;
         }
         else
         {
-            draw_scale = 1.0;
+            new_draw_scale = 1.0;
+        }
+
+        if(!(_equal(new_draw_scale, draw_scale)))
+        {
+            draw_scale_changed = true;
+            draw_scale = new_draw_scale;
         }
 
         if(!(_equal(new_draw_font_size, draw_font_size)))
@@ -235,7 +242,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
 
     // letter space
     // depends: draw_scale
-    if(all_changed || letter_space_changed)
+    if(all_changed || letter_space_changed || draw_scale_changed)
     {
         double new_letter_space = state->getCharSpace();
         if(!_equal(cur_letter_space, new_letter_space))
@@ -248,7 +255,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
 
     // word space
     // depends draw_scale
-    if(all_changed || word_space_changed)
+    if(all_changed || word_space_changed || draw_scale_changed)
     {
         double new_word_space = state->getWordSpace();
         if(!_equal(cur_word_space, new_word_space))
@@ -273,7 +280,8 @@ void HTMLRenderer::check_state_change(GfxState * state)
     }
 
     // rise
-    if(all_changed || rise_changed)
+    // depends draw_scale
+    if(all_changed || rise_changed || draw_scale_changed)
     {
         double new_rise = state->getRise();
         if(!_equal(cur_rise, new_rise))
