@@ -15,7 +15,7 @@ link_directories ( ${FONTFORGE_LIBRARY_DIRS} )
 
 message("*************")
 message("fontforge may not be preparing fontforge.pc correctly")
-message("consider adding -lfontforge -lpython2.7 if you see lots of linking error")
+message("consider adding -I/usr/include/fontforge -L/usr/lib -lfontforge -lpython2.7 if you see lots of error")
 message("*************")
 
 set(PDF2HTMLEX_VERSION "0.2")
