@@ -6,9 +6,11 @@ include_directories(${CMAKE_SOURCE_DIR}/src)
 find_package(PkgConfig)
 pkg_check_modules(POPPLER REQUIRED poppler)
 include_directories(${POPPLER_INCLUDE_DIRS})
+link_directories(${POPPLER_LIBRARY_DIRS})
 
 find_package(Boost REQUIRED COMPONENTS program_options filesystem system)
 include_directories(${Boost_INCLUDE_DIRS})
+link_directories(${Boost_LIBRARY_DIRS})
 
 find_path(FF_INCLUDE_PATH fontforge/fontforge.h)
 if(FF_INCLUDE_PATH)
@@ -67,6 +69,7 @@ add_executable(pdf2htmlEX
     src/util.h
     src/config.h)
 
+message("${POPPLER_LIBRARIES}")
 target_link_libraries(pdf2htmlEX ${POPPLER_LIBRARIES} ${Boost_LIBRARIES} ${FONTFORGE_LIBRARIES} ${PYTHON_LIBRARIES})
 
 install (TARGETS pdf2htmlEX DESTINATION bin)
