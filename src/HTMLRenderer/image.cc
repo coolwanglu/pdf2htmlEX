@@ -7,16 +7,18 @@
  * 2012.08.14
  */
 
+#if 0
 #include <boost/format.hpp>
 // for gil bug
 const int *int_p_NULL = nullptr;
 #include <boost/gil/gil_all.hpp>
 #include <boost/gil/extension/io/png_dynamic_io.hpp>
+#endif
 
 #include "HTMLRenderer.h"
 #include "namespace.h"
 
-using namespace boost::gil;
+//using namespace boost::gil;
 
 void HTMLRenderer::drawImage(GfxState * state, Object * ref, Stream * str, int width, int height, GfxImageColorMap * colorMap, GBool interpolate, int *maskColors, GBool inlineImg)
 {
