@@ -36,6 +36,7 @@ struct Param
     double space_threshold;
     double font_size_multiplier;
     int always_apply_tounicode;
+    int optimize;
 
     std::string font_suffix, font_format;
 

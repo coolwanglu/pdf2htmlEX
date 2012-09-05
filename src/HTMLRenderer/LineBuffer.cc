@@ -66,14 +66,14 @@ void HTMLRenderer::LineBuffer::flush(void)
     for(auto & s : states)
         s.hash();
 
-    if(states.size() < 3)
+    if((renderer->param->optimize) && (states.size() > 2))
     {
-        for(size_t i = 0; i < states.size(); ++i)
-            states[i].depth = i;
+        optimize_states();
     }
     else
     {
-        optimize_states();
+        for(size_t i = 0; i < states.size(); ++i)
+            states[i].depth = i;
     }
 
     states.resize(states.size() + 1);
@@ -203,6 +203,10 @@ void HTMLRenderer::LineBuffer::optimize_states (void)
             p += (incre--);
         }
     }
+
+    // depth 0
+    for(int i = 0; i < n; ++i)
+        flattened_dp_buffer[i].min_cost = 0;
     
     int last_at_this_depth = n;
     for(int depth = 1; depth < n; ++depth)
@@ -240,8 +244,8 @@ void HTMLRenderer::LineBuffer::optimize_states (void)
         while(depth > 0)
         {
             int last_child = dp_buffer[depth][idx].last_child;
-            assert(last_child > idx);
-            func(last_child, depth - last_child, tree_depth + 1);
+            assert((last_child > idx) && (last_child <= idx + depth));
+            func(last_child, idx + depth - last_child, tree_depth + 1);
             depth = last_child - idx - 1;
         }
     };
@@ -310,7 +314,7 @@ int HTMLRenderer::LineBuffer::State::diff(const State & s) const
     /*
      * A quick check based on hash_value
      * it could be wrong when there are more then 256 classes, 
-     * in which case the output may not be optimal, but still 'correct'
+     * in which case the output may not be optimal, but still 'correct' in terms of HTML
      */
     if(hash_value == s.hash_value) return 0;
 

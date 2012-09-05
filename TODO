@@ -6,7 +6,7 @@ option to break ligatures
 
 detect duplicate base fonts when embedding
 
-compress div/span states
+consider left-shift in optimization
 
 multiple charcode mapped to a same glyph
 re-encoded only used glyphs
