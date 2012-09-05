@@ -268,8 +268,10 @@ class HTMLRenderer : public OutputDev
 
             class State {
             public:
-                void begin(std::ostream & out) const;
-                static void end(std::ostream & out);
+                void begin(std::ostream & out, const State * prev_state);
+                void end(std::ostream & out) const;
+                void hash(void);
+                int diff(const State & s) const;
 
                 enum {
                     FONT_ID,
@@ -283,8 +285,16 @@ class HTMLRenderer : public OutputDev
                 };
 
                 long long ids[ID_COUNT];
+
                 double ascent;
+                double descent;
+                double draw_font_size;
+
                 size_t start_idx; // index of the first Text using this state
+                // for optimzation
+                long long hash_value;
+                int depth; // the depth in the state tree
+                bool need_close;
 
                 static const char * format_str; // class names for each id
             };
@@ -305,6 +315,8 @@ class HTMLRenderer : public OutputDev
         private:
             // retrieve state from renderer
             void set_state(State & state);
+            // build the state tree in order to minimize the size of output
+            void optimize_states(void);
 
             HTMLRenderer * renderer;
 
@@ -328,14 +340,10 @@ class HTMLRenderer : public OutputDev
 
         std::unordered_map<long long, FontInfo> font_name_map;
         std::map<double, long long> font_size_map;
-
         std::map<TM, long long> transform_matrix_map;
-
         std::map<double, long long> letter_space_map;
         std::map<double, long long> word_space_map;
-
         std::map<GfxRGB, long long> color_map; 
-
         std::map<double, long long> whitespace_map;
         std::map<double, long long> rise_map;
 
