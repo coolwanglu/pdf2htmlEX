@@ -198,7 +198,7 @@ void HTMLRenderer::embed_font(const path & filepath, GfxFont * font, FontInfo & 
             maxcode = 0xff;
             if((suffix == ".ttf") || (suffix == ".ttc") || (suffix == ".otf"))
             {
-                ff_reencode("original", 0);
+                ff_reencode_glyph_order();
                 FoFiTrueType *fftt = nullptr;
                 if((fftt = FoFiTrueType::load((char*)filepath.c_str())) != nullptr)
                 {
@@ -250,7 +250,7 @@ void HTMLRenderer::embed_font(const path & filepath, GfxFont * font, FontInfo & 
 
             if(suffix == ".ttf")
             {
-                ff_reencode("original", 0);
+                ff_reencode_glyph_order();
 
                 GfxCIDFont * _font = dynamic_cast<GfxCIDFont*>(font);
 
@@ -281,11 +281,11 @@ void HTMLRenderer::embed_font(const path & filepath, GfxFont * font, FontInfo & 
             auto ctu = font->getToUnicode();
             memset(cur_mapping, 0, maxcode * sizeof(int32_t));
 
-            ofstream _out(tmp_dir / (fn+".map"));
 
             if(code2GID)
-                maxcode = min(maxcode, code2GID_len-1);
+                maxcode = min(maxcode, code2GID_len - 1);
 
+            int max_key = maxcode;
             for(int i = 0; i <= maxcode; ++i)
             {
                 if((suffix != ".ttf") && (font_8bit != nullptr) && (font_8bit->getCharName(i) == nullptr))
@@ -296,9 +296,11 @@ void HTMLRenderer::embed_font(const path & filepath, GfxFont * font, FontInfo & 
                 int k = i;
                 if(code2GID)
                 {
-                    if((k = code2GID[i]) == 0)
-                        continue;
+                    if((k = code2GID[i]) == 0) continue;
                 }
+
+                if(k > max_key)
+                    max_key = k;
 
                 Unicode u, *pu=&u;
                 if(info.use_tounicode)
@@ -311,12 +313,10 @@ void HTMLRenderer::embed_font(const path & filepath, GfxFont * font, FontInfo & 
                     u = unicode_from_font(i, font);
                 }
 
-                _out << k  << ' ' << u << endl;
-
                 cur_mapping[k] = u;
             }
 
-            ff_reencode_raw(cur_mapping, maxcode, 1);
+            ff_reencode_raw(cur_mapping, max_key + 1, 1);
 
             if(ctu)
                 ctu->decRefCnt();
