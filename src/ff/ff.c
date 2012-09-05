@@ -12,6 +12,7 @@
 #include <string.h>
 #include <stdarg.h>
 
+#include <fontforge/config.h>
 #include <fontforge.h>
 #include <baseviews.h>
 
