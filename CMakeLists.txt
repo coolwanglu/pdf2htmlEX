@@ -1,6 +1,8 @@
 project(pdftohtmlEX)
 cmake_minimum_required(VERSION 2.6.0 FATAL_ERROR)
 
+include(CheckIncludeFiles)
+
 find_package(PkgConfig)
 pkg_check_modules(POPPLER REQUIRED poppler)
 include_directories(${POPPLER_INCLUDE_DIRS})
@@ -8,15 +10,24 @@ link_directories ( ${POPPLER_LIBRARY_DIRS} )
 find_package(Boost REQUIRED COMPONENTS program_options filesystem system)
 include_directories(${Boost_INCLUDE_DIRS})
 link_directories ( ${Boost_LIBRARY_DIRS} )
-include_directories(${CMAKE_SOURCE_DIR}/src)
-pkg_check_modules(FONTFORGE REQUIRED fontforge)
-include_directories(${FONTFORGE_INCLUDE_DIRS})
-link_directories ( ${FONTFORGE_LIBRARY_DIRS} )
 
-message("*************")
-message("fontforge may not be preparing fontforge.pc correctly")
-message("consider adding -I/usr/include/fontforge -L/usr/lib -lfontforge -lpython2.7 if you see lots of error")
-message("*************")
+check_include_files(/usr/include/fontforge/fontforge.h HAVE_FONTFORGE_H)
+if(NOT (DEFINED HAVE_FONTFORGE_H))
+    message("*************")
+    message("cannot find fontforge.h, consider adding something like")
+    message("    -DFONTFORGE_INCLUDE_DIRS=\"-I/usr/include/fontforge\" -DFONTFORGE_LIBRARY_DIRS=\"-L/usr/lib -lfontforge -lpython2.7\"")
+    message("if you see lots of error")
+    message("*************")
+else()
+    message("********here********")
+    message("${HAVE_FONTFORGE_H}")
+    message("********here********")
+endif()
+
+include_directories(${FONTFORGE_INCLUDE_DIRS})
+link_directories(${FONTFORGE_LIBRARY_DIRS})
+
+include_directories(${CMAKE_SOURCE_DIR}/src)
 
 set(PDF2HTMLEX_VERSION "0.2")
 set(ARCHIVE_NAME pdf2htmlex-${PDF2HTMLEX_VERSION})
@@ -25,9 +36,9 @@ add_custom_target(dist
         | bzip2 > ${CMAKE_BINARY_DIR}/${ARCHIVE_NAME}.tar.bz2
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 
-set(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wunused-function")
-#set(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} -O2")
-set(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} -ggdb")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wunused-function")
+#set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ggdb")
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wunused-function")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
@@ -56,7 +67,7 @@ add_executable(pdf2htmlEX
     src/util.h
     src/config.h)
 
-target_link_libraries(pdf2htmlEX poppler boost_program_options boost_filesystem boost_system fontforge python2.7)
+target_link_libraries(pdf2htmlEX poppler boost_program_options boost_filesystem boost_system fontforge)
 
 install (TARGETS pdf2htmlEX DESTINATION bin)
 file (GLOB datafiles share/*)
