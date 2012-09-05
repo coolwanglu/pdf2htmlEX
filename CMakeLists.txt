@@ -30,7 +30,8 @@ else()
 endif()
 
 message("Looking for libraries of python, which is required by fontforge, if you can link fontforge without python, you may disable this")
-pkg_check_modules(PYTHON REQUIRED python)
+pkg_check_modules(PYTHON python)
+pkg_check_modules(PYTHON python-2.7)
 
 set(PDF2HTMLEX_VERSION "0.2")
 set(ARCHIVE_NAME pdf2htmlex-${PDF2HTMLEX_VERSION})
@@ -70,7 +71,6 @@ add_executable(pdf2htmlEX
     src/util.h
     src/config.h)
 
-message("${POPPLER_LIBRARIES}")
 target_link_libraries(pdf2htmlEX ${POPPLER_LIBRARIES} ${Boost_LIBRARIES} ${FONTFORGE_LIBRARIES} ${PYTHON_LIBRARIES})
 
 install (TARGETS pdf2htmlEX DESTINATION bin)
