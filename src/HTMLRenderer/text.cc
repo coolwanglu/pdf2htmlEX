@@ -25,6 +25,7 @@
 
 using boost::algorithm::to_lower;
 using std::unordered_set;
+using std::min;
 
 path HTMLRenderer::dump_embedded_font (GfxFont * font, long long fn_id)
 {
@@ -280,11 +281,23 @@ void HTMLRenderer::embed_font(const path & filepath, GfxFont * font, FontInfo & 
             auto ctu = font->getToUnicode();
             memset(cur_mapping, 0, maxcode * sizeof(int32_t));
 
+            ofstream _out(tmp_dir / (fn+".map"));
+
+            if(code2GID)
+                maxcode = min(maxcode, code2GID_len-1);
+
             for(int i = 0; i <= maxcode; ++i)
             {
                 if((suffix != ".ttf") && (font_8bit != nullptr) && (font_8bit->getCharName(i) == nullptr))
                 {
                     continue;
+                }
+
+                int k = i;
+                if(code2GID)
+                {
+                    if((k = code2GID[i]) == 0)
+                        continue;
                 }
 
                 Unicode u, *pu=&u;
@@ -298,7 +311,9 @@ void HTMLRenderer::embed_font(const path & filepath, GfxFont * font, FontInfo & 
                     u = unicode_from_font(i, font);
                 }
 
-                cur_mapping[((code2GID && (i < code2GID_len))? code2GID[i] : i)] = u;
+                _out << k  << ' ' << u << endl;
+
+                cur_mapping[k] = u;
             }
 
             ff_reencode_raw(cur_mapping, maxcode, 1);
