@@ -1,3 +1,9 @@
+pdf2htmlex (0.2-3~git201209052329rbc256-0ubuntu1) precise; urgency=low
+
+  * Change dependency of fontforge 
+
+ -- WANG Lu <coolwanglu@gmail.com>  Wed, 05 Sep 2012 23:29:49 +0800
+
 pdf2htmlex (0.2-3~git201209030158r926cf-0ubuntu1) precise; urgency=low
 
   * Fix dependency of libpoppler27 
