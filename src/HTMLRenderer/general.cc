@@ -7,6 +7,8 @@
  * 2012.08.14
  */
 
+#include <boost/filesystem.hpp>
+
 #include <splash/SplashBitmap.h>
 
 #include "HTMLRenderer.h"

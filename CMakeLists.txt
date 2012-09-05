@@ -1,33 +1,33 @@
 project(pdftohtmlEX)
 cmake_minimum_required(VERSION 2.6.0 FATAL_ERROR)
 
-include(CheckIncludeFiles)
+include_directories(${CMAKE_SOURCE_DIR}/src)
 
 find_package(PkgConfig)
 pkg_check_modules(POPPLER REQUIRED poppler)
 include_directories(${POPPLER_INCLUDE_DIRS})
-link_directories ( ${POPPLER_LIBRARY_DIRS} )
+
 find_package(Boost REQUIRED COMPONENTS program_options filesystem system)
 include_directories(${Boost_INCLUDE_DIRS})
-link_directories ( ${Boost_LIBRARY_DIRS} )
 
-check_include_files(/usr/include/fontforge/fontforge.h HAVE_FONTFORGE_H)
-if(NOT (DEFINED HAVE_FONTFORGE_H))
-    message("*************")
-    message("cannot find fontforge.h, consider adding something like")
-    message("    -DFONTFORGE_INCLUDE_DIRS=\"-I/usr/include/fontforge\" -DFONTFORGE_LIBRARY_DIRS=\"-L/usr/lib -lfontforge -lpython2.7\"")
-    message("if you see lots of error")
-    message("*************")
+find_path(FF_INCLUDE_PATH fontforge/fontforge.h)
+if(FF_INCLUDE_PATH)
+    message("Found fontforge.h: ${FF_INCLUDE_PATH}/fontforge/fontforge.h")
+    include_directories(${FF_INCLUDE_PATH}/fontforge)
 else()
-    message("********here********")
-    message("${HAVE_FONTFORGE_H}")
-    message("********here********")
+    message(FATAL_ERROR "Error: cannot locate fontforge.h")
 endif()
 
-include_directories(${FONTFORGE_INCLUDE_DIRS})
-link_directories(${FONTFORGE_LIBRARY_DIRS})
+find_library(FF_LIB libfontforge.so)
+if(FF_LIB)
+    message("Found libfontforge.so: ${FF_LIB}")
+    set(FONTFORGE_LIBRARIES ${FF_LIB})
+else()
+    message(FATAL_ERROR "Error: cannot locate libfontforge.so")
+endif()
 
-include_directories(${CMAKE_SOURCE_DIR}/src)
+message("Looking for libraries of python, which is required by fontforge, if you can link fontforge without python, you may disable this")
+pkg_check_modules(PYTHON REQUIRED python)
 
 set(PDF2HTMLEX_VERSION "0.2")
 set(ARCHIVE_NAME pdf2htmlex-${PDF2HTMLEX_VERSION})
@@ -67,7 +67,7 @@ add_executable(pdf2htmlEX
     src/util.h
     src/config.h)
 
-target_link_libraries(pdf2htmlEX poppler boost_program_options boost_filesystem boost_system fontforge)
+target_link_libraries(pdf2htmlEX ${POPPLER_LIBRARIES} ${Boost_LIBRARIES} ${FONTFORGE_LIBRARIES} ${PYTHON_LIBRARIES})
 
 install (TARGETS pdf2htmlEX DESTINATION bin)
 file (GLOB datafiles share/*)
