@@ -146,6 +146,8 @@ class PC_HTMLRenderer : public HTMLRenderer
             HTMLRenderer::endPage();
             if(!param->only_metadata) {
                 html_fout.close();
+                allcss_fout << format("#p%|1$x|{visibility: visible;}") % this->pageNum
+                            << endl;
             }
         }
 
