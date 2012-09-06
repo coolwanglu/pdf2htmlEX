@@ -33,7 +33,7 @@ message("Looking for libraries of python, which is required by fontforge, if you
 pkg_check_modules(PYTHON python)
 pkg_check_modules(PYTHON python-2.7)
 
-set(PDF2HTMLEX_VERSION "0.2")
+set(PDF2HTMLEX_VERSION "0.3")
 set(ARCHIVE_NAME pdf2htmlex-${PDF2HTMLEX_VERSION})
 add_custom_target(dist
     COMMAND git archive --prefix=${ARCHIVE_NAME}/ HEAD
