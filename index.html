@@ -61,9 +61,9 @@
 
 <p>pdf2htmlEX renders PDF files in HTML, utilizing modern Web technologies, aims to provide an accuracy rendering, while keeping optimized for Web display.</p>
 
-<p>It is optimized for recent versions of modern web browsers such as Mozilla Firefox &amp; Google Chrome.</p>
+<p>It is optimized for modern web browsers such as Mozilla Firefox &amp; Google Chrome.</p>
 
-<p>This program is designed for scientific papers with complicate formulas and figures, so a precise rendering is also the #1 concern.</p>
+<p>This program is designed for scientific papers with complicate formulas and figures, so a precise rendering is also the #1 concern. But of course general PDF files are also supported.</p>
 
 <h2>Features</h2>
 
@@ -71,39 +71,55 @@
 <li>Single HTML file output </li>
 <li>Precise rendering </li>
 <li>Text Selection</li>
-<li>Font embedding </li>
+<li>Font embedding &amp; reencoding for Web</li>
 <li>Proper styling (Color, Transformation...)</li>
 <li>Optimization for Web </li>
-</ul><h2>Not supported yet</h2>
+</ul><h3>Not supported yet</h3>
 
 <ul>
-<li>Several Font types &amp; encodings</li>
+<li>Type 3 fonts</li>
 <li>Non-text object (Don't worry, they will be rendered as images)</li>
-<li>Blend Mode</li>
-<li>...</li>
-</ul><h2>Dependency</h2>
+</ul><h2>Get started</h2>
+
+<p><strong>Fontforge-git is no longer required, a recent version should be OK</strong> </p>
+
+<h3>Ubuntu</h3>
+
+<p>There is a Ubuntu PPA set up at <a href="https://launchpad.net/%7Ecoolwanglu/+archive/pdf2htmlex">here</a>.</p>
+
+<h3>ArchLinux</h3>
+
+<p>Special thanks to Arthur Titeica for the <a href="https://aur.archlinux.org/packages.php?ID=62426">AUR Package</a>.</p>
+
+<h3>Build from source</h3>
+
+<h4>Dependency</h4>
 
 <ul>
-<li>Recent version of GCC (no guarantee on other compilers)</li>
-<li>libpoppler with xpdf header &gt;= 0.20.2</li>
+<li>CMake </li>
+<li>compilers support C++11</li>
+<li>libpoppler with xpdf header &gt;= 0.20.2 (compile with --enable-xpdf-headers)</li>
 <li>boost c++ library (format, program options, gil, filesystem, serialization, system(which is actually required by filesystem))</li>
-<li>fontforge <strong>Please use <a href="https://github.com/fontforge/fontforge">the lastest version</a></strong>
-</li>
-</ul><h2>HOW TO COMPILE</h2>
+<li>fontforge (with header files)</li>
+</ul><h4>Compiling</h4>
 
 <pre><code>cmake . &amp;&amp; make &amp;&amp; sudo make install
 </code></pre>
 
-<h2>HOW TO USE</h2>
+<h2>Usage</h2>
 
-<pre><code>pdf2htmlEX /path/to/sample.pdf
+<pre><code>pdf2htmlEX /path/to/foobar.pdf
+
+pdf2htmlEX --help
 </code></pre>
 
 <h2>LICENSE</h2>
 
-<p>GPLv3</p>
+<p>GPLv2 &amp; GPLv3 Dual licensed</p>
 
-<p>We would like to acknowledge the following projects that have been consulted while writing this program:</p>
+<h2>Credits</h2>
+
+<p>The following projects have been consulted for pdf2htmlEX:</p>
 
 <ul>
 <li>pdftops &amp; pdftohtml from poppler </li>
@@ -111,11 +127,14 @@
 <li>PDF.js</li>
 <li>Crocodoc</li>
 <li>Google Doc</li>
-</ul><h2>AUTHORS</h2>
+</ul><h2>Contact</h2>
 
 <ul>
 <li>Lu Wang <a href="mailto:coolwanglu@gmail.com">coolwanglu@gmail.com</a>
 </li>
+</ul><h3>Special Thanks</h3>
+
+<ul>
 <li>Hongliang Tian <a href="mailto:tatetian@gmail.com">tatetian@gmail.com</a>
 </li>
 </ul>
