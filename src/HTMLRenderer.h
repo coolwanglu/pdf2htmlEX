@@ -30,7 +30,7 @@
 
 #include "Param.h"
 #include "util.h"
-
+#include "FontPreprocessor.h"
 
 /*
  * Naming Convention
@@ -124,6 +124,7 @@ class HTMLRenderer : public OutputDev
         ////////////////////////////////////////////////////
         // misc
         ////////////////////////////////////////////////////
+        
         void add_tmp_file (const std::string & fn);
         void clean_tmp_files ();
         boost::filesystem::path dump_embedded_font (GfxFont * font, long long fn_id);
@@ -333,6 +334,7 @@ class HTMLRenderer : public OutputDev
         // for font reencoding
         int32_t * cur_mapping;
         char ** cur_mapping2;
+        FontPreprocessor font_preprocessor;
 
         ////////////////////////////////////////////////////
         // styles & resources

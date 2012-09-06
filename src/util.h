@@ -21,6 +21,7 @@
 #include <CharTypes.h>
 #include <UTF8.h>
 #include <GlobalParams.h>
+#include <Object.h>
 
 #include "Consts.h"
 
@@ -47,6 +48,11 @@ static inline bool _tm_equal(const double * tm1, const double * tm2, int size = 
         if(!_equal(tm1[i], tm2[i]))
             return false;
     return true;
+}
+
+static inline long long hash_ref(const Ref * id)
+{
+    return (((long long)(id->num)) << (sizeof(id->gen)*8)) | (id->gen);
 }
 
 /*

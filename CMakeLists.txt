@@ -66,6 +66,8 @@ add_executable(pdf2htmlEX
     src/ff/ff.c
     src/BackgroundRenderer.h 
     src/BackgroundRenderer.cc 
+    src/FontPreprocessor.h
+    src/FontPreprocessor.cc
     src/Consts.h 
     src/Consts.cc 
     src/util.h

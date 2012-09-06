@@ -25,7 +25,7 @@ const FontInfo * HTMLRenderer::install_font(GfxFont * font)
 {
     assert(sizeof(long long) == 2*sizeof(int));
                 
-    long long fn_id = (font == nullptr) ? 0 : *reinterpret_cast<long long*>(font->getID());
+    long long fn_id = (font == nullptr) ? 0 : hash_ref(font->getID());
 
     auto iter = font_name_map.find(fn_id);
     if(iter != font_name_map.end())

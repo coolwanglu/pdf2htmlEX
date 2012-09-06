@@ -217,8 +217,12 @@ void HTMLRenderer::embed_font(const path & filepath, GfxFont * font, FontInfo & 
 
                 memset(cur_mapping2, 0, 256 * sizeof(char*));
 
+                const char * used_map = font_preprocessor.get_code_map(hash_ref(font->getID()));
+
                 for(int i = 0; i < 256; ++i)
                 {
+                    if(!used_map[i]) continue;
+
                     auto cn = font_8bit->getCharName(i);
                     if(cn == nullptr)
                     {
