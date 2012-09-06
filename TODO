@@ -10,6 +10,7 @@ fix glyph width as provided in pdf
 disable selection if we know unicode is wrong
 
 ==Future==
+Printing
 multiple charcode mapped to a same glyph
 check if we can add information to the font, and let browsers show ligatures automatically
 custom html/css dir
