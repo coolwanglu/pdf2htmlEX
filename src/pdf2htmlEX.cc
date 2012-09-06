@@ -65,7 +65,7 @@ po::variables_map parse_options (int argc, char **argv)
         ("user-password,u", po::value<string>(&param.user_password)->default_value(""), "user password (for encrypted files)")
 
         ("dest-dir", po::value<string>(&param.dest_dir)->default_value("."), "destination directory")
-        ("tmp-dir", po::value<string>(&param.tmp_dir)->default_value("/tmp/pdf2htmlEX"), "temporary directory")
+        ("tmp-dir", po::value<string>(&param.tmp_dir)->default_value((temp_directory_path() / "/pdf2htmlEX").string()), "temporary directory")
 
         ("first-page,f", po::value<int>(&param.first_page)->default_value(1), "first page to process")
         ("last-page,l", po::value<int>(&param.last_page)->default_value(numeric_limits<int>::max()), "last page to process")
