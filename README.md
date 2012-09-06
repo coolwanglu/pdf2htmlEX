@@ -81,7 +81,7 @@ The following projects have been consulted for pdf2htmlEX:
 
 Suggestions and questions are welcome.
 
-Please read the FAQ(https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ) beforehand.
+Please read the [FAQ](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ) beforehand.
 
 * Lu Wang <coolwanglu@gmail.com>
 
