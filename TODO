@@ -1,12 +1,8 @@
-cmake - pkgconfig - fontforge - python
-
 fix glyph width as provided in pdf
 
 option to break ligatures
 
 detect duplicate base fonts when embedding
-
-consider left-shift in optimization
 
 multiple charcode mapped to a same glyph
 re-encoded only used glyphs

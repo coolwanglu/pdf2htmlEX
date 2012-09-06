@@ -30,6 +30,7 @@ struct Param
     int single_html;
     int embed_base_font;
     int embed_external_font;
+    int decompose_ligature;
 
     // Advanced tweak
     double h_eps, v_eps;

@@ -26,6 +26,7 @@
 using boost::algorithm::to_lower;
 using std::unordered_set;
 using std::min;
+using std::all_of;
 
 path HTMLRenderer::dump_embedded_font (GfxFont * font, long long fn_id)
 {
@@ -422,8 +423,15 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
             ++nSpaces;
         }
         
-        Unicode uu = (cur_font_info->use_tounicode ? check_unicode(u, uLen, code, font) : unicode_from_font(code, font));
-        line_buf.append_unicodes(&uu, 1);
+        if((param->decompose_ligature) && all_of(u, u+uLen, isLegalUnicode))
+        {
+            line_buf.append_unicodes(u, uLen);
+        }
+        else
+        {
+            Unicode uu = (cur_font_info->use_tounicode ? check_unicode(u, uLen, code, font) : unicode_from_font(code, font));
+            line_buf.append_unicodes(&uu, 1);
+        }
 
         dx += dx1;
         dy += dy1;

@@ -69,7 +69,10 @@ There are several base font defined in PDF standards, which are supposed to be p
 If this switch is on, local matched font will be used and embedded; otherwise only font names are exported such that web browsers may try to find proper fonts themselves.
 .TP
 .B --embed-external-font <0|1> (Default: 0)
-Similar as above but for non-base fonts
+Similar as above but for non-base fonts.
+.TP
+.B --decompose-ligature <0|1> (Default: 0)
+Decompose ligatures. For example 'fi' -> 'f''i'.
 .TP
 .B --heps <len>, --veps <len> (Default: 1)
 Specify the maximum tolerable horizontal/vertical offset (in pixels).
@@ -77,7 +80,7 @@ Specify the maximum tolerable horizontal/vertical offset (in pixels).
 pdf2htmlEX would try to optimize the generated HTML file moving Text within this distance.
 .TP
 .B --space-threshold <ratio> (Default: 1.0/6)
-pdf2htmlEX would insert a whitespace character ' ' if the distance between two consecutive letters in the same line is wider than ratio * font_size
+pdf2htmlEX would insert a whitespace character ' ' if the distance between two consecutive letters in the same line is wider than ratio * font_size.
 .TP
 .B --font-size-multiplier <ratio> (Default: 10)
 Many web browsers limit the minimum font size, and many would round the given font size, which results in incorrect rendering.
@@ -104,10 +107,10 @@ If switched off, intermediate files won't be cleaned in the end.
 Convert file.pdf into file.html
 .TP
 .B pdf2htmlEX --tmp-dir tmp --clean-tmp 0 --debug 1 /path/to/file.pdf
-Convert file.pdf and leave all intermediate files
+Convert file.pdf and leave all intermediate files.
 .TP
 .B pdf2htmlEX --dest-dir out --single-html 0 --debug 1 /path/to/file.pdf
-Convert file.pdf into out/file.html and leave font/image files separated
+Convert file.pdf into out/file.html and leave font/image files separated.
 
 .SH COPYRIGHT
 .PP
