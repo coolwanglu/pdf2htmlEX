@@ -49,9 +49,9 @@ Special thanks to Arthur Titeica for the [AUR Package](https://aur.archlinux.org
 
 * CMake 
 * compilers support C++11
-* libpoppler with xpdf header >= 0.20.2
+* libpoppler with xpdf header >= 0.20.2 (compile with --enable-xpdf-headers)
 * boost c++ library (format, program options, gil, filesystem, serialization, system(which is actually required by filesystem))
-* fontforge **Please use [the lastest version](https://github.com/fontforge/fontforge)**
+* fontforge (with header files)
 
 #### Compiling
 
