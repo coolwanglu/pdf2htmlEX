@@ -18,7 +18,8 @@ public:
   BackgroundRenderer(SplashColorMode colorModeA, int bitmapRowPadA,
         GBool reverseVideoA, SplashColorPtr paperColorA,
         GBool bitmapTopDownA = gTrue,
-        GBool allowAntialiasA = gTrue) : SplashOutputDev(colorModeA,
+        GBool allowAntialiasA = gTrue) 
+      : SplashOutputDev(colorModeA,
             bitmapRowPadA, reverseVideoA, paperColorA, bitmapTopDownA,
             allowAntialiasA) { }
   virtual ~BackgroundRenderer() { }
