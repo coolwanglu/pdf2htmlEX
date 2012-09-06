@@ -2,8 +2,6 @@ disable annotation
 
 valgrind
 
-re-encoded only used glyphs
-
 detect duplicate base fonts when embedding
 
 take care of spaces (simulate by <span>)

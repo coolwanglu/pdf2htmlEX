@@ -175,8 +175,11 @@ void HTMLRenderer::embed_font(const path & filepath, GfxFont * font, FontInfo & 
 
     info.use_tounicode = ((suffix == ".ttf") || (font->isCIDFont()) || (param->always_apply_tounicode));
 
+
     if(!get_metric_only)
     {
+        const char * used_map = font_preprocessor.get_code_map(hash_ref(font->getID()));
+
         /*
          * Step 1
          * dump the font file directly from the font descriptor and put the glyphs into the correct slots
@@ -216,8 +219,6 @@ void HTMLRenderer::embed_font(const path & filepath, GfxFont * font, FontInfo & 
                 bool name_conflict_warned = false;
 
                 memset(cur_mapping2, 0, 256 * sizeof(char*));
-
-                const char * used_map = font_preprocessor.get_code_map(hash_ref(font->getID()));
 
                 for(int i = 0; i < 256; ++i)
                 {
@@ -293,6 +294,9 @@ void HTMLRenderer::embed_font(const path & filepath, GfxFont * font, FontInfo & 
             int max_key = maxcode;
             for(int i = 0; i <= maxcode; ++i)
             {
+                if(!used_map[i])
+                    continue;
+
                 if((suffix != ".ttf") && (font_8bit != nullptr) && (font_8bit->getCharName(i) == nullptr))
                 {
                     continue;
