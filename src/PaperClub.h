@@ -125,6 +125,11 @@ class PC_HTMLRenderer : public HTMLRenderer
         virtual void post_process() { 
             if(!param->only_metadata) {
                 allcss_fout.close();
+                
+                // Touch a file to indicate processing is done
+                boost::filesystem::ofstream touch_done_file;
+                touch_done_file.open(dest_dir / "all.css.done", ofstream::binary);
+                touch_done_file.close();
             }
         }
 
