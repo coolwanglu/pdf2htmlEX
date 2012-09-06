@@ -1,17 +1,16 @@
 re-encoded only used glyphs
 
-fix glyph width as provided in pdf
-
 detect duplicate base fonts when embedding
-
-multiple charcode mapped to a same glyph
 
 take care of spaces (simulate by <span>)
 use absolute positioning for long whitespace
 
+fix glyph width as provided in pdf
+
 disable selection if we know unicode is wrong
 
 ==Future==
+multiple charcode mapped to a same glyph
 check if we can add information to the font, and let browsers show ligatures automatically
 custom html/css dir
 native support for image
