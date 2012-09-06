@@ -1,6 +1,7 @@
 <!-- neck.html by WangLu 2012.08.15 -->
 <title></title>
 <script type="text/javascript">
+/* show pages one by one asynchronously */
 function show_pages()
 {
  var pages = document.getElementById('pdf-main').childNodes;
@@ -19,5 +20,19 @@ function show_pages()
 </script>
 </head>
 <body onload="show_pages();">
+<script type="text/javascript">
+/* hide all pages */
+(function(){
+ var s = '.p{display:none;}';
+ var n = document.createElement("style");
+ n.type = "text/css";
+ if (n.styleSheet) {
+  n.styleSheet.cssText = s
+ } else {
+  n.appendChild(document.createTextNode(s));
+ }
+ document.getElementsByTagName("head")[0].appendChild(n);
+})();
+</script>
 <div id="pdf-main">
 <!-- neck.html END -->

@@ -16,7 +16,7 @@
   margin:13px auto;
   background-color:white;
   overflow:hidden;
-  display:none;
+  display:block;
 }
 .l {
   position:absolute;
