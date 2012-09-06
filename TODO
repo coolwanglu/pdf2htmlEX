@@ -1,11 +1,10 @@
-fix glyph width as provided in pdf
+re-encoded only used glyphs
 
-option to break ligatures
+fix glyph width as provided in pdf
 
 detect duplicate base fonts when embedding
 
 multiple charcode mapped to a same glyph
-re-encoded only used glyphs
 
 take care of spaces (simulate by <span>)
 use absolute positioning for long whitespace
