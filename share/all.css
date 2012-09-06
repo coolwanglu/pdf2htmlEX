@@ -11,6 +11,9 @@
   /* for Chrome & Safari */
   -webkit-text-stroke-width:0.13px; 
 }
+#pdf-main > * {
+  display: block;
+}
 .p {
   position:relative;
   margin:13px auto;
