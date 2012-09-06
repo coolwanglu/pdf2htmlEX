@@ -92,7 +92,7 @@ void HTMLRenderer::LineBuffer::flush(void)
 
     // whenever a negative offset appears, we should not pop out that <span>
     // otherwise the effect of negative margin-left would disappear
-    size_t last_text_pos_with_negative_offset = -1;
+    size_t last_text_pos_with_negative_offset = 0;
 
     size_t cur_text_idx = 0;
     while(cur_text_idx < text.size())

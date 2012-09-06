@@ -1,3 +1,9 @@
+pdf2htmlex (0.2-3~git201209061630r2c813-0ubuntu1) precise; urgency=low
+
+  * fix build
+
+ -- WANG Lu <coolwanglu@gmail.com>  Thu, 06 Sep 2012 16:30:04 +0800
+
 pdf2htmlex (0.2-3~git201209061446re191f-0ubuntu1) precise; urgency=low
 
   * fix build 
