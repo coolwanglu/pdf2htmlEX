@@ -33,7 +33,7 @@ This program is designed for scientific papers with complicate formulas and figu
 
 ## Get started
 
-**Fontforge-git is no longer depended, a recent version should be OK** 
+**Fontforge-git is no longer required, a recent version should be OK** 
 
 ### Ubuntu 
 
