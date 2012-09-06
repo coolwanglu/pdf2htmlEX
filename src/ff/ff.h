@@ -19,6 +19,7 @@ extern "C" {
 #endif
 
 void ff_init(void);
+void ff_fin(void);
 void ff_load_font(const char * filename);
 void ff_reencode_glyph_order(void);
 void ff_reencode_raw(int32_t * mapping, int mapping_len, int force);
