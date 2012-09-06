@@ -2,7 +2,7 @@ Source: pdf2htmlex
 Section: universe/web
 Priority: extra
 Maintainer: WANG Lu <coolwanglu@gmail.com>
-Build-Depends: cmake (>= 2.6.0), pkg-config, debhelper (>= 8), libpoppler-dev (>= 0.20.3), libboost-filesystem-dev, libboost-program-options-dev, libpng12-dev, libfontforge-dev
+Build-Depends: cmake (>= 2.6.0), pkg-config, debhelper (>= 8), libpoppler-dev (>= 0.20.3), libboost-filesystem-dev, libboost-program-options-dev, libpng12-dev, libfontforge-dev, libspiro-dev
 Standards-Version: 3.9.3
 Homepage: http://github.com/coolwanglu/pdf2htmlEX
 
