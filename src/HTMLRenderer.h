@@ -293,7 +293,6 @@ class HTMLRenderer : public OutputDev
                 size_t start_idx; // index of the first Text using this state
                 // for optimzation
                 long long hash_value;
-                int depth; // the depth in the state tree
                 bool need_close;
 
                 static const char * format_str; // class names for each id
@@ -315,8 +314,6 @@ class HTMLRenderer : public OutputDev
         private:
             // retrieve state from renderer
             void set_state(State & state);
-            // build the state tree in order to minimize the size of output
-            void optimize_states(void);
 
             HTMLRenderer * renderer;
 
@@ -326,6 +323,9 @@ class HTMLRenderer : public OutputDev
             std::vector<State> states;
             std::vector<Offset> offsets;
             std::vector<Unicode> text;
+
+            // for flush
+            std::vector<State*> stack;
 
         } line_buf;
         friend class LineBuffer;

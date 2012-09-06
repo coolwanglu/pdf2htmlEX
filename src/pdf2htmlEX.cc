@@ -84,7 +84,6 @@ po::variables_map parse_options (int argc, char **argv)
         ("space-threshold", po::value<double>(&param.space_threshold)->default_value(1.0/6), "distance no thiner than (threshold * em) will be considered as a space character")
         ("font-size-multiplier", po::value<double>(&param.font_size_multiplier)->default_value(10.0), "setting a value greater than 1 would increase the rendering accuracy")
         ("always-apply-tounicode", po::value<int>(&param.always_apply_tounicode)->default_value(0), "ToUnicode map is ignore for non-TTF fonts unless this switch is on")
-        ("optimize", po::value<int>(&param.optimize)->default_value(0), "Optimize HTML, might be very slow")
 
         ("font-suffix", po::value<string>(&param.font_suffix)->default_value(".ttf"), "suffix for extracted font files")
         ("font-format", po::value<string>(&param.font_format)->default_value("truetype"), "format for extracted font files")

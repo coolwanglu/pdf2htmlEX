@@ -12,7 +12,7 @@ for f in os.listdir(DIR):
     if not f.lower().endswith('.pdf'):
         continue
     print f
-    os.system('pdf2htmlEX --optimize 1 -l 10 --dest-dir html "%s/%s"' % (DIR,f))
+    os.system('pdf2htmlEX -l 10 --dest-dir html "%s/%s"' % (DIR,f))
     ff = f[:-3]+'html'
     outf.write('<a href="html/%s" target="pdf">%s</a><br/>' % (ff,ff))
     outf.flush();
