@@ -67,6 +67,10 @@ Special thanks to Arthur Titeica for the [AUR Package](https://aur.archlinux.org
 
 GPLv2 & GPLv3 Dual licensed
 
+**Please credit pdf2htmlEX if you use it in your work, especially for commerical use**
+
+**Font extraction or conversion may be illegal, please check your local laws**
+
 ## Credits
 
 The following projects have been consulted for pdf2htmlEX:
