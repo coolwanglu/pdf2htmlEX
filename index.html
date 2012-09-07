@@ -3,55 +3,43 @@
   <head>
     <meta charset='utf-8'>
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <meta name="viewport" content="width=640" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
 
-    <link rel="stylesheet" href="stylesheets/core.css" media="screen"/>
-    <link rel="stylesheet" href="stylesheets/mobile.css" media="handheld, only screen and (max-device-width:640px)"/>
-    <link rel="stylesheet" href="stylesheets/pygment_trac.css"/>
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
 
-    <script type="text/javascript" src="javascripts/modernizr.js"></script>
-    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-    <script type="text/javascript" src="javascripts/headsmart.min.js"></script>
-    <script type="text/javascript">
-      $(document).ready(function () {
-        $('#main_content').headsmart()
-      })
-    </script>
     <title>pdf2htmlEX by coolwanglu</title>
   </head>
 
   <body>
-    <a id="forkme_banner" href="https://github.com/coolwanglu/pdf2htmlEX">View on GitHub</a>
-    <div class="shell">
+    <header>
+      <div class="inner">
+        <h1>pdf2htmlEX</h1>
+        <h2>A PDF to HTML converter</h2>
+        <a href="https://github.com/coolwanglu/pdf2htmlEX" class="button"><small>View project on</small>GitHub</a>
+      </div>
+    </header>
 
-      <header>
-        <span class="ribbon-outer">
-          <span class="ribbon-inner">
-            <h1>pdf2htmlEX</h1>
-            <h2>A PDF to HTML converter</h2>
-          </span>
-          <span class="left-tail"></span>
-          <span class="right-tail"></span>
-        </span>
-      </header>
-
-      <section id="downloads">
-        <span class="inner">
-          <a href="https://github.com/coolwanglu/pdf2htmlEX/zipball/master" class="zip"><em>download</em> .ZIP</a><a href="https://github.com/coolwanglu/pdf2htmlEX/tarball/master" class="tgz"><em>download</em> .TGZ</a>
-        </span>
-      </section>
-
-
-      <span class="banner-fix"></span>
-
-
-      <section id="main_content">
-        <h1>pdf2html<strong>EX</strong>
+    <div id="content-wrapper">
+      <div class="inner clearfix">
+        <section id="main-content">
+          <h1>pdf2html<strong>EX</strong>
 </h1>
 
-<p><a href="http://coolwanglu.github.com/pdf2htmlEX/demo/demo.html"><strong>View Demo</strong></a></p>
+<p>A beautiful demo is worth a thousand words:</p>
 
-<p><a href="http://coolwanglu.github.com/pdf2htmlEX/demo/chn.html"><strong>Another Demo (CJK)</strong></a></p>
+<p><a href="http://coolwanglu.github.com/pdf2htmlEX/demo/geneve.html"><strong>Typography</strong></a></p>
+
+<p><a href="http://coolwanglu.github.com/pdf2htmlEX/demo/cheat.html"><strong>Formulas</strong></a></p>
+
+<p><a href="http://coolwanglu.github.com/pdf2htmlEX/demo/demo.html"><strong>Scientific Paper</strong></a></p>
+
+<p><a href="http://coolwanglu.github.com/pdf2htmlEX/demo/chn.html"><strong>Chinese</strong></a></p>
 
 <p><strong>WINDOWS XP USERS: Please make sure ClearType is turned on</strong> </p>
 
@@ -97,9 +85,19 @@
 
 <ul>
 <li>CMake </li>
-<li>compilers support C++11</li>
-<li>libpoppler with xpdf header &gt;= 0.20.2 (compile with --enable-xpdf-headers)</li>
-<li>boost c++ library (format, program options, gil, filesystem, serialization, system(which is actually required by filesystem))</li>
+<li>compilers support C++11
+
+<ul>
+<li>GCC &gt;= 4.6.x</li>
+</ul>
+</li>
+<li>libpoppler with xpdf header &gt;= 0.20.2 (compile with --enable-xpdf-headers)
+
+<ul>
+<li>Install libpng (and headers) BEFORE you compile libpoppler if you want background images generated</li>
+</ul>
+</li>
+<li>boost c++ library (program options, gil, filesystem, system(which is actually required by filesystem))</li>
 <li>fontforge (with header files)</li>
 </ul><h4>Compiling</h4>
 
@@ -117,6 +115,10 @@ pdf2htmlEX --help
 
 <p>GPLv2 &amp; GPLv3 Dual licensed</p>
 
+<p><strong>Please credit pdf2htmlEX if you use it in your work, especially for commercial use</strong></p>
+
+<p><strong>Font extraction or conversion may be illegal, please check your local laws</strong></p>
+
 <h2>Credits</h2>
 
 <p>The following projects have been consulted for pdf2htmlEX:</p>
@@ -129,6 +131,10 @@ pdf2htmlEX --help
 <li>Google Doc</li>
 </ul><h2>Contact</h2>
 
+<p>Suggestions and questions are welcome.</p>
+
+<p>Please read the <a href="https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ">FAQ</a> beforehand.</p>
+
 <ul>
 <li>Lu Wang <a href="mailto:coolwanglu@gmail.com">coolwanglu@gmail.com</a>
 </li>
@@ -138,22 +144,25 @@ pdf2htmlEX --help
 <li>Hongliang Tian <a href="mailto:tatetian@gmail.com">tatetian@gmail.com</a>
 </li>
 </ul>
-      </section>
+        </section>
 
-      <footer>
-        <span class="ribbon-outer">
-          <span class="ribbon-inner">
-            <p>this project by <a href="https://github.com/coolwanglu">coolwanglu</a> can be found on <a href="https://github.com/coolwanglu/pdf2htmlEX">GitHub</a></p>
-          </span>
-          <span class="left-tail"></span>
-          <span class="right-tail"></span>
-        </span>
-        <p>Generated with <a href="http://pages.github.com">GitHub Pages</a> using Merlot</p>
-        <span class="octocat"></span>
-      </footer>
+        <aside id="sidebar">
+          <a href="https://github.com/coolwanglu/pdf2htmlEX/zipball/master" class="button">
+            <small>Download</small>
+            .zip file
+          </a>
+          <a href="https://github.com/coolwanglu/pdf2htmlEX/tarball/master" class="button">
+            <small>Download</small>
+            .tar.gz file
+          </a>
 
+          <p class="repo-owner"><a href="https://github.com/coolwanglu/pdf2htmlEX"></a> is maintained by <a href="https://github.com/coolwanglu">coolwanglu</a>.</p>
+
+          <p>This page was generated by <a href="pages.github.com">GitHub Pages</a> using the Architect theme by <a href="http://twitter.com/jasonlong">Jason Long</a>.</p>
+        </aside>
+      </div>
     </div>
 
-    
+  
   </body>
 </html>
