@@ -14,7 +14,6 @@
 #include <sstream>
 #include <cstdint>
 
-#include <boost/format.hpp>
 #include <boost/filesystem/fstream.hpp>
 
 #include <OutputDev.h>
@@ -335,6 +334,9 @@ class HTMLRenderer : public OutputDev
         int32_t * cur_mapping;
         char ** cur_mapping2;
         FontPreprocessor font_preprocessor;
+
+        // for string formatting
+        string_formatter str_fmt;
 
         ////////////////////////////////////////////////////
         // styles & resources

@@ -15,6 +15,7 @@
 #include <ostream>
 #include <iostream>
 #include <cmath>
+#include <cstdarg>
 
 #include <GfxState.h>
 #include <GfxFont.h>
@@ -260,5 +261,33 @@ private:
 
 static inline ostream & operator << (ostream & out, base64stream & bf) { return bf.dumpto(out); }
 static inline ostream & operator << (ostream & out, base64stream && bf) { return bf.dumpto(out); }
+
+class string_formatter
+{
+public:
+    string_formatter() { buf.reserve(64); }
+    /*
+     * Important:
+     * there is only one buffer, so new strings will replace old ones
+     */
+    const char * operator () (const char * format, ...) {
+        va_list vlist;
+        va_start(vlist, format);
+        int l = vsnprintf(&buf.front(), buf.capacity(), format, vlist);
+        va_end(vlist);
+        if((l+1) > (int)buf.capacity()) 
+        {
+            buf.reserve(l+1);
+            va_start(vlist, format);
+            l = vsnprintf(&buf.front(), buf.capacity(), format, vlist);
+            va_end(vlist);
+        }
+        if(l < 0) return nullptr;
+        assert(l < (int)buf.capacity());
+        return &buf.front();
+    }
+private:
+    std::vector<char> buf;
+};
 
 #endif //UTIL_H__

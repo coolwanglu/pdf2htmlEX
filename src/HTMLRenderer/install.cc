@@ -11,8 +11,6 @@
 #include <cmath>
 #include <algorithm>
 
-#include <boost/format.hpp>
-
 #include "Param.h"
 
 #include "HTMLRenderer.h"
@@ -46,7 +44,7 @@ const FontInfo * HTMLRenderer::install_font(GfxFont * font)
 
     if(param->debug)
     {
-        cerr << "Install font: (" << (font->getID()->num) << ' ' << (font->getID()->gen) << ") -> " << format("f%|1$x|")%new_fn_id << endl;
+        cerr << "Install font: (" << (font->getID()->num) << ' ' << (font->getID()->gen) << ") -> " << "f" << hex << new_fn_id << dec << endl;
     }
 
     if(font->getType() == fontType3) {
@@ -120,7 +118,7 @@ void HTMLRenderer::install_base_font(GfxFont * font, GfxFontLoc * font_loc, Font
         }
         else
         {
-            cerr << format("Cannot embed base font: f%|1$x| %2%") % info.id % psname << endl;
+            cerr << "Cannot embed base font: f" << hex << info.id << dec << ' ' << psname << endl;
             // fallback to exporting by name
         }
 
@@ -178,7 +176,7 @@ void HTMLRenderer::install_external_font(GfxFont * font, FontInfo & info)
         }
         else
         {
-            cerr << format("Cannot embed external font: f%|1$x| %2%") % info.id % fontname << endl;
+            cerr << "Cannot embed external font: f" << hex << info.id << dec << ' ' << fontname << endl;
             // fallback to exporting by name
         }
     }

@@ -8,7 +8,6 @@
  */
 
 #if 0
-#include <boost/format.hpp>
 // for gil bug
 const int *int_p_NULL = nullptr;
 #include <boost/gil/gil_all.hpp>

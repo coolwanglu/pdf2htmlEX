@@ -92,7 +92,7 @@ void HTMLRenderer::process(PDFDoc *doc)
                     0, true, false, false,
                     nullptr, nullptr, &annot_cb, nullptr);
 
-            string fn = (format("p%|1$x|.png")%i).str();
+            const char * fn = str_fmt("p%x.png", i);
             bg_renderer->getBitmap()->writeImgFile(splashFormatPng, (char*)((param->single_html ? tmp_dir : dest_dir) / fn) .c_str(), param->h_dpi, param->v_dpi);
             if(param->single_html)
                 add_tmp_file(fn);
@@ -137,8 +137,8 @@ void HTMLRenderer::pre_process()
         html_fout << ifstream(PDF2HTMLEX_DATA_PATH / NECK_HTML_FILENAME, ifstream::binary).rdbuf();
     }
 
-    html_fout << fixed;
-    allcss_fout << fixed;
+    html_fout << fixed << hex;
+    allcss_fout << fixed << hex;
 
     allcss_fout << ifstream(PDF2HTMLEX_DATA_PATH / CSS_FILENAME, ifstream::binary).rdbuf(); 
 }
@@ -167,11 +167,11 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
 
     assert((!line_opened) && "Open line in startPage detected!");
 
-    html_fout << format("<div id=\"p%|1$x|\" class=\"p\" style=\"width:%2%px;height:%3%px;") % pageNum % pageWidth % pageHeight;
+    html_fout << "<div id=\"p" << pageNum << "\" class=\"p\" style=\"width:" << pageWidth << "px;height:" << pageHeight << "px;";
 
     html_fout << "background-image:url(";
 
-    const std::string fn = (format("p%|1$x|.png") % pageNum).str();
+    const char * fn = str_fmt("p%x.png", pageNum);
     if(param->single_html)
     {
         auto path = tmp_dir / fn;
@@ -182,7 +182,7 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
         html_fout << fn;
     }
     
-    html_fout << format(");background-position:0 0;background-size:%1%px %2%px;background-repeat:no-repeat;\">") % pageWidth % pageHeight;
+    html_fout << ");background-position:0 0;background-size:" << pageWidth << "px " << pageHeight << "px;background-repeat:no-repeat;\">";
             
     draw_scale = 1.0;
 

@@ -75,11 +75,7 @@ void HTMLRenderer::LineBuffer::flush(void)
 
     // TODO: class for height ?
     ostream & out = renderer->html_fout;
-    out << format("<div style=\"left:%1%px;bottom:%2%px;height:%3%px;\" class=\"l t%|4$x|\">")
-        % x % y
-        % max_ascent
-        % tm_id
-        ;
+    out << "<div style=\"left:" << x << "px;bottom:" << y << "px;height:" << max_ascent << "px;\" class=\"l t" << tm_id << "\">";
 
     auto cur_state_iter = states.begin();
     auto cur_offset_iter = offsets.begin();
@@ -142,7 +138,7 @@ void HTMLRenderer::LineBuffer::flush(void)
             auto * p = stack.back();
             double threshold = p->draw_font_size * (p->ascent - p->descent) * (renderer->param->space_threshold);
 
-            out << format("<span class=\"_ _%|1$x|\">%2%</span>") % wid % (target > (threshold - EPS) ? " " : "");
+            out << "<span class=\"_ _" << wid << "\">" << (target > (threshold - EPS) ? " " : "") << "</span>";
 
             dx = target - w;
 
@@ -203,7 +199,8 @@ void HTMLRenderer::LineBuffer::State::begin (ostream & out, const State * prev_s
             out << ' ';
         }
 
-        out << format("%1%%|2$x|") % format_str[i] % ids[i];
+        // out should has set hex
+        out << format_str[i] << ids[i];
     }
 
     if(first)

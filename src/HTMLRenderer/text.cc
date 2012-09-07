@@ -11,7 +11,6 @@
 #include <algorithm>
 #include <unordered_set>
 
-#include <boost/format.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
 
@@ -127,11 +126,11 @@ path HTMLRenderer::dump_embedded_font (GfxFont * font, long long fn_id)
 
         obj.streamReset();
 
-        string fn = (format("f%|1$x|")%fn_id).str();
+        const char * fn = str_fmt("f%x%s", fn_id, suffix.c_str());
         ofstream outf;
-        filepath = tmp_dir / (fn + suffix);
+        filepath = tmp_dir / fn;
         outf.open(filepath, ofstream::binary);
-        add_tmp_file(fn+suffix);
+        add_tmp_file(fn);
 
         char buf[1024];
         int len;
@@ -144,7 +143,7 @@ path HTMLRenderer::dump_embedded_font (GfxFont * font, long long fn_id)
     }
     catch(int) 
     {
-        cerr << format("Someting wrong when trying to dump font %|1$x|") % fn_id << endl;
+        cerr << "Someting wrong when trying to dump font " << hex << fn_id << dec << endl;
     }
 
     obj2.free();
@@ -162,8 +161,6 @@ void HTMLRenderer::embed_font(const path & filepath, GfxFont * font, FontInfo & 
 {
     string suffix = filepath.extension().string();
     to_lower(suffix);
-
-    string fn = (format("f%|1$x|") % info.id).str();
 
     ff_load_font(filepath.c_str());
 
@@ -241,7 +238,7 @@ void HTMLRenderer::embed_font(const path & filepath, GfxFont * font, FontInfo & 
                             {
                                 name_conflict_warned = true;
                                 //TODO: may be resolved using advanced font properties?
-                                cerr << "Warning: encoding confliction detected in font: " << fn << endl;
+                                cerr << "Warning: encoding confliction detected in font: " << hex << info.id << dec << endl;
                             }
                         }
                     }
@@ -332,9 +329,10 @@ void HTMLRenderer::embed_font(const path & filepath, GfxFont * font, FontInfo & 
         }
     }
 
-    auto dest = ((param->single_html ? tmp_dir : dest_dir) / (fn+(param->font_suffix)));
+    const char * fn = str_fmt("f%x%s", info.id, param->font_suffix.c_str());
+    auto dest = ((param->single_html ? tmp_dir : dest_dir) / fn);
     if(param->single_html)
-        add_tmp_file(fn+(param->font_suffix));
+        add_tmp_file(fn);
 
     /*
      * [Win|Typo|HHead][Ascent|Descent]
@@ -344,9 +342,9 @@ void HTMLRenderer::embed_font(const path & filepath, GfxFont * font, FontInfo & 
     // Generate an intermediate ttf font in order to retrieve the metrics
     // TODO: see if we can get the values without save/load
     
-    string tmp_fn = fn+"_.ttf";
-    add_tmp_file(tmp_fn);
-    auto tmp_path = tmp_dir / tmp_fn;
+    fn = str_fmt("f%x_.ttf", info.id);
+    add_tmp_file(fn);
+    auto tmp_path = tmp_dir / fn;
     ff_save(tmp_path.c_str());
     ff_close();
     ff_load_font(tmp_path.c_str());
