@@ -1,7 +1,5 @@
 disable annotation
 
-valgrind
-
 detect duplicate base fonts when embedding
 
 take care of spaces (simulate by <span>)

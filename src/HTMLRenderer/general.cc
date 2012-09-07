@@ -19,6 +19,7 @@
 
 using std::fixed;
 using std::flush;
+using std::function;
 using boost::filesystem::remove;
 using boost::filesystem::filesystem_error;
 
@@ -50,6 +51,10 @@ HTMLRenderer::~HTMLRenderer()
     delete [] cur_mapping2;
 }
 
+static GBool annot_cb(Annot *, void *) {
+    return false;
+};
+
 void HTMLRenderer::process(PDFDoc *doc)
 {
     xref = doc->getXRef();
@@ -78,13 +83,14 @@ void HTMLRenderer::process(PDFDoc *doc)
     }
 
     pre_process();
+
     for(int i = param->first_page; i <= param->last_page ; ++i) 
     {
         if(param->process_nontext)
         {
             doc->displayPage(bg_renderer, i, param->h_dpi, param->v_dpi,
                     0, true, false, false,
-                    nullptr, nullptr, nullptr, nullptr);
+                    nullptr, nullptr, &annot_cb, nullptr);
 
             string fn = (format("p%|1$x|.png")%i).str();
             bg_renderer->getBitmap()->writeImgFile(splashFormatPng, (char*)((param->single_html ? tmp_dir : dest_dir) / fn) .c_str(), param->h_dpi, param->v_dpi);
