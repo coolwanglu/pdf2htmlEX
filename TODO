@@ -1,20 +1,20 @@
-new demo
+new demo page
 
 remove the intermediate save to retrieve asc/des
 
-get unicode from charname using fontforge
+get unicode from charname using fontforge (test with 'Font' croc.pdf)
+
 
 use absolute positioning for long whitespace
-
-fix glyph width as provided in pdf
-
-disable selection if we know unicode is wrong
-detect duplicate base fonts when embedding
 
 link
 color invert
 
 ==Future==
+
+fix glyph width as provided in pdf
+detect duplicate base fonts when embedding
+disable selection if we know unicode is wrong
 combine lines (unwarp)
 Printing
 multiple charcode mapped to a same glyph
