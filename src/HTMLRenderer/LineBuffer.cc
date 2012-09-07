@@ -139,7 +139,9 @@ void HTMLRenderer::LineBuffer::flush(void)
             if(w < 0)
                 last_text_pos_with_negative_offset = cur_text_idx;
 
-            double threshold = cur_state_iter->draw_font_size * (cur_state_iter->ascent - cur_state_iter->descent) * (renderer->param->space_threshold);
+            auto * p = stack.back();
+            double threshold = p->draw_font_size * (p->ascent - p->descent) * (renderer->param->space_threshold);
+
             out << format("<span class=\"_ _%|1$x|\">%2%</span>") % wid % (target > (threshold - EPS) ? " " : "");
 
             dx = target - w;

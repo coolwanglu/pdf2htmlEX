@@ -426,19 +426,29 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
             cerr << "TODO: non-zero origins" << endl;
         }
 
+        bool is_space = false;
         if (n == 1 && *p == ' ') 
         {
             ++nSpaces;
+            is_space = true;
         }
         
-        if((param->decompose_ligature) && all_of(u, u+uLen, isLegalUnicode))
+        if(is_space && (param->space_as_offset))
         {
-            line_buf.append_unicodes(u, uLen);
+            // ignore horiz_scaling, as it's merged in CTM
+            line_buf.append_offset((dx1 * cur_font_size + cur_letter_space + cur_word_space) * draw_scale); 
         }
         else
         {
-            Unicode uu = (cur_font_info->use_tounicode ? check_unicode(u, uLen, code, font) : unicode_from_font(code, font));
-            line_buf.append_unicodes(&uu, 1);
+            if((param->decompose_ligature) && all_of(u, u+uLen, isLegalUnicode))
+            {
+                line_buf.append_unicodes(u, uLen);
+            }
+            else
+            {
+                Unicode uu = (cur_font_info->use_tounicode ? check_unicode(u, uLen, code, font) : unicode_from_font(code, font));
+                line_buf.append_unicodes(&uu, 1);
+            }
         }
 
         dx += dx1;
