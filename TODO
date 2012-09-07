@@ -1,13 +1,12 @@
-disable annotation
-
-detect duplicate base fonts when embedding
 
 take care of spaces (simulate by <span>)
+
 use absolute positioning for long whitespace
 
 fix glyph width as provided in pdf
 
 disable selection if we know unicode is wrong
+detect duplicate base fonts when embedding
 
 ==Future==
 combine lines
