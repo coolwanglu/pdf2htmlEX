@@ -15,7 +15,7 @@ link
 color invert
 
 ==Future==
-combine lines
+combine lines (unwarp)
 Printing
 multiple charcode mapped to a same glyph
 check if we can add information to the font, and let browsers show ligatures automatically

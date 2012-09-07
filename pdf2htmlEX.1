@@ -86,6 +86,8 @@ pdf2htmlEX would insert a whitespace character ' ' if the distance between two c
 Many web browsers limit the minimum font size, and many would round the given font size, which results in incorrect rendering.
 
 Specify a ratio greater than 1 would resolve this issue.
+
+For some versions of Firefox, however, there will be a problem when the font size is too large, in which case a smaller value should be specified here.
 .TP
 .B --always-apply-tounicode <0|1> (Default: 0)
 A ToUnicode map may be provided for fonts in PDF which indicates the 'meaning' of the characters.
