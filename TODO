@@ -1,5 +1,4 @@
-
-take care of spaces (simulate by <span>)
+get unicode from charname using fontforge
 
 use absolute positioning for long whitespace
 
@@ -7,6 +6,9 @@ fix glyph width as provided in pdf
 
 disable selection if we know unicode is wrong
 detect duplicate base fonts when embedding
+
+link
+color invert
 
 ==Future==
 combine lines
