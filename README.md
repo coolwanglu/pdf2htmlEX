@@ -1,9 +1,15 @@
 # pdf2html**EX**
 
+A beautiful demo is worth a thousand words:
 
-[**View Demo**](http://coolwanglu.github.com/pdf2htmlEX/demo/demo.html)
+[**Typography**](http://coolwanglu.github.com/pdf2htmlEX/demo/cheat.html)
 
-[**Another Demo (CJK)**](http://coolwanglu.github.com/pdf2htmlEX/demo/chn.html)
+[**Formulas**](http://coolwanglu.github.com/pdf2htmlEX/demo/cheat.html)
+
+[**Scientific Paper**](http://coolwanglu.github.com/pdf2htmlEX/demo/demo.html)
+
+[**Chinese**](http://coolwanglu.github.com/pdf2htmlEX/demo/chn.html)
+
 
 **WINDOWS XP USERS: Please make sure ClearType is turned on** 
 
