@@ -21,17 +21,17 @@ void HTMLRenderer::export_remote_font(const FontInfo & info, const string & suff
 {
     allcss_fout << "@font-face{font-family:f" << info.id << ";src:url(";
 
-    const char * fn = str_fmt("f%llx%s", info.id, suffix.c_str());
-    
-    if(param->single_html)
     {
-        allcss_fout << "'data:font/" << fontfileformat << ";base64," << base64stream(ifstream(tmp_dir / fn, ifstream::binary)) << "'";
+        const char * fn = str_fmt("f%llx%s", info.id, suffix.c_str());
+        if(param->single_html)
+        {
+            allcss_fout << "'data:font/" << fontfileformat << ";base64," << base64stream(ifstream(tmp_dir / fn, ifstream::binary)) << "'";
+        }
+        else
+        {
+            allcss_fout << fn;
+        }
     }
-    else
-    {
-        allcss_fout << fn;
-    }
-    
 
     allcss_fout << ")format(\"" << fontfileformat << "\");}.f" << info.id << "{font-family:f" << info.id << ";line-height:" << (info.ascent - info.descent) << ";}" << endl;
 }

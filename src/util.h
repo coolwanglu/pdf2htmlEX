@@ -33,6 +33,7 @@ using std::endl;
 using std::flush;
 using std::cerr;
 using std::floor;
+using std::max;
 
 // mute gcc warning of unused function
 namespace
@@ -275,9 +276,9 @@ public:
         va_start(vlist, format);
         int l = vsnprintf(&buf.front(), buf.capacity(), format, vlist);
         va_end(vlist);
-        if((l+1) > (int)buf.capacity()) 
+        if(l >= (int)buf.capacity()) 
         {
-            buf.reserve(l+1);
+            buf.reserve(max((long)(l+1), (long)buf.capacity() * 2));
             va_start(vlist, format);
             l = vsnprintf(&buf.front(), buf.capacity(), format, vlist);
             va_end(vlist);

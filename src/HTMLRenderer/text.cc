@@ -126,11 +126,13 @@ path HTMLRenderer::dump_embedded_font (GfxFont * font, long long fn_id)
 
         obj.streamReset();
 
-        const char * fn = str_fmt("f%x%s", fn_id, suffix.c_str());
         ofstream outf;
-        filepath = tmp_dir / fn;
-        outf.open(filepath, ofstream::binary);
-        add_tmp_file(fn);
+        {
+            const char * fn = str_fmt("f%llx%s", fn_id, suffix.c_str());
+            filepath = tmp_dir / fn;
+            outf.open(filepath, ofstream::binary);
+            add_tmp_file(fn);
+        }
 
         char buf[1024];
         int len;
@@ -329,51 +331,56 @@ void HTMLRenderer::embed_font(const path & filepath, GfxFont * font, FontInfo & 
         }
     }
 
-    const char * fn = str_fmt("f%x%s", info.id, param->font_suffix.c_str());
-    auto dest = ((param->single_html ? tmp_dir : dest_dir) / fn);
-    if(param->single_html)
+    {
+        const char * fn = str_fmt("f%llx_.ttf", info.id);
+
+        /*
+         * [Win|Typo|HHead][Ascent|Descent]
+         * Firefox & Chrome interprets the values in different ways
+         * Trying to unify them 
+         */
+        // Generate an intermediate ttf font in order to retrieve the metrics
+        // TODO: see if we can get the values without save/load
+
         add_tmp_file(fn);
-
-    /*
-     * [Win|Typo|HHead][Ascent|Descent]
-     * Firefox & Chrome interprets the values in different ways
-     * Trying to unify them 
-     */
-    // Generate an intermediate ttf font in order to retrieve the metrics
-    // TODO: see if we can get the values without save/load
-    
-    fn = str_fmt("f%x_.ttf", info.id);
-    add_tmp_file(fn);
-    auto tmp_path = tmp_dir / fn;
-    ff_save(tmp_path.c_str());
-    ff_close();
-    ff_load_font(tmp_path.c_str());
-
-    int em = ff_get_em_size();
-    int ascent = ff_get_max_ascent();
-    int descent = ff_get_max_descent();
-
-    ff_set_ascent(ascent);
-    ff_set_descent(descent);
-    ff_save(dest.c_str());
-    ff_close();
-
-    if(em != 0)
-    {
-        info.ascent = ((double)ascent) / em;
-        info.descent = -((double)descent) / em;
-    }
-    else
-    {
-        info.ascent = 0;
-        info.descent = 0;
+        auto tmp_path = tmp_dir / fn;
+        ff_save(tmp_path.c_str());
+        ff_close();
+        ff_load_font(tmp_path.c_str());
     }
 
-    // read metric
-
-    if(param->debug)
     {
-        cerr << "Ascent: " << info.ascent << " Descent: " << info.descent << endl;
+        // read metrics
+        int em = ff_get_em_size();
+        int ascent = ff_get_max_ascent();
+        int descent = ff_get_max_descent();
+        if(em != 0)
+        {
+            info.ascent = ((double)ascent) / em;
+            info.descent = -((double)descent) / em;
+        }
+        else
+        {
+            info.ascent = 0;
+            info.descent = 0;
+        }
+        if(param->debug)
+        {
+            cerr << "Ascent: " << info.ascent << " Descent: " << info.descent << endl;
+        }
+
+        ff_set_ascent(ascent);
+        ff_set_descent(descent);
+    }
+
+    {
+        const char * fn = str_fmt("f%llx%s", info.id, param->font_suffix.c_str());
+        auto dest = ((param->single_html ? tmp_dir : dest_dir) / fn);
+        if(param->single_html)
+            add_tmp_file(fn);
+
+        ff_save(dest.c_str());
+        ff_close();
     }
 }
 

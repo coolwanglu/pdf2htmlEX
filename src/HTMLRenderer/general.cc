@@ -92,10 +92,12 @@ void HTMLRenderer::process(PDFDoc *doc)
                     0, true, false, false,
                     nullptr, nullptr, &annot_cb, nullptr);
 
-            const char * fn = str_fmt("p%x.png", i);
-            bg_renderer->getBitmap()->writeImgFile(splashFormatPng, (char*)((param->single_html ? tmp_dir : dest_dir) / fn) .c_str(), param->h_dpi, param->v_dpi);
-            if(param->single_html)
-                add_tmp_file(fn);
+            {
+                const char * fn = str_fmt("p%llx.png", i);
+                bg_renderer->getBitmap()->writeImgFile(splashFormatPng, (char*)((param->single_html ? tmp_dir : dest_dir) / fn) .c_str(), param->h_dpi, param->v_dpi);
+                if(param->single_html)
+                    add_tmp_file(fn);
+            }
         }
 
         doc->displayPage(this, i, param->zoom * DEFAULT_DPI, param->zoom * DEFAULT_DPI,
@@ -171,15 +173,17 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
 
     html_fout << "background-image:url(";
 
-    const char * fn = str_fmt("p%x.png", pageNum);
-    if(param->single_html)
     {
-        auto path = tmp_dir / fn;
-        html_fout << "'data:image/png;base64," << base64stream(ifstream(path, ifstream::binary)) << "'";
-    }
-    else
-    {
-        html_fout << fn;
+        const char * fn = str_fmt("p%llx.png", pageNum);
+        if(param->single_html)
+        {
+            auto path = tmp_dir / fn;
+            html_fout << "'data:image/png;base64," << base64stream(ifstream(path, ifstream::binary)) << "'";
+        }
+        else
+        {
+            html_fout << fn;
+        }
     }
     
     html_fout << ");background-position:0 0;background-size:" << pageWidth << "px " << pageHeight << "px;background-repeat:no-repeat;\">";
