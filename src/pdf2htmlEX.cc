@@ -82,7 +82,7 @@ po::variables_map parse_options (int argc, char **argv)
 
         ("heps", po::value<double>(&param.h_eps)->default_value(1.0), "max tolerated horizontal offset (in pixels)")
         ("veps", po::value<double>(&param.v_eps)->default_value(1.0), "max tolerated vertical offset (in pixels)")
-        ("space-threshold", po::value<double>(&param.space_threshold)->default_value(1.0/6), "distance no thiner than (threshold * em) will be considered as a space character")
+        ("space-threshold", po::value<double>(&param.space_threshold)->default_value(1.0/8), "distance no thiner than (threshold * em) will be considered as a space character")
         ("font-size-multiplier", po::value<double>(&param.font_size_multiplier)->default_value(10.0), "setting a value greater than 1 would increase the rendering accuracy")
         ("always-apply-tounicode", po::value<int>(&param.always_apply_tounicode)->default_value(0), "ToUnicode map is ignore for non-TTF fonts unless this switch is on")
         ("space-as-offset", po::value<int>(&param.space_as_offset)->default_value(0), "treat space characters as offsets")
