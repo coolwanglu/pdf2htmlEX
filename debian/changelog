@@ -1,8 +1,9 @@
-pdf2htmlex (0.3-1~git201209071342r15bad-0ubuntu1) precise; urgency=low
+pdf2htmlex (0.3-1~git201209071504ra0de6-0ubuntu1) precise; urgency=low
 
   * fix build 
+  * 0.3 comes with more bug fixed 
 
- -- WANG Lu <coolwanglu@gmail.com>  Fri, 07 Sep 2012 13:42:33 +0800
+ -- WANG Lu <coolwanglu@gmail.com>  Fri, 07 Sep 2012 15:04:09 +0800
 
 pdf2htmlex (0.2-3~git201209052329rbc256-0ubuntu1) precise; urgency=low
 
