@@ -2,13 +2,13 @@
 
 A beautiful demo is worth a thousand words:
 
-[**Typography**](http://coolwanglu.github.com/pdf2htmlEX/demo/geneve.html)
+[**Typography**](http://coolwanglu.github.com/pdf2htmlEX/demo/geneve.html) [Original](https://github.com/raphink/geneve_1564/raw/master/geneve_1564.pdf)
 
-[**Formulas**](http://coolwanglu.github.com/pdf2htmlEX/demo/cheat.html)
+[**Formulas**](http://coolwanglu.github.com/pdf2htmlEX/demo/cheat.html) [Original](http://www.tug.org/texshowcase/cheat.pdf)
 
-[**Scientific Paper**](http://coolwanglu.github.com/pdf2htmlEX/demo/demo.html)
+[**Scientific Paper**](http://coolwanglu.github.com/pdf2htmlEX/demo/demo.html) [Original](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.148.349&rep=rep1&type=pdf)
 
-[**Chinese**](http://coolwanglu.github.com/pdf2htmlEX/demo/chn.html)
+[**Chinese**](http://coolwanglu.github.com/pdf2htmlEX/demo/chn.html) [Original](http://files.cnblogs.com/phphuaibei/git%E6%90%AD%E5%BB%BA.pdf)
 
 
 **WINDOWS XP USERS: Please make sure ClearType is turned on** 
