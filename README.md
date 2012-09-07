@@ -50,7 +50,7 @@ Special thanks to Arthur Titeica for the [AUR Package](https://aur.archlinux.org
 * CMake 
 * compilers support C++11
 * libpoppler with xpdf header >= 0.20.2 (compile with --enable-xpdf-headers)
-* boost c++ library (program options, gil, filesystem, serialization, system(which is actually required by filesystem))
+* boost c++ library (program options, gil, filesystem, system(which is actually required by filesystem))
 * fontforge (with header files)
 
 #### Compiling

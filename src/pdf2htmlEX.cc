@@ -13,7 +13,6 @@
 
 #include <boost/program_options.hpp>
 #include <boost/filesystem.hpp>
-#include <boost/algorithm/string/predicate.hpp>
 
 #include <goo/GooString.h>
 
@@ -175,7 +174,7 @@ int main(int argc, char **argv)
     if(param.output_filename == "")
     {
         const string s = path(param.input_filename).filename().string();
-        if(boost::algorithm::ends_with(s, ".pdf"))
+        if((s.size() >= 4) && (s.compare(s.size() - 4, 4, ".pdf") == 0))
         {
             param.output_filename = s.substr(0, s.size() - 4) + ".html";
         }

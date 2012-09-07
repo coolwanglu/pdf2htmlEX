@@ -10,6 +10,7 @@
 #include <iostream>
 #include <algorithm>
 #include <unordered_set>
+#include <cctype>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
@@ -22,7 +23,6 @@
 #include "namespace.h"
 #include "config.h"
 
-using boost::algorithm::to_lower;
 using std::unordered_set;
 using std::min;
 using std::all_of;
@@ -162,7 +162,8 @@ path HTMLRenderer::dump_embedded_font (GfxFont * font, long long fn_id)
 void HTMLRenderer::embed_font(const path & filepath, GfxFont * font, FontInfo & info, bool get_metric_only)
 {
     string suffix = filepath.extension().string();
-    to_lower(suffix);
+    for(auto & c : suffix)
+        c = tolower(c);
 
     ff_load_font(filepath.c_str());
 
