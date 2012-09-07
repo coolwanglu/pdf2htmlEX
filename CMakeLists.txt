@@ -30,8 +30,7 @@ else()
 endif()
 
 message("Looking for libraries of python, which is required by fontforge, if you can link fontforge without python, you may disable this")
-pkg_check_modules(PYTHON python)
-pkg_check_modules(PYTHON python-2.7)
+pkg_search_module(PYTHON python python-2.7)
 
 set(PDF2HTMLEX_VERSION "0.3")
 set(ARCHIVE_NAME pdf2htmlex-${PDF2HTMLEX_VERSION})
