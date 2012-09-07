@@ -2,7 +2,7 @@
 
 A beautiful demo is worth a thousand words:
 
-[**Typography**](http://coolwanglu.github.com/pdf2htmlEX/demo/cheat.html)
+[**Typography**](http://coolwanglu.github.com/pdf2htmlEX/demo/geneve.html)
 
 [**Formulas**](http://coolwanglu.github.com/pdf2htmlEX/demo/cheat.html)
 
