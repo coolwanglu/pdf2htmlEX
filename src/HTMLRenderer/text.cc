@@ -214,7 +214,6 @@ void HTMLRenderer::embed_font(const path & filepath, GfxFont * font, FontInfo & 
             else
             {
                 // move the slot such that it's consistent with the encoding seen in PDF
-                
                 unordered_set<string> nameset;
                 bool name_conflict_warned = false;
 
@@ -284,9 +283,11 @@ void HTMLRenderer::embed_font(const path & filepath, GfxFont * font, FontInfo & 
 
 
         {
+            unordered_set<int> codeset;
+            bool name_conflict_warned = false;
+
             auto ctu = font->getToUnicode();
             memset(cur_mapping, 0, maxcode * sizeof(int32_t));
-
 
             if(code2GID)
                 maxcode = min(maxcode, code2GID_len - 1);
@@ -322,7 +323,19 @@ void HTMLRenderer::embed_font(const path & filepath, GfxFont * font, FontInfo & 
                     u = unicode_from_font(i, font);
                 }
 
-                cur_mapping[k] = u;
+                if(codeset.insert(u).second)
+                {
+                    cur_mapping[k] = u;
+                }
+                else
+                {
+                    if(!name_conflict_warned)
+                    {
+                        name_conflict_warned = true;
+                        //TODO: may be resolved using advanced font properties?
+                        cerr << "Warning: encoding confliction detected in font: " << hex << info.id << dec << endl;
+                    }
+                }
             }
 
             ff_reencode_raw(cur_mapping, max_key + 1, 1);
