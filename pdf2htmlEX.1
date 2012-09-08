@@ -92,7 +92,7 @@ For some versions of Firefox, however, there will be a problem when the font siz
 .B --always-apply-tounicode <0|1> (Default: 0)
 A ToUnicode map may be provided for fonts in PDF which indicates the 'meaning' of the characters.
 
-However often there is better "ToUnicode" info in Type 1 fonts, and sometimes the ToUnicode map provided is wrong. So by default pdf2htmlEX will find the Unicode value directly from the fonts instead of ToUnicode map. This behavior may be changed by turning on this switch.
+However often there is better "ToUnicode" info in Type 0/1 fonts, and sometimes the ToUnicode map provided is wrong. So by default pdf2htmlEX will find the Unicode value directly from the fonts instead of ToUnicode map. This behavior may be changed by turning on this switch.
 .TP
 .B --space-as-offset <0|1> (Default: 0)
 Treat space characters as offsets, which may increase the size of the output.

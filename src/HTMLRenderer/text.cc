@@ -173,8 +173,7 @@ void HTMLRenderer::embed_font(const path & filepath, GfxFont * font, FontInfo & 
 
     Gfx8BitFont * font_8bit = nullptr;
 
-    info.use_tounicode = ((suffix == ".ttf") || (font->isCIDFont()) || (param->always_apply_tounicode));
-
+    info.use_tounicode = ((suffix == ".ttf") || (param->always_apply_tounicode));
 
     if(!get_metric_only)
     {
@@ -217,7 +216,7 @@ void HTMLRenderer::embed_font(const path & filepath, GfxFont * font, FontInfo & 
                 unordered_set<string> nameset;
                 bool name_conflict_warned = false;
 
-                memset(cur_mapping2, 0, 256 * sizeof(char*));
+                memset(cur_mapping2, 0, 0x100 * sizeof(char*));
 
                 for(int i = 0; i < 256; ++i)
                 {
@@ -287,7 +286,7 @@ void HTMLRenderer::embed_font(const path & filepath, GfxFont * font, FontInfo & 
             bool name_conflict_warned = false;
 
             auto ctu = font->getToUnicode();
-            memset(cur_mapping, 0, maxcode * sizeof(int32_t));
+            memset(cur_mapping, 0, 0x10000 * sizeof(int32_t));
 
             if(code2GID)
                 maxcode = min(maxcode, code2GID_len - 1);
