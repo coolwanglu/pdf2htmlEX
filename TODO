@@ -1,18 +1,17 @@
-round coordinate and check if it'll be faster
-
-remove the intermediate save to retrieve asc/des
-
 option for tounicode-map
 get unicode from charname using fontforge (test with 'Font' croc.pdf)
 also for CID Type 0
 
-a fallback font
+round coordinate and check if it'll be faster
 
-specify always-apply-tounicode for each font
+remove the intermediate save to retrieve asc/des
+
+a fallback font
 
 use absolute positioning for long whitespace
 
 link
+
 color invert
 
 ==Future==
