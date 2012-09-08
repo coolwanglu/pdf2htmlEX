@@ -1,3 +1,5 @@
+round coordinate and check if it'll be faster
+
 remove the intermediate save to retrieve asc/des
 
 option for tounicode-map
