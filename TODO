@@ -2,6 +2,9 @@ remove the intermediate save to retrieve asc/des
 
 get unicode from charname using fontforge (test with 'Font' croc.pdf)
 
+a fallback font
+
+specify always-apply-tounicode for each font
 
 use absolute positioning for long whitespace
 
