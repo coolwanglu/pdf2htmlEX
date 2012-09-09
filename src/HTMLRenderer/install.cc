@@ -90,6 +90,7 @@ const FontInfo * HTMLRenderer::install_font(GfxFont * font)
 void HTMLRenderer::install_embedded_font(GfxFont * font, FontInfo & info)
 {
     auto path = dump_embedded_font(font, info.id);
+
     if(path != "")
     {
         embed_font(path, font, info);

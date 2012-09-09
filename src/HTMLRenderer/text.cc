@@ -126,13 +126,10 @@ string HTMLRenderer::dump_embedded_font (GfxFont * font, long long fn_id)
 
         obj.streamReset();
 
-        ofstream outf;
-        {
-            auto fn = str_fmt("%s/f%llx%s", tmp_dir.c_str(), fn_id, suffix.c_str());
-            add_tmp_file((char*)fn);
+        filepath = (char*)str_fmt("%s/f%llx%s", tmp_dir.c_str(), fn_id, suffix.c_str());
+        add_tmp_file(filepath);
 
-            outf.open(fn, ofstream::binary);
-        }
+        ofstream outf(filepath, ofstream::binary);
 
         char buf[1024];
         int len;
