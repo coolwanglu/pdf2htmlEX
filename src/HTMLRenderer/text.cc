@@ -173,7 +173,7 @@ void HTMLRenderer::embed_font(const path & filepath, GfxFont * font, FontInfo & 
 
     Gfx8BitFont * font_8bit = nullptr;
 
-    info.use_tounicode = ((suffix == ".ttf") || (param->always_apply_tounicode));
+    info.use_tounicode = ((suffix == ".ttf") || (param->tounicode >= 0));
 
     if(!get_metric_only)
     {
