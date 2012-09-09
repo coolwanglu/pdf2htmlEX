@@ -111,7 +111,7 @@ void HTMLRenderer::install_base_font(GfxFont * font, GfxFontLoc * font_loc, Font
     {
         if(localfontloc != nullptr)
         {
-            embed_font(path(localfontloc->path->getCString()), font, info);
+            embed_font(string(localfontloc->path->getCString()), font, info);
             export_remote_font(info, param->font_suffix, param->font_format, font);
             delete localfontloc;
             return;
@@ -138,7 +138,7 @@ void HTMLRenderer::install_base_font(GfxFont * font, GfxFontLoc * font_loc, Font
     if(localfontloc != nullptr)
     {
         // fill in ascent/descent only, do not embed
-        embed_font(path(localfontloc->path->getCString()), font, info, true);
+        embed_font(string(localfontloc->path->getCString()), font, info, true);
         delete localfontloc;
     }
     else
@@ -169,7 +169,7 @@ void HTMLRenderer::install_external_font(GfxFont * font, FontInfo & info)
     {
         if(localfontloc != nullptr)
         {
-            embed_font(path(localfontloc->path->getCString()), font, info);
+            embed_font(string(localfontloc->path->getCString()), font, info);
             export_remote_font(info, param->font_suffix, param->font_format, font);
             delete localfontloc;
             return;
@@ -185,7 +185,7 @@ void HTMLRenderer::install_external_font(GfxFont * font, FontInfo & info)
     if(localfontloc != nullptr)
     {
         // fill in ascent/descent only, do not embed
-        embed_font(path(localfontloc->path->getCString()), font, info, true);
+        embed_font(string(localfontloc->path->getCString()), font, info, true);
         delete localfontloc;
     }
     else

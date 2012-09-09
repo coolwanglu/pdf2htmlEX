@@ -126,8 +126,8 @@ class HTMLRenderer : public OutputDev
         
         void add_tmp_file (const std::string & fn);
         void clean_tmp_files ();
-        boost::filesystem::path dump_embedded_font (GfxFont * font, long long fn_id);
-        void embed_font(const boost::filesystem::path & filepath, GfxFont * font, FontInfo & info, bool get_metric_only = false);
+        std::string dump_embedded_font (GfxFont * font, long long fn_id);
+        void embed_font(const std::string & filepath, GfxFont * font, FontInfo & info, bool get_metric_only = false);
 
         ////////////////////////////////////////////////////
         // manage styles
@@ -354,8 +354,8 @@ class HTMLRenderer : public OutputDev
         int image_count;
 
         const Param * param;
-        boost::filesystem::path dest_dir, tmp_dir;
-        boost::filesystem::ofstream html_fout, allcss_fout;
+        std::string dest_dir, tmp_dir;
+        std::ofstream html_fout, allcss_fout;
         std::set<std::string> tmp_files;
 
         static const std::string HEAD_HTML_FILENAME;

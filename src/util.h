@@ -268,12 +268,24 @@ static inline ostream & operator << (ostream & out, base64stream && bf) { return
 class string_formatter
 {
 public:
-    string_formatter() { buf.reserve(64); }
+    class guarded_pointer
+    {
+    public:
+        guarded_pointer(string_formatter * sf) : sf(sf) { ++(sf->buf_cnt); }
+        ~guarded_pointer(void) { --(sf->buf_cnt); }
+        operator char* () { return &(sf->buf.front()); }
+    private:
+        string_formatter * sf;
+    };
+
+    string_formatter() : buf_cnt(0) { buf.reserve(L_tmpnam); }
     /*
      * Important:
      * there is only one buffer, so new strings will replace old ones
      */
-    const char * operator () (const char * format, ...) {
+    guarded_pointer operator () (const char * format, ...) {
+        assert((buf_cnt == 0) && "string_formatter: buffer is reused!");
+
         va_list vlist;
         va_start(vlist, format);
         int l = vsnprintf(&buf.front(), buf.capacity(), format, vlist);
@@ -285,12 +297,14 @@ public:
             l = vsnprintf(&buf.front(), buf.capacity(), format, vlist);
             va_end(vlist);
         }
-        if(l < 0) return nullptr;
+        assert(l >= 0); // we should fail when vsnprintf fail
         assert(l < (int)buf.capacity());
-        return &buf.front();
+        return guarded_pointer(this);
     }
 private:
+    friend class guarded_pointer;
     std::vector<char> buf;
+    int buf_cnt;
 };
 
 #endif //UTIL_H__

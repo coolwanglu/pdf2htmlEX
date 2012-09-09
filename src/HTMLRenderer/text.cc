@@ -27,12 +27,12 @@ using std::unordered_set;
 using std::min;
 using std::all_of;
 
-path HTMLRenderer::dump_embedded_font (GfxFont * font, long long fn_id)
+string HTMLRenderer::dump_embedded_font (GfxFont * font, long long fn_id)
 {
     Object obj, obj1, obj2;
     Object font_obj, font_obj2, fontdesc_obj;
     string suffix;
-    path filepath;
+    string filepath;
 
     try
     {
@@ -128,10 +128,10 @@ path HTMLRenderer::dump_embedded_font (GfxFont * font, long long fn_id)
 
         ofstream outf;
         {
-            const char * fn = str_fmt("f%llx%s", fn_id, suffix.c_str());
-            filepath = tmp_dir / fn;
-            outf.open(filepath, ofstream::binary);
-            add_tmp_file(fn);
+            auto fn = str_fmt("%s/f%llx%s", tmp_dir.c_str(), fn_id, suffix.c_str());
+            add_tmp_file((char*)fn);
+
+            outf.open(fn, ofstream::binary);
         }
 
         char buf[1024];
@@ -159,9 +159,15 @@ path HTMLRenderer::dump_embedded_font (GfxFont * font, long long fn_id)
     return filepath;
 }
 
-void HTMLRenderer::embed_font(const path & filepath, GfxFont * font, FontInfo & info, bool get_metric_only)
+void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo & info, bool get_metric_only)
 {
-    string suffix = filepath.extension().string();
+    string suffix;
+    {
+        size_t idx = filepath.rfind('.');
+        if((idx != string::npos) && (idx+1 < suffix.size()))
+            suffix = filepath.substr(idx+1);
+    }
+
     for(auto iter = suffix.begin(); iter != suffix.end(); ++iter)
         *iter = tolower(*iter);
 
@@ -345,8 +351,6 @@ void HTMLRenderer::embed_font(const path & filepath, GfxFont * font, FontInfo & 
     }
 
     {
-        const char * fn = str_fmt("f%llx_.ttf", info.id);
-
         /*
          * [Win|Typo|HHead][Ascent|Descent]
          * Firefox & Chrome interprets the values in different ways
@@ -355,11 +359,13 @@ void HTMLRenderer::embed_font(const path & filepath, GfxFont * font, FontInfo & 
         // Generate an intermediate ttf font in order to retrieve the metrics
         // TODO: see if we can get the values without save/load
 
-        add_tmp_file(fn);
-        auto tmp_path = tmp_dir / fn;
-        ff_save(tmp_path.c_str());
+
+        auto fn = str_fmt("%s/f%llx_.ttf", tmp_dir.c_str(), info.id);
+        add_tmp_file((char*)fn);
+
+        ff_save((char*)fn);
         ff_close();
-        ff_load_font(tmp_path.c_str());
+        ff_load_font((char*)fn);
     }
 
     {
@@ -387,12 +393,14 @@ void HTMLRenderer::embed_font(const path & filepath, GfxFont * font, FontInfo & 
     }
 
     {
-        const char * fn = str_fmt("f%llx%s", info.id, param->font_suffix.c_str());
-        auto dest = ((param->single_html ? tmp_dir : dest_dir) / fn);
-        if(param->single_html)
-            add_tmp_file(fn);
+        auto fn = str_fmt("%s/f%llx%s", 
+                (param->single_html ? tmp_dir : dest_dir).c_str(),
+                info.id, param->font_suffix.c_str());
 
-        ff_save(dest.c_str());
+        if(param->single_html)
+            add_tmp_file((char*)fn);
+
+        ff_save((char*)fn);
         ff_close();
     }
 }

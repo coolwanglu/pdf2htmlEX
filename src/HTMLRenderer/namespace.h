@@ -16,10 +16,8 @@ using std::cout;
 using std::cerr;
 using std::endl;
 using std::make_pair;
-
-using boost::filesystem::ifstream;
-using boost::filesystem::ofstream;
-using boost::filesystem::path;
+using std::ifstream;
+using std::ofstream;
 
 #endif // NAMESPACE_H__
 

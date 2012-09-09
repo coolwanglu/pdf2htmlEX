@@ -93,10 +93,13 @@ void HTMLRenderer::process(PDFDoc *doc)
                     nullptr, nullptr, &annot_cb, nullptr);
 
             {
-                const char * fn = str_fmt("p%llx.png", i);
-                bg_renderer->getBitmap()->writeImgFile(splashFormatPng, (char*)((param->single_html ? tmp_dir : dest_dir) / fn) .c_str(), param->h_dpi, param->v_dpi);
+                auto fn = str_fmt("%s/p%llx.png", (param->single_html ? tmp_dir : dest_dir).c_str(), i);
                 if(param->single_html)
-                    add_tmp_file(fn);
+                    add_tmp_file((char*)fn);
+
+                bg_renderer->getBitmap()->writeImgFile(splashFormatPng, 
+                        (char*)fn,
+                        param->h_dpi, param->v_dpi);
             }
         }
 
@@ -119,37 +122,42 @@ void HTMLRenderer::pre_process()
     // we may output utf8 characters, so use binary
     if(param->single_html)
     {
-        // don't use output_file directly
-        // otherwise it'll be a disaster when tmp_dir == dest_dir
-        const string tmp_output_fn = param->output_filename + ".part";
+        {
+            auto fn = str_fmt("%s/%s", tmp_dir.c_str(), CSS_FILENAME.c_str());
+            allcss_fout.open((char*)fn, ofstream::binary);
+            add_tmp_file((char*)fn);
+        }
 
-        html_fout.open(tmp_dir / tmp_output_fn, ofstream::binary); 
-        allcss_fout.open(tmp_dir / CSS_FILENAME, ofstream::binary);
-        
-        add_tmp_file(tmp_output_fn);
-        add_tmp_file(CSS_FILENAME);
+        {
+            // don't use output_file directly
+            // otherwise it'll be a disaster when tmp_dir == dest_dir
+            auto tmp_output_fn = str_fmt("%s/%s.part", tmp_dir.c_str(), param->output_filename.c_str());
+            add_tmp_file((char*)tmp_output_fn);
+
+            html_fout.open((char*)tmp_output_fn, ofstream::binary); 
+        }
     }
     else
     {
-        html_fout.open(dest_dir / param->output_filename, ofstream::binary); 
-        allcss_fout.open(dest_dir / CSS_FILENAME, ofstream::binary);
+        html_fout.open(str_fmt("%s/%s", dest_dir.c_str(), param->output_filename.c_str()), ofstream::binary); 
+        allcss_fout.open(str_fmt("%s/%s", dest_dir.c_str(), CSS_FILENAME.c_str()), ofstream::binary);
 
-        html_fout << ifstream(PDF2HTMLEX_DATA_PATH / HEAD_HTML_FILENAME, ifstream::binary).rdbuf();
+        html_fout << ifstream(str_fmt("%s/%s", PDF2HTMLEX_DATA_PATH.c_str(), HEAD_HTML_FILENAME.c_str()), ifstream::binary).rdbuf();
         html_fout << "<link rel=\"stylesheet\" type=\"text/css\" href=\"" << CSS_FILENAME << "\"/>" << endl;
-        html_fout << ifstream(PDF2HTMLEX_DATA_PATH / NECK_HTML_FILENAME, ifstream::binary).rdbuf();
+        html_fout << ifstream(str_fmt("%s/%s", PDF2HTMLEX_DATA_PATH.c_str(), NECK_HTML_FILENAME.c_str()), ifstream::binary).rdbuf();
     }
 
     html_fout << fixed << hex;
     allcss_fout << fixed << hex;
 
-    allcss_fout << ifstream(PDF2HTMLEX_DATA_PATH / CSS_FILENAME, ifstream::binary).rdbuf(); 
+    allcss_fout << ifstream(str_fmt("%s/%s", PDF2HTMLEX_DATA_PATH.c_str(), CSS_FILENAME.c_str()), ifstream::binary).rdbuf(); 
 }
 
 void HTMLRenderer::post_process()
 {
     if(!param->single_html)
     {
-        html_fout << ifstream(PDF2HTMLEX_DATA_PATH / TAIL_HTML_FILENAME, ifstream::binary).rdbuf();
+        html_fout << ifstream(str_fmt("%s/%s", PDF2HTMLEX_DATA_PATH.c_str(), TAIL_HTML_FILENAME.c_str()), ifstream::binary).rdbuf();
     }
 
     html_fout.close();
@@ -174,15 +182,13 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
     html_fout << "background-image:url(";
 
     {
-        const char * fn = str_fmt("p%llx.png", pageNum);
         if(param->single_html)
         {
-            auto path = tmp_dir / fn;
-            html_fout << "'data:image/png;base64," << base64stream(ifstream(path, ifstream::binary)) << "'";
+            html_fout << "'data:image/png;base64," << base64stream(ifstream(str_fmt("%s/p%llx.png", tmp_dir.c_str(), pageNum) , ifstream::binary)) << "'";
         }
         else
         {
-            html_fout << fn;
+            html_fout << str_fmt("p%llx.png", pageNum);
         }
     }
     
@@ -223,19 +229,19 @@ void HTMLRenderer::endPage() {
 
 void HTMLRenderer::process_single_html()
 {
-    ofstream out (dest_dir / param->output_filename, ofstream::binary);
+    ofstream out (dest_dir + "/" + param->output_filename, ofstream::binary);
 
-    out << ifstream(PDF2HTMLEX_DATA_PATH / HEAD_HTML_FILENAME , ifstream::binary).rdbuf();
+    out << ifstream(PDF2HTMLEX_DATA_PATH + "/" + HEAD_HTML_FILENAME , ifstream::binary).rdbuf();
 
     out << "<style type=\"text/css\">" << endl;
-    out << ifstream(tmp_dir / CSS_FILENAME, ifstream::binary).rdbuf();
+    out << ifstream(tmp_dir + "/" + CSS_FILENAME, ifstream::binary).rdbuf();
     out << "</style>" << endl;
 
-    out << ifstream(PDF2HTMLEX_DATA_PATH / NECK_HTML_FILENAME, ifstream::binary).rdbuf();
+    out << ifstream(PDF2HTMLEX_DATA_PATH + "/" + NECK_HTML_FILENAME, ifstream::binary).rdbuf();
 
-    out << ifstream(tmp_dir / (param->output_filename + ".part"), ifstream::binary).rdbuf();
+    out << ifstream(tmp_dir + "/" + (param->output_filename + ".part"), ifstream::binary).rdbuf();
 
-    out << ifstream(PDF2HTMLEX_DATA_PATH / TAIL_HTML_FILENAME, ifstream::binary).rdbuf();
+    out << ifstream(PDF2HTMLEX_DATA_PATH + "/" + TAIL_HTML_FILENAME, ifstream::binary).rdbuf();
 }
 
 void HTMLRenderer::add_tmp_file(const string & fn)
@@ -257,7 +263,7 @@ void HTMLRenderer::clean_tmp_files()
         try
         {
             auto fn = *iter;
-            remove(tmp_dir / fn);
+            remove(fn);
             if(param->debug)
                 cerr << "Remove temporary file: " << fn << endl;
         }
