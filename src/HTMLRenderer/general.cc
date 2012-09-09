@@ -7,7 +7,7 @@
  * 2012.08.14
  */
 
-#include <boost/filesystem.hpp>
+#include <cstdio>
 
 #include <splash/SplashBitmap.h>
 
@@ -20,8 +20,6 @@
 using std::fixed;
 using std::flush;
 using std::function;
-using boost::filesystem::remove;
-using boost::filesystem::filesystem_error;
 
 static void dummy(void *, ErrorCategory, int pos, char *)
 {
@@ -260,24 +258,15 @@ void HTMLRenderer::clean_tmp_files()
 
     for(auto iter = tmp_files.begin(); iter != tmp_files.end(); ++iter)
     {
-        try
-        {
-            auto fn = *iter;
-            remove(fn);
-            if(param->debug)
-                cerr << "Remove temporary file: " << fn << endl;
-        }
-        catch(const filesystem_error &)
-        { }
-    }
-    try
-    {
-        remove(tmp_dir);
+        const string & fn = *iter;
+        remove(fn.c_str());
         if(param->debug)
-            cerr << "Remove temporary directory: " << tmp_dir << endl;
+            cerr << "Remove temporary file: " << fn << endl;
     }
-    catch(const filesystem_error &)
-    { }
+
+    remove(tmp_dir.c_str());
+    if(param->debug)
+        cerr << "Remove temporary directory: " << tmp_dir << endl;
 }
 
 const std::string HTMLRenderer::HEAD_HTML_FILENAME = "head.html";

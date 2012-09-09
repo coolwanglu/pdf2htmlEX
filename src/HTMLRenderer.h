@@ -13,8 +13,7 @@
 #include <set>
 #include <sstream>
 #include <cstdint>
-
-#include <boost/filesystem/fstream.hpp>
+#include <fstream>
 
 #include <OutputDev.h>
 #include <GfxState.h>

@@ -12,9 +12,6 @@
 #include <unordered_set>
 #include <cctype>
 
-#include <boost/algorithm/string.hpp>
-#include <boost/filesystem.hpp>
-
 #include <CharCodeToUnicode.h>
 #include <fofi/FoFiTrueType.h>
 
