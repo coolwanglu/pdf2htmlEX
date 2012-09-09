@@ -122,7 +122,15 @@ int main(int argc, char **argv)
     }
 
     //prepare the directories
-    param.tmp_dir = tmpnam(nullptr);
+    char buf[] = "/tmp/pdf2htmlEX-XXXXXX";
+    auto p = mkdtemp(buf);
+    if(p == nullptr)
+    {
+        cerr << "Cannot create temp directory" << endl;
+        return -1;
+    }
+    param.tmp_dir = buf;
+
     if(param.debug)
         cerr << "temporary dir: " << (param.tmp_dir) << endl;
 
