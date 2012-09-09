@@ -78,6 +78,7 @@ add_executable(pdf2htmlEX
     src/Consts.h 
     src/Consts.cc 
     src/util.h
+    src/util.cc
     src/config.h)
 
 target_link_libraries(pdf2htmlEX ${POPPLER_LIBRARIES} ${Boost_LIBRARIES} ${FONTFORGE_LIBRARIES} ${PYTHON_LIBRARIES})

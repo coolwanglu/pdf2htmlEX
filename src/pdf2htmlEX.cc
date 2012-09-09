@@ -12,7 +12,6 @@
 #include <iostream>
 
 #include <boost/program_options.hpp>
-#include <boost/filesystem.hpp>
 
 #include <goo/GooString.h>
 
@@ -27,7 +26,6 @@
 
 namespace po = boost::program_options;
 using namespace std;
-using namespace boost::filesystem;
 
 Param param;
 
@@ -64,7 +62,6 @@ po::variables_map parse_options (int argc, char **argv)
         ("user-password,u", po::value<string>(&param.user_password)->default_value(""), "user password (for encrypted files)")
 
         ("dest-dir", po::value<string>(&param.dest_dir)->default_value("."), "destination directory")
-        ("tmp-dir", po::value<string>(&param.tmp_dir)->default_value((temp_directory_path() / "/pdf2htmlEX").string()), "temporary directory")
 
         ("first-page,f", po::value<int>(&param.first_page)->default_value(1), "first page to process")
         ("last-page,l", po::value<int>(&param.last_page)->default_value(numeric_limits<int>::max()), "last page to process")
@@ -125,25 +122,14 @@ int main(int argc, char **argv)
     }
 
     //prepare the directories
-    auto user_dirs = {param.dest_dir, param.tmp_dir};
-    for(auto iter = user_dirs.begin(); iter != user_dirs.end(); ++iter)
-    {
-        const auto & p = *iter;
-        if(equivalent(PDF2HTMLEX_DATA_PATH, p))
-        {
-            cerr << "The specified directory \"" << p << "\" is the library path for pdf2htmlEX. Please use another one." << endl;
-            return -1;
-        }
-    }
-
+    param.tmp_dir = tmpnam(nullptr);
     try
     {
         create_directories(param.dest_dir);
         create_directories(param.tmp_dir);
     }
-    catch (const filesystem_error& err)
+    catch (...)
     {
-        cerr << err.what() << endl;
         return -1;
     }
 
@@ -175,7 +161,13 @@ int main(int argc, char **argv)
 
     if(param.output_filename == "")
     {
-        const string s = path(param.input_filename).filename().string();
+        size_t idx = param.input_filename.rfind('/');
+        if(idx == string::npos)
+            idx = 0;
+        else
+            ++ idx;
+        const string s =param.input_filename.substr(idx);
+
         if((s.size() >= 4) && (s.compare(s.size() - 4, 4, ".pdf") == 0))
         {
             param.output_filename = s.substr(0, s.size() - 4) + ".html";
