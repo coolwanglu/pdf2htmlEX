@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 2.6.0 FATAL_ERROR)
 include_directories(${CMAKE_SOURCE_DIR}/src)
 
 find_package(PkgConfig)
-pkg_check_modules(POPPLER REQUIRED poppler)
+pkg_check_modules(POPPLER REQUIRED poppler>=0.20.0)
 include_directories(${POPPLER_INCLUDE_DIRS})
 link_directories(${POPPLER_LIBRARY_DIRS})
 
