@@ -75,7 +75,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
     // DEPENDENCY WARNING
     // don't adjust the order of state checking 
     
-    new_line_state = NewLineState::NONE;
+    new_line_state = NLS_NONE;
 
     bool need_recheck_position = false;
     bool need_rescale_font = false;
@@ -95,7 +95,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
 
         if(!(new_font_info->id == cur_font_info->id))
         {
-            new_line_state = max(new_line_state, NewLineState::SPAN);
+            new_line_state = max(new_line_state, NLS_SPAN);
             cur_font_info = new_font_info;
         }
 
@@ -165,13 +165,13 @@ void HTMLRenderer::check_state_change(GfxState * state)
 
         if(!(_equal(new_draw_font_size, draw_font_size)))
         {
-            new_line_state = max(new_line_state, NewLineState::SPAN);
+            new_line_state = max(new_line_state, NLS_SPAN);
             draw_font_size = new_draw_font_size;
             cur_fs_id = install_font_size(draw_font_size);
         }
         if(!(_tm_equal(new_draw_ctm, draw_ctm, 4)))
         {
-            new_line_state = max(new_line_state, NewLineState::DIV);
+            new_line_state = max(new_line_state, NLS_DIV);
             memcpy(draw_ctm, new_draw_ctm, sizeof(draw_ctm));
             cur_tm_id = install_transform_matrix(draw_ctm);
         }
@@ -233,7 +233,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
 
         if(!merged)
         {
-            new_line_state = max(new_line_state, NewLineState::DIV);
+            new_line_state = max(new_line_state, NLS_DIV);
         }
     }
 
@@ -244,7 +244,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
         double new_letter_space = state->getCharSpace();
         if(!_equal(cur_letter_space, new_letter_space))
         {
-            new_line_state = max(new_line_state, NewLineState::SPAN);
+            new_line_state = max(new_line_state, NLS_SPAN);
             cur_letter_space = new_letter_space;
             cur_ls_id = install_letter_space(cur_letter_space * draw_scale);
         }
@@ -257,7 +257,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
         double new_word_space = state->getWordSpace();
         if(!_equal(cur_word_space, new_word_space))
         {
-            new_line_state = max(new_line_state, NewLineState::SPAN);
+            new_line_state = max(new_line_state, NLS_SPAN);
             cur_word_space = new_word_space;
             cur_ws_id = install_word_space(cur_word_space * draw_scale);
         }
@@ -270,7 +270,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
         state->getFillRGB(&new_color);
         if(!((new_color.r == cur_color.r) && (new_color.g == cur_color.g) && (new_color.b == cur_color.b)))
         {
-            new_line_state = max(new_line_state, NewLineState::SPAN);
+            new_line_state = max(new_line_state, NLS_SPAN);
             cur_color = new_color;
             cur_color_id = install_color(&new_color);
         }
@@ -283,7 +283,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
         double new_rise = state->getRise();
         if(!_equal(cur_rise, new_rise))
         {
-            new_line_state = max(new_line_state, NewLineState::SPAN);
+            new_line_state = max(new_line_state, NLS_SPAN);
             cur_rise = new_rise;
             cur_rise_id = install_rise(new_rise * draw_scale);
         }
@@ -313,10 +313,10 @@ void HTMLRenderer::prepare_line(GfxState * state)
 {
     if(!line_opened)
     {
-        new_line_state = NewLineState::DIV;
+        new_line_state = NLS_DIV;
     }
     
-    if(new_line_state == NewLineState::DIV)
+    if(new_line_state == NLS_DIV)
     {
         close_line();
 
@@ -342,7 +342,7 @@ void HTMLRenderer::prepare_line(GfxState * state)
         }
     }
 
-    if(new_line_state != NewLineState::NONE)
+    if(new_line_state != NLS_NONE)
     {
         line_buf.append_state();
     }

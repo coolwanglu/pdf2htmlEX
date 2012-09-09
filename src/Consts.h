@@ -11,7 +11,9 @@
 #include <string>
 #include <map>
 
-static const void * nullptr = NULL;
+#ifndef nullptr
+#define nullptr (NULL)
+#endif
 
 static const double EPS = 1e-6;
 extern const double id_matrix[6];

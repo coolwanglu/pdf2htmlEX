@@ -194,11 +194,11 @@ class HTMLRenderer : public OutputDev
         // states
         ////////////////////////////////////////////////////
         bool line_opened;
-        enum class NewLineState
+        enum NewLineState
         {
-            NONE, // stay with the same style
-            SPAN, // open a new <span> if possible, otherwise a new <div>
-            DIV   // has to open a new <div>
+            NLS_NONE, // stay with the same style
+            NLS_SPAN, // open a new <span> if possible, otherwise a new <div>
+            NLS_DIV   // has to open a new <div>
         } new_line_state;
         
         // The order is according to the appearance in check_state_change

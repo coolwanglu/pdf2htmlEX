@@ -125,8 +125,10 @@ int main(int argc, char **argv)
     }
 
     //prepare the directories
-    for(const auto & p : {param.dest_dir, param.tmp_dir})
+    auto user_dirs = {param.dest_dir, param.tmp_dir};
+    for(auto iter = user_dirs.begin(); iter != user_dirs.end(); ++iter)
     {
+        const auto & p = *iter;
         if(equivalent(PDF2HTMLEX_DATA_PATH, p))
         {
             cerr << "The specified directory \"" << p << "\" is the library path for pdf2htmlEX. Please use another one." << endl;

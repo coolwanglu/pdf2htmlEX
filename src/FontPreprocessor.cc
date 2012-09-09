@@ -22,8 +22,8 @@ FontPreprocessor::FontPreprocessor(void)
 
 FontPreprocessor::~FontPreprocessor(void)
 {
-    for(auto & p : code_maps)
-        delete [] p.second;
+    for(auto iter = code_maps.begin(); iter != code_maps.end(); ++iter)
+        delete [] iter->second;
 }
 
 void FontPreprocessor::drawChar(GfxState *state, double x, double y,
@@ -39,7 +39,7 @@ void FontPreprocessor::drawChar(GfxState *state, double x, double y,
     if(fn_id != cur_font_id)
     {
         cur_font_id = fn_id;
-        auto p = code_maps.insert(std::make_pair(cur_font_id, nullptr));
+        auto p = code_maps.insert(std::make_pair(cur_font_id, (char*)nullptr));
         if(p.second)
         {
             // this is a new font

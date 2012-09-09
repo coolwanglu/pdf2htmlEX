@@ -16,6 +16,7 @@
 #include <iostream>
 #include <cmath>
 #include <cstdarg>
+#include <vector>
 
 #include <GfxState.h>
 #include <GfxFont.h>
@@ -215,6 +216,8 @@ public:
     double _[6];
 };
 
+// may move inside base64stream when we have to create a util.c
+static const char * base64_encoding = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 class base64stream
 {
 public:
@@ -256,7 +259,6 @@ public:
     }
 
 private:
-    static const char * base64_encoding = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
     istream * in;
 };
 

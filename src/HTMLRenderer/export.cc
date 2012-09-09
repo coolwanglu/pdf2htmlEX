@@ -83,8 +83,10 @@ void HTMLRenderer::export_transform_matrix (long long tm_id, const double * tm)
     // we have already shifted the origin
     
     // TODO: recognize common matices
-    for(const string & prefix : {"", "-ms-", "-moz-", "-webkit-", "-o-"})
+    auto prefixes = {"", "-ms-", "-moz-", "-webkit-", "-o-"};
+    for(auto iter = prefixes.begin(); iter != prefixes.end(); ++iter)
     {
+        const auto & prefix = *iter;
         // PDF use a different coordinate system from Web
         allcss_fout << prefix << "transform:matrix("
             << tm[0] << ','

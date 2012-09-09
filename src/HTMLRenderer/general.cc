@@ -252,10 +252,11 @@ void HTMLRenderer::clean_tmp_files()
     if(!param->clean_tmp)
         return;
 
-    for(const auto & fn : tmp_files)
+    for(auto iter = tmp_files.begin(); iter != tmp_files.end(); ++iter)
     {
         try
         {
+            auto fn = *iter;
             remove(tmp_dir / fn);
             if(param->debug)
                 cerr << "Remove temporary file: " << fn << endl;

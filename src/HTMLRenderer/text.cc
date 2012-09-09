@@ -162,8 +162,8 @@ path HTMLRenderer::dump_embedded_font (GfxFont * font, long long fn_id)
 void HTMLRenderer::embed_font(const path & filepath, GfxFont * font, FontInfo & info, bool get_metric_only)
 {
     string suffix = filepath.extension().string();
-    for(auto & c : suffix)
-        c = tolower(c);
+    for(auto iter = suffix.begin(); iter != suffix.end(); ++iter)
+        *iter = tolower(*iter);
 
     ff_load_font(filepath.c_str());
 

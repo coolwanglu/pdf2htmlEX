@@ -33,7 +33,7 @@ void HTMLRenderer::LineBuffer::append_offset(double width)
     if((!offsets.empty()) && (offsets.back().start_idx == text.size()))
         offsets.back().width += width;
     else
-        offsets.push_back({text.size(), width});
+        offsets.push_back(Offset({text.size(), width}));
 }
 
 void HTMLRenderer::LineBuffer::append_state(void)
@@ -61,17 +61,20 @@ void HTMLRenderer::LineBuffer::flush(void)
         return;
     }
 
-    for(auto & s : states)
-        s.hash();
+    for(auto iter = states.begin(); iter != states.end(); ++iter)
+        iter->hash();
 
     states.resize(states.size() + 1);
     states.back().start_idx = text.size();
 
-    offsets.push_back({text.size(), 0});
+    offsets.push_back(Offset({text.size(), 0}));
 
     double max_ascent = 0;
-    for(const State & s : states)
+    for(auto iter = states.begin(); iter != states.end(); ++iter)
+    {
+        const auto & s = *iter;
         max_ascent = max(max_ascent, s.ascent * s.draw_font_size);
+    }
 
     // TODO: class for height ?
     ostream & out = renderer->html_fout;
