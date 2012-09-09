@@ -155,11 +155,6 @@ string HTMLRenderer::dump_embedded_font (GfxFont * font, long long fn_id)
 
 void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo & info, bool get_metric_only)
 {
-    string suffix = get_suffix(filepath);
-
-    for(auto iter = suffix.begin(); iter != suffix.end(); ++iter)
-        *iter = tolower(*iter);
-
     ff_load_font(filepath.c_str());
 
     int * code2GID = nullptr;
@@ -168,7 +163,11 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
 
     Gfx8BitFont * font_8bit = nullptr;
 
-    info.use_tounicode = (is_truetype_suffix(suffix) || (param->tounicode >= 0));
+    string suffix = get_suffix(filepath);
+    for(auto iter = suffix.begin(); iter != suffix.end(); ++iter)
+        *iter = tolower(*iter);
+
+    info.use_tounicode = (is_truetype_suffix(suffix) || (param->tounicode > 0));
 
     if(!get_metric_only)
     {

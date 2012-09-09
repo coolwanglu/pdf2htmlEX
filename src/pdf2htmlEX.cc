@@ -137,7 +137,6 @@ int main(int argc, char **argv)
     try
     {
         create_directories(param.dest_dir);
-        create_directories(param.tmp_dir);
     }
     catch (const string & s)
     {
