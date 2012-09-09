@@ -12,6 +12,8 @@
 
 #include <iostream>
 #include <algorithm>
+#include <cmath>
+#include <vector>
 
 #include <UTF8.h>
 

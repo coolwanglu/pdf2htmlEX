@@ -15,7 +15,6 @@
 using std::min;
 using std::max;
 using std::vector;
-using std::function;
 
 void HTMLRenderer::LineBuffer::reset(GfxState * state)
 {

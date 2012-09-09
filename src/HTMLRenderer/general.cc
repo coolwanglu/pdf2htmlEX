@@ -19,7 +19,6 @@
 
 using std::fixed;
 using std::flush;
-using std::function;
 
 static void dummy(void *, ErrorCategory, int pos, char *)
 {
