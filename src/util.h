@@ -207,4 +207,9 @@ private:
 
 void create_directories(std::string path);
 
+bool is_truetype_suffix(const std::string & suffix);
+
+std::string get_filename(const std::string & path);
+std::string get_suffix(const std::string & path);
+
 #endif //UTIL_H__

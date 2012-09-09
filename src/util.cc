@@ -97,7 +97,7 @@ Unicode check_unicode(Unicode * u, int len, CharCode code, GfxFont * font)
     return unicode_from_font(code, font);
 }
 
-void outputUnicodes(std::ostream & out, const Unicode * u, int uLen)
+void outputUnicodes(ostream & out, const Unicode * u, int uLen)
 {
     for(int i = 0; i < uLen; ++i)
     {
@@ -140,17 +140,42 @@ void create_directories(string path)
         create_directories(path.substr(0, idx));
     }
             
-    int r = ::mkdir(path.c_str(), S_IRWXU);
+    int r = mkdir(path.c_str(), S_IRWXU);
     if(r != 0)
     {
         if(errno == EEXIST)
         {
             struct stat stat_buf;
-            if((::stat(path.c_str(), &stat_buf) == 0) && S_ISDIR(stat_buf.st_mode))
+            if((stat(path.c_str(), &stat_buf) == 0) && S_ISDIR(stat_buf.st_mode))
                 return;
         }
 
         throw string("Cannot create directory: ") + path;
     }
+}
+
+bool is_truetype_suffix(const string & suffix)
+{
+    return (suffix == ".ttf") || (suffix == ".ttc") || (suffix == ".otf");
+}
+
+string get_filename (const string & path)
+{
+    size_t idx = path.rfind('/');
+    if(idx == string::npos) 
+        return path;
+    else if (idx == path.size() - 1)
+        return "";
+    return path.substr(idx + 1);
+}
+
+string get_suffix(const string & path)
+{
+    string fn = get_filename(path);
+    size_t idx = fn.rfind('.');
+    if(idx == string::npos)
+        return "";
+    else
+        return fn.substr(idx);
 }
 

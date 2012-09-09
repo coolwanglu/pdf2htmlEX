@@ -58,7 +58,7 @@ Special thanks to Arthur Titeica for the [AUR Package](https://aur.archlinux.org
  * GCC >= 4.4.6
 * libpoppler with xpdf header >= 0.20.2 (compile with --enable-xpdf-headers)
  * Install libpng (and headers) BEFORE you compile libpoppler if you want background images generated
-* boost c++ library (program options, filesystem, system(which is actually required by filesystem))
+* boost c++ library (program options) 
 * fontforge (with header files)
 
 #### Compiling

@@ -165,14 +165,9 @@ int main(int argc, char **argv)
 
     if(param.output_filename == "")
     {
-        size_t idx = param.input_filename.rfind('/');
-        if(idx == string::npos)
-            idx = 0;
-        else
-            ++ idx;
-        const string s =param.input_filename.substr(idx);
+        const string s = get_filename(param.input_filename);
 
-        if((s.size() >= 4) && (s.compare(s.size() - 4, 4, ".pdf") == 0))
+        if(get_suffix(param.input_filename) == ".pdf")
         {
             param.output_filename = s.substr(0, s.size() - 4) + ".html";
         }

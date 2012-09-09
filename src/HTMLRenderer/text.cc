@@ -155,12 +155,7 @@ string HTMLRenderer::dump_embedded_font (GfxFont * font, long long fn_id)
 
 void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo & info, bool get_metric_only)
 {
-    string suffix;
-    {
-        size_t idx = filepath.rfind('.');
-        if((idx != string::npos) && (idx+1 < suffix.size()))
-            suffix = filepath.substr(idx+1);
-    }
+    string suffix = get_suffix(filepath);
 
     for(auto iter = suffix.begin(); iter != suffix.end(); ++iter)
         *iter = tolower(*iter);
@@ -173,7 +168,7 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
 
     Gfx8BitFont * font_8bit = nullptr;
 
-    info.use_tounicode = ((suffix == ".ttf") || (param->tounicode >= 0));
+    info.use_tounicode = (is_truetype_suffix(suffix) || (param->tounicode >= 0));
 
     if(!get_metric_only)
     {
@@ -199,7 +194,7 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
         {
             font_8bit = dynamic_cast<Gfx8BitFont*>(font);
             maxcode = 0xff;
-            if((suffix == ".ttf") || (suffix == ".ttc") || (suffix == ".otf"))
+            if(is_truetype_suffix(suffix))
             {
                 ff_reencode_glyph_order();
                 FoFiTrueType *fftt = nullptr;
@@ -252,7 +247,7 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
         {
             maxcode = 0xffff;
 
-            if(suffix == ".ttf")
+            if(is_truetype_suffix(suffix))
             {
                 ff_reencode_glyph_order();
 
@@ -297,7 +292,7 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
                 if(!used_map[i])
                     continue;
 
-                if((suffix != ".ttf") && (font_8bit != nullptr) && (font_8bit->getCharName(i) == nullptr))
+                if(is_truetype_suffix(suffix) && (font_8bit != nullptr) && (font_8bit->getCharName(i) == nullptr))
                 {
                     continue;
                 }
