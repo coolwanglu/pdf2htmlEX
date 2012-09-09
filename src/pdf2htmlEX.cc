@@ -36,7 +36,7 @@ GooString *ownerPW, *userPW;
 
 HTMLRenderer *htmlOut = nullptr;
 
-int finished = -1;
+bool finished = false;
 
 po::options_description opt_visible("Options"), opt_hidden, opt_all;
 po::positional_options_description opt_positional;
@@ -108,7 +108,7 @@ po::variables_map parse_options (int argc, char **argv)
     }
     catch(...) {
         show_usage();
-        exit(-1);
+        abort();
     }
 }
 
@@ -118,7 +118,7 @@ int main(int argc, char **argv)
     if (opt_map.count("version") || opt_map.count("help") || (param.input_filename == ""))
     {
         show_usage();
-        return -1;
+        abort();
     }
 
     //prepare the directories
@@ -127,7 +127,7 @@ int main(int argc, char **argv)
     if(p == nullptr)
     {
         cerr << "Cannot create temp directory" << endl;
-        return -1;
+        abort();
     }
     param.tmp_dir = buf;
 
@@ -141,7 +141,7 @@ int main(int argc, char **argv)
     catch (const string & s)
     {
         cerr << s << endl;
-        return -1;
+        abort();
     }
 
     // read config file
@@ -188,7 +188,7 @@ int main(int argc, char **argv)
     htmlOut->process(doc);
     delete htmlOut;
 
-    finished = 0;
+    finished = true;
 
     // clean up
 error:
@@ -200,5 +200,8 @@ error:
     Object::memCheck(stderr);
     gMemReport(stderr);
 
-    return finished;
+    if(!finished)
+        abort();
+
+    return 0;
 }
