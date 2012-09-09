@@ -6,12 +6,6 @@
  * 2012.08.10
  */
 
-#include <istream>
-#include <ostream>
-#include <cmath>
-#include <cstdarg>
-#include <vector>
-
 #include <GfxState.h>
 #include <GfxFont.h>
 #include <CharTypes.h>
