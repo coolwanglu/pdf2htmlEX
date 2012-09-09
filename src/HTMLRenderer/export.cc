@@ -23,7 +23,7 @@ void HTMLRenderer::export_remote_font(const FontInfo & info, const string & suff
     const std::string fn = (format("f%|1$x|") % info.id).str();
     if(param->single_html)
     {
-        allcss_fout << "'data:application/x-font-" << fontfileformat << ";base64," << base64stream(ifstream(tmp_dir / (fn+suffix), ifstream::binary)) << "'";
+        allcss_fout << "'data:font/opentype;base64," << base64stream(ifstream(tmp_dir / (fn+suffix), ifstream::binary)) << "'";
     }
     else
     {
