@@ -8,14 +8,11 @@
  */
 
 #include <sstream>
-
-#include <boost/algorithm/string.hpp>
+#include <cctype>
 
 #include "HTMLRenderer.h"
 #include "namespace.h"
 #include "config.h"
-
-using boost::algorithm::ifind_first;
 
 void HTMLRenderer::export_remote_font(const FontInfo & info, const string & suffix, const string & fontfileformat, GfxFont * font) 
 {
@@ -57,12 +54,16 @@ void HTMLRenderer::export_local_font(const FontInfo & info, GfxFont * font, cons
     allcss_fout << ".f" << info.id << "{";
     allcss_fout << "font-family:" << ((cssfont == "") ? (original_font_name + "," + general_font_family(font)) : cssfont) << ";";
 
-    if(font->isBold() || ifind_first(original_font_name, "bold"))
+    string fn = original_font_name;
+    for(auto iter = fn.begin(); iter != fn.end(); ++iter)
+        *iter = tolower(*iter);
+
+    if(font->isBold() || (fn.find("bold") != string::npos))
         allcss_fout << "font-weight:bold;";
 
-    if(ifind_first(original_font_name, "oblique"))
+    if(fn.find("oblique") != string::npos)
         allcss_fout << "font-style:oblique;";
-    else if(font->isItalic() || ifind_first(original_font_name, "italic"))
+    else if(font->isItalic() || (fn.find("italic") != string::npos))
         allcss_fout << "font-style:italic;";
 
     allcss_fout << "line-height:" << (info.ascent - info.descent) << ";";
