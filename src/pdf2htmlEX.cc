@@ -123,13 +123,17 @@ int main(int argc, char **argv)
 
     //prepare the directories
     param.tmp_dir = tmpnam(nullptr);
+    if(param.debug)
+        cerr << "temporary dir: " << (param.tmp_dir) << endl;
+
     try
     {
         create_directories(param.dest_dir);
         create_directories(param.tmp_dir);
     }
-    catch (...)
+    catch (const string & s)
     {
+        cerr << s << endl;
         return -1;
     }
 

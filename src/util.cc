@@ -132,6 +132,8 @@ const char * base64stream::base64_encoding = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefgh
 
 void create_directories(string path)
 {
+    if(path.empty()) return;
+
     size_t idx = path.rfind('/');
     if(idx != string::npos)
     {
