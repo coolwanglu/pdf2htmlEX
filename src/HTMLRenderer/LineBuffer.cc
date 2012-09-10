@@ -149,7 +149,8 @@ void HTMLRenderer::LineBuffer::flush(void)
         }
 
         size_t next_text_idx = min(cur_state_iter->start_idx, cur_offset_iter->start_idx);
-        outputUnicodes(out, text.data() + cur_text_idx, next_text_idx - cur_text_idx);
+
+        outputUnicodes(out, (&text.front()) + cur_text_idx, next_text_idx - cur_text_idx);
         cur_text_idx = next_text_idx;
     }
 
