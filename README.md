@@ -55,12 +55,16 @@ Special thanks to Arthur Titeica for the [AUR Package](https://aur.archlinux.org
 
 #### Dependency
 
-* CMake 
+* CMake, pkg-config
 * compilers support C++11
  * GCC >= 4.4.6
 * libpoppler with xpdf header >= 0.20.0 (compile with --enable-xpdf-headers)
  * Install libpng (and headers) BEFORE you compile libpoppler if you want background images generated
 * fontforge (with header files)
+
+**Build On Windows**
+
+I've tested with CYGWIN without any problem, and I believe it also works on MinGW without many modifications.
 
 #### Compiling
 
