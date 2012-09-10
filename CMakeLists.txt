@@ -8,10 +8,6 @@ pkg_check_modules(POPPLER REQUIRED poppler>=0.20.0)
 include_directories(${POPPLER_INCLUDE_DIRS})
 link_directories(${POPPLER_LIBRARY_DIRS})
 
-find_package(Boost REQUIRED COMPONENTS program_options)
-include_directories(${Boost_INCLUDE_DIRS})
-link_directories(${Boost_LIBRARY_DIRS})
-
 find_path(FF_INCLUDE_PATH fontforge/fontforge.h)
 if(FF_INCLUDE_PATH)
     message("Found fontforge.h: ${FF_INCLUDE_PATH}/fontforge/fontforge.h")
@@ -23,7 +19,7 @@ endif()
 
 set(FF_LIB_NAME ${CMAKE_SHARED_LIBRARY_PREFIX}fontforge${CMAKE_SHARED_LIBRARY_SUFFIX})
 
-find_library(FF_LIB FF_LIB_NAME)
+find_library(FF_LIB ${FF_LIB_NAME})
 if(FF_LIB)
     message("Found ${FF_LIB_NAME}: ${FF_LIB}")
     set(FONTFORGE_LIBRARIES ${FF_LIB})
