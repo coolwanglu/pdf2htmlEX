@@ -31,7 +31,7 @@ using namespace std;
 Param param;
 ArgParser argparser;
 
-void show_usage_and_exit(void)
+void show_usage_and_exit(const char * dummy = nullptr)
 {
     cerr << "pdftohtmlEX version " << PDF2HTMLEX_VERSION << endl;
     cerr << endl;
@@ -81,6 +81,8 @@ void parse_options (int argc, char **argv)
 
         .add("debug", &param.debug, 0, "output debug information")
         .add("clean-tmp", &param.clean_tmp, 1, "clean temporary files after processing")
+        .add("", &param.input_filename, "", "")
+        .add("", &param.output_filename, "", "")
         ;
 
     try
@@ -100,7 +102,8 @@ int main(int argc, char **argv)
     parse_options(argc, argv);
     if (param.input_filename == "")
     {
-        show_usage_and_exit();
+        cerr << "Missing input filename" << endl;
+        exit(EXIT_FAILURE);
     }
 
     //prepare the directories

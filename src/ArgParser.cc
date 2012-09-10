@@ -9,6 +9,7 @@
 #include <iostream>
 #include <vector>
 #include <unordered_map>
+#include <cassert>
 
 #include "ArgParser.h"
 
@@ -24,6 +25,8 @@ using std::ostringstream;
 ArgParser::~ArgParser(void)
 {
     for(auto iter = arg_entries.begin(); iter != arg_entries.end(); ++iter)
+        delete (*iter);
+    for(auto iter = optional_arg_entries.begin(); iter != optional_arg_entries.end(); ++iter)
         delete (*iter);
 }
 
@@ -80,19 +83,27 @@ void ArgParser::parse(int argc, char ** argv) const
         {
             r = getopt_long(argc, argv, &optstring.front(), &longopts.front(), &idx); 
             if(r == -1)
-                return;
-            if(r == ':')
+                break;
+            assert(r != ':');
+            if(r == '?')
             {
                 ostringstream sout;
-                sout << "Missing argument for option ";
-                if(r < 256)
-                    sout << "-" << (char)(opt_map[optopt]->shortname);
-                else
-                    sout << "--" << opt_map[optopt]->name;
-                sout << endl;
-                throw sout.str();
+                assert(optopt < 256);
+                throw string() + ((opt_map.find(optopt) == opt_map.end()) ? "Unknown option: -" : "Missing argument for option -") + (char)optopt;
             }    
-            cerr << r << ' ' << idx << ' ' << (optarg ? optarg : "") << endl;  
+
+            auto iter = opt_map.find(r);
+            assert(iter != opt_map.end());
+            iter->second->parse(optarg);
+        }
+    }
+
+    {
+        int i = optind;
+        auto iter = optional_arg_entries.begin();
+        while((i < argc) && (iter != optional_arg_entries.end())) 
+        {
+            (*(iter++))->parse(argv[i++]);
         }
     }
 }

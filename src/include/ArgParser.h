@@ -19,7 +19,7 @@ class ArgParser
 public:
     ~ArgParser(void);
 
-    typedef void (*ArgParserCallBack) (void);
+    typedef void (*ArgParserCallBack) (const char * arg);
 
     /*
      * optname: name of the argment, should be provided as --optname
@@ -44,7 +44,7 @@ private:
         std::string name;
         std::string description;
         bool need_arg;
-        virtual void parse (void) const = 0;
+        virtual void parse (const char * arg) const = 0;
         virtual void show_usage (std::ostream & out) const = 0;
     };
 
@@ -54,7 +54,7 @@ private:
     public:
         ArgEntry(const char * name, T * location, const Tv & deafult_value, ArgParserCallBack callback, const char * description);
 
-        virtual void parse (void) const;
+        virtual void parse (const char * arg) const;
         virtual void show_usage (std::ostream & out) const;
 
     private:
@@ -63,14 +63,18 @@ private:
         ArgParserCallBack callback;
     };
 
-    std::vector<ArgEntryBase *> arg_entries;
+    std::vector<ArgEntryBase *> arg_entries, optional_arg_entries;
     static const int arg_col_width;
 };
 
 template<class T, class Tv>
 ArgParser & ArgParser::add(const char * optname, T * location, const Tv & default_value, const char * description, ArgParserCallBack callback)
 {
-    arg_entries.push_back(new ArgEntry<T, Tv>(optname, location, default_value, callback, description));
+    // use "" in case nullptr is provided
+    if((!optname) || (!optname[0]))
+        optional_arg_entries.push_back(new ArgEntry<T, Tv>("", location, default_value, callback, ""));
+    else
+        arg_entries.push_back(new ArgEntry<T, Tv>(optname, location, default_value, callback, description));
 
     return *this;
 }
@@ -87,8 +91,21 @@ ArgParser::ArgEntry<T, Tv>::ArgEntry(const char * name, T * location, const Tv &
 }
 
 template<class T, class Tv>
-void ArgParser::ArgEntry<T, Tv>::parse(void) const
-{ }
+void ArgParser::ArgEntry<T, Tv>::parse(const char * arg) const
+{ 
+    if(need_arg)
+    { 
+        if(!arg)
+            throw std::string("Missing argument of option: --") + name;
+
+        std::istringstream sin(arg);
+        if(!(sin >> (*location)))
+            throw std::string("Cannot parse argment of option: --") + name;
+    }
+
+    if(callback)
+        (*callback)(arg); 
+}
 
 // helper
 template<class T>
