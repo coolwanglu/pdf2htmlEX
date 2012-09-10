@@ -13,6 +13,16 @@ if(FF_INCLUDE_PATH)
     message("Found fontforge.h: ${FF_INCLUDE_PATH}/fontforge/fontforge.h")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -include ${FF_INCLUDE_PATH}/fontforge/config.h")
     include_directories(${FF_INCLUDE_PATH}/fontforge)
+    # MacOSX gettext is in /opt/local/include - strange
+    if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+      find_path(GETTEXT_INCLUDE_PATH libintl.h)
+      if(GETTEXT_INCLUDE_PATH)
+        include_directories(${GETTEXT_INCLUDE_PATH})
+      else()
+        # disable i18n if there is no gettext
+        set(NO_GETTEXT "YesPlease")
+      endif()
+    endif()
 else()
     message(FATAL_ERROR "Error: cannot locate fontforge.h")
 endif()
@@ -51,6 +61,10 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ggdb")
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wunused-function")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --std=c++0x")
+# clang compiler need c++11 flag
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
+endif()
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ggdb")
 
