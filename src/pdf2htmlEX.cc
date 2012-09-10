@@ -12,8 +12,6 @@
 #include <iostream>
 #include <getopt.h>
 
-#include <boost/program_options.hpp>
-
 #include <goo/GooString.h>
 
 #include <Object.h>
