@@ -89,10 +89,24 @@ void parse_options (int argc, char **argv)
     {
         argparser.parse(argc, argv);
     }
+    catch(const char * s)
+    {
+        // if s == "", getopt_long would have printed the error message
+        if(s && s[0])
+        {
+            cerr << "Error when parsing the arguments:" << endl;
+            cerr << s << endl;
+        }
+        exit(EXIT_FAILURE);
+    }
     catch(const std::string & s)
     {
-        cerr << "Error when parsing the arguments:" << endl;
-        cerr << s << endl;
+        // if s == "", getopt_long would have printed the error message
+        if(s != "")
+        {
+            cerr << "Error when parsing the arguments:" << endl;
+            cerr << s << endl;
+        }
         exit(EXIT_FAILURE);
     }
 }
@@ -180,6 +194,10 @@ int main(int argc, char **argv)
         delete htmlOut;
 
         finished = true;
+    }
+    catch (const char * s)
+    {
+        cerr << "Error: " << s << endl;
     }
     catch (const string & s)
     {

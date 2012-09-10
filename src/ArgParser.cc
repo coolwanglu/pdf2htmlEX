@@ -76,9 +76,9 @@ void ArgParser::parse(int argc, char ** argv) const
     longopts.push_back({0,0,0,0});
 
     {
+        opterr = 1;
         int r;
         int idx;
-        opterr = 0;
         while(true)
         {
             r = getopt_long(argc, argv, &optstring.front(), &longopts.front(), &idx); 
@@ -87,9 +87,7 @@ void ArgParser::parse(int argc, char ** argv) const
             assert(r != ':');
             if(r == '?')
             {
-                ostringstream sout;
-                assert(optopt < 256);
-                throw string() + ((opt_map.find(optopt) == opt_map.end()) ? "Unknown option: -" : "Missing argument for option -") + (char)optopt;
+                throw "";
             }    
 
             auto iter = opt_map.find(r);
