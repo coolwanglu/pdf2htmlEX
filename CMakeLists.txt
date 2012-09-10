@@ -1,7 +1,7 @@
 project(pdftohtmlEX)
 cmake_minimum_required(VERSION 2.6.0 FATAL_ERROR)
 
-include_directories(${CMAKE_SOURCE_DIR}/src)
+include_directories(${CMAKE_SOURCE_DIR}/src/include)
 
 find_package(PkgConfig)
 pkg_check_modules(POPPLER REQUIRED poppler>=0.20.0)
@@ -56,7 +56,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --std=c++0x")
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ggdb")
 
-configure_file (${CMAKE_SOURCE_DIR}/src/config.h.in ${CMAKE_SOURCE_DIR}/src/config.h)
+configure_file (${CMAKE_SOURCE_DIR}/src/include/pdf2htmlEX-config.h.in ${CMAKE_SOURCE_DIR}/src/include/pdf2htmlEX-config.h)
 
 add_executable(pdf2htmlEX 
     src/pdf2htmlEX.cc 

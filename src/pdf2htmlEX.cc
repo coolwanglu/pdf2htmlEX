@@ -10,6 +10,7 @@
 #include <string>
 #include <limits>
 #include <iostream>
+#include <getopt.h>
 
 #include <boost/program_options.hpp>
 

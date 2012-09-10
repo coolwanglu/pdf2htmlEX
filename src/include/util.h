@@ -1,5 +1,5 @@
 /*
- * Misc functions
+ * Constants & Misc functions
  *
  *
  * by WangLu
@@ -14,6 +14,8 @@
 #include <algorithm>
 #include <cmath>
 #include <vector>
+#include <string>
+#include <map>
 
 #include <UTF8.h>
 
@@ -23,6 +25,18 @@ using std::istream;
 using std::ostream;
 using std::max;
 using std::abs;
+
+#ifndef nullptr
+#define nullptr (NULL)
+#endif
+
+static const double EPS = 1e-6;
+extern const double id_matrix[6];
+
+static const double DEFAULT_DPI = 72.0;
+
+extern const std::map<std::string, std::string> BASE_14_FONT_CSS_FONT_MAP;
+extern const std::map<std::string, std::string> GB_ENCODED_FONT_NAME_MAP;
 
 // mute gcc warning of unused function
 namespace
