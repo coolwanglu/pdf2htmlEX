@@ -6,8 +6,8 @@
  */
 
 
-#ifndef CONFIG_H__
-#define CONFIG_H__
+#ifndef PDF2HTMLEX_CONFIG_H__
+#define PDF2HTMLEX_CONFIG_H__
 
 #include <string>
 
@@ -16,4 +16,4 @@ static const std::string PDF2HTMLEX_PREFIX = "@CMAKE_INSTALL_PREFIX@";
 static const std::string PDF2HTMLEX_DATA_PATH = "@CMAKE_INSTALL_PREFIX@""/share/pdf2htmlEX";
 
 
-#endif //CONFIG_H__
+#endif //PDF2HTMLEX_CONFIG_H__

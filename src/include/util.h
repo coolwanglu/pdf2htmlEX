@@ -19,8 +19,6 @@
 
 #include <UTF8.h>
 
-#include "Consts.h"
-
 using std::istream;
 using std::ostream;
 using std::max;

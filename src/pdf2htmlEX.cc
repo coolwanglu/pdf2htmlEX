@@ -23,7 +23,7 @@
 
 #include "HTMLRenderer.h"
 #include "Param.h"
-#include "config.h"
+#include "pdf2htmlEX-config.h"
 
 namespace po = boost::program_options;
 using namespace std;

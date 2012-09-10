@@ -60,26 +60,25 @@ configure_file (${CMAKE_SOURCE_DIR}/src/include/pdf2htmlEX-config.h.in ${CMAKE_S
 
 add_executable(pdf2htmlEX 
     src/pdf2htmlEX.cc 
-    src/HTMLRenderer.h 
+    src/include/HTMLRenderer.h 
     src/HTMLRenderer/general.cc
     src/HTMLRenderer/state.cc
     src/HTMLRenderer/install.cc
     src/HTMLRenderer/export.cc
     src/HTMLRenderer/text.cc
     src/HTMLRenderer/image.cc
-    src/HTMLRenderer/namespace.h
+    src/include/namespace.h
     src/HTMLRenderer/LineBuffer.cc
-    src/ff/ff.h
-    src/ff/ff.c
-    src/BackgroundRenderer.h 
+    src/include/ff.h
+    src/ff.c
+    src/include/BackgroundRenderer.h 
     src/BackgroundRenderer.cc 
-    src/FontPreprocessor.h
+    src/include/FontPreprocessor.h
     src/FontPreprocessor.cc
-    src/Consts.h 
-    src/Consts.cc 
-    src/util.h
+    src/include/util.h
     src/util.cc
-    src/config.h)
+    src/include/pdf2htmlEX-config.h
+    )
 
 target_link_libraries(pdf2htmlEX ${POPPLER_LIBRARIES} ${Boost_LIBRARIES} ${FONTFORGE_LIBRARIES} ${PYTHON_LIBRARIES})
 

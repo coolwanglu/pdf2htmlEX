@@ -15,10 +15,9 @@
 #include <CharCodeToUnicode.h>
 #include <fofi/FoFiTrueType.h>
 
-#include "ff/ff.h"
+#include "ff.h"
 #include "HTMLRenderer.h"
 #include "namespace.h"
-#include "config.h"
 
 using std::unordered_set;
 using std::min;

@@ -13,9 +13,9 @@
 
 #include "HTMLRenderer.h"
 #include "BackgroundRenderer.h"
-#include "config.h"
 #include "namespace.h"
-#include "ff/ff.h"
+#include "ff.h"
+#include "pdf2htmlEX-config.h"
 
 using std::fixed;
 using std::flush;

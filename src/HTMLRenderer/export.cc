@@ -12,7 +12,6 @@
 
 #include "HTMLRenderer.h"
 #include "namespace.h"
-#include "config.h"
 
 void HTMLRenderer::export_remote_font(const FontInfo & info, const string & suffix, const string & fontfileformat, GfxFont * font) 
 {

@@ -10,7 +10,7 @@
 #include <vector>
 
 #include "HTMLRenderer.h"
-#include "HTMLRenderer/namespace.h"
+#include "namespace.h"
 
 using std::min;
 using std::max;
