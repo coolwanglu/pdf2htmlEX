@@ -10,6 +10,7 @@
 #ifndef UTIL_H__
 #define UTIL_H__
 
+#include <cstdio>
 #include <iostream>
 #include <algorithm>
 #include <cmath>
@@ -18,11 +19,6 @@
 #include <map>
 
 #include <UTF8.h>
-
-using std::istream;
-using std::ostream;
-using std::max;
-using std::abs;
 
 #ifndef nullptr
 #define nullptr (NULL)
@@ -133,10 +129,10 @@ class base64stream
 {
 public:
 
-    base64stream(istream & in) : in(&in) { }
-    base64stream(istream && in) : in(&in) { }
+    base64stream(std::istream & in) : in(&in) { }
+    base64stream(std::istream && in) : in(&in) { }
 
-    ostream & dumpto(ostream & out)
+    std::ostream & dumpto(std::ostream & out)
     {
         unsigned char buf[3];
         while(in->read((char*)buf, 3))
@@ -170,12 +166,12 @@ public:
     }
 
 private:
-    istream * in;
+    std::istream * in;
     static const char * base64_encoding;
 };
 
-static inline ostream & operator << (ostream & out, base64stream & bf) { return bf.dumpto(out); }
-static inline ostream & operator << (ostream & out, base64stream && bf) { return bf.dumpto(out); }
+static inline std::ostream & operator << (std::ostream & out, base64stream & bf) { return bf.dumpto(out); }
+static inline std::ostream & operator << (std::ostream & out, base64stream && bf) { return bf.dumpto(out); }
 
 class string_formatter
 {
@@ -204,7 +200,7 @@ public:
         va_end(vlist);
         if(l >= (int)buf.capacity()) 
         {
-            buf.reserve(max((long)(l+1), (long)buf.capacity() * 2));
+            buf.reserve(std::max((long)(l+1), (long)buf.capacity() * 2));
             va_start(vlist, format);
             l = vsnprintf(&buf.front(), buf.capacity(), format, vlist);
             va_end(vlist);

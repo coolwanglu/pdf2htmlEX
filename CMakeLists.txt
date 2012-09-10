@@ -11,10 +11,9 @@ link_directories(${POPPLER_LIBRARY_DIRS})
 find_path(FF_INCLUDE_PATH fontforge/fontforge.h)
 if(FF_INCLUDE_PATH)
     message("Found fontforge.h: ${FF_INCLUDE_PATH}/fontforge/fontforge.h")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -include ${FF_INCLUDE_PATH}/fontforge/config.h")
     include_directories(${FF_INCLUDE_PATH}/fontforge)
     # MacOSX gettext is in /opt/local/include - strange
-    if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")  
       find_path(GETTEXT_INCLUDE_PATH libintl.h)
       if(GETTEXT_INCLUDE_PATH)
         include_directories(${GETTEXT_INCLUDE_PATH})
@@ -25,6 +24,11 @@ if(FF_INCLUDE_PATH)
     endif()
 else()
     message(FATAL_ERROR "Error: cannot locate fontforge.h")
+endif()
+
+find_path(FF_CONFIG_INCLUDE_PATH fontforge/config.h)
+if(FF_CONFIG_INCLUDE_PATH)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -include ${FF_INCLUDE_PATH}/fontforge/config.h")
 endif()
 
 foreach(FF_LIB_NAME 
@@ -63,10 +67,17 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wunused-function")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --std=c++0x")
 # clang compiler need c++11 flag
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
 endif()
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ggdb")
+
+# CYGWIN bug
+if(CYGWIN)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --std=gnu++0x")
+else()
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --std=c++0x")
+endif()
 
 configure_file (${CMAKE_SOURCE_DIR}/src/include/pdf2htmlEX-config.h.in ${CMAKE_SOURCE_DIR}/src/include/pdf2htmlEX-config.h)
 

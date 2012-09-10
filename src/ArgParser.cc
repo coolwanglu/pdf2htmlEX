@@ -64,7 +64,14 @@ void ArgParser::parse(int argc, char ** argv) const
         if(p->name != "")
         {
             int v = (256 + (iter - arg_entries.begin()));
-            longopts.push_back({p->name.c_str(), ((p->need_arg) ? required_argument : no_argument), nullptr, v});           
+            longopts.resize(longopts.size() + 1);
+            {
+                auto & cur = longopts.back();
+                cur.name = p->name.c_str();
+                cur.has_arg = ((p->need_arg) ? required_argument : no_argument);
+                cur.flag = nullptr;
+                cur.val = v;
+            }
             if(!(opt_map.insert(make_pair(v, p)).second))
             {
                 cerr << "Warning: duplicated shortname '" << v << "' used by --" << (p->name) << " and --" << (opt_map[p->shortname]->name) << endl;
@@ -73,7 +80,14 @@ void ArgParser::parse(int argc, char ** argv) const
     }
 
     optstring.push_back(0);
-    longopts.push_back({0,0,0,0});
+    longopts.resize(longopts.size() + 1);
+    {
+	auto & cur = longopts.back();
+	cur.name = 0;
+	cur.has_arg = 0;
+	cur.flag = 0;
+	cur.val = 0;
+    }
 
     {
         opterr = 1;
