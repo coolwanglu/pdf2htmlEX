@@ -77,6 +77,8 @@ add_executable(pdf2htmlEX
     src/FontPreprocessor.cc
     src/include/util.h
     src/util.cc
+    src/include/ArgParser.h
+    src/ArgParser.cc
     src/include/pdf2htmlEX-config.h
     )
 
