@@ -13,7 +13,6 @@
 #include <stdarg.h>
 #include <assert.h>
 
-#include <fontforge/config.h>
 #include <fontforge.h>
 #include <baseviews.h>
 

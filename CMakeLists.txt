@@ -11,10 +11,14 @@ link_directories(${POPPLER_LIBRARY_DIRS})
 find_path(FF_INCLUDE_PATH fontforge/fontforge.h)
 if(FF_INCLUDE_PATH)
     message("Found fontforge.h: ${FF_INCLUDE_PATH}/fontforge/fontforge.h")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -include ${FF_INCLUDE_PATH}/fontforge/config.h")
     include_directories(${FF_INCLUDE_PATH}/fontforge)
 else()
     message(FATAL_ERROR "Error: cannot locate fontforge.h")
+endif()
+
+find_path(FF_CONFIG_INCLUDE_PATH fontforge/config.h)
+if(FF_CONFIG_INCLUDE_PATH)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -include ${FF_INCLUDE_PATH}/fontforge/config.h")
 endif()
 
 foreach(FF_LIB_NAME 

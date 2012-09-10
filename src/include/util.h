@@ -196,13 +196,13 @@ public:
 
         va_list vlist;
         va_start(vlist, format);
-        int l = std::vsnprintf(&buf.front(), buf.capacity(), format, vlist);
+        int l = vsnprintf(&buf.front(), buf.capacity(), format, vlist);
         va_end(vlist);
         if(l >= (int)buf.capacity()) 
         {
             buf.reserve(std::max((long)(l+1), (long)buf.capacity() * 2));
             va_start(vlist, format);
-            l = std::vsnprintf(&buf.front(), buf.capacity(), format, vlist);
+            l = vsnprintf(&buf.front(), buf.capacity(), format, vlist);
             va_end(vlist);
         }
         assert(l >= 0); // we should fail when vsnprintf fail

@@ -14,6 +14,10 @@
 #include <ostream>
 #include <sstream>
 
+#ifndef nullptr
+#define nullptr (NULL)
+#endif
+
 class ArgParser
 {
 public:

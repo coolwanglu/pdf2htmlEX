@@ -6,6 +6,8 @@
  * 2012.08.10
  */
 
+#include <errno.h>
+
 #include <GfxState.h>
 #include <GfxFont.h>
 #include <CharTypes.h>
@@ -22,7 +24,7 @@ using std::cerr;
 using std::endl;
 using std::string;
 using std::map;
-
+using std::ostream;
 
 const double id_matrix[6] = {1.0, 0.0, 0.0, 1.0, 0.0, 0.0};
 
