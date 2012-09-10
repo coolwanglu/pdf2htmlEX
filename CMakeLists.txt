@@ -17,14 +17,22 @@ else()
     message(FATAL_ERROR "Error: cannot locate fontforge.h")
 endif()
 
-set(FF_LIB_NAME ${CMAKE_SHARED_LIBRARY_PREFIX}fontforge${CMAKE_SHARED_LIBRARY_SUFFIX})
-
+foreach(FF_LIB_NAME 
+${CMAKE_IMPORT_LIBRARY_PREFIX}fontforge${CMAKE_IMPORT_LIBRARY_SUFFIX}
+${CMAKE_SHARED_LIBRARY_PREFIX}fontforge${CMAKE_SHARED_LIBRARY_SUFFIX}
+${CMAKE_STATIC_LIBRARY_PREFIX}fontforge${CMAKE_STATIC_LIBRARY_SUFFIX}
+)
 find_library(FF_LIB ${FF_LIB_NAME})
 if(FF_LIB)
     message("Found ${FF_LIB_NAME}: ${FF_LIB}")
     set(FONTFORGE_LIBRARIES ${FF_LIB})
-else()
-    message(FATAL_ERROR "Error: cannot locate ${FF_LIB_NAME}")
+    break()
+endif()
+endforeach()
+
+if(NOT FF_LIB)
+    set(FONTFORGE_LIBRARIES fontforge)
+    message("Error: cannot locate ${FF_LIB_NAME}")
 endif()
 
 message("Looking for libraries of python, which is required by fontforge, if you can link fontforge without python, you may disable this")
@@ -72,7 +80,7 @@ add_executable(pdf2htmlEX
     src/include/pdf2htmlEX-config.h
     )
 
-target_link_libraries(pdf2htmlEX ${POPPLER_LIBRARIES} ${Boost_LIBRARIES} ${FONTFORGE_LIBRARIES} ${PYTHON_LIBRARIES})
+target_link_libraries(pdf2htmlEX ${POPPLER_LIBRARIES} ${FONTFORGE_LIBRARIES} ${PYTHON_LIBRARIES})
 
 install (TARGETS pdf2htmlEX DESTINATION bin)
 file (GLOB datafiles share/*)
