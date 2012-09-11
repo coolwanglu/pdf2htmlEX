@@ -174,6 +174,10 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
 
     assert((!line_opened) && "Open line in startPage detected!");
 
+    // Add by Hongliang Tian
+    // wrapper for page
+    html_fout << "<div class=\"pw\" style=\"width:" << pageWidth << "px;height:" << pageHeight << "px;\">" << endl; 
+
     html_fout << "<div id=\"p" << pageNum << "\" class=\"p\" style=\"width:" << pageWidth << "px;height:" << pageHeight << "px;";
 
     html_fout << "background-image:url(";
@@ -221,7 +225,8 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
 void HTMLRenderer::endPage() {
     close_line();
     // close page
-    html_fout << "</div>" << endl;
+    // Modified by Hongliang Tian
+    html_fout << "</div>" << endl << "</div>" << endl;
 }
 
 void HTMLRenderer::process_single_html()
