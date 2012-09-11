@@ -22,16 +22,14 @@ namespace pdf2htmlEX {
 
 //helper
 template<class T>
-void read_value(const char * arg, T * location)
+bool read_value(const char * arg, T * location)
 {
     std::istringstream sin(arg);
-    if((sin >> (*location)) && (sin.eof()))
-        return;
-
-    throw std::string("Invalid argument: ") + arg;
+    return ((sin >> (*location)) && (sin.eof()));
 }
 
-extern void read_value(const char * arg, std::string * location);
+extern bool read_value(const char * arg, char * location);
+extern bool read_value(const char * arg, std::string * location);
 
 template<class T>
 void dump_value(std::ostream & out, const T & v)
@@ -126,7 +124,8 @@ void ArgParser::ArgEntry<T, Tv>::parse(const char * arg) const
         if(!arg)
             throw std::string("Missing argument of option: --") + name;
 
-        read_value(arg, location);
+        if(!read_value(arg, location))
+            throw std::string("Invalid argument: ") + arg;
     }
 
     if(callback)
