@@ -60,6 +60,7 @@ Special thanks to Arthur Titeica for the [AUR Package](https://aur.archlinux.org
  * GCC >= 4.4.6
 * libpoppler with xpdf header >= 0.20.0 (compile with --enable-xpdf-headers)
  * Install libpng (and headers) BEFORE you compile libpoppler if you want background images generated
+ * Install poppler-data if your want CJK support
 * fontforge (with header files)
 
 **Build On Windows**
