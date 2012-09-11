@@ -13,10 +13,12 @@
 
 #ifdef __cplusplus
 #include <cstdint>
+namespace pdf2htmlEX {
 extern "C" {
 #else
 #include <stdint.h>
 #endif
+
 
 void ff_init(void);
 void ff_fin(void);
@@ -34,5 +36,6 @@ void ff_set_ascent(int a);
 void ff_set_descent(int d);
 
 #ifdef __cplusplus
+}
 }
 #endif

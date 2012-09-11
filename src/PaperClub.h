@@ -85,7 +85,7 @@ class PC_HTMLRenderer : public HTMLRenderer
         {
             if(!param->only_metadata) {
                 allcss_fout.open(dest_dir + "/" + CSS_FILENAME, ofstream::binary);
-                allcss_fout << fixed;
+                fix_stream(allcss_fout);
                 allcss_fout << ifstream(PDF2HTMLEX_DATA_PATH + "/" + CSS_FILENAME, ifstream::binary).rdbuf();
             }
         }
@@ -135,7 +135,7 @@ class PC_HTMLRenderer : public HTMLRenderer
         {
             if(!param->only_metadata) {
                 html_fout.open((char*)str_fmt("%s/%x.page", dest_dir.c_str(), pageNum), ofstream::binary);
-                html_fout << fixed;
+                fix_stream(html_fout);
             }
             
             this->first_page_width = state->getPageWidth();

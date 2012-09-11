@@ -18,57 +18,81 @@
 #define nullptr (NULL)
 #endif
 
+namespace pdf2htmlEX {
+
+//helper
+template<class T>
+void read_value(const char * arg, T * location)
+{
+    std::istringstream sin(arg);
+    if((sin >> (*location)) && (sin.eof()))
+        return;
+
+    throw std::string("Invalid argument: ") + arg;
+}
+
+extern void read_value(const char * arg, std::string * location);
+
+template<class T>
+void dump_value(std::ostream & out, const T & v)
+{
+    out << v;
+}
+
+extern void dump_value(std::ostream & out, const std::string & v);
+
+
 class ArgParser
 {
-public:
-    ~ArgParser(void);
-
-    typedef void (*ArgParserCallBack) (const char * arg);
-
-    /*
-     * optname: name of the argment, should be provided as --optname
-     * description: if description is "", the argument won't be shown in show_usage()
-     */
-
-    ArgParser & add(const char * optname, const char * description, ArgParserCallBack callback = nullptr);
-
-    template <class T, class Tv>
-    ArgParser & add(const char * optname, T * location, const Tv & default_value, const char * description, ArgParserCallBack callback = nullptr);
-
-    void parse(int argc, char ** argv) const;
-    void show_usage(std::ostream & out) const;
-
-private:
-    class ArgEntryBase
-    {
     public:
-        ArgEntryBase(const char * name, const char * description, bool need_arg);
-        virtual ~ArgEntryBase() { }
-        char shortname;
-        std::string name;
-        std::string description;
-        bool need_arg;
-        virtual void parse (const char * arg) const = 0;
-        virtual void show_usage (std::ostream & out) const = 0;
-    };
+        ~ArgParser(void);
 
-    template <class T, class Tv>
-    class ArgEntry : public ArgEntryBase
-    {
-    public:
-        ArgEntry(const char * name, T * location, const Tv & deafult_value, ArgParserCallBack callback, const char * description);
+        typedef void (*ArgParserCallBack) (const char * arg);
 
-        virtual void parse (const char * arg) const;
-        virtual void show_usage (std::ostream & out) const;
+        /*
+         * optname: name of the argment, should be provided as --optname
+         * description: if description is "", the argument won't be shown in show_usage()
+         */
+
+        ArgParser & add(const char * optname, const char * description, ArgParserCallBack callback = nullptr);
+
+        template <class T, class Tv>
+            ArgParser & add(const char * optname, T * location, const Tv & default_value, const char * description, ArgParserCallBack callback = nullptr);
+
+        void parse(int argc, char ** argv) const;
+        void show_usage(std::ostream & out) const;
 
     private:
-        T * location;
-        T default_value;
-        ArgParserCallBack callback;
-    };
+        class ArgEntryBase
+        {
+            public:
+                ArgEntryBase(const char * name, const char * description, bool need_arg);
+                virtual ~ArgEntryBase() { }
+                char shortname;
+                std::string name;
+                std::string description;
+                bool need_arg;
+                virtual void parse (const char * arg) const = 0;
+                virtual void show_usage (std::ostream & out) const = 0;
+        };
 
-    std::vector<ArgEntryBase *> arg_entries, optional_arg_entries;
-    static const int arg_col_width;
+        template <class T, class Tv>
+        class ArgEntry : public ArgEntryBase
+        {
+            public:
+                ArgEntry(const char * name, T * location, const Tv & deafult_value, ArgParserCallBack callback, const char * description);
+
+                virtual void parse (const char * arg) const;
+                virtual void show_usage (std::ostream & out) const;
+
+            private:
+                T * location;
+                T default_value;
+                ArgParserCallBack callback;
+        };
+
+        std::vector<ArgEntryBase *> arg_entries, optional_arg_entries;
+        static const int arg_col_width;
 };
 
 template<class T, class Tv>
@@ -86,9 +110,9 @@ ArgParser & ArgParser::add(const char * optname, T * location, const Tv & defaul
 template<class T, class Tv>
 ArgParser::ArgEntry<T, Tv>::ArgEntry(const char * name, T * location, const Tv & default_value,  ArgParserCallBack callback, const char * description)
     : ArgEntryBase(name, description, (location != nullptr))
-    , location(location)
-    , default_value(default_value)
-    , callback(callback)
+      , location(location)
+      , default_value(default_value)
+      , callback(callback)
 { 
     if(need_arg)
         *location = T(default_value);
@@ -102,23 +126,12 @@ void ArgParser::ArgEntry<T, Tv>::parse(const char * arg) const
         if(!arg)
             throw std::string("Missing argument of option: --") + name;
 
-        std::istringstream sin(arg);
-        if(!(sin >> (*location)))
-            throw std::string("Cannot parse argment of option: --") + name;
+        read_value(arg, location);
     }
 
     if(callback)
         (*callback)(arg); 
 }
-
-// helper
-template<class T>
-void dump_default_value(std::ostream & out, const T & v)
-{
-    out << v;
-}
-
-extern void dump_default_value(std::ostream & out, const std::string & v);
 
 template<class T, class Tv>
 void ArgParser::ArgEntry<T, Tv>::show_usage(std::ostream & out) const
@@ -144,7 +157,7 @@ void ArgParser::ArgEntry<T, Tv>::show_usage(std::ostream & out) const
     if(need_arg)
     {
         sout << " <arg> (=";
-        dump_default_value(sout, default_value);
+        dump_value(sout, default_value);
         sout << ")";
     }
 
@@ -156,5 +169,7 @@ void ArgParser::ArgEntry<T, Tv>::show_usage(std::ostream & out) const
 
     out << " " << description << std::endl;
 }
+
+} // namespace ArgParser
 
 #endif //ARGPARSER_H__

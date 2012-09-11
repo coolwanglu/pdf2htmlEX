@@ -13,6 +13,8 @@
 
 #include "ArgParser.h"
 
+namespace pdf2htmlEX {
+
 using std::ostream;
 using std::cerr;
 using std::endl;
@@ -21,6 +23,16 @@ using std::vector;
 using std::unordered_map;
 using std::make_pair;
 using std::ostringstream;
+
+void read_value(const char * arg, std::string * location)
+{
+    *location = std::string(arg);
+}
+
+void dump_value(std::ostream & out, const std::string & v)
+{
+    out << '"' << v << '"';
+}
 
 ArgParser::~ArgParser(void)
 {
@@ -111,11 +123,10 @@ void ArgParser::parse(int argc, char ** argv) const
     }
 
     {
-        int i = optind;
         auto iter = optional_arg_entries.begin();
-        while((i < argc) && (iter != optional_arg_entries.end())) 
+        while((optind < argc) && (iter != optional_arg_entries.end())) 
         {
-            (*(iter++))->parse(argv[i++]);
+            (*(iter++))->parse(argv[optind++]);
         }
     }
 }
@@ -146,10 +157,6 @@ ArgParser::ArgEntryBase::ArgEntryBase(const char * name, const char * descriptio
     }
 }
 
-
-void dump_default_value(std::ostream & out, const std::string & v)
-{
-    out << '"' << v << '"';
-}
-
 const int ArgParser::arg_col_width = 40;
+
+} // namespace pdf2htmlEX

@@ -26,6 +26,7 @@
 #include "PaperClub.h"
 
 using namespace std;
+using namespace pdf2htmlEX;
 
 Param param;
 ArgParser argparser;

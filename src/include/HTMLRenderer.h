@@ -53,6 +53,8 @@
  *
  */
 
+namespace pdf2htmlEX {
+
 class HTMLRenderer : public OutputDev
 {
     public:
@@ -123,6 +125,9 @@ class HTMLRenderer : public OutputDev
         // misc
         ////////////////////////////////////////////////////
         
+        // set flags 
+        void fix_stream (std::ostream & out);
+
         void add_tmp_file (const std::string & fn);
         void clean_tmp_files ();
         std::string dump_embedded_font (GfxFont * font, long long fn_id);
@@ -346,7 +351,7 @@ class HTMLRenderer : public OutputDev
         std::map<TM, long long> transform_matrix_map;
         std::map<double, long long> letter_space_map;
         std::map<double, long long> word_space_map;
-        std::map<GfxRGB, long long> color_map; 
+        std::unordered_map<GfxRGB, long long, GfxRGB_hash, GfxRGB_equal> color_map; 
         std::map<double, long long> whitespace_map;
         std::map<double, long long> rise_map;
 
@@ -362,5 +367,7 @@ class HTMLRenderer : public OutputDev
         static const std::string TAIL_HTML_FILENAME;
         static const std::string CSS_FILENAME;
 };
+
+} //namespace pdf2htmlEX
 
 #endif /* HTMLRENDERER_H_ */

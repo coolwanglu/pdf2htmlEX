@@ -15,6 +15,8 @@
 #include "FontPreprocessor.h"
 #include "util.h"
 
+namespace pdf2htmlEX {
+
 FontPreprocessor::FontPreprocessor(void)
     : cur_font_id(0)
     , cur_code_map(nullptr)
@@ -59,3 +61,5 @@ const char * FontPreprocessor::get_code_map (long long font_id) const
     auto iter = code_maps.find(font_id);
     return (iter == code_maps.end()) ? nullptr : (iter->second);
 }
+
+} // namespace pdf2htmlEX

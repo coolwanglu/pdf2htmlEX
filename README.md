@@ -85,7 +85,7 @@ GPLv2 & GPLv3 Dual licensed
 
 **Please consider sponsoring it if you use it for commercial purpose**
 
-**Font extraction or conversion may be illegal, please check your local laws**
+**Font extraction, conversion or redistribution may be illegal, please check your local laws**
 
 ## Credits
 
