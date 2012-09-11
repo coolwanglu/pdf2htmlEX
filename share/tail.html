@@ -50,8 +50,8 @@ $(function() {
     clearInterval(scrollTimer);
     // Check when scrolling stops
     scrollTimer = setInterval(function() {
-      // If scrolling pauses 300+ms
-      if (Date.now() - lastScrollTime > 300) {
+      // If scrolling pauses 200+ms
+      if (Date.now() - lastScrollTime > 200) {
         clearInterval(scrollTimer);
         // Only render pages that are or will be visible
         selectiveRender();
