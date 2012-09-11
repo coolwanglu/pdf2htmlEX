@@ -1,7 +1,6 @@
  .p {
   position:relative;
   overflow:hidden;
-  visibility: hidden;
   /* for Chrome & Safari */
   -webkit-text-stroke-width:0.13px; 
 }

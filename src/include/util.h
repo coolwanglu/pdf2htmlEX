@@ -1,5 +1,5 @@
 /*
- * Misc functions
+ * Constants & Misc functions
  *
  *
  * by WangLu
@@ -10,33 +10,36 @@
 #ifndef UTIL_H__
 #define UTIL_H__
 
-#include <algorithm>
-#include <istream>
-#include <ostream>
+#include <cstdio>
 #include <iostream>
+#include <algorithm>
 #include <cmath>
+#include <vector>
+#include <string>
+#include <map>
 
-#include <GfxState.h>
-#include <GfxFont.h>
-#include <CharTypes.h>
 #include <UTF8.h>
-#include <GlobalParams.h>
 
-#include "Consts.h"
+#ifndef nullptr
+#define nullptr (NULL)
+#endif
 
-using std::istream;
-using std::ostream;
-using std::noskipws;
-using std::endl;
-using std::flush;
-using std::cerr;
-using std::floor;
+static const double EPS = 1e-6;
+extern const double id_matrix[6];
+
+static const double DEFAULT_DPI = 72.0;
+
+extern const std::map<std::string, std::string> BASE_14_FONT_CSS_FONT_MAP;
+extern const std::map<std::string, std::string> GB_ENCODED_FONT_NAME_MAP;
 
 // mute gcc warning of unused function
 namespace
 {
     template <class T>
-    void dummy(){ auto _ = &mapUCS2; }
+    void dummy(){ 
+        auto _1 = &mapUCS2; 
+        auto _2 = &mapUTF8;
+    }
 }
 
 static inline bool _equal(double x, double y) { return std::abs(x-y) < EPS; }
@@ -49,116 +52,31 @@ static inline bool _tm_equal(const double * tm1, const double * tm2, int size = 
     return true;
 }
 
+static inline long long hash_ref(const Ref * id)
+{
+    return (((long long)(id->num)) << (sizeof(id->gen)*8)) | (id->gen);
+}
+
 /*
  * http://en.wikipedia.org/wiki/HTML_decimal_character_rendering
  */
-static inline bool isLegalUnicode(Unicode u)
-{
-    /*
-    if((u == 9) || (u == 10) || (u == 13))
-        return true;
-        */
+bool isLegalUnicode(Unicode u);
 
-    if(u <= 31) 
-        return false;
-
-    if((u >= 127) && (u <= 159))
-        return false;
-
-    if((u >= 0xd800) && (u <= 0xdfff))
-        return false;
-
-    return true;
-}
-
-static inline Unicode map_to_private(CharCode code)
-{
-    Unicode private_mapping = (Unicode)(code + 0xE000);
-    if(private_mapping > 0xF8FF)
-    {
-        private_mapping = (Unicode)((private_mapping - 0xF8FF) + 0xF0000);
-        if(private_mapping > 0xFFFFD)
-        {
-            private_mapping = (Unicode)((private_mapping - 0xFFFFD) + 0x100000);
-            if(private_mapping > 0x10FFFD)
-            {
-                cerr << "Warning: all private use unicode are used" << endl;
-            }
-        }
-    }
-    return private_mapping;
-}
+Unicode map_to_private(CharCode code);
 
 /*
  * Try to determine the Unicode value directly from the information in the font
  */
-static inline Unicode unicode_from_font (CharCode code, GfxFont * font)
-{
-    if(!font->isCIDFont())
-    {
-        char * cname = dynamic_cast<Gfx8BitFont*>(font)->getCharName(code);
-        // may be untranslated ligature
-        if(cname)
-        {
-            Unicode ou = globalParams->mapNameToUnicode(cname);
-
-            if(isLegalUnicode(ou))
-                return ou;
-        }
-    }
-
-    return map_to_private(code);
-}
+Unicode unicode_from_font (CharCode code, GfxFont * font);
 
 /*
  * We have to use a single Unicode value to reencode fonts
  * if we got multi-unicode values, it might be expanded ligature, try to restore it
  * if we cannot figure it out at the end, use a private mapping
  */
-static inline Unicode check_unicode(Unicode * u, int len, CharCode code, GfxFont * font)
-{
-    if(len == 0)
-        return map_to_private(code);
+Unicode check_unicode(Unicode * u, int len, CharCode code, GfxFont * font);
 
-    if(len == 1)
-    {
-        if(isLegalUnicode(*u))
-            return *u;
-    }
-
-    return unicode_from_font(code, font);
-}
-
-static inline void outputUnicodes(std::ostream & out, const Unicode * u, int uLen)
-{
-    for(int i = 0; i < uLen; ++i)
-    {
-        switch(u[i])
-        {
-            case '&':
-                out << "&amp;";
-                break;
-            case '\"':
-                out << "&quot;";
-                break;
-            case '\'':
-                out << "&apos;";
-                break;
-            case '<':
-                out << "&lt;";
-                break;
-            case '>':
-                out << "&gt;";
-                break;
-            default:
-                {
-                    char buf[4];
-                    auto n = mapUTF8(u[i], buf, 4);
-                    out.write(buf, n);
-                }
-        }
-    }
-}
+void outputUnicodes(std::ostream & out, const Unicode * u, int uLen);
 
 /* Escape as a safe Javascript string */
 static inline void outputUnicodes2(std::ostream & out, const Unicode * u, int uLen)
@@ -234,10 +152,10 @@ class base64stream
 {
 public:
 
-    base64stream(istream & in) : in(&in) { }
-    base64stream(istream && in) : in(&in) { }
+    base64stream(std::istream & in) : in(&in) { }
+    base64stream(std::istream && in) : in(&in) { }
 
-    ostream & dumpto(ostream & out)
+    std::ostream & dumpto(std::ostream & out)
     {
         unsigned char buf[3];
         while(in->read((char*)buf, 3))
@@ -271,11 +189,60 @@ public:
     }
 
 private:
-    static constexpr const char * base64_encoding = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-    istream * in;
+    std::istream * in;
+    static const char * base64_encoding;
 };
 
-static inline ostream & operator << (ostream & out, base64stream & bf) { return bf.dumpto(out); }
-static inline ostream & operator << (ostream & out, base64stream && bf) { return bf.dumpto(out); }
+static inline std::ostream & operator << (std::ostream & out, base64stream & bf) { return bf.dumpto(out); }
+static inline std::ostream & operator << (std::ostream & out, base64stream && bf) { return bf.dumpto(out); }
+
+class string_formatter
+{
+public:
+    class guarded_pointer
+    {
+    public:
+        guarded_pointer(string_formatter * sf) : sf(sf) { ++(sf->buf_cnt); }
+        ~guarded_pointer(void) { --(sf->buf_cnt); }
+        operator char* () { return &(sf->buf.front()); }
+    private:
+        string_formatter * sf;
+    };
+
+    string_formatter() : buf_cnt(0) { buf.reserve(L_tmpnam); }
+    /*
+     * Important:
+     * there is only one buffer, so new strings will replace old ones
+     */
+    guarded_pointer operator () (const char * format, ...) {
+        assert((buf_cnt == 0) && "string_formatter: buffer is reused!");
+
+        va_list vlist;
+        va_start(vlist, format);
+        int l = vsnprintf(&buf.front(), buf.capacity(), format, vlist);
+        va_end(vlist);
+        if(l >= (int)buf.capacity()) 
+        {
+            buf.reserve(std::max((long)(l+1), (long)buf.capacity() * 2));
+            va_start(vlist, format);
+            l = vsnprintf(&buf.front(), buf.capacity(), format, vlist);
+            va_end(vlist);
+        }
+        assert(l >= 0); // we should fail when vsnprintf fail
+        assert(l < (int)buf.capacity());
+        return guarded_pointer(this);
+    }
+private:
+    friend class guarded_pointer;
+    std::vector<char> buf;
+    int buf_cnt;
+};
+
+void create_directories(std::string path);
+
+bool is_truetype_suffix(const std::string & suffix);
+
+std::string get_filename(const std::string & path);
+std::string get_suffix(const std::string & path);
 
 #endif //UTIL_H__

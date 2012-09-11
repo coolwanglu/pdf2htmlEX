@@ -1,20 +1,33 @@
-cmake - pkgconfig - fontforge - python
+bug found in baidu & github & mail
 
-option to break ligatures
+IE9
 
-detect duplicate base fonts when embedding
+option for tounicode-map
+get unicode from charname using fontforge (test with 'Font' croc.pdf)
+also for CID Type 0
 
-compress div/span states
+argument auto-completion
 
-multiple charcode mapped to a same glyph
-re-encoded only used glyphs
+round coordinate and check if it'll be faster
 
-take care of spaces (simulate by <span>)
+remove the intermediate save to retrieve asc/des
+
+a fallback font
+
+
+link
+
+color invert
 use absolute positioning for long whitespace
 
-disable selection if we know unicode is wrong
-
 ==Future==
+
+fix glyph width as provided in pdf
+detect duplicate base fonts when embedding
+disable selection if we know unicode is wrong
+combine lines (unwarp)
+Printing
+multiple charcode mapped to a same glyph
 check if we can add information to the font, and let browsers show ligatures automatically
 custom html/css dir
 native support for image

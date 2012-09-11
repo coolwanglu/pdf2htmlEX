@@ -18,12 +18,14 @@ public:
   BackgroundRenderer(SplashColorMode colorModeA, int bitmapRowPadA,
         GBool reverseVideoA, SplashColorPtr paperColorA,
         GBool bitmapTopDownA = gTrue,
-        GBool allowAntialiasA = gTrue) : SplashOutputDev(colorModeA,
-            bitmapRowPadA, reverseVideoA, paperColorA, bitmapTopDownA,
-            allowAntialiasA) { }
+        GBool allowAntialiasA = gTrue)
+      : SplashOutputDev(colorModeA,
+        bitmapRowPadA, reverseVideoA, paperColorA, bitmapTopDownA,
+        allowAntialiasA) 
+  { }
   virtual ~BackgroundRenderer() { }
   
-  void drawChar(GfxState *state, double x, double y,
+  virtual void drawChar(GfxState *state, double x, double y,
       double dx, double dy,
       double originX, double originY,
       CharCode code, int nBytes, Unicode *u, int uLen);

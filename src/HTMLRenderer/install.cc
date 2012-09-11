@@ -11,8 +11,6 @@
 #include <cmath>
 #include <algorithm>
 
-#include <boost/format.hpp>
-
 #include "Param.h"
 
 #include "HTMLRenderer.h"
@@ -21,15 +19,15 @@
 
 using std::abs;
 
-FontInfo HTMLRenderer::install_font(GfxFont * font)
+const FontInfo * HTMLRenderer::install_font(GfxFont * font)
 {
     assert(sizeof(long long) == 2*sizeof(int));
                 
-    long long fn_id = (font == nullptr) ? 0 : *reinterpret_cast<long long*>(font->getID());
+    long long fn_id = (font == nullptr) ? 0 : hash_ref(font->getID());
 
     auto iter = font_name_map.find(fn_id);
     if(iter != font_name_map.end())
-        return iter->second;
+        return &(iter->second);
 
     long long new_fn_id = font_name_map.size(); 
 
@@ -38,7 +36,7 @@ FontInfo HTMLRenderer::install_font(GfxFont * font)
     if(font == nullptr)
     {
         export_remote_default_font(new_fn_id);
-        return cur_info_iter->second;
+        return &(cur_info_iter->second);
     }
 
     cur_info_iter->second.ascent = font->getAscent();
@@ -46,18 +44,18 @@ FontInfo HTMLRenderer::install_font(GfxFont * font)
 
     if(param->debug)
     {
-        cerr << "Install font: (" << (font->getID()->num) << ' ' << (font->getID()->gen) << ") -> " << format("f%|1$x|")%new_fn_id << endl;
+        cerr << "Install font: (" << (font->getID()->num) << ' ' << (font->getID()->gen) << ") -> " << "f" << hex << new_fn_id << dec << endl;
     }
 
     if(font->getType() == fontType3) {
         cerr << "Type 3 fonts are unsupported and will be rendered as Image" << endl;
         export_remote_default_font(new_fn_id);
-        return cur_info_iter->second;
+        return &(cur_info_iter->second);
     }
     if(font->getWMode()) {
         cerr << "Writing mode is unsupported and will be rendered as Image" << endl;
         export_remote_default_font(new_fn_id);
-        return cur_info_iter->second;
+        return &(cur_info_iter->second);
     }
 
     auto * font_loc = font->locateFont(xref, gTrue);
@@ -86,12 +84,13 @@ FontInfo HTMLRenderer::install_font(GfxFont * font)
         export_remote_default_font(new_fn_id);
     }
       
-    return cur_info_iter->second;
+    return &(cur_info_iter->second);
 }
 
 void HTMLRenderer::install_embedded_font(GfxFont * font, FontInfo & info)
 {
     auto path = dump_embedded_font(font, info.id);
+
     if(path != "")
     {
         embed_font(path, font, info);
@@ -113,14 +112,14 @@ void HTMLRenderer::install_base_font(GfxFont * font, GfxFontLoc * font_loc, Font
     {
         if(localfontloc != nullptr)
         {
-            embed_font(path(localfontloc->path->getCString()), font, info);
+            embed_font(string(localfontloc->path->getCString()), font, info);
             export_remote_font(info, param->font_suffix, param->font_format, font);
             delete localfontloc;
             return;
         }
         else
         {
-            cerr << format("Cannot embed base font: f%|1$x| %2%") % info.id % psname << endl;
+            cerr << "Cannot embed base font: f" << hex << info.id << dec << ' ' << psname << endl;
             // fallback to exporting by name
         }
 
@@ -140,7 +139,7 @@ void HTMLRenderer::install_base_font(GfxFont * font, GfxFontLoc * font_loc, Font
     if(localfontloc != nullptr)
     {
         // fill in ascent/descent only, do not embed
-        embed_font(path(localfontloc->path->getCString()), font, info, true);
+        embed_font(string(localfontloc->path->getCString()), font, info, true);
         delete localfontloc;
     }
     else
@@ -171,14 +170,14 @@ void HTMLRenderer::install_external_font(GfxFont * font, FontInfo & info)
     {
         if(localfontloc != nullptr)
         {
-            embed_font(path(localfontloc->path->getCString()), font, info);
+            embed_font(string(localfontloc->path->getCString()), font, info);
             export_remote_font(info, param->font_suffix, param->font_format, font);
             delete localfontloc;
             return;
         }
         else
         {
-            cerr << format("Cannot embed external font: f%|1$x| %2%") % info.id % fontname << endl;
+            cerr << "Cannot embed external font: f" << hex << info.id << dec << ' ' << fontname << endl;
             // fallback to exporting by name
         }
     }
@@ -187,7 +186,7 @@ void HTMLRenderer::install_external_font(GfxFont * font, FontInfo & info)
     if(localfontloc != nullptr)
     {
         // fill in ascent/descent only, do not embed
-        embed_font(path(localfontloc->path->getCString()), font, info, true);
+        embed_font(string(localfontloc->path->getCString()), font, info, true);
         delete localfontloc;
     }
     else

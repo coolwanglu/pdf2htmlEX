@@ -11,13 +11,16 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
+#include <assert.h>
 
 #include <fontforge.h>
 #include <baseviews.h>
 
 #include "ff.h"
 
-FontViewBase * cur_fv = NULL;
+static FontViewBase * cur_fv = NULL;
+static Encoding * original_enc = NULL;
+static Encoding * enc_head = NULL;
 
 static void err(const char * format, ...)
 {
@@ -59,7 +62,29 @@ void ff_init(void)
 
     //disable error output of Fontforge
     ui_interface->logwarning = &dummy;
+
+    original_enc = FindOrMakeEncoding("original");
 }
+
+void ff_fin(void)
+{
+    while(enc_head)
+    {
+        Encoding * next = enc_head->next;
+        free(enc_head->enc_name);
+        free(enc_head->unicode);
+        if(enc_head->psnames)
+        {
+            int i;
+            for(i = 0; i < enc_head->char_cnt; ++i)
+                free(enc_head->psnames[i]);
+            free(enc_head->psnames);
+        }
+        free(enc_head);
+        enc_head = next;
+    }
+}
+
 void ff_load_font(const char * filename)
 {
     char * _filename = strcopy(filename);
@@ -75,19 +100,10 @@ void ff_load_font(const char * filename)
     cur_fv = font->fv;
 }
 
-/*
-void ff_load_encoding(const char * filename, const char * encname)
-{
-    char * _filename = strcopy(filename);
-    char * _encname = strcopy(encname);
-    ParseEncodingFile(_filename, _encname);
-    free(_encname);
-    free(_filename);
-}
-*/
-
 static void ff_do_reencode(Encoding * encoding, int force)
 {
+    assert(encoding);
+
     if(force)
     {
         SFForceEncoding(cur_fv->sf, cur_fv->map, encoding);
@@ -95,12 +111,21 @@ static void ff_do_reencode(Encoding * encoding, int force)
     else
     {
         EncMapFree(cur_fv->map);
-        cur_fv->map= EncMapFromEncoding(cur_fv->sf, encoding);
+        cur_fv->map = EncMapFromEncoding(cur_fv->sf, encoding);
+    }
+    if(cur_fv->normal)
+    {
+        EncMapFree(cur_fv->normal);
+        cur_fv->normal = NULL;
     }
 
     SFReplaceEncodingBDFProps(cur_fv->sf, cur_fv->map);
 }
 
+void ff_reencode_glyph_order(void)
+{
+    ff_do_reencode(original_enc, 0);
+}
 
 void ff_reencode(const char * encname, int force)
 {
@@ -119,6 +144,9 @@ void ff_reencode_raw(int32 * mapping, int mapping_len, int force)
     enc->unicode = (int32_t*)malloc(mapping_len * sizeof(int32_t));
     memcpy(enc->unicode, mapping, mapping_len * sizeof(int32_t));
     enc->enc_name = strcopy("");
+
+    enc->next = enc_head;
+    enc_head = enc;
 
     ff_do_reencode(enc, force);
 }
@@ -143,6 +171,9 @@ void ff_reencode_raw2(char ** mapping, int mapping_len, int force)
             enc->unicode[i] = -1;
         }
     }
+
+    enc->next = enc_head;
+    enc_head = enc;
 
     ff_do_reencode(enc, force);
 }
