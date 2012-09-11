@@ -18,6 +18,7 @@
 }
 .p {
   position:relative;
+  background-color:white;
   overflow:hidden;
   display:block;
 }

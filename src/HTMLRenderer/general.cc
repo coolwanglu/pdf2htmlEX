@@ -222,7 +222,7 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
 void HTMLRenderer::endPage() {
     close_line();
     // close page
-    html_fout << "</div>" << "</div>" << endl;
+    html_fout << "</div></div>" << endl;
 }
 
 void HTMLRenderer::process_single_html()
