@@ -30,12 +30,14 @@ struct Param
     int single_html;
     int embed_base_font;
     int embed_external_font;
+    int decompose_ligature;
 
     // Advanced tweak
     double h_eps, v_eps;
     double space_threshold;
     double font_size_multiplier;
-    int always_apply_tounicode;
+    int tounicode;
+    int space_as_offset;
 
     std::string font_suffix, font_format;
 

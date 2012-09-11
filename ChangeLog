@@ -1,0 +1,22 @@
+Latest
+
+* Completed removed dependency of boost
+* Removed dependency of boost::filesystem
+* Relaxed dependency on c++11. Now can be built with GCC 4.4.6
+* Removed dependency of boost::format and boost::algorithm
+* New option --space-as-offset
+* A font preprocessor, for solving encoding problems
+* Better HTML optimization, states are reused
+* HTML should work when Javascript is disabled
+
+v0.2
+2012.09.06
+
+* Fontforge is now linked with, not called with scripts
+* Better accuracy of rendering, with a new line model
+* New option --decompose-ligature
+
+v0.1 
+2012.08.28
+
+* The first release 

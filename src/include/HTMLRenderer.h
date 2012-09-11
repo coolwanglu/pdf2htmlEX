@@ -13,9 +13,7 @@
 #include <set>
 #include <sstream>
 #include <cstdint>
-
-#include <boost/format.hpp>
-#include <boost/filesystem/fstream.hpp>
+#include <fstream>
 
 #include <OutputDev.h>
 #include <GfxState.h>
@@ -30,7 +28,7 @@
 
 #include "Param.h"
 #include "util.h"
-
+#include "FontPreprocessor.h"
 
 /*
  * Naming Convention
@@ -124,15 +122,16 @@ class HTMLRenderer : public OutputDev
         ////////////////////////////////////////////////////
         // misc
         ////////////////////////////////////////////////////
+        
         void add_tmp_file (const std::string & fn);
         void clean_tmp_files ();
-        boost::filesystem::path dump_embedded_font (GfxFont * font, long long fn_id);
-        void embed_font(const boost::filesystem::path & filepath, GfxFont * font, FontInfo & info, bool get_metric_only = false);
+        std::string dump_embedded_font (GfxFont * font, long long fn_id);
+        void embed_font(const std::string & filepath, GfxFont * font, FontInfo & info, bool get_metric_only = false);
 
         ////////////////////////////////////////////////////
         // manage styles
         ////////////////////////////////////////////////////
-        virtual FontInfo install_font(GfxFont * font);
+        virtual const FontInfo * install_font(GfxFont * font);
         void install_embedded_font(GfxFont * font, FontInfo & info);
         void install_base_font(GfxFont * font, GfxFontLoc * font_loc, FontInfo & info);
         void install_external_font (GfxFont * font, FontInfo & info);
@@ -193,15 +192,13 @@ class HTMLRenderer : public OutputDev
         ////////////////////////////////////////////////////
         // states
         ////////////////////////////////////////////////////
-        //line status
-        //indicating the status for current line & next line
-        //see comments: meaning for current line || meaning for next line
-        enum class LineStatus
+        bool line_opened;
+        enum NewLineState
         {
-            NONE, // no line is opened (last <div> is closed) || stay with the same style
-            SPAN, // there's a pending opening <span> (within a pending opening <div>) || open a new <span> if possible, otherwise a new <div>
-            DIV   // there's a pending opening <div> (but no <span>) || has to open a new <div>
-        } line_status, new_line_status;
+            NLS_NONE, // stay with the same style
+            NLS_SPAN, // open a new <span> if possible, otherwise a new <div>
+            NLS_DIV   // has to open a new <div>
+        } new_line_state;
         
         // The order is according to the appearance in check_state_change
         // any state changed
@@ -211,7 +208,7 @@ class HTMLRenderer : public OutputDev
         bool text_pos_changed; 
 
         // font & size
-        FontInfo cur_font_info;
+        const FontInfo * cur_font_info;
         double cur_font_size;
         long long cur_fs_id; 
         bool font_changed;
@@ -264,15 +261,81 @@ class HTMLRenderer : public OutputDev
         double draw_tx, draw_ty; 
 
         // some metrics have to be determined after all elements in the lines have been seen
-        // TODO: add a class for these
-        double line_x, line_y;
-        long long line_tm_id;
-        double line_ascent, line_height;
-        std::stringstream line_buf; 
+        class LineBuffer {
+        public:
+            LineBuffer (HTMLRenderer * renderer) : renderer(renderer) { }
+
+            class State {
+            public:
+                void begin(std::ostream & out, const State * prev_state);
+                void end(std::ostream & out) const;
+                void hash(void);
+                int diff(const State & s) const;
+
+                enum {
+                    FONT_ID,
+                    FONT_SIZE_ID,
+                    COLOR_ID,
+                    LETTER_SPACE_ID,
+                    WORD_SPACE_ID,
+                    RISE_ID,
+
+                    ID_COUNT
+                };
+
+                long long ids[ID_COUNT];
+
+                double ascent;
+                double descent;
+                double draw_font_size;
+
+                size_t start_idx; // index of the first Text using this state
+                // for optimzation
+                long long hash_value;
+                bool need_close;
+
+                static const char * format_str; // class names for each id
+            };
+
+
+            class Offset {
+            public:
+                size_t start_idx; // should put this idx before text[start_idx];
+                double width;
+            };
+
+            void reset(GfxState * state);
+            void append_unicodes(const Unicode * u, int l);
+            void append_offset(double width);
+            void append_state(void);
+            void flush(void);
+
+        private:
+            // retrieve state from renderer
+            void set_state(State & state);
+
+            HTMLRenderer * renderer;
+
+            double x, y;
+            long long tm_id;
+
+            std::vector<State> states;
+            std::vector<Offset> offsets;
+            std::vector<Unicode> text;
+
+            // for flush
+            std::vector<State*> stack;
+
+        } line_buf;
+        friend class LineBuffer;
 
         // for font reencoding
         int32_t * cur_mapping;
         char ** cur_mapping2;
+        FontPreprocessor font_preprocessor;
+
+        // for string formatting
+        string_formatter str_fmt;
 
         ////////////////////////////////////////////////////
         // styles & resources
@@ -280,22 +343,18 @@ class HTMLRenderer : public OutputDev
 
         std::unordered_map<long long, FontInfo> font_name_map;
         std::map<double, long long> font_size_map;
-
         std::map<TM, long long> transform_matrix_map;
-
         std::map<double, long long> letter_space_map;
         std::map<double, long long> word_space_map;
-
         std::map<GfxRGB, long long> color_map; 
-
         std::map<double, long long> whitespace_map;
         std::map<double, long long> rise_map;
 
         int image_count;
 
         const Param * param;
-        boost::filesystem::path dest_dir, tmp_dir;
-        boost::filesystem::ofstream html_fout, allcss_fout;
+        std::string dest_dir, tmp_dir;
+        std::ofstream html_fout, allcss_fout;
         std::set<std::string> tmp_files;
 
         static const std::string HEAD_HTML_FILENAME;

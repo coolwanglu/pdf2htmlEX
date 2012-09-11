@@ -1,9 +1,15 @@
 # pdf2html**EX**
 
+A beautiful demo is worth a thousand words:
 
-[**View Demo**](http://coolwanglu.github.com/pdf2htmlEX/demo/demo.html)
+[**Typography**](http://coolwanglu.github.com/pdf2htmlEX/demo/geneve.html) [Original](https://github.com/raphink/geneve_1564/raw/master/geneve_1564.pdf)
 
-[**Another Demo (CJK)**](http://coolwanglu.github.com/pdf2htmlEX/demo/chn.html)
+[**Formulas**](http://coolwanglu.github.com/pdf2htmlEX/demo/cheat.html) [Original](http://www.tug.org/texshowcase/cheat.pdf)
+
+[**Scientific Paper**](http://coolwanglu.github.com/pdf2htmlEX/demo/demo.html) [Original](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.148.349&rep=rep1&type=pdf)
+
+[**Chinese**](http://coolwanglu.github.com/pdf2htmlEX/demo/chn.html) [Original](http://files.cnblogs.com/phphuaibei/git%E6%90%AD%E5%BB%BA.pdf)
+
 
 **WINDOWS XP USERS: Please make sure ClearType is turned on** 
 
@@ -33,28 +39,33 @@ This program is designed for scientific papers with complicate formulas and figu
 
 ## Get started
 
+**Boost library is no longer required**
+
+**Fontforge-git is no longer required, a recent version should be OK** 
+
 ### Ubuntu 
 
 There is a Ubuntu PPA set up at [here](https://launchpad.net/~coolwanglu/+archive/pdf2htmlex).
-
-Make sure you install fontforge in the PPA or [the git version](https://github.com/fontforge/fontforge).
 
 ### ArchLinux
 
 Special thanks to Arthur Titeica for the [AUR Package](https://aur.archlinux.org/packages.php?ID=62426).
 
-Please also update your fontforge-git.
-
-
 ### Build from source
 
 #### Dependency
 
-* CMake 
+* CMake, pkg-config
 * compilers support C++11
-* libpoppler with xpdf header >= 0.20.2
-* boost c++ library (format, program options, gil, filesystem, serialization, system(which is actually required by filesystem))
-* fontforge **Please use [the lastest version](https://github.com/fontforge/fontforge)**
+ * GCC >= 4.4.6
+* libpoppler with xpdf header >= 0.20.0 (compile with --enable-xpdf-headers)
+ * Install libpng (and headers) BEFORE you compile libpoppler if you want background images generated
+ * Install poppler-data if your want CJK support
+* fontforge (with header files)
+
+**Build On Windows**
+
+I've tested with CYGWIN without any problem, and I believe it also works on MinGW without many modifications.
 
 #### Compiling
 
@@ -70,6 +81,12 @@ Please also update your fontforge-git.
 
 GPLv2 & GPLv3 Dual licensed
 
+**pdf2htmlEX is totally free, please credit pdf2htmlEX if you use it**
+
+**Please consider sponsoring it if you use it for commercial purpose**
+
+**Font extraction or conversion may be illegal, please check your local laws**
+
 ## Credits
 
 The following projects have been consulted for pdf2htmlEX:
@@ -81,6 +98,10 @@ The following projects have been consulted for pdf2htmlEX:
 * Google Doc
 
 ## Contact
+
+Suggestions and questions are welcome.
+
+Please read the [FAQ](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ) beforehand.
 
 * Lu Wang <coolwanglu@gmail.com>
 

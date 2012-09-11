@@ -14,7 +14,7 @@
 #include <DateInfo.h>
 
 #include "HTMLRenderer.h"
-#include "HTMLRenderer/namespace.h"
+#include "namespace.h"
 
 using std::ostringstream;
 using std::fixed;
@@ -84,9 +84,9 @@ class PC_HTMLRenderer : public HTMLRenderer
         virtual void pre_process() 
         {
             if(!param->only_metadata) {
-                allcss_fout.open(dest_dir / CSS_FILENAME, ofstream::binary);
+                allcss_fout.open(dest_dir + "/" + CSS_FILENAME, ofstream::binary);
                 allcss_fout << fixed;
-                allcss_fout << ifstream(PDF2HTMLEX_DATA_PATH / CSS_FILENAME, ifstream::binary).rdbuf();
+                allcss_fout << ifstream(PDF2HTMLEX_DATA_PATH + "/" + CSS_FILENAME, ifstream::binary).rdbuf();
             }
         }
 
@@ -127,16 +127,14 @@ class PC_HTMLRenderer : public HTMLRenderer
                 allcss_fout.close();
                 
                 // Touch a file to indicate processing is done
-                boost::filesystem::ofstream touch_done_file;
-                touch_done_file.open(dest_dir / "all.css.done", ofstream::binary);
-                touch_done_file.close();
+                ofstream touch_done_file(dest_dir + "/all.css.done", ofstream::binary);
             }
         }
 
         virtual void startPage(int pageNum, GfxState *state) 
         {
             if(!param->only_metadata) {
-                html_fout.open(dest_dir / (format("%|1$x|.page")%pageNum).str(), ofstream::binary);
+                html_fout.open((char*)str_fmt("%s/%x.page", dest_dir.c_str(), pageNum), ofstream::binary);
                 html_fout << fixed;
             }
             
@@ -151,8 +149,7 @@ class PC_HTMLRenderer : public HTMLRenderer
             HTMLRenderer::endPage();
             if(!param->only_metadata) {
                 html_fout.close();
-                allcss_fout << format("#p%|1$x|{visibility: visible;}") % this->pageNum
-                            << endl;
+                allcss_fout << "#p" << hex << (this->pageNum) << "{visibility: visible;}" << endl;
             }
         }
 
@@ -211,9 +208,9 @@ class PC_HTMLRenderer : public HTMLRenderer
         ostringstream cur_title;
 
   protected: 
-        virtual FontInfo install_font(GfxFont * font) {
-            if (param->only_metadata) 
-                return FontInfo({0,0,0,0});
+        virtual const FontInfo * install_font(GfxFont * font) {
+            if ((param->only_metadata) && (!font_name_map.empty()))
+                return &(font_name_map.begin()->second);
             return HTMLRenderer::install_font(font); 
         }
 

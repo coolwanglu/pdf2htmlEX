@@ -10,28 +10,25 @@
 #include <iostream>
 #include <algorithm>
 #include <unordered_set>
-
-#include <boost/format.hpp>
-#include <boost/algorithm/string.hpp>
-#include <boost/filesystem.hpp>
+#include <cctype>
 
 #include <CharCodeToUnicode.h>
 #include <fofi/FoFiTrueType.h>
 
-#include "ff/ff.h"
+#include "ff.h"
 #include "HTMLRenderer.h"
 #include "namespace.h"
-#include "config.h"
 
-using boost::algorithm::to_lower;
 using std::unordered_set;
+using std::min;
+using std::all_of;
 
-path HTMLRenderer::dump_embedded_font (GfxFont * font, long long fn_id)
+string HTMLRenderer::dump_embedded_font (GfxFont * font, long long fn_id)
 {
     Object obj, obj1, obj2;
     Object font_obj, font_obj2, fontdesc_obj;
     string suffix;
-    path filepath;
+    string filepath;
 
     try
     {
@@ -125,11 +122,10 @@ path HTMLRenderer::dump_embedded_font (GfxFont * font, long long fn_id)
 
         obj.streamReset();
 
-        string fn = (format("f%|1$x|")%fn_id).str();
-        ofstream outf;
-        filepath = tmp_dir / (fn + suffix);
-        outf.open(filepath, ofstream::binary);
-        add_tmp_file(fn+suffix);
+        filepath = (char*)str_fmt("%s/f%llx%s", tmp_dir.c_str(), fn_id, suffix.c_str());
+        add_tmp_file(filepath);
+
+        ofstream outf(filepath, ofstream::binary);
 
         char buf[1024];
         int len;
@@ -142,7 +138,7 @@ path HTMLRenderer::dump_embedded_font (GfxFont * font, long long fn_id)
     }
     catch(int) 
     {
-        cerr << format("Someting wrong when trying to dump font %|1$x|") % fn_id << endl;
+        cerr << "Someting wrong when trying to dump font " << hex << fn_id << dec << endl;
     }
 
     obj2.free();
@@ -156,13 +152,8 @@ path HTMLRenderer::dump_embedded_font (GfxFont * font, long long fn_id)
     return filepath;
 }
 
-void HTMLRenderer::embed_font(const path & filepath, GfxFont * font, FontInfo & info, bool get_metric_only)
+void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo & info, bool get_metric_only)
 {
-    string suffix = filepath.extension().string();
-    to_lower(suffix);
-
-    string fn = (format("f%|1$x|") % info.id).str();
-
     ff_load_font(filepath.c_str());
 
     int * code2GID = nullptr;
@@ -171,10 +162,16 @@ void HTMLRenderer::embed_font(const path & filepath, GfxFont * font, FontInfo & 
 
     Gfx8BitFont * font_8bit = nullptr;
 
-    info.use_tounicode = ((suffix == ".ttf") || (font->isCIDFont()) || (param->always_apply_tounicode));
+    string suffix = get_suffix(filepath);
+    for(auto iter = suffix.begin(); iter != suffix.end(); ++iter)
+        *iter = tolower(*iter);
+
+    info.use_tounicode = (is_truetype_suffix(suffix) || (param->tounicode > 0));
 
     if(!get_metric_only)
     {
+        const char * used_map = font_preprocessor.get_code_map(hash_ref(font->getID()));
+
         /*
          * Step 1
          * dump the font file directly from the font descriptor and put the glyphs into the correct slots
@@ -195,9 +192,9 @@ void HTMLRenderer::embed_font(const path & filepath, GfxFont * font, FontInfo & 
         {
             font_8bit = dynamic_cast<Gfx8BitFont*>(font);
             maxcode = 0xff;
-            if((suffix == ".ttf") || (suffix == ".ttc") || (suffix == ".otf"))
+            if(is_truetype_suffix(suffix))
             {
-                ff_reencode("original", 0);
+                ff_reencode_glyph_order();
                 FoFiTrueType *fftt = nullptr;
                 if((fftt = FoFiTrueType::load((char*)filepath.c_str())) != nullptr)
                 {
@@ -209,14 +206,15 @@ void HTMLRenderer::embed_font(const path & filepath, GfxFont * font, FontInfo & 
             else
             {
                 // move the slot such that it's consistent with the encoding seen in PDF
-                
                 unordered_set<string> nameset;
                 bool name_conflict_warned = false;
 
-                memset(cur_mapping2, 0, 256 * sizeof(char*));
+                memset(cur_mapping2, 0, 0x100 * sizeof(char*));
 
                 for(int i = 0; i < 256; ++i)
                 {
+                    if(!used_map[i]) continue;
+
                     auto cn = font_8bit->getCharName(i);
                     if(cn == nullptr)
                     {
@@ -234,7 +232,7 @@ void HTMLRenderer::embed_font(const path & filepath, GfxFont * font, FontInfo & 
                             {
                                 name_conflict_warned = true;
                                 //TODO: may be resolved using advanced font properties?
-                                cerr << "Warning: encoding confliction detected in font: " << fn << endl;
+                                cerr << "Warning: encoding confliction detected in font: " << hex << info.id << dec << endl;
                             }
                         }
                     }
@@ -247,9 +245,9 @@ void HTMLRenderer::embed_font(const path & filepath, GfxFont * font, FontInfo & 
         {
             maxcode = 0xffff;
 
-            if(suffix == ".ttf")
+            if(is_truetype_suffix(suffix))
             {
-                ff_reencode("original", 0);
+                ff_reencode_glyph_order();
 
                 GfxCIDFont * _font = dynamic_cast<GfxCIDFont*>(font);
 
@@ -277,15 +275,34 @@ void HTMLRenderer::embed_font(const path & filepath, GfxFont * font, FontInfo & 
 
 
         {
-            auto ctu = font->getToUnicode();
-            memset(cur_mapping, 0, maxcode * sizeof(int32_t));
+            unordered_set<int> codeset;
+            bool name_conflict_warned = false;
 
+            auto ctu = font->getToUnicode();
+            memset(cur_mapping, 0, 0x10000 * sizeof(int32_t));
+
+            if(code2GID)
+                maxcode = min(maxcode, code2GID_len - 1);
+
+            int max_key = maxcode;
             for(int i = 0; i <= maxcode; ++i)
             {
-                if((suffix != ".ttf") && (font_8bit != nullptr) && (font_8bit->getCharName(i) == nullptr))
+                if(!used_map[i])
+                    continue;
+
+                if(is_truetype_suffix(suffix) && (font_8bit != nullptr) && (font_8bit->getCharName(i) == nullptr))
                 {
                     continue;
                 }
+
+                int k = i;
+                if(code2GID)
+                {
+                    if((k = code2GID[i]) == 0) continue;
+                }
+
+                if(k > max_key)
+                    max_key = k;
 
                 Unicode u, *pu=&u;
                 if(info.use_tounicode)
@@ -298,60 +315,80 @@ void HTMLRenderer::embed_font(const path & filepath, GfxFont * font, FontInfo & 
                     u = unicode_from_font(i, font);
                 }
 
-                cur_mapping[((code2GID && (i < code2GID_len))? code2GID[i] : i)] = u;
+                if(codeset.insert(u).second)
+                {
+                    cur_mapping[k] = u;
+                }
+                else
+                {
+                    if(!name_conflict_warned)
+                    {
+                        name_conflict_warned = true;
+                        //TODO: may be resolved using advanced font properties?
+                        cerr << "Warning: encoding confliction detected in font: " << hex << info.id << dec << endl;
+                    }
+                }
             }
 
-            ff_reencode_raw(cur_mapping, maxcode, 1);
+            ff_reencode_raw(cur_mapping, max_key + 1, 1);
 
             if(ctu)
                 ctu->decRefCnt();
         }
     }
 
-    auto dest = ((param->single_html ? tmp_dir : dest_dir) / (fn+(param->font_suffix)));
-    if(param->single_html)
-        add_tmp_file(fn+(param->font_suffix));
-
-    /*
-     * [Win|Typo|HHead][Ascent|Descent]
-     * Firefox & Chrome interprets the values in different ways
-     * Trying to unify them 
-     */
-    // Generate an intermediate ttf font in order to retrieve the metrics
-    // TODO: see if we can get the values without save/load
-    
-    string tmp_fn = fn+"_.ttf";
-    add_tmp_file(tmp_fn);
-    auto tmp_path = tmp_dir / tmp_fn;
-    ff_save(tmp_path.c_str());
-    ff_close();
-    ff_load_font(tmp_path.c_str());
-
-    int em = ff_get_em_size();
-    int ascent = ff_get_max_ascent();
-    int descent = ff_get_max_descent();
-
-    ff_set_ascent(ascent);
-    ff_set_descent(descent);
-    ff_save(dest.c_str());
-    ff_close();
-
-    if(em != 0)
     {
-        info.ascent = ((double)ascent) / em;
-        info.descent = -((double)descent) / em;
-    }
-    else
-    {
-        info.ascent = 0;
-        info.descent = 0;
+        /*
+         * [Win|Typo|HHead][Ascent|Descent]
+         * Firefox & Chrome interprets the values in different ways
+         * Trying to unify them 
+         */
+        // Generate an intermediate ttf font in order to retrieve the metrics
+        // TODO: see if we can get the values without save/load
+
+
+        auto fn = str_fmt("%s/f%llx_.ttf", tmp_dir.c_str(), info.id);
+        add_tmp_file((char*)fn);
+
+        ff_save((char*)fn);
+        ff_close();
+        ff_load_font((char*)fn);
     }
 
-    // read metric
-
-    if(param->debug)
     {
-        cerr << "Ascent: " << info.ascent << " Descent: " << info.descent << endl;
+        // read metrics
+        int em = ff_get_em_size();
+        int ascent = ff_get_max_ascent();
+        int descent = ff_get_max_descent();
+        if(em != 0)
+        {
+            info.ascent = ((double)ascent) / em;
+            info.descent = -((double)descent) / em;
+        }
+        else
+        {
+            info.ascent = 0;
+            info.descent = 0;
+        }
+        if(param->debug)
+        {
+            cerr << "Ascent: " << info.ascent << " Descent: " << info.descent << endl;
+        }
+
+        ff_set_ascent(ascent);
+        ff_set_descent(descent);
+    }
+
+    {
+        auto fn = str_fmt("%s/f%llx%s", 
+                (param->single_html ? tmp_dir : dest_dir).c_str(),
+                info.id, param->font_suffix.c_str());
+
+        if(param->single_html)
+            add_tmp_file((char*)fn);
+
+        ff_save((char*)fn);
+        ff_close();
     }
 }
 
@@ -394,11 +431,6 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
     CharCode code;
     Unicode *u = nullptr;
 
-    double fs = state->getFontSize();
-    double cs = state->getCharSpace();
-    double ws = state->getWordSpace();
-    double hs = state->getHorizScaling();
-
     while (len > 0) {
         auto n = font->getNextChar(p, len, &code, &u, &uLen, &dx1, &dy1, &ox, &oy);
         
@@ -407,13 +439,30 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
             cerr << "TODO: non-zero origins" << endl;
         }
 
+        bool is_space = false;
         if (n == 1 && *p == ' ') 
         {
             ++nSpaces;
+            is_space = true;
         }
         
-        Unicode uu = (cur_font_info.use_tounicode ? check_unicode(u, uLen, code, font) : unicode_from_font(code, font));
-        outputUnicodes(line_buf, &uu, 1);
+        if(is_space && (param->space_as_offset))
+        {
+            // ignore horiz_scaling, as it's merged in CTM
+            line_buf.append_offset((dx1 * cur_font_size + cur_letter_space + cur_word_space) * draw_scale); 
+        }
+        else
+        {
+            if((param->decompose_ligature) && all_of(u, u+uLen, isLegalUnicode))
+            {
+                line_buf.append_unicodes(u, uLen);
+            }
+            else
+            {
+                Unicode uu = (cur_font_info->use_tounicode ? check_unicode(u, uLen, code, font) : unicode_from_font(code, font));
+                line_buf.append_unicodes(&uu, 1);
+            }
+        }
 
         dx += dx1;
         dy += dy1;
@@ -423,15 +472,17 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
         len -= n;
     }
 
+    double hs = state->getHorizScaling();
+
     // horiz_scaling is merged into ctm now, 
     // so the coordinate system is ugly
-    dx = (dx * fs + nChars * cs + nSpaces * ws) * hs;
+    dx = (dx * cur_font_size + nChars * cur_letter_space + nSpaces * cur_word_space) * hs;
     
-    dy *= fs;
+    dy *= cur_font_size;
 
     cur_tx += dx;
     cur_ty += dy;
         
-    draw_tx += dx + dxerr * state->getFontSize() * state->getHorizScaling();
+    draw_tx += dx + dxerr * cur_font_size * hs;
     draw_ty += dy;
 }

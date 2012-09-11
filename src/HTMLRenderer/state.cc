@@ -72,16 +72,14 @@ void HTMLRenderer::updateFillColor(GfxState * state)
 }
 void HTMLRenderer::check_state_change(GfxState * state)
 {
-    //TODO:
-    // close <span> but not <div>, to use the first style of the line
-
     // DEPENDENCY WARNING
     // don't adjust the order of state checking 
     
-    new_line_status = LineStatus::NONE;
+    new_line_state = NLS_NONE;
 
     bool need_recheck_position = false;
     bool need_rescale_font = false;
+    bool draw_scale_changed = false;
 
     // text position
     // we've been tracking the text position positively in the update*** functions
@@ -93,11 +91,11 @@ void HTMLRenderer::check_state_change(GfxState * state)
     // font name & size
     if(all_changed || font_changed)
     {
-        FontInfo new_font_info = install_font(state->getFont());
+        const FontInfo * new_font_info = install_font(state->getFont());
 
-        if(!(new_font_info.id == cur_font_info.id))
+        if(!(new_font_info->id == cur_font_info->id))
         {
-            new_line_status = max(new_line_status, LineStatus::SPAN);
+            new_line_state = max(new_line_state, NLS_SPAN);
             cur_font_info = new_font_info;
         }
 
@@ -145,29 +143,35 @@ void HTMLRenderer::check_state_change(GfxState * state)
         double new_draw_ctm[6];
         memcpy(new_draw_ctm, cur_ctm, sizeof(new_draw_ctm));
 
-        draw_scale = (param->font_size_multiplier) * sqrt(new_draw_ctm[2] * new_draw_ctm[2] + new_draw_ctm[3] * new_draw_ctm[3]);
+        double new_draw_scale = (param->font_size_multiplier) * sqrt(new_draw_ctm[2] * new_draw_ctm[2] + new_draw_ctm[3] * new_draw_ctm[3]);
 
         double new_draw_font_size = cur_font_size;
-        if(_is_positive(draw_scale))
+        if(_is_positive(new_draw_scale))
         {
-            new_draw_font_size *= draw_scale;
+            new_draw_font_size *= new_draw_scale;
             for(int i = 0; i < 4; ++i)
-                new_draw_ctm[i] /= draw_scale;
+                new_draw_ctm[i] /= new_draw_scale;
         }
         else
         {
-            draw_scale = 1.0;
+            new_draw_scale = 1.0;
+        }
+
+        if(!(_equal(new_draw_scale, draw_scale)))
+        {
+            draw_scale_changed = true;
+            draw_scale = new_draw_scale;
         }
 
         if(!(_equal(new_draw_font_size, draw_font_size)))
         {
-            new_line_status = max(new_line_status, LineStatus::SPAN);
+            new_line_state = max(new_line_state, NLS_SPAN);
             draw_font_size = new_draw_font_size;
             cur_fs_id = install_font_size(draw_font_size);
         }
         if(!(_tm_equal(new_draw_ctm, draw_ctm, 4)))
         {
-            new_line_status = max(new_line_status, LineStatus::DIV);
+            new_line_state = max(new_line_state, NLS_DIV);
             memcpy(draw_ctm, new_draw_ctm, sizeof(draw_ctm));
             cur_tm_id = install_transform_matrix(draw_ctm);
         }
@@ -229,18 +233,18 @@ void HTMLRenderer::check_state_change(GfxState * state)
 
         if(!merged)
         {
-            new_line_status = max(new_line_status, LineStatus::DIV);
+            new_line_state = max(new_line_state, NLS_DIV);
         }
     }
 
     // letter space
     // depends: draw_scale
-    if(all_changed || letter_space_changed)
+    if(all_changed || letter_space_changed || draw_scale_changed)
     {
         double new_letter_space = state->getCharSpace();
         if(!_equal(cur_letter_space, new_letter_space))
         {
-            new_line_status = max(new_line_status, LineStatus::SPAN);
+            new_line_state = max(new_line_state, NLS_SPAN);
             cur_letter_space = new_letter_space;
             cur_ls_id = install_letter_space(cur_letter_space * draw_scale);
         }
@@ -248,12 +252,12 @@ void HTMLRenderer::check_state_change(GfxState * state)
 
     // word space
     // depends draw_scale
-    if(all_changed || word_space_changed)
+    if(all_changed || word_space_changed || draw_scale_changed)
     {
         double new_word_space = state->getWordSpace();
         if(!_equal(cur_word_space, new_word_space))
         {
-            new_line_status = max(new_line_status, LineStatus::SPAN);
+            new_line_state = max(new_line_state, NLS_SPAN);
             cur_word_space = new_word_space;
             cur_ws_id = install_word_space(cur_word_space * draw_scale);
         }
@@ -266,19 +270,20 @@ void HTMLRenderer::check_state_change(GfxState * state)
         state->getFillRGB(&new_color);
         if(!((new_color.r == cur_color.r) && (new_color.g == cur_color.g) && (new_color.b == cur_color.b)))
         {
-            new_line_status = max(new_line_status, LineStatus::SPAN);
+            new_line_state = max(new_line_state, NLS_SPAN);
             cur_color = new_color;
             cur_color_id = install_color(&new_color);
         }
     }
 
     // rise
-    if(all_changed || rise_changed)
+    // depends draw_scale
+    if(all_changed || rise_changed || draw_scale_changed)
     {
         double new_rise = state->getRise();
         if(!_equal(cur_rise, new_rise))
         {
-            new_line_status = max(new_line_status, LineStatus::SPAN);
+            new_line_state = max(new_line_state, NLS_SPAN);
             cur_rise = new_rise;
             cur_rise_id = install_rise(new_rise * draw_scale);
         }
@@ -306,31 +311,22 @@ void HTMLRenderer::reset_state_change()
 }
 void HTMLRenderer::prepare_line(GfxState * state)
 {
-    // close old tags when necessary
-    if((line_status == LineStatus::NONE) || (new_line_status == LineStatus::NONE))
+    if(!line_opened)
     {
-        //pass
-    }
-    else if(new_line_status == LineStatus::DIV)
-    {
-        close_line();
-    }
-    else
-    {
-        assert(new_line_status == LineStatus::SPAN);
-        if(line_status == LineStatus::SPAN)
-            html_fout << "</span>";
-        else
-            assert(line_status == LineStatus::DIV);
-        // don't change line_status
-    }
-
-    if(line_status == LineStatus::NONE)
-    {
-        new_line_status = LineStatus::DIV;
+        new_line_state = NLS_DIV;
     }
     
-    if(new_line_status != LineStatus::DIV)
+    if(new_line_state == NLS_DIV)
+    {
+        close_line();
+
+        line_buf.reset(state);
+
+        //resync position
+        draw_ty = cur_ty;
+        draw_tx = cur_tx;
+    }
+    else
     {
         // align horizontal position
         // try to merge with the last line if possible
@@ -341,67 +337,24 @@ void HTMLRenderer::prepare_line(GfxState * state)
         }
         else
         {
-            // don't close a pending span here, keep the styling
-            double w;
-            auto wid = install_whitespace(target, w);
-            double threshold = draw_font_size * (cur_font_info.ascent - cur_font_info.descent) * (param->space_threshold);
-            line_buf << format("<span class=\"_ _%|1$x|\">%2%</span>") % wid % (target > (threshold - EPS) ? " " : "");
-            draw_tx += w / draw_scale;
+            line_buf.append_offset(target);
+            draw_tx += target / draw_scale;
         }
     }
 
-    if(new_line_status != LineStatus::NONE)
+    if(new_line_state != NLS_NONE)
     {
-        // have to open a new tag
-        if (new_line_status == LineStatus::DIV)
-        {
-            state->transform(state->getCurX(), state->getCurY(), &line_x, &line_y);
-            line_tm_id = cur_tm_id;
-            line_ascent = cur_font_info.ascent * draw_font_size;
-            line_height = (cur_font_info.ascent - cur_font_info.descent) * draw_font_size;
-
-            //resync position
-            draw_ty = cur_ty;
-            draw_tx = cur_tx;
-        }
-        else if(new_line_status == LineStatus::SPAN)
-        {
-            // pass
-        }
-        else
-        {
-            assert(false && "Bad value of new_line_status");
-        }
-
-        line_buf << format("<span class=\"f%|1$x| s%|2$x| c%|3$x| l%|4$x| w%|5$x| r%|6$x|\">") 
-            % cur_font_info.id % cur_fs_id % cur_color_id % cur_ls_id % cur_ws_id % cur_rise_id;
-        line_ascent = max(line_ascent, cur_font_info.ascent * draw_font_size);
-        line_height = max(line_height, (cur_font_info.ascent - cur_font_info.descent) * draw_font_size);
-
-        line_status = LineStatus::SPAN;
+        line_buf.append_state();
     }
+
+    line_opened = true;
 }
+
 void HTMLRenderer::close_line()
 {
-    if(line_status == LineStatus::NONE)
-        return;
-
-    // TODO class for height
-    html_fout << format("<div style=\"left:%1%px;bottom:%2%px;height:%4%px;\" class=\"l t%|3$x|\">")
-        % line_x
-        % line_y
-        % line_tm_id
-        % line_ascent
-        ;
-    html_fout << line_buf.rdbuf();
-    line_buf.str("");
-
-    if(line_status == LineStatus::SPAN)
-        html_fout << "</span>";
-    else
-        assert(line_status == LineStatus::DIV);
-
-    html_fout << "</div>";
-    line_status = LineStatus::NONE;
-
+    if(line_opened)
+    {
+        line_opened = false;
+        line_buf.flush();
+    }
 }

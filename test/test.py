@@ -4,17 +4,16 @@ DIR = 'pdf'
 
 import os
 
-outf = open('out.html','w')
+with open('out.html','w') as outf:
+    outf.write('<html><body><div style="position:absolute;top:0;left:0;width:80%;height:100%;"><iframe width="100%" height="100%" name="pdf"></iframe></div><div style="position:absolute;top:0;right:0;width:20%;height:100%;overflow:auto;text-align:right;">')
 
-outf.write('<html><body><div style="position:absolute;top:0;left:0;width:80%;height:100%;"><iframe width="100%" height="100%" name="pdf"></iframe></div><div style="position:absolute;top:0;right:0;width:20%;height:100%;overflow:auto;text-align:right;">')
+    for f in os.listdir(DIR):
+        if not f.lower().endswith('.pdf'):
+            continue
+        print f
+        os.system('pdf2htmlEX -l 10 --dest-dir html "%s/%s"' % (DIR,f))
+        ff = f[:-3]
+        outf.write('<a href="html/%shtml" target="pdf">%s</a><br/>' % (ff,ff))
+        outf.flush();
 
-for f in os.listdir(DIR):
-    if not f.lower().endswith('.pdf'):
-        continue
-    print f
-    os.system('pdf2htmlEX -l 3 --dest-dir html "%s/%s"' % (DIR,f))
-    ff = f[:-3]+'html'
-    outf.write('<a href="html/%s" target="pdf">%s</a><br/>' % (ff,ff))
-    outf.flush();
-
-outf.write('</div></body></html>')
+    outf.write('</div></body></html>')
