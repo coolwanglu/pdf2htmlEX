@@ -25,8 +25,6 @@ $(function() {
 
   // Selectively rendering of pages that are visible or will be visible
   function selectiveRender() {
-    console.debug('render'); 
-
     var first = 0, last = l - 1,
         H = $main.height();
 
@@ -36,7 +34,6 @@ $(function() {
     // Find the last visible page
     while(last >= 0 && !isPageVisible(last, H))
       last--;
-    console.debug('visible from='+first+", to="+last);
     // Set invisible
     setVisibilities(first > 0 ? first-1 : first, 
                     last < l -1 ? last + 1 : last, true);
