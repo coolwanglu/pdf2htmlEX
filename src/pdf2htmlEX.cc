@@ -76,7 +76,7 @@ void parse_options (int argc, char **argv)
         .add("space-as-offset", &param.space_as_offset, 0, "treat space characters as offsets")
 
         .add("font-suffix", &param.font_suffix, ".ttf", "suffix for extracted font files")
-        .add("font-format", &param.font_format, "truetype", "format for extracted font files")
+        .add("font-format", &param.font_format, "opentype", "format for extracted font files")
 
         .add("debug", &param.debug, 0, "output debug information")
         .add("clean-tmp", &param.clean_tmp, 1, "clean temporary files after processing")

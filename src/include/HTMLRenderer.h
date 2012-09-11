@@ -35,6 +35,7 @@
  *
  * CSS classes
  *
+ * b - page Box
  * p - Page
  * l - Line
  * _ - white space
