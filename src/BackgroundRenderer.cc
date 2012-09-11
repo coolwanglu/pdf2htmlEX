@@ -11,6 +11,8 @@
 #include "BackgroundRenderer.h"
 #include "util.h"
 
+using namespace pdf2htmlEX;
+
 void BackgroundRenderer::drawChar(GfxState *state, double x, double y,
   double dx, double dy,
   double originX, double originY,

@@ -250,8 +250,8 @@ long long HTMLRenderer::install_word_space(double word_space)
 long long HTMLRenderer::install_color(const GfxRGB * rgb)
 {
     const GfxRGB & c = *rgb;
-    auto iter = color_map.lower_bound(c);
-    if((iter != color_map.end()) && (c == (iter->first)))
+    auto iter = color_map.find(c);
+    if(iter != color_map.end())
         return iter->second;
 
     long long new_color_id = color_map.size();
