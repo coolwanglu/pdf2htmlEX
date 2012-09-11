@@ -1,4 +1,5 @@
  .p {
+  visibility: hidden;
   position:relative;
   overflow:hidden;
   /* for Chrome & Safari */
