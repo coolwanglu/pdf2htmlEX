@@ -11,6 +11,8 @@
 
 #include <string>
 
+namespace pdf2htmlEX {
+
 struct Param
 {
     // PDF stuff
@@ -45,5 +47,6 @@ struct Param
     int clean_tmp;
 };
 
+} // namespace pdf2htmlEX
 
 #endif //PARAM_h__

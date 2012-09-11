@@ -24,6 +24,8 @@
 #define nullptr (NULL)
 #endif
 
+namespace pdf2htmlEX {
+
 static const double EPS = 1e-6;
 extern const double id_matrix[6];
 
@@ -36,7 +38,7 @@ extern const std::map<std::string, std::string> GB_ENCODED_FONT_NAME_MAP;
 namespace
 {
     template <class T>
-    void dummy(){ 
+    void _(){ 
         auto _1 = &mapUCS2; 
         auto _2 = &mapUTF8;
     }
@@ -78,19 +80,23 @@ Unicode check_unicode(Unicode * u, int len, CharCode code, GfxFont * font);
 
 void outputUnicodes(std::ostream & out, const Unicode * u, int uLen);
 
-static inline bool operator < (const GfxRGB & rgb1, const GfxRGB & rgb2)
+class GfxRGB_hash 
 {
-    if(rgb1.r < rgb2.r) return true;
-    if(rgb1.r > rgb2.r) return false;
-    if(rgb1.g < rgb2.g) return true;
-    if(rgb1.g > rgb2.g) return false;
-    return (rgb1.b < rgb2.b);
-}
+public:
+    size_t operator () (const GfxRGB & rgb) const
+    {
+        return (colToByte(rgb.r) << 16) | (colToByte(rgb.g) << 8) | (colToByte(rgb.b));
+    }
+};
 
-static inline bool operator == (const GfxRGB & rgb1, const GfxRGB & rgb2)
-{
-    return ((rgb1.r == rgb2.r) && (rgb1.g == rgb2.g) && (rgb1.b == rgb1.b));
-}
+class GfxRGB_equal
+{ 
+public:
+    bool operator ()(const GfxRGB & rgb1, const GfxRGB & rgb2) const
+    {
+        return ((rgb1.r == rgb2.r) && (rgb1.g == rgb2.g) && (rgb1.b == rgb1.b));
+    }
+};
 
 // we may need more info of a font in the future
 class FontInfo
@@ -222,4 +228,5 @@ bool is_truetype_suffix(const std::string & suffix);
 std::string get_filename(const std::string & path);
 std::string get_suffix(const std::string & path);
 
+} // namespace util
 #endif //UTIL_H__

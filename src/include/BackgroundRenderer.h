@@ -12,6 +12,8 @@
 
 #include <SplashOutputDev.h>
 
+namespace pdf2htmlEX {
+
 // Based on BackgroundRenderer from poppler
 class BackgroundRenderer : public SplashOutputDev {
 public:
@@ -31,7 +33,6 @@ public:
       CharCode code, int nBytes, Unicode *u, int uLen);
 };
 
-
-
+}
 
 #endif //BACKGROUND_RENDERER_H__

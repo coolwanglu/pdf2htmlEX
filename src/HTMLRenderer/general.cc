@@ -20,7 +20,7 @@
 using std::fixed;
 using std::flush;
 
-static void dummy(void *, ErrorCategory, int pos, char *)
+static void dummy(void *, enum ErrorCategory, int pos, char *)
 {
 }
 
@@ -144,8 +144,8 @@ void HTMLRenderer::pre_process()
         html_fout << ifstream(str_fmt("%s/%s", PDF2HTMLEX_DATA_PATH.c_str(), NECK_HTML_FILENAME.c_str()), ifstream::binary).rdbuf();
     }
 
-    html_fout << fixed << hex;
-    allcss_fout << fixed << hex;
+    fix_stream(html_fout);
+    fix_stream(allcss_fout);
 
     allcss_fout << ifstream(str_fmt("%s/%s", PDF2HTMLEX_DATA_PATH.c_str(), CSS_FILENAME.c_str()), ifstream::binary).rdbuf(); 
 }
@@ -239,6 +239,11 @@ void HTMLRenderer::process_single_html()
     out << ifstream(tmp_dir + "/" + (param->output_filename + ".part"), ifstream::binary).rdbuf();
 
     out << ifstream(PDF2HTMLEX_DATA_PATH + "/" + TAIL_HTML_FILENAME, ifstream::binary).rdbuf();
+}
+
+void HTMLRenderer::fix_stream (std::ostream & out)
+{
+    out << fixed << hex;
 }
 
 void HTMLRenderer::add_tmp_file(const string & fn)

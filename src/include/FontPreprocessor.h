@@ -15,6 +15,8 @@
 
 #include <OutputDev.h>
 
+namespace pdf2htmlEX {
+
 class FontPreprocessor : public OutputDev {
 public:
     FontPreprocessor(void);
@@ -38,5 +40,6 @@ protected:
     std::unordered_map<long long, char*> code_maps;
 };
 
+} // namespace pdf2htmlEX
 
 #endif //FONTPREPROCESSOR_H__
