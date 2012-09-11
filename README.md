@@ -81,7 +81,9 @@ I've tested with CYGWIN without any problem, and I believe it also works on MinG
 
 GPLv2 & GPLv3 Dual licensed
 
-**Please credit pdf2htmlEX if you use it in your work, especially for commercial use**
+**pdf2htmlEX is totally free, please credit pdf2htmlEX if you use it**
+
+**Please consider sponsoring it if you use it for commercial purpose**
 
 **Font extraction or conversion may be illegal, please check your local laws**
 

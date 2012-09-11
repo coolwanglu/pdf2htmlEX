@@ -1,12 +1,12 @@
-check fontforge with pkg-config first
-
 bug found in baidu & github & mail
 
-argument auto-completion
+IE9
 
 option for tounicode-map
 get unicode from charname using fontforge (test with 'Font' croc.pdf)
 also for CID Type 0
+
+argument auto-completion
 
 round coordinate and check if it'll be faster
 
@@ -14,11 +14,11 @@ remove the intermediate save to retrieve asc/des
 
 a fallback font
 
-use absolute positioning for long whitespace
 
 link
 
 color invert
+use absolute positioning for long whitespace
 
 ==Future==
 
