@@ -12,13 +12,12 @@
   -webkit-text-stroke-width:0.13px; 
 }
 .b {
-  border: 1px solid black;
+  background-color:white;
   margin: 13px auto;
   overflow: hidden;
 }
 .p {
   position:relative;
-  background-color:white;
   overflow:hidden;
   display:block;
 }
