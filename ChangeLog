@@ -1,6 +1,6 @@
 Latest
 
-* Completed removed dependency of boost
+* Completely removed dependency of boost
 * Removed dependency of boost::filesystem
 * Relaxed dependency on c++11. Now can be built with GCC 4.4.6
 * Removed dependency of boost::format and boost::algorithm
