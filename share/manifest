@@ -24,6 +24,7 @@
 @base.css
 $css
 @jquery.js
+@hide_pages.js
 
 """
 <title></title>
