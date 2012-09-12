@@ -24,9 +24,16 @@ using std::unordered_map;
 using std::make_pair;
 using std::ostringstream;
 
-void read_value(const char * arg, std::string * location)
+bool read_value(const char * arg, char * location)
+{
+    *location = arg[0];
+    return (arg[1] == 0);
+}
+
+bool read_value(const char * arg, std::string * location)
 {
     *location = std::string(arg);
+    return true;
 }
 
 void dump_value(std::ostream & out, const std::string & v)
