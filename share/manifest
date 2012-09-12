@@ -7,7 +7,7 @@
 # Empty lines are ignored
 #
 # # - comment
-# @ - include file
+# @ - include a file from data dir
 # $ - special use for pdf2htmlEX
 #
 # Special

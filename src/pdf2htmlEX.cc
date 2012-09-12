@@ -53,7 +53,8 @@ void parse_options (int argc, char **argv)
         .add("owner-password,o", &param.owner_password, "", "owner password (for encrypted files)")
         .add("user-password,u", &param.user_password, "", "user password (for encrypted files)")
 
-        .add("dest-dir", &param.dest_dir, ".", "destination directory")
+        .add("dest-dir", &param.dest_dir, ".", "specify destination directory")
+        .add("data-dir", &param.data_dir, PDF2HTMLEX_DATA_PATH, "specify data directory")
 
         .add("first-page,f", &param.first_page, 1, "first page to process")
         .add("last-page,l", &param.last_page, numeric_limits<int>::max(), "last page to process")

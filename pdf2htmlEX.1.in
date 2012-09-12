@@ -38,6 +38,9 @@ Specify user password
 .B --dest-dir <dir> (Default: ".")
 Specify destination folder
 .TP
+.B --data-dir <dir> (Default: @CMAKE_INSTALL_PREFIX@/share/pdf2htmlEX)
+Specify the folder holding the manifest and other files
+.TP
 .B -f, --first-page <num> (Default: 1)
 Specify the first page to process
 .TP

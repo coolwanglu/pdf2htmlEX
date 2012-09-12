@@ -23,7 +23,7 @@ void HTMLRenderer::export_remote_font(const FontInfo & info, const string & suff
         auto fn = str_fmt("f%llx%s", info.id, suffix.c_str());
         if(param->single_html)
         {
-            css_fout << "'data:font/opentype;base64," << base64stream(ifstream(tmp_dir + "/" + (char*)fn, ifstream::binary)) << "'";
+            css_fout << "'data:font/opentype;base64," << base64stream(ifstream(param->tmp_dir + "/" + (char*)fn, ifstream::binary)) << "'";
         }
         else
         {

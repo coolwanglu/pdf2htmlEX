@@ -33,8 +33,6 @@ HTMLRenderer::HTMLRenderer(const Param * param)
     ,line_buf(this)
     ,image_count(0)
     ,param(param)
-    ,dest_dir(param->dest_dir)
-    ,tmp_dir(param->tmp_dir)
 {
     //disable error function of poppler
     setErrorCallback(&dummy, nullptr);
@@ -89,7 +87,7 @@ void HTMLRenderer::process(PDFDoc *doc)
     {
         if(param->split_pages)
         {
-            auto page_fn = str_fmt("%s/%s%d.page", dest_dir.c_str(), param->output_filename.c_str(), i);
+            auto page_fn = str_fmt("%s/%s%d.page", param->dest_dir.c_str(), param->output_filename.c_str(), i);
             html_fout.open((char*)page_fn, ofstream::binary); 
             fix_stream(html_fout);
         }
@@ -101,7 +99,7 @@ void HTMLRenderer::process(PDFDoc *doc)
                     nullptr, nullptr, &annot_cb, nullptr);
 
             {
-                auto fn = str_fmt("%s/p%llx.png", (param->single_html ? tmp_dir : dest_dir).c_str(), i);
+                auto fn = str_fmt("%s/p%x.png", (param->single_html ? param->tmp_dir : param->dest_dir).c_str(), i);
                 if(param->single_html)
                     add_tmp_file((char*)fn);
 
@@ -142,15 +140,15 @@ void HTMLRenderer::pre_process()
          *
          *
          * If single-html && split-page
-         * as there's no place to embed the css file, just leave it alone (into dest_dir)
+         * as there's no place to embed the css file, just leave it alone (into param->dest_dir)
          *
          * If !single-html
-         * leave it in dest_dir
+         * leave it in param->dest_dir
          */
 
         auto fn = (param->single_html && (!param->split_pages))
-            ? str_fmt("%s/__css", tmp_dir.c_str())
-            : str_fmt("%s/%s", dest_dir.c_str(), param->css_filename.c_str());
+            ? str_fmt("%s/__css", param->tmp_dir.c_str())
+            : str_fmt("%s/%s", param->dest_dir.c_str(), param->css_filename.c_str());
 
         if(param->single_html && (!param->split_pages))
             add_tmp_file((char*)fn);
@@ -171,7 +169,7 @@ void HTMLRenderer::pre_process()
          *
          * Otherwise just generate it 
          */
-        auto fn = str_fmt("%s/__pages", tmp_dir.c_str());
+        auto fn = str_fmt("%s/__pages", param->tmp_dir.c_str());
         add_tmp_file((char*)fn);
 
         html_path = (char*)fn;
@@ -190,11 +188,11 @@ void HTMLRenderer::post_process()
     if(param->split_pages)
         return;
 
-    ofstream output((char*)str_fmt("%s/%s", dest_dir.c_str(), param->output_filename.c_str()));
+    ofstream output((char*)str_fmt("%s/%s", param->dest_dir.c_str(), param->output_filename.c_str()));
     fix_stream(output);
 
     // apply manifest
-    ifstream manifest_fin((char*)str_fmt("%s/%s", PDF2HTMLEX_DATA_PATH.c_str(), MANIFEST_FILENAME.c_str()));
+    ifstream manifest_fin((char*)str_fmt("%s/%s", param->data_dir.c_str(), MANIFEST_FILENAME.c_str()));
 
     bool embed_string = false;
     string line;
@@ -218,7 +216,7 @@ void HTMLRenderer::post_process()
 
         if(line[0] == '@')
         {
-            embed_file(output, PDF2HTMLEX_DATA_PATH + "/" + line.substr(1), "", true);
+            embed_file(output, param->data_dir + "/" + line.substr(1), "", true);
             continue;
         }
 
@@ -259,11 +257,11 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
     {
         if(param->single_html)
         {
-            html_fout << "'data:image/png;base64," << base64stream(ifstream((char*)str_fmt("%s/p%llx.png", tmp_dir.c_str(), pageNum) , ifstream::binary)) << "'";
+            html_fout << "'data:image/png;base64," << base64stream(ifstream((char*)str_fmt("%s/p%x.png", param->tmp_dir.c_str(), pageNum) , ifstream::binary)) << "'";
         }
         else
         {
-            html_fout << str_fmt("p%llx.png", pageNum);
+            html_fout << str_fmt("p%x.png", pageNum);
         }
     }
     
@@ -329,9 +327,9 @@ void HTMLRenderer::clean_tmp_files()
             cerr << "Remove temporary file: " << fn << endl;
     }
 
-    remove(tmp_dir.c_str());
+    remove(param->tmp_dir.c_str());
     if(param->debug)
-        cerr << "Remove temporary directory: " << tmp_dir << endl;
+        cerr << "Remove temporary directory: " << param->tmp_dir << endl;
 }
 
 void HTMLRenderer::embed_file(ostream & out, const string & path, const string & type, bool copy)
@@ -360,7 +358,7 @@ void HTMLRenderer::embed_file(ostream & out, const string & path, const string &
 
         if(copy)
         {
-            ofstream(dest_dir + "/" + fn, ofstream::binary) << ifstream(path, ifstream::binary).rdbuf();
+            ofstream(param->dest_dir + "/" + fn, ofstream::binary) << ifstream(path, ifstream::binary).rdbuf();
         }
     }
 }

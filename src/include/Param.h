@@ -20,7 +20,7 @@ struct Param
     std::string input_filename, output_filename;
 
     // path
-    std::string dest_dir, tmp_dir;
+    std::string dest_dir, tmp_dir, data_dir;
 
     // normal parameters
     int first_page, last_page;

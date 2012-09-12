@@ -364,7 +364,6 @@ class HTMLRenderer : public OutputDev
         int image_count;
 
         const Param * param;
-        std::string dest_dir, tmp_dir;
         std::ofstream html_fout, css_fout;
         std::string html_path, css_path;
         std::set<std::string> tmp_files;
