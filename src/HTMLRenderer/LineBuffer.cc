@@ -19,30 +19,14 @@ using std::max;
 using std::vector;
 using std::ostream;
 
-// debug
-GfxFont * debug_font;
-double debug_width;
-
 void HTMLRenderer::LineBuffer::reset(GfxState * state)
 {
-    //debug
-    debug_font = state->getFont();
-
     state->transform(state->getCurX(), state->getCurY(), &x, &y);
     tm_id = renderer->cur_tm_id;
 }
 
 void HTMLRenderer::LineBuffer::append_unicodes(const Unicode * u, int l)
 {
-    //debug
-    if(text.size() == 0)
-    {
-        if(debug_font->isCIDFont())
-            debug_width = 0;
-        else
-            debug_width = dynamic_cast<Gfx8BitFont*>(debug_font)->getWidth(u[0]);
-    }
-
     text.insert(text.end(), u, u+l);
 }
 
@@ -167,12 +151,6 @@ void HTMLRenderer::LineBuffer::flush(void)
         }
 
         size_t next_text_idx = min(cur_state_iter->start_idx, cur_offset_iter->start_idx);
-
-        {
-            double w;
-            auto wid = renderer->install_whitespace(debug_width, w);
-            out << "<span class=\"_ _" << wid << "\">"  << "</span>";
-        }
 
         outputUnicodes(out, (&text.front()) + cur_text_idx, next_text_idx - cur_text_idx);
         cur_text_idx = next_text_idx;
