@@ -198,12 +198,12 @@ int main(int argc, char **argv)
 
             if(get_suffix(param.input_filename) == ".pdf")
             {
-                param.output_filename = s.substr(0, s.size() - 4) + ".css";
+                param.css_filename = s.substr(0, s.size() - 4) + ".css";
             }
             else
             {
                 if(!param.split_pages)
-                    param.output_filename = s + ".css";
+                    param.css_filename = s + ".css";
             }
         }
 

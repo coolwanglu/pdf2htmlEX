@@ -89,9 +89,8 @@ void HTMLRenderer::process(PDFDoc *doc)
     {
         if(param->split_pages)
         {
-            auto page_fn = str_fmt("%s/__pages%x", tmp_dir.c_str(), i);
+            auto page_fn = str_fmt("%s/%s%d.page", dest_dir.c_str(), param->output_filename.c_str(), i);
             html_fout.open((char*)page_fn, ofstream::binary); 
-            add_tmp_file((char*)page_fn);
             fix_stream(html_fout);
         }
 
@@ -153,7 +152,7 @@ void HTMLRenderer::pre_process()
             ? str_fmt("%s/__css", tmp_dir.c_str())
             : str_fmt("%s/%s", dest_dir.c_str(), param->css_filename.c_str());
 
-        if(param->single_html)
+        if(param->single_html && (!param->split_pages))
             add_tmp_file((char*)fn);
 
         css_path = (char*)fn,
@@ -172,12 +171,8 @@ void HTMLRenderer::pre_process()
          *
          * Otherwise just generate it 
          */
-        auto fn = (param->single_html)
-            ? str_fmt("%s/__pages", tmp_dir.c_str())
-            : str_fmt("%s/%s", dest_dir.c_str(), param->output_filename.c_str());
-
-        if(param->single_html)
-            add_tmp_file((char*)fn);
+        auto fn = str_fmt("%s/__pages", tmp_dir.c_str());
+        add_tmp_file((char*)fn);
 
         html_path = (char*)fn;
         html_fout.open(html_path, ofstream::binary); 
@@ -191,8 +186,8 @@ void HTMLRenderer::post_process()
     html_fout.close();
     css_fout.close();
 
-    //only when !split-page, do we have some work left to do
-    if(!param->split_pages)
+    //only when split-page, do we have some work left to do
+    if(param->split_pages)
         return;
 
     ofstream output((char*)str_fmt("%s/%s", dest_dir.c_str(), param->output_filename.c_str()));
@@ -205,6 +200,12 @@ void HTMLRenderer::post_process()
     string line;
     while(getline(manifest_fin, line))
     {
+        if(line == "\"\"\"")
+        {
+            embed_string = !embed_string;
+            continue;
+        }
+
         if(embed_string)
         {
             output << line << endl;
@@ -214,15 +215,10 @@ void HTMLRenderer::post_process()
         if(line.empty() || line[0] == '#')
             continue;
 
-        if(line == "\"\"\"")
-        {
-            embed_string = !embed_string;
-            continue;
-        }
 
         if(line[0] == '@')
         {
-            embed_file(output, PDF2HTMLEX_DATA_PATH + "/" + line.substr(1), true);
+            embed_file(output, PDF2HTMLEX_DATA_PATH + "/" + line.substr(1), "", true);
             continue;
         }
 
@@ -230,7 +226,7 @@ void HTMLRenderer::post_process()
         {
             if(line == "$css")
             {
-                embed_file(output, css_path, false);
+                embed_file(output, css_path, ".css", false);
             }
             else if (line == "$pages")
             {
@@ -338,29 +334,34 @@ void HTMLRenderer::clean_tmp_files()
         cerr << "Remove temporary directory: " << tmp_dir << endl;
 }
 
-void HTMLRenderer::embed_file(ostream & out, const string & path, bool copy)
+void HTMLRenderer::embed_file(ostream & out, const string & path, const string & type, bool copy)
 {
     string fn = get_filename(path);
-    string suffix = get_suffix(fn);
+    string suffix = (type == "") ? get_suffix(fn) : type; 
     
-    auto iter = EMBED_STRING_MAP.find(make_pair(suffix, param->single_html));
+    auto iter = EMBED_STRING_MAP.find(make_pair(suffix, (bool)param->single_html));
     if(iter == EMBED_STRING_MAP.end())
     {
-        cerr << "Warning: unknown suffix in manifest: " << suffix << endl;
+        cerr << "Warning: unknown suffix: " << suffix << endl;
         return;
     }
     
     if(param->single_html)
     {
-        cerr << iter->second.first << endl
+        out << iter->second.first << endl
             << ifstream(path, ifstream::binary).rdbuf()
             << iter->second.second << endl;
     }
     else
     {
-        cerr << iter->second.first
+        out << iter->second.first
             << fn
-            << iter->second.second;
+            << iter->second.second << endl;
+
+        if(copy)
+        {
+            ofstream(dest_dir + "/" + fn, ofstream::binary) << ifstream(path, ifstream::binary).rdbuf();
+        }
     }
 }
 

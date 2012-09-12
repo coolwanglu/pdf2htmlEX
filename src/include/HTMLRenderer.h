@@ -170,8 +170,9 @@ class HTMLRenderer : public OutputDev
 
 
         // depending on single-html, to embed the content or add a link to it
+        // "type": specify the file type, usually it's the suffix, in which case this parameter could be ""
         // "copy": indicates whether to copy the file into dest_dir, if not embedded
-        void embed_file(std::ostream & out, const std::string & path, bool copy);
+        void embed_file(std::ostream & out, const std::string & path, const std::string & type, bool copy);
 
         ////////////////////////////////////////////////////
         // state tracking 
