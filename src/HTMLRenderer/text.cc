@@ -19,6 +19,8 @@
 #include "HTMLRenderer.h"
 #include "namespace.h"
 
+namespace pdf2htmlEX {
+
 using std::unordered_set;
 using std::min;
 using std::all_of;
@@ -486,3 +488,5 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
     draw_tx += dx + dxerr * cur_font_size * hs;
     draw_ty += dy;
 }
+
+} // namespace pdf2htmlEX

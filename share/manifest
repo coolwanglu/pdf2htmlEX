@@ -1,0 +1,48 @@
+# manifest
+# by WangLu
+# 2012.09.12
+#
+# Syntax
+# The first char of each line is the command
+# Empty lines are ignored
+#
+# # - comment
+# @ - include file
+# $ - special use for pdf2htmlEX
+#
+# Special
+# If a line contains """ only, all text until next """ will be included
+
+"""
+<!-- Created by pdf2htmlEX (http://github.com/coolwanglu/pdf2htmlEX) -->
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+"""
+
+@base.css
+$css
+@jquery.js
+
+"""
+<title></title>
+</head>
+<body>
+<div id="pdf-main">
+"""
+
+$pages
+
+"""
+</div>
+"""
+
+@scroll.js
+
+"""
+</body>
+</html>
+"""
+
+# MANIFEST END

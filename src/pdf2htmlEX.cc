@@ -64,6 +64,7 @@ void parse_options (int argc, char **argv)
 
         .add("process-nontext", &param.process_nontext, 1, "process nontext objects")
         .add("single-html", &param.single_html, 1, "combine everything into one single HTML file")
+        .add("split-pages", &param.split_pages, 0, "split pages into separated files")
         .add("embed-base-font", &param.embed_base_font, 0, "embed local matched font for base 14 fonts in the PDF file")
         .add("embed-external-font", &param.embed_external_font, 0, "embed local matched font for external fonts in the PDF file")
         .add("decompose-ligature", &param.decompose_ligature, 0, "decompose ligatures, for example 'fi' -> 'f''i'")
@@ -75,6 +76,7 @@ void parse_options (int argc, char **argv)
         .add("tounicode", &param.tounicode, 0, "Specify how to deal with ToUnicode map, 0 for auto, 1 for forced, -1 for disabled")
         .add("space-as-offset", &param.space_as_offset, 0, "treat space characters as offsets")
 
+        .add("css-filename", &param.css_filename, "", "Specify the file name of the generated css file")
         .add("font-suffix", &param.font_suffix, ".ttf", "suffix for extracted font files")
         .add("font-format", &param.font_format, "opentype", "format for extracted font files")
 
@@ -180,11 +182,28 @@ int main(int argc, char **argv)
 
             if(get_suffix(param.input_filename) == ".pdf")
             {
-                param.output_filename = s.substr(0, s.size() - 4) + ".html";
+                param.output_filename = s.substr(0, s.size() - 4);
+                if(!param.split_pages)
+                    param.output_filename = s.substr(0, s.size() - 4) + ".html";
             }
             else
             {
-                param.output_filename = s + ".html";
+                if(!param.split_pages)
+                    param.output_filename = s + ".html";
+            }
+        }
+        if(param.css_filename == "")
+        {
+            const string s = get_filename(param.input_filename);
+
+            if(get_suffix(param.input_filename) == ".pdf")
+            {
+                param.output_filename = s.substr(0, s.size() - 4) + ".css";
+            }
+            else
+            {
+                if(!param.split_pages)
+                    param.output_filename = s + ".css";
             }
         }
 

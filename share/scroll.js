@@ -1,10 +1,6 @@
-<!-- tail.html by Hongliang Tian 2012.09.11 -->
-</div>
-<script type="text/javascript">
 $(function() {
   var $pages = $(".p"), 
       $pageWrappers = $(".b"),
-      $pageWrappers = $(".pw"),
       $main  = $("#pdf-main"),
       l = $pages.length;
 
@@ -63,7 +59,3 @@ $(function() {
   // Trigger the event
   $("#pdf-main").scroll();
 });
-</script>
-</body>
-</html>
-<!-- tail.html END -->

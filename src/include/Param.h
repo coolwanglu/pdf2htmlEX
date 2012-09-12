@@ -30,6 +30,7 @@ struct Param
 
     int process_nontext;
     int single_html;
+    int split_pages;
     int embed_base_font;
     int embed_external_font;
     int decompose_ligature;
@@ -41,6 +42,7 @@ struct Param
     int tounicode;
     int space_as_offset;
 
+    std::string css_filename;
     std::string font_suffix, font_format;
 
     int debug;

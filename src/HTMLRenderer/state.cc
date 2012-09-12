@@ -17,6 +17,9 @@
 #include "HTMLRenderer.h"
 #include "namespace.h"
 
+
+namespace pdf2htmlEX {
+
 using std::max;
 using std::abs;
 
@@ -358,3 +361,5 @@ void HTMLRenderer::close_line()
         line_buf.flush();
     }
 }
+
+} //namespace pdf2htmlEX

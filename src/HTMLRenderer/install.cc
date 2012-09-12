@@ -17,6 +17,8 @@
 #include "namespace.h"
 #include "util.h"
 
+namespace pdf2htmlEX {
+
 using std::abs;
 
 const FontInfo * HTMLRenderer::install_font(GfxFont * font)
@@ -290,3 +292,5 @@ long long HTMLRenderer::install_rise(double rise)
     export_rise(new_rise_id, rise);
     return new_rise_id;
 }
+
+} // namespace pdf2htmlEX

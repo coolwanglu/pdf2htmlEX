@@ -58,6 +58,11 @@ Whether to embed everything into one HTML file.
 
 If switched out, there will be several files generated along with the HTML file including files for fonts, css, images.
 .TP
+.B --split-pages <0|1> (Default: 0)
+If turned on, each page is saved in a separated files, also the generated css file will be store separatedly as if single-html=0
+
+The output files will be named as <output-filename>0.page, <output-file>1.page, ...
+.TP
 .B --embed-base-font <0|1> (Default: 1)
 Whether to embed base 14 fonts.
 
@@ -99,6 +104,11 @@ If set to 0, pdf2htmlEX would try it best to balance the two methods above.
 Treat space characters as offsets, which may increase the size of the output.
 
 Turn it on if space characters are not displayed correctly, or you want to remove positional spaces.
+.TP
+.B --css-filename <filename> (Default: "")
+Specify the filename of the generated css file, if not embedded.
+
+If it's empty, the file name will be determined automatically.
 .TP
 .B --font-suffix <suffix> (Default: ".ttf"), --font-format <format> (Default: "truetype")
 Specify the suffix and format of fonts extracted from the PDF file. They should be consistent.

@@ -8,6 +8,7 @@
  */
 
 #include <cstdio>
+#include <ostream>
 
 #include <splash/SplashBitmap.h>
 
@@ -17,8 +18,11 @@
 #include "ff.h"
 #include "pdf2htmlEX-config.h"
 
+namespace pdf2htmlEX {
+
 using std::fixed;
 using std::flush;
+using std::ostream;
 
 static void dummy(void *, enum ErrorCategory, int pos, char *)
 {
@@ -83,6 +87,14 @@ void HTMLRenderer::process(PDFDoc *doc)
 
     for(int i = param->first_page; i <= param->last_page ; ++i) 
     {
+        if(param->split_pages)
+        {
+            auto page_fn = str_fmt("%s/__pages%x", tmp_dir.c_str(), i);
+            html_fout.open((char*)page_fn, ofstream::binary); 
+            add_tmp_file((char*)page_fn);
+            fix_stream(html_fout);
+        }
+
         if(param->process_nontext)
         {
             doc->displayPage(bg_renderer, i, param->h_dpi, param->v_dpi,
@@ -104,8 +116,14 @@ void HTMLRenderer::process(PDFDoc *doc)
                 0, true, false, false,
                 nullptr, nullptr, nullptr, nullptr);
 
+        if(param->split_pages)
+        {
+            html_fout.close();
+        }
+
         cerr << "." << flush;
     }
+
     post_process();
 
     if(bg_renderer)
@@ -116,53 +134,116 @@ void HTMLRenderer::process(PDFDoc *doc)
 
 void HTMLRenderer::pre_process()
 {
-    // we may output utf8 characters, so use binary
-    if(param->single_html)
+    // we may output utf8 characters, so always use binary
     {
-        {
-            auto fn = str_fmt("%s/%s", tmp_dir.c_str(), CSS_FILENAME.c_str());
-            allcss_fout.open((char*)fn, ofstream::binary);
+        /*
+         * If single-html && !split-pages
+         * we have to keep the generated css file into a temporary place
+         * and embed it into the main html later
+         *
+         *
+         * If single-html && split-page
+         * as there's no place to embed the css file, just leave it alone (into dest_dir)
+         *
+         * If !single-html
+         * leave it in dest_dir
+         */
+
+        auto fn = (param->single_html && (!param->split_pages))
+            ? str_fmt("%s/__css", tmp_dir.c_str())
+            : str_fmt("%s/%s", dest_dir.c_str(), param->css_filename.c_str());
+
+        if(param->single_html)
             add_tmp_file((char*)fn);
-        }
 
-        {
-            // don't use output_file directly
-            // otherwise it'll be a disaster when tmp_dir == dest_dir
-            auto tmp_output_fn = str_fmt("%s/%s.part", tmp_dir.c_str(), param->output_filename.c_str());
-            add_tmp_file((char*)tmp_output_fn);
-
-            html_fout.open((char*)tmp_output_fn, ofstream::binary); 
-        }
+        css_path = (char*)fn,
+        css_fout.open(css_path, ofstream::binary);
+        fix_stream(css_fout);
     }
-    else
+
+    // if split-pages is specified, open & close the file in the process loop
+    // if not, open the file here:
+    if(!param->split_pages);
     {
-        html_fout.open(str_fmt("%s/%s", dest_dir.c_str(), param->output_filename.c_str()), ofstream::binary); 
-        allcss_fout.open(str_fmt("%s/%s", dest_dir.c_str(), CSS_FILENAME.c_str()), ofstream::binary);
+        /*
+         * If single-html
+         * we have to keep the html file (for page) into a temporary place
+         * because we'll have to embed css before it
+         *
+         * Otherwise just generate it 
+         */
+        auto fn = (param->single_html)
+            ? str_fmt("%s/__pages", tmp_dir.c_str())
+            : str_fmt("%s/%s", dest_dir.c_str(), param->output_filename.c_str());
 
-        html_fout << ifstream(str_fmt("%s/%s", PDF2HTMLEX_DATA_PATH.c_str(), HEAD_HTML_FILENAME.c_str()), ifstream::binary).rdbuf();
-        html_fout << "<link rel=\"stylesheet\" type=\"text/css\" href=\"" << CSS_FILENAME << "\"/>" << endl;
-        html_fout << ifstream(str_fmt("%s/%s", PDF2HTMLEX_DATA_PATH.c_str(), NECK_HTML_FILENAME.c_str()), ifstream::binary).rdbuf();
+        if(param->single_html)
+            add_tmp_file((char*)fn);
+
+        html_path = (char*)fn;
+        html_fout.open(html_path, ofstream::binary); 
+        fix_stream(html_fout);
     }
-
-    fix_stream(html_fout);
-    fix_stream(allcss_fout);
-
-    allcss_fout << ifstream(str_fmt("%s/%s", PDF2HTMLEX_DATA_PATH.c_str(), CSS_FILENAME.c_str()), ifstream::binary).rdbuf(); 
 }
 
 void HTMLRenderer::post_process()
 {
-    if(!param->single_html)
-    {
-        html_fout << ifstream(str_fmt("%s/%s", PDF2HTMLEX_DATA_PATH.c_str(), TAIL_HTML_FILENAME.c_str()), ifstream::binary).rdbuf();
-    }
-
+    // close files
     html_fout.close();
-    allcss_fout.close();
+    css_fout.close();
 
-    if(param->single_html)
+    //only when !split-page, do we have some work left to do
+    if(!param->split_pages)
+        return;
+
+    ofstream output((char*)str_fmt("%s/%s", dest_dir.c_str(), param->output_filename.c_str()));
+    fix_stream(output);
+
+    // apply manifest
+    ifstream manifest_fin((char*)str_fmt("%s/%s", PDF2HTMLEX_DATA_PATH.c_str(), MANIFEST_FILENAME.c_str()));
+
+    bool embed_string = false;
+    string line;
+    while(getline(manifest_fin, line))
     {
-        process_single_html();
+        if(embed_string)
+        {
+            output << line << endl;
+            continue;
+        }
+
+        if(line.empty() || line[0] == '#')
+            continue;
+
+        if(line == "\"\"\"")
+        {
+            embed_string = !embed_string;
+            continue;
+        }
+
+        if(line[0] == '@')
+        {
+            embed_file(output, PDF2HTMLEX_DATA_PATH + "/" + line.substr(1), true);
+            continue;
+        }
+
+        if(line[0] == '$')
+        {
+            if(line == "$css")
+            {
+                embed_file(output, css_path, false);
+            }
+            else if (line == "$pages")
+            {
+                output << ifstream(html_path, ifstream::binary).rdbuf();
+            }
+            else
+            {
+                cerr << "Warning: unknown line in manifest: " << line << endl;
+            }
+            continue;
+        }
+
+        cerr << "Warning: unknown line in manifest: " << line << endl;
     }
 }
 
@@ -182,7 +263,7 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
     {
         if(param->single_html)
         {
-            html_fout << "'data:image/png;base64," << base64stream(ifstream(str_fmt("%s/p%llx.png", tmp_dir.c_str(), pageNum) , ifstream::binary)) << "'";
+            html_fout << "'data:image/png;base64," << base64stream(ifstream((char*)str_fmt("%s/p%llx.png", tmp_dir.c_str(), pageNum) , ifstream::binary)) << "'";
         }
         else
         {
@@ -225,23 +306,6 @@ void HTMLRenderer::endPage() {
     html_fout << "</div></div>" << endl;
 }
 
-void HTMLRenderer::process_single_html()
-{
-    ofstream out (dest_dir + "/" + param->output_filename, ofstream::binary);
-
-    out << ifstream(PDF2HTMLEX_DATA_PATH + "/" + HEAD_HTML_FILENAME , ifstream::binary).rdbuf();
-
-    out << "<style type=\"text/css\">" << endl;
-    out << ifstream(tmp_dir + "/" + CSS_FILENAME, ifstream::binary).rdbuf();
-    out << "</style>" << endl;
-
-    out << ifstream(PDF2HTMLEX_DATA_PATH + "/" + NECK_HTML_FILENAME, ifstream::binary).rdbuf();
-
-    out << ifstream(tmp_dir + "/" + (param->output_filename + ".part"), ifstream::binary).rdbuf();
-
-    out << ifstream(PDF2HTMLEX_DATA_PATH + "/" + TAIL_HTML_FILENAME, ifstream::binary).rdbuf();
-}
-
 void HTMLRenderer::fix_stream (std::ostream & out)
 {
     out << fixed << hex;
@@ -274,7 +338,32 @@ void HTMLRenderer::clean_tmp_files()
         cerr << "Remove temporary directory: " << tmp_dir << endl;
 }
 
-const std::string HTMLRenderer::HEAD_HTML_FILENAME = "head.html";
-const std::string HTMLRenderer::NECK_HTML_FILENAME = "neck.html";
-const std::string HTMLRenderer::TAIL_HTML_FILENAME = "tail.html";
-const std::string HTMLRenderer::CSS_FILENAME = "all.css";
+void HTMLRenderer::embed_file(ostream & out, const string & path, bool copy)
+{
+    string fn = get_filename(path);
+    string suffix = get_suffix(fn);
+    
+    auto iter = EMBED_STRING_MAP.find(make_pair(suffix, param->single_html));
+    if(iter == EMBED_STRING_MAP.end())
+    {
+        cerr << "Warning: unknown suffix in manifest: " << suffix << endl;
+        return;
+    }
+    
+    if(param->single_html)
+    {
+        cerr << iter->second.first << endl
+            << ifstream(path, ifstream::binary).rdbuf()
+            << iter->second.second << endl;
+    }
+    else
+    {
+        cerr << iter->second.first
+            << fn
+            << iter->second.second;
+    }
+}
+
+const std::string HTMLRenderer::MANIFEST_FILENAME = "manifest";
+
+}// namespace pdf2htmlEX

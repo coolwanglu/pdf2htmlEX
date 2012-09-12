@@ -19,7 +19,5 @@ using std::make_pair;
 using std::ifstream;
 using std::ofstream;
 
-using namespace pdf2htmlEX;
-
 #endif // NAMESPACE_H__
 
