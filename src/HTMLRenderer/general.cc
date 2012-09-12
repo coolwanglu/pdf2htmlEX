@@ -160,7 +160,7 @@ void HTMLRenderer::pre_process()
 
     // if split-pages is specified, open & close the file in the process loop
     // if not, open the file here:
-    if(!param->split_pages);
+    if(!param->split_pages)
     {
         /*
          * If single-html
@@ -181,7 +181,7 @@ void HTMLRenderer::pre_process()
 void HTMLRenderer::post_process()
 {
     // close files
-    html_fout.close();
+    html_fout.close(); 
     css_fout.close();
 
     //only when split-page, do we have some work left to do
