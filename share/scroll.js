@@ -4,8 +4,6 @@ $(function() {
       $main  = $("#pdf-main"),
       l = $pages.length;
 
-  $pages.hide();
-
   function isPageVisible(i, H) {
     var $pw = $($pageWrappers[i]),
         t   = $pw.offset().top,
