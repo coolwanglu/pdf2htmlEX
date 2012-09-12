@@ -79,6 +79,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --std=c++0x")
 endif()
 
 configure_file (${CMAKE_SOURCE_DIR}/src/include/pdf2htmlEX-config.h.in ${CMAKE_SOURCE_DIR}/src/include/pdf2htmlEX-config.h)
+configure_file (${CMAKE_SOURCE_DIR}/src/pdf2htmlEX.1.in ${CMAKE_SOURCE_DIR}/src/pdf2htmlEX.1)
 
 add_executable(pdf2htmlEX 
     src/pdf2htmlEX.cc 
