@@ -19,6 +19,8 @@
 using std::ostringstream;
 using std::fixed;
 
+using namespace pdf2htmlEX;
+
 static GooString* getInfoDate(Dict *infoDict, const char *key) {
     Object obj;
     char *s;
@@ -84,9 +86,7 @@ class PC_HTMLRenderer : public HTMLRenderer
         virtual void pre_process() 
         {
             if(!param->only_metadata) {
-                allcss_fout.open(dest_dir + "/" + CSS_FILENAME, ofstream::binary);
-                fix_stream(allcss_fout);
-                allcss_fout << ifstream(PDF2HTMLEX_DATA_PATH + "/" + CSS_FILENAME, ifstream::binary).rdbuf();
+                HTMLRenderer::pre_process();   
             }
         }
 
@@ -124,22 +124,19 @@ class PC_HTMLRenderer : public HTMLRenderer
 
         virtual void post_process() { 
             if(!param->only_metadata) {
-                allcss_fout.close();
-                
+                HTMLRenderer::post_process();
                 // Touch a file to indicate processing is done
-                ofstream touch_done_file(dest_dir + "/all.css.done", ofstream::binary);
+                ofstream touch_done_file(param->dest_dir + "/all.css.done", ofstream::binary);
             }
         }
 
         virtual void startPage(int pageNum, GfxState *state) 
         {
-            if(!param->only_metadata) {
-                html_fout.open((char*)str_fmt("%s/%x.page", dest_dir.c_str(), pageNum), ofstream::binary);
-                fix_stream(html_fout);
+            if(param->only_metadata)
+            {
+                this->first_page_width = state->getPageWidth();
+                this->first_page_height = state->getPageHeight();
             }
-            
-            this->first_page_width = state->getPageWidth();
-            this->first_page_height = state->getPageHeight();
 
             HTMLRenderer::startPage(pageNum, state);
         }
@@ -148,8 +145,7 @@ class PC_HTMLRenderer : public HTMLRenderer
         {
             HTMLRenderer::endPage();
             if(!param->only_metadata) {
-                html_fout.close();
-                allcss_fout << "#p" << hex << (this->pageNum) << "{visibility: visible;}" << endl;
+                css_fout << "#p" << hex << (this->pageNum) << "{visibility: visible;}" << endl;
             }
         }
 

@@ -19,6 +19,8 @@
 #include "HTMLRenderer.h"
 #include "namespace.h"
 
+namespace pdf2htmlEX {
+
 using std::unordered_set;
 using std::min;
 using std::all_of;
@@ -122,7 +124,7 @@ string HTMLRenderer::dump_embedded_font (GfxFont * font, long long fn_id)
 
         obj.streamReset();
 
-        filepath = (char*)str_fmt("%s/f%llx%s", tmp_dir.c_str(), fn_id, suffix.c_str());
+        filepath = (char*)str_fmt("%s/f%llx%s", param->tmp_dir.c_str(), fn_id, suffix.c_str());
         add_tmp_file(filepath);
 
         ofstream outf(filepath, ofstream::binary);
@@ -347,7 +349,7 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
         // TODO: see if we can get the values without save/load
 
 
-        auto fn = str_fmt("%s/f%llx_.ttf", tmp_dir.c_str(), info.id);
+        auto fn = str_fmt("%s/f%llx_.ttf", param->tmp_dir.c_str(), info.id);
         add_tmp_file((char*)fn);
 
         ff_save((char*)fn);
@@ -381,7 +383,7 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
 
     {
         auto fn = str_fmt("%s/f%llx%s", 
-                (param->single_html ? tmp_dir : dest_dir).c_str(),
+                (param->single_html ? param->tmp_dir : param->dest_dir).c_str(),
                 info.id, param->font_suffix.c_str());
 
         if(param->single_html)
@@ -486,3 +488,5 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
     draw_tx += dx + dxerr * cur_font_size * hs;
     draw_ty += dy;
 }
+
+} // namespace pdf2htmlEX

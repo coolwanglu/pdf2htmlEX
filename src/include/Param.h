@@ -20,7 +20,7 @@ struct Param
     std::string input_filename, output_filename;
 
     // path
-    std::string dest_dir, tmp_dir;
+    std::string dest_dir, tmp_dir, data_dir;
 
     // normal parameters
     int first_page, last_page;
@@ -30,6 +30,7 @@ struct Param
 
     int process_nontext;
     int single_html;
+    int split_pages;
     int embed_base_font;
     int embed_external_font;
     int decompose_ligature;
@@ -41,6 +42,7 @@ struct Param
     int tounicode;
     int space_as_offset;
 
+    std::string css_filename;
     std::string font_suffix, font_format;
 
     int debug;

@@ -35,6 +35,7 @@
  *
  * CSS classes
  *
+ * b - page Box
  * p - Page
  * l - Line
  * _ - white space
@@ -83,7 +84,6 @@ class HTMLRenderer : public OutputDev
 
         virtual void pre_process();
         virtual void post_process();
-        virtual void process_single_html();
 
         // Start a page.
         virtual void startPage(int pageNum, GfxState *state);
@@ -167,6 +167,12 @@ class HTMLRenderer : public OutputDev
         void export_color(long long color_id, const GfxRGB * rgb);
         void export_whitespace(long long ws_id, double ws_width);
         void export_rise(long long rise_id, double rise);
+
+
+        // depending on single-html, to embed the content or add a link to it
+        // "type": specify the file type, usually it's the suffix, in which case this parameter could be ""
+        // "copy": indicates whether to copy the file into dest_dir, if not embedded
+        void embed_file(std::ostream & out, const std::string & path, const std::string & type, bool copy);
 
         ////////////////////////////////////////////////////
         // state tracking 
@@ -358,14 +364,11 @@ class HTMLRenderer : public OutputDev
         int image_count;
 
         const Param * param;
-        std::string dest_dir, tmp_dir;
-        std::ofstream html_fout, allcss_fout;
+        std::ofstream html_fout, css_fout;
+        std::string html_path, css_path;
         std::set<std::string> tmp_files;
 
-        static const std::string HEAD_HTML_FILENAME;
-        static const std::string NECK_HTML_FILENAME;
-        static const std::string TAIL_HTML_FILENAME;
-        static const std::string CSS_FILENAME;
+        static const std::string MANIFEST_FILENAME;
 };
 
 } //namespace pdf2htmlEX

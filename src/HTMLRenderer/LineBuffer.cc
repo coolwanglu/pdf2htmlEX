@@ -12,6 +12,8 @@
 #include "HTMLRenderer.h"
 #include "namespace.h"
 
+namespace pdf2htmlEX {
+
 using std::min;
 using std::max;
 using std::vector;
@@ -272,3 +274,4 @@ int HTMLRenderer::LineBuffer::State::diff(const State & s) const
 }
 
 const char * HTMLRenderer::LineBuffer::State::format_str = "fsclwr";
+} //namespace pdf2htmlEX

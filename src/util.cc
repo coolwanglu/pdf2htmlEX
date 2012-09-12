@@ -46,6 +46,13 @@ const map<string, string> GB_ENCODED_FONT_NAME_MAP({
     {"\xC1\xA5\xCA\xE9", "SimLi"},
 });
 
+const std::map<std::pair<std::string, bool>, std::pair<std::string, std::string> > EMBED_STRING_MAP({
+        {{".css", 0}, {"<link rel=\"stylesheet\" type=\"text/css\" href=\"", "\"/>"}},
+        {{".css", 1}, {"<style type=\"text/css\">", "</style>"}},
+        {{".js", 0}, {"<script type=\"text/javascript\" src=\"", "\"></script>"}},
+        {{".js", 1}, {"<script type=\"text/javascript\">", "</script>"}}
+});
+
 bool isLegalUnicode(Unicode u)
 {
     /*

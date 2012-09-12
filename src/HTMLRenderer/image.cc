@@ -10,6 +10,8 @@
 #include "HTMLRenderer.h"
 #include "namespace.h"
 
+namespace pdf2htmlEX {
+
 void HTMLRenderer::drawImage(GfxState * state, Object * ref, Stream * str, int width, int height, GfxImageColorMap * colorMap, GBool interpolate, int *maskColors, GBool inlineImg)
 {
     return OutputDev::drawImage(state,ref,str,width,height,colorMap,interpolate,maskColors,inlineImg);
@@ -59,3 +61,5 @@ void HTMLRenderer::drawImage(GfxState * state, Object * ref, Stream * str, int w
     ++ image_count;
 #endif
 }
+
+} // namespace pdf2htmlEX

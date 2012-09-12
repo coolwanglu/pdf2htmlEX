@@ -33,6 +33,10 @@ static const double DEFAULT_DPI = 72.0;
 
 extern const std::map<std::string, std::string> BASE_14_FONT_CSS_FONT_MAP;
 extern const std::map<std::string, std::string> GB_ENCODED_FONT_NAME_MAP;
+// map to embed files into html
+// key: (suffix, if_embed_content)
+// value: (prefix string, suffix string)
+extern const std::map<std::pair<std::string, bool>, std::pair<std::string, std::string> > EMBED_STRING_MAP;
 
 // mute gcc warning of unused function
 namespace
