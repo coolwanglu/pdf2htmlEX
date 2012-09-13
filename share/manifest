@@ -14,8 +14,8 @@
 # If a line contains """ only, all text until next """ will be included
 
 """
-<!-- Created by pdf2htmlEX (http://github.com/coolwanglu/pdf2htmlEX) -->
 <!DOCTYPE html>
+<!-- Created by pdf2htmlEX (http://github.com/coolwanglu/pdf2htmlEX) -->
 <html>
 <head>
 <meta charset="utf-8">
