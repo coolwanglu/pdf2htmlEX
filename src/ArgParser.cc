@@ -58,7 +58,7 @@ void ArgParser::parse(int argc, char ** argv) const
 {
     //prepare optstring and longopts
     vector<char> optstring;
-    optstring.reserve(arg_entries.size() + 1);
+    optstring.reserve(2*arg_entries.size() + 1);
     vector<struct option> longopts;
     longopts.reserve(arg_entries.size() + 1);
 

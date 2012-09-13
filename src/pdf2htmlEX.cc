@@ -183,14 +183,19 @@ int main(int argc, char **argv)
 
             if(get_suffix(param.input_filename) == ".pdf")
             {
-                param.output_filename = s.substr(0, s.size() - 4);
-                if(!param.split_pages)
+                if(param.split_pages)
+                    param.output_filename = s.substr(0, s.size() - 4);
+                else
                     param.output_filename = s.substr(0, s.size() - 4) + ".html";
+
             }
             else
             {
-                if(!param.split_pages)
+                if(param.split_pages)
+                    param.output_filename = s;
+                else
                     param.output_filename = s + ".html";
+                
             }
         }
         if(param.css_filename == "")

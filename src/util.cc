@@ -7,6 +7,7 @@
  */
 
 #include <errno.h>
+#include <cctype>
 
 #include <GfxState.h>
 #include <GfxFont.h>
@@ -201,7 +202,12 @@ string get_suffix(const string & path)
     if(idx == string::npos)
         return "";
     else
-        return fn.substr(idx);
+    {
+        string s = fn.substr(idx);
+        for(auto iter = s.begin(); iter != s.end(); ++iter)
+            *iter = tolower(*iter);
+        return s;
+    }
 }
 
 } // namespace pdf2htmlEX
