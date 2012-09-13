@@ -87,7 +87,7 @@ void HTMLRenderer::process(PDFDoc *doc)
     {
         if(param->split_pages)
         {
-            auto page_fn = str_fmt("%s/%s%d.page", param->dest_dir.c_str(), param->output_filename.c_str(), i);
+            auto page_fn = str_fmt("%s/%d.page", param->dest_dir.c_str(), i);
             html_fout.open((char*)page_fn, ofstream::binary); 
             fix_stream(html_fout);
         }
@@ -249,8 +249,7 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
 
     assert((!line_opened) && "Open line in startPage detected!");
 
-    html_fout << "<div class=\"b\" style=\"width:" << pageWidth << "px;height:" << pageHeight << "px;\">"
-        << "<div id=\"p" << pageNum << "\" class=\"p\" style=\"width:" << pageWidth << "px;height:" << pageHeight << "px;";
+    html_fout << "<div id=\"p" << pageNum << "\" class=\"p\" style=\"width:" << pageWidth << "px;height:" << pageHeight << "px;";
 
     html_fout << "background-image:url(";
 
@@ -297,7 +296,7 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
 void HTMLRenderer::endPage() {
     close_line();
     // close page
-    html_fout << "</div></div>" << endl;
+    html_fout << "</div>" << endl;
 }
 
 void HTMLRenderer::fix_stream (std::ostream & out)
