@@ -74,6 +74,15 @@ bool like_id_matrix(const double * tm)
         && std::abs(tm[0]-tm[3]) < EPS;
 }
 
+// compare font size only
+// used when looking for title candidates
+bool title_fs_cmp(const SizedString & ss1, const SizedString & ss2)
+{
+    return ss1.font_size > ss2.font_size;
+}
+    
+// compare rotation, and length, besides font size
+// used when sorting title candidates
 bool title_cmp(const SizedString & ss1, const SizedString & ss2)
 {
     int _1 = (ss1.str.size() >= 7) ? 1 : 0;
@@ -222,10 +231,12 @@ class PC_HTMLRenderer : public HTMLRenderer
                 ss.font_size = font_size;
                 ss.str = cur_title.str();
                 title_candidates.push_back(ss);
-                std::push_heap(title_candidates.begin(), title_candidates.end(),
-                        [](const SizedString & ss1, const SizedString & ss2)->bool{return ss1.font_size < ss2.font_size;});
+                std::push_heap(title_candidates.begin(), title_candidates.end(), title_fs_cmp);
                 while(title_candidates.size() > 7)
+                {
+                    std::pop_heap(title_candidates.begin(), title_candidates.end(), title_fs_cmp);
                     title_candidates.pop_back();
+                }
 
                 font_size = fs;
                 tm_id = cur_tm_id;
