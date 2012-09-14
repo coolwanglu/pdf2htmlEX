@@ -80,7 +80,11 @@ void HTMLRenderer::LineBuffer::flush(void)
 
     // TODO: class for height ?
     ostream & out = renderer->html_fout;
-    out << "<div style=\"left:" << x << "px;bottom:" << y << "px;height:" << max_ascent << "px;\" class=\"l t" << tm_id << "\">";
+    out << "<div style=\"left:" 
+        << _round(x) << "px;bottom:" 
+        << _round(y) << "px;height:" 
+        << _round(max_ascent) << "px;\" class=\"l t" 
+        << tm_id << "\">";
 
     auto cur_state_iter = states.begin();
     auto cur_offset_iter = offsets.begin();
