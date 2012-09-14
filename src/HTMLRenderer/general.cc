@@ -193,6 +193,8 @@ void HTMLRenderer::post_process()
 
     // apply manifest
     ifstream manifest_fin((char*)str_fmt("%s/%s", param->data_dir.c_str(), MANIFEST_FILENAME.c_str()));
+    if(!manifest_fin)
+        throw "Cannot open the manifest file";
 
     bool embed_string = false;
     string line;
@@ -228,7 +230,10 @@ void HTMLRenderer::post_process()
             }
             else if (line == "$pages")
             {
-                output << ifstream(html_path, ifstream::binary).rdbuf();
+                ifstream fin(html_path, ifstream::binary);
+                if(!fin)
+                    throw "Cannot open read the pages";
+                output << fin.rdbuf();
             }
             else
             {
@@ -257,7 +262,11 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
     {
         if(param->single_html)
         {
-            html_fout << "'data:image/png;base64," << base64stream(ifstream((char*)str_fmt("%s/p%x.png", param->tmp_dir.c_str(), pageNum) , ifstream::binary)) << "'";
+            auto path = str_fmt("%s/p%x.png", param->tmp_dir.c_str(), pageNum);
+            ifstream fin((char*)path, ifstream::binary);
+            if(!fin)
+                throw string("Cannot read background image ") + (char*)path;
+            html_fout << "'data:image/png;base64," << base64stream(fin) << "'";
         }
         else
         {
@@ -346,8 +355,11 @@ void HTMLRenderer::embed_file(ostream & out, const string & path, const string &
     
     if(param->single_html)
     {
+        ifstream fin(path, ifstream::binary);
+        if(!fin)
+            throw string("Cannot open file for embedding: ") + path;
         out << iter->second.first << endl
-            << ifstream(path, ifstream::binary).rdbuf()
+            << fin.rdbuf()
             << iter->second.second << endl;
     }
     else
@@ -358,7 +370,10 @@ void HTMLRenderer::embed_file(ostream & out, const string & path, const string &
 
         if(copy)
         {
-            ofstream(param->dest_dir + "/" + fn, ofstream::binary) << ifstream(path, ifstream::binary).rdbuf();
+            ifstream fin(path, ifstream::binary);
+            if(!fin)
+                throw string("Cannot copy file: ") + path;
+            ofstream(param->dest_dir + "/" + fn, ofstream::binary) << fin.rdbuf();
         }
     }
 }
