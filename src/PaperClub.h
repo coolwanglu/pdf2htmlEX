@@ -127,7 +127,7 @@ class PC_HTMLRenderer : public HTMLRenderer
                     cout << "\"" << s.str << "\"";
                 }
 
-                cout << "]\","
+                cout << "],"
                       << "\"num_pages\":" << num_pages << ","
                       << "\"modified_date\":\"" << modified_date << "\","
                       << "\"width\":" << first_page_width << ","
