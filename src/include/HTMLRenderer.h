@@ -142,7 +142,7 @@ class HTMLRenderer : public OutputDev
         void install_external_font (GfxFont * font, FontInfo & info);
 
         long long install_font_size(double font_size);
-        long long install_transform_matrix(const double * tm);
+        virtual long long install_transform_matrix(const double * tm);
         long long install_letter_space(double letter_space);
         long long install_word_space(double word_space);
         long long install_color(const GfxRGB * rgb);
