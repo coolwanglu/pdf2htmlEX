@@ -359,9 +359,9 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
 
     {
         // read metrics
+        int em = ff_get_em_size();
         int ascent = ff_get_max_ascent();
         int descent = ff_get_max_descent();
-        int em = ascent + descent;
         if(em != 0)
         {
             info.ascent = ((double)ascent) / em;
