@@ -311,7 +311,7 @@ void HTMLRenderer::endPage() {
 
 void HTMLRenderer::fix_stream (std::ostream & out)
 {
-    out << fixed << hex;
+    out << hex;
 }
 
 void HTMLRenderer::add_tmp_file(const string & fn)

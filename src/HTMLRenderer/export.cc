@@ -35,7 +35,7 @@ void HTMLRenderer::export_remote_font(const FontInfo & info, const string & suff
         }
     }
 
-    css_fout << ")format(\"" << fontfileformat << "\");}.f" << info.id << "{font-family:f" << info.id << ";line-height:" << (info.ascent - info.descent) << ";}" << endl;
+    css_fout << ")format(\"" << fontfileformat << "\");}.f" << info.id << "{font-family:f" << info.id << ";line-height:" << _round(info.ascent - info.descent) << ";}" << endl;
 }
 
 static string general_font_family(GfxFont * font)
@@ -71,14 +71,14 @@ void HTMLRenderer::export_local_font(const FontInfo & info, GfxFont * font, cons
     else if(font->isItalic() || (fn.find("italic") != string::npos))
         css_fout << "font-style:italic;";
 
-    css_fout << "line-height:" << (info.ascent - info.descent) << ";";
+    css_fout << "line-height:" << _round(info.ascent - info.descent) << ";";
 
     css_fout << "}" << endl;
 }
 
 void HTMLRenderer::export_font_size (long long fs_id, double font_size) 
 {
-    css_fout << ".s" << fs_id << "{font-size:" << font_size << "px;}" << endl;
+    css_fout << ".s" << fs_id << "{font-size:" << _round(font_size) << "px;}" << endl;
 }
 
 void HTMLRenderer::export_transform_matrix (long long tm_id, const double * tm) 
@@ -95,10 +95,10 @@ void HTMLRenderer::export_transform_matrix (long long tm_id, const double * tm)
         const auto & prefix = *iter;
         // PDF use a different coordinate system from Web
         css_fout << prefix << "transform:matrix("
-            << tm[0] << ','
-            << -tm[1] << ','
-            << -tm[2] << ','
-            << tm[3] << ',';
+            << _round(tm[0]) << ','
+            << _round(-tm[1]) << ','
+            << _round(-tm[2]) << ','
+            << _round(tm[3]) << ',';
 
         css_fout << "0,0);";
     }
@@ -107,12 +107,12 @@ void HTMLRenderer::export_transform_matrix (long long tm_id, const double * tm)
 
 void HTMLRenderer::export_letter_space (long long ls_id, double letter_space) 
 {
-    css_fout << ".l" << ls_id << "{letter-spacing:" << letter_space << "px;}" << endl;
+    css_fout << ".l" << ls_id << "{letter-spacing:" << _round(letter_space) << "px;}" << endl;
 }
 
 void HTMLRenderer::export_word_space (long long ws_id, double word_space) 
 {
-    css_fout << ".w" << ws_id << "{word-spacing:" << word_space << "px;}" << endl;
+    css_fout << ".w" << ws_id << "{word-spacing:" << _round(word_space) << "px;}" << endl;
 }
 
 void HTMLRenderer::export_color (long long color_id, const GfxRGB * rgb) 
@@ -125,14 +125,14 @@ void HTMLRenderer::export_color (long long color_id, const GfxRGB * rgb)
 void HTMLRenderer::export_whitespace (long long ws_id, double ws_width) 
 {
     if(ws_width > 0)
-        css_fout << "._" << ws_id << "{display:inline-block;width:" << ws_width << "px;}" << endl;
+        css_fout << "._" << ws_id << "{display:inline-block;width:" << _round(ws_width) << "px;}" << endl;
     else
-        css_fout << "._" << ws_id << "{display:inline;margin-left:" << ws_width << "px;}" << endl;
+        css_fout << "._" << ws_id << "{display:inline;margin-left:" << _round(ws_width) << "px;}" << endl;
 }
 
 void HTMLRenderer::export_rise (long long rise_id, double rise) 
 {
-    css_fout << ".r" << rise_id << "{top:" << (-rise) << "px;}" << endl;
+    css_fout << ".r" << rise_id << "{top:" << _round(-rise) << "px;}" << endl;
 }
 
 }
