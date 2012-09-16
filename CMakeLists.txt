@@ -17,7 +17,8 @@ else()
     find_path(FF_INCLUDE_PATH fontforge/fontforge.h)
     if(FF_INCLUDE_PATH)
         message("Found fontforge.h: ${FF_INCLUDE_PATH}/fontforge/fontforge.h")
-        include_directories(${FF_INCLUDE_PATH}/fontforge)
+        set(FONTFORGE_INCLUDE_DIRS ${FF_INCLUDE_PATH}/fontforge)
+        include_directories(${FONTFORGE_INCLUDE_DIRS})
         # MacOSX gettext is in /opt/local/include - strange
         if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")  
           find_path(GETTEXT_INCLUDE_PATH libintl.h)
@@ -30,11 +31,6 @@ else()
         endif()
     else()
         message(FATAL_ERROR "Error: cannot locate fontforge.h")
-    endif()
-
-    find_path(FF_CONFIG_INCLUDE_PATH fontforge/config.h)
-    if(FF_CONFIG_INCLUDE_PATH)
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -include ${FF_INCLUDE_PATH}/fontforge/config.h")
     endif()
 
     foreach(FF_LIB_NAME 
@@ -58,6 +54,12 @@ else()
     message("Looking for libraries of python, which is required by fontforge, if you can link fontforge without python, you may disable this")
     pkg_search_module(PYTHON python python-2.7)
 endif()
+find_path(FF_CONFIG_INCLUDE_PATH config.h PATHS ${FONTFORGE_INCLUDE_DIRS})
+if(FF_CONFIG_INCLUDE_PATH)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -include ${FF_CONFIG_INCLUDE_PATH}/config.h")
+else()
+    message("Cannot locate config.h for fontforge")
+endif()
 
 
 
@@ -69,16 +71,16 @@ add_custom_target(dist
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wunused-function")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2")
-#set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ggdb")
+#set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ggdb")
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wunused-function")
 # clang compiler need c++11 flag
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
 endif()
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2")
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ggdb")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ggdb")
 
 # CYGWIN bug
 if(CYGWIN)

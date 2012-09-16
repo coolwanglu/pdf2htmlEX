@@ -89,6 +89,7 @@ void ff_load_font(const char * filename)
 {
     char * _filename = strcopy(filename);
     SplineFont * font = LoadSplineFont(_filename, 1);
+
     free(_filename);
 
     if(!font)

@@ -1,5 +1,3 @@
-change typo asc/desc, without affecting EM size
-
 rename single-html -> embed-font/image/css ...
 
 bug found in baidu & github & mail
