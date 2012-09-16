@@ -30,6 +30,7 @@ This program is designed for scientific papers with complicate formulas and figu
 * Text Selection
 * Font embedding & reencoding for Web
 * Proper styling (Color, Transformation...)
+* Links
 * Optimization for Web 
 
 ### Not supported yet
