@@ -18,13 +18,12 @@
 #include <OutputDev.h>
 #include <GfxState.h>
 #include <Stream.h>
-#include <XRef.h>
-#include <Catalog.h>
-#include <Page.h>
 #include <PDFDoc.h>
 #include <goo/gtypes.h>
 #include <Object.h>
 #include <GfxFont.h>
+#include <Page.h>
+#include <Annot.h>
 
 #include "Param.h"
 #include "util.h"
@@ -83,8 +82,16 @@ class HTMLRenderer : public OutputDev
         // Does this device need non-text content?
         virtual GBool needNonText() { return gFalse; }
 
-        virtual void pre_process();
-        virtual void post_process();
+        virtual void setDefaultCTM(double *ctm);
+
+        virtual GBool checkPageSlice(Page *page, double hDPI, double vDPI,
+            int rotate, GBool useMediaBox, GBool crop,
+            int sliceX, int sliceY, int sliceW, int sliceH,
+            GBool printing,
+            GBool (* abortCheckCbk)(void *data) = NULL,
+            void * abortCheckCbkData = NULL,
+            GBool (*annotDisplayDecideCbk)(Annot *annot, void *user_data) = NULL,
+            void *annotDisplayDecideCbkData = NULL);
 
         // Start a page.
         virtual void startPage(int pageNum, GfxState *state);
@@ -125,6 +132,10 @@ class HTMLRenderer : public OutputDev
         ////////////////////////////////////////////////////
         // misc
         ////////////////////////////////////////////////////
+        void pre_process();
+        void post_process();
+
+        void process_links (void);
         
         // set flags 
         void fix_stream (std::ostream & out);
@@ -133,6 +144,8 @@ class HTMLRenderer : public OutputDev
         void clean_tmp_files ();
         std::string dump_embedded_font (GfxFont * font, long long fn_id);
         void embed_font(const std::string & filepath, GfxFont * font, FontInfo & info, bool get_metric_only = false);
+
+        void draw_annot_link(AnnotLink * al);
 
         ////////////////////////////////////////////////////
         // manage styles
@@ -195,6 +208,9 @@ class HTMLRenderer : public OutputDev
         ////////////////////////////////////////////////////
         
         XRef * xref;
+        Page * cur_page;
+        PDFDoc * cur_doc;
+        double default_ctm[6];
 
         // page info
         int pageNum;

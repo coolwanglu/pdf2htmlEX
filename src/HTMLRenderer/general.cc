@@ -11,6 +11,7 @@
 #include <ostream>
 
 #include <splash/SplashBitmap.h>
+#include <Link.h>
 
 #include "HTMLRenderer.h"
 #include "BackgroundRenderer.h"
@@ -29,7 +30,8 @@ static void dummy(void *, enum ErrorCategory, int pos, char *)
 }
 
 HTMLRenderer::HTMLRenderer(const Param * param)
-    :line_opened(false)
+    :OutputDev()
+    ,line_opened(false)
     ,line_buf(this)
     ,image_count(0)
     ,param(param)
@@ -56,6 +58,7 @@ static GBool annot_cb(Annot *, void *) {
 
 void HTMLRenderer::process(PDFDoc *doc)
 {
+    cur_doc = doc;
     xref = doc->getXRef();
 
     cerr << "Preprocessing: ";
@@ -95,8 +98,8 @@ void HTMLRenderer::process(PDFDoc *doc)
         if(param->process_nontext)
         {
             doc->displayPage(bg_renderer, i, param->h_dpi, param->v_dpi,
-                    0, true, false, false);
-//                    nullptr, nullptr, &annot_cb, nullptr);
+                    0, true, false, false,
+                    nullptr, nullptr, &annot_cb, nullptr);
 
             {
                 auto fn = str_fmt("%s/p%x.png", (param->single_html ? param->tmp_dir : param->dest_dir).c_str(), i);
@@ -127,6 +130,90 @@ void HTMLRenderer::process(PDFDoc *doc)
         delete bg_renderer;
 
     cerr << endl;
+}
+
+void HTMLRenderer::setDefaultCTM(double *ctm)
+{
+    memcpy(default_ctm, ctm, sizeof(default_ctm));
+}
+
+GBool HTMLRenderer::checkPageSlice(Page *page, double hDPI, double vDPI,
+    int rotate, GBool useMediaBox, GBool crop,
+    int sliceX, int sliceY, int sliceW, int sliceH,
+    GBool printing,
+    GBool (* abortCheckCbk)(void *data),
+    void * abortCheckCbkData,
+    GBool (*annotDisplayDecideCbk)(Annot *annot, void *user_data),
+    void *annotDisplayDecideCbkData)
+{
+    cur_page = page;
+    return gTrue;
+}
+
+void HTMLRenderer::startPage(int pageNum, GfxState *state) 
+{
+    this->pageNum = pageNum;
+    this->pageWidth = state->getPageWidth();
+    this->pageHeight = state->getPageHeight();
+
+    assert((!line_opened) && "Open line in startPage detected!");
+
+    html_fout << "<div class=\"b\" style=\"width:" << pageWidth << "px;height:" << pageHeight << "px;\">"
+        << "<div id=\"p" << pageNum << "\" class=\"p\" style=\"width:" << pageWidth << "px;height:" << pageHeight << "px;";
+
+    html_fout << "background-image:url(";
+
+    {
+        if(param->single_html)
+        {
+            auto path = str_fmt("%s/p%x.png", param->tmp_dir.c_str(), pageNum);
+            ifstream fin((char*)path, ifstream::binary);
+            if(!fin)
+                throw string("Cannot read background image ") + (char*)path;
+            html_fout << "'data:image/png;base64," << base64stream(fin) << "'";
+        }
+        else
+        {
+            html_fout << str_fmt("p%x.png", pageNum);
+        }
+    }
+    
+    html_fout << ");background-position:0 0;background-size:" << pageWidth << "px " << pageHeight << "px;background-repeat:no-repeat;\">";
+
+    html_fout << "<a name=\"p" << pageNum << "\"></a>";
+            
+    draw_scale = 1.0;
+
+    cur_font_info = install_font(nullptr);
+    cur_font_size = draw_font_size = 0;
+    cur_fs_id = install_font_size(cur_font_size);
+    
+    memcpy(cur_ctm, id_matrix, sizeof(cur_ctm));
+    memcpy(draw_ctm, id_matrix, sizeof(draw_ctm));
+    cur_tm_id = install_transform_matrix(draw_ctm);
+
+    cur_letter_space = cur_word_space = 0;
+    cur_ls_id = install_letter_space(cur_letter_space);
+    cur_ws_id = install_word_space(cur_word_space);
+
+    cur_color.r = cur_color.g = cur_color.b = 0;
+    cur_color_id = install_color(&cur_color);
+
+    cur_rise = 0;
+    cur_rise_id = install_rise(cur_rise);
+
+    cur_tx = cur_ty = 0;
+    draw_tx = draw_ty = 0;
+
+    reset_state_change();
+    all_changed = true;
+}
+
+void HTMLRenderer::endPage() {
+    close_line();
+    process_links();
+    // close page
+    html_fout << "</div></div>" << endl;
 }
 
 void HTMLRenderer::pre_process()
@@ -246,67 +333,104 @@ void HTMLRenderer::post_process()
     }
 }
 
-void HTMLRenderer::startPage(int pageNum, GfxState *state) 
+void HTMLRenderer::process_links (void)
 {
-    this->pageNum = pageNum;
-    this->pageWidth = state->getPageWidth();
-    this->pageHeight = state->getPageHeight();
-
-    assert((!line_opened) && "Open line in startPage detected!");
-
-    html_fout << "<div class=\"b\" style=\"width:" << pageWidth << "px;height:" << pageHeight << "px;\">"
-        << "<div id=\"p" << pageNum << "\" class=\"p\" style=\"width:" << pageWidth << "px;height:" << pageHeight << "px;";
-
-    html_fout << "background-image:url(";
-
+    Links * links = cur_page->getLinks();
+    for(int i = 0; i < links->getNumLinks(); ++i)
     {
-        if(param->single_html)
-        {
-            auto path = str_fmt("%s/p%x.png", param->tmp_dir.c_str(), pageNum);
-            ifstream fin((char*)path, ifstream::binary);
-            if(!fin)
-                throw string("Cannot read background image ") + (char*)path;
-            html_fout << "'data:image/png;base64," << base64stream(fin) << "'";
-        }
-        else
-        {
-            html_fout << str_fmt("p%x.png", pageNum);
-        }
+        AnnotLink * al = links->getLink(i);
+        draw_annot_link(al);
     }
-    
-    html_fout << ");background-position:0 0;background-size:" << pageWidth << "px " << pageHeight << "px;background-repeat:no-repeat;\">";
-            
-    draw_scale = 1.0;
-
-    cur_font_info = install_font(nullptr);
-    cur_font_size = draw_font_size = 0;
-    cur_fs_id = install_font_size(cur_font_size);
-    
-    memcpy(cur_ctm, id_matrix, sizeof(cur_ctm));
-    memcpy(draw_ctm, id_matrix, sizeof(draw_ctm));
-    cur_tm_id = install_transform_matrix(draw_ctm);
-
-    cur_letter_space = cur_word_space = 0;
-    cur_ls_id = install_letter_space(cur_letter_space);
-    cur_ws_id = install_word_space(cur_word_space);
-
-    cur_color.r = cur_color.g = cur_color.b = 0;
-    cur_color_id = install_color(&cur_color);
-
-    cur_rise = 0;
-    cur_rise_id = install_rise(cur_rise);
-
-    cur_tx = cur_ty = 0;
-    draw_tx = draw_ty = 0;
-
-    reset_state_change();
-    all_changed = true;
+    delete links;
 }
 
-void HTMLRenderer::endPage() {
-    close_line();
-    // close page
-    html_fout << "</div></div>" << endl;
+/*
+ * Based on pdftohtml from poppler
+ */
+void HTMLRenderer::draw_annot_link (AnnotLink * al)
+{
+    std::string dest_str;
+    auto action = al->getAction();
+    if(action)
+    {
+        auto kind = action->getKind();
+        switch(kind)
+        {
+            case actionGoTo:
+                {
+                    auto catalog = cur_doc->getCatalog();
+                    auto * real_action = dynamic_cast<LinkGoTo*>(action);
+                    LinkDest * dest = nullptr;
+                    if(auto _ = real_action->getDest())
+                        dest = _->copy();
+                    else if (auto _ = real_action->getNamedDest())
+                        dest = catalog->findDest(_);
+                    if(dest)
+                    {
+                        int pageno = 0;
+                        if(dest->isPageRef())
+                        {
+                            auto pageref = dest->getPageRef();
+                            pageno = catalog->findPage(pageref.num, pageref.gen);
+                        }
+                        else
+                        {
+                            pageno = dest->getPageNum();
+                        }
+
+                        delete dest;
+
+                        if(pageno > 0)
+                            dest_str = (char*)str_fmt("#p%x", pageno);
+                    }
+                }
+                break;
+            case actionGoToR:
+                {
+                    cerr << "TODO: actionGoToR is not implemented." << endl;
+                }
+                break;
+            case actionURI:
+                {
+                    auto * real_action = dynamic_cast<LinkURI*>(action);
+                    dest_str = real_action->getURI()->getCString();
+                }
+                break;
+            case actionLaunch:
+                {
+                    cerr << "TODO: actionLaunch is not implemented." << endl;
+                }
+                break;
+            default:
+                cerr << "Warning: unknown annotation type: " << kind << endl;
+                break;
+        }
+    }
+
+    if(dest_str != "")
+    {
+        html_fout << "<a href=\"" << dest_str << "\">";
+    }
+
+    double x1,x2,y1,y2;
+    al->getRect(&x1, &y1, &x2, &y2);
+
+    x1 = default_ctm[0] * x1 + default_ctm[2] * y1 + default_ctm[4];
+    y1 = default_ctm[1] * x1 + default_ctm[3] * y1 + default_ctm[5];
+    x2 = default_ctm[0] * x2 + default_ctm[2] * y2 + default_ctm[4];
+    y2 = default_ctm[1] * x2 + default_ctm[3] * y2 + default_ctm[5];
+
+    html_fout << "<div style=\"border:1px solid;position:absolute;"
+        << "left:" << x1 << "px;"
+        << "bottom:" << y1 << "px;"
+        << "width:" << (x2-x1) << "px;"
+        << "height:" << (y2-y1) << "px;"
+        << "\"></div>";
+
+    if(dest_str != "")
+    {
+        html_fout << "</a>";
+    }
 }
 
 void HTMLRenderer::fix_stream (std::ostream & out)
