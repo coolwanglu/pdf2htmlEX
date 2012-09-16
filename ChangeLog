@@ -1,5 +1,9 @@
-Latest v0.3
+Latest v0.4
 
+v0.3
+2012.09.16
+
+* Links
 * New options: --data-dir --split-pages
 * Manifest for customized HTML generation
 * Smooth scrolling

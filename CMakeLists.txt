@@ -63,7 +63,7 @@ endif()
 
 
 
-set(PDF2HTMLEX_VERSION "0.3")
+set(PDF2HTMLEX_VERSION "0.4")
 set(ARCHIVE_NAME pdf2htmlex-${PDF2HTMLEX_VERSION})
 add_custom_target(dist
     COMMAND git archive --prefix=${ARCHIVE_NAME}/ HEAD
