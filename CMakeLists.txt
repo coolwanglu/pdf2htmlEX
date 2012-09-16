@@ -8,49 +8,58 @@ pkg_check_modules(POPPLER REQUIRED poppler>=0.20.0)
 include_directories(${POPPLER_INCLUDE_DIRS})
 link_directories(${POPPLER_LIBRARY_DIRS})
 
-find_path(FF_INCLUDE_PATH fontforge/fontforge.h)
-if(FF_INCLUDE_PATH)
-    message("Found fontforge.h: ${FF_INCLUDE_PATH}/fontforge/fontforge.h")
-    include_directories(${FF_INCLUDE_PATH}/fontforge)
-    # MacOSX gettext is in /opt/local/include - strange
-    if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")  
-      find_path(GETTEXT_INCLUDE_PATH libintl.h)
-      if(GETTEXT_INCLUDE_PATH)
-        include_directories(${GETTEXT_INCLUDE_PATH})
-      else()
-        # disable i18n if there is no gettext
-        set(NO_GETTEXT "YesPlease")
-      endif()
-    endif()
+# fontforge starts using pkg-config 'correctly' since 2.0.0
+pkg_check_modules(FONTFORGE libfontforge>=2.0.0)
+if(FONTFORGE_FOUND)
+    include_directories(${FONTFORGE_INCLUDE_DIRS})
+    link_directories(${FONTFORGE_LIBRARY_DIRS})
 else()
-    message(FATAL_ERROR "Error: cannot locate fontforge.h")
+    find_path(FF_INCLUDE_PATH fontforge/fontforge.h)
+    if(FF_INCLUDE_PATH)
+        message("Found fontforge.h: ${FF_INCLUDE_PATH}/fontforge/fontforge.h")
+        include_directories(${FF_INCLUDE_PATH}/fontforge)
+        # MacOSX gettext is in /opt/local/include - strange
+        if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")  
+          find_path(GETTEXT_INCLUDE_PATH libintl.h)
+          if(GETTEXT_INCLUDE_PATH)
+            include_directories(${GETTEXT_INCLUDE_PATH})
+          else()
+            # disable i18n if there is no gettext
+            set(NO_GETTEXT "YesPlease")
+          endif()
+        endif()
+    else()
+        message(FATAL_ERROR "Error: cannot locate fontforge.h")
+    endif()
+
+    find_path(FF_CONFIG_INCLUDE_PATH fontforge/config.h)
+    if(FF_CONFIG_INCLUDE_PATH)
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -include ${FF_INCLUDE_PATH}/fontforge/config.h")
+    endif()
+
+    foreach(FF_LIB_NAME 
+        ${CMAKE_IMPORT_LIBRARY_PREFIX}fontforge${CMAKE_IMPORT_LIBRARY_SUFFIX}
+        ${CMAKE_SHARED_LIBRARY_PREFIX}fontforge${CMAKE_SHARED_LIBRARY_SUFFIX}
+    ${CMAKE_STATIC_LIBRARY_PREFIX}fontforge${CMAKE_STATIC_LIBRARY_SUFFIX}
+    )
+    find_library(FF_LIB ${FF_LIB_NAME})
+    if(FF_LIB)
+        message("Found ${FF_LIB_NAME}: ${FF_LIB}")
+        set(FONTFORGE_LIBRARIES ${FF_LIB})
+        break()
+    endif()
+    endforeach()
+
+    if(NOT FF_LIB)
+        set(FONTFORGE_LIBRARIES fontforge)
+        message("Error: cannot locate ${FF_LIB_NAME}")
+    endif()
+
+    message("Looking for libraries of python, which is required by fontforge, if you can link fontforge without python, you may disable this")
+    pkg_search_module(PYTHON python python-2.7)
 endif()
 
-find_path(FF_CONFIG_INCLUDE_PATH fontforge/config.h)
-if(FF_CONFIG_INCLUDE_PATH)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -include ${FF_INCLUDE_PATH}/fontforge/config.h")
-endif()
 
-foreach(FF_LIB_NAME 
-${CMAKE_IMPORT_LIBRARY_PREFIX}fontforge${CMAKE_IMPORT_LIBRARY_SUFFIX}
-${CMAKE_SHARED_LIBRARY_PREFIX}fontforge${CMAKE_SHARED_LIBRARY_SUFFIX}
-${CMAKE_STATIC_LIBRARY_PREFIX}fontforge${CMAKE_STATIC_LIBRARY_SUFFIX}
-)
-find_library(FF_LIB ${FF_LIB_NAME})
-if(FF_LIB)
-    message("Found ${FF_LIB_NAME}: ${FF_LIB}")
-    set(FONTFORGE_LIBRARIES ${FF_LIB})
-    break()
-endif()
-endforeach()
-
-if(NOT FF_LIB)
-    set(FONTFORGE_LIBRARIES fontforge)
-    message("Error: cannot locate ${FF_LIB_NAME}")
-endif()
-
-message("Looking for libraries of python, which is required by fontforge, if you can link fontforge without python, you may disable this")
-pkg_search_module(PYTHON python python-2.7)
 
 set(PDF2HTMLEX_VERSION "0.3")
 set(ARCHIVE_NAME pdf2htmlex-${PDF2HTMLEX_VERSION})
