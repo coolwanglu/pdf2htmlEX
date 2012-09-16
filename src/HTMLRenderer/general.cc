@@ -95,8 +95,8 @@ void HTMLRenderer::process(PDFDoc *doc)
         if(param->process_nontext)
         {
             doc->displayPage(bg_renderer, i, param->h_dpi, param->v_dpi,
-                    0, true, false, false,
-                    nullptr, nullptr, &annot_cb, nullptr);
+                    0, true, false, false);
+//                    nullptr, nullptr, &annot_cb, nullptr);
 
             {
                 auto fn = str_fmt("%s/p%x.png", (param->single_html ? param->tmp_dir : param->dest_dir).c_str(), i);

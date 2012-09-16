@@ -1,6 +1,6 @@
 rename single-html -> embed-font/image/css ...
 
-bug found in baidu & github & mail
+bug found in baidu & mail
 
 option for tounicode-map
 get unicode from charname using fontforge (test with 'Font' croc.pdf)
