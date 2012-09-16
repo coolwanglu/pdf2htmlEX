@@ -207,6 +207,26 @@ void ff_close(void)
     cur_fv = NULL;
 }
 
+void ff_metric(int * ascent, int * descent)
+{
+    *ascent = cur_fv->sf->ascent;
+    *descent = cur_fv->sf->descent;
+
+    cur_fv->sf->pfminfo.os2_winascent = 0;
+    cur_fv->sf->pfminfo.os2_typoascent = 0;
+    cur_fv->sf->pfminfo.hhead_ascent = 0;
+    cur_fv->sf->pfminfo.winascent_add = 0;
+    cur_fv->sf->pfminfo.typoascent_add = 0;
+    cur_fv->sf->pfminfo.hheadascent_add = 0;
+
+    cur_fv->sf->pfminfo.os2_windescent = 0;
+    cur_fv->sf->pfminfo.os2_typodescent = 0;
+    cur_fv->sf->pfminfo.hhead_descent = 0;
+    cur_fv->sf->pfminfo.windescent_add = 0;
+    cur_fv->sf->pfminfo.typodescent_add = 0;
+    cur_fv->sf->pfminfo.hheaddescent_add = 0;
+}
+
 int ff_get_em_size(void)
 {
     return (cur_fv->sf->pfminfo.os2_typoascent - cur_fv->sf->pfminfo.os2_typodescent);

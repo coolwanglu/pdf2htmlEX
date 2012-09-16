@@ -29,6 +29,9 @@ void ff_reencode_raw2(char ** mapping, int mapping_len, int force);
 void ff_cidflatten(void);
 void ff_save(const char * filename);
 void ff_close(void);
+
+// fix metrics and get them
+void ff_metric(int * ascent, int * descent);
 int ff_get_em_size(void);
 int ff_get_max_ascent(void);
 int ff_get_max_descent(void);
