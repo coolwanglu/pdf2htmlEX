@@ -420,12 +420,72 @@ void HTMLRenderer::draw_annot_link (AnnotLink * al)
     x2 = default_ctm[0] * x2 + default_ctm[2] * y2 + default_ctm[4];
     y2 = default_ctm[1] * x2 + default_ctm[3] * y2 + default_ctm[5];
 
-    html_fout << "<div style=\"border:1px solid;position:absolute;"
+    html_fout << "<div style=\"position:absolute;"
         << "left:" << x1 << "px;"
         << "bottom:" << y1 << "px;"
         << "width:" << (x2-x1) << "px;"
-        << "height:" << (y2-y1) << "px;"
-        << "\"></div>";
+        << "height:" << (y2-y1) << "px;";
+
+    auto * border = al->getBorder();
+    if(border)
+    {
+        double w = border->getWidth();
+        if(w > 0)
+        {
+            html_fout << "border-width:" << _round(w) << "px;";
+            auto style = border->getStyle();
+            switch(style)
+            {
+                case AnnotBorder::borderSolid:
+                    html_fout << "border-style:solid;";
+                    break;
+                case AnnotBorder::borderDashed:
+                    html_fout << "border-style:dashed;";
+                    break;
+                case AnnotBorder::borderBeveled:
+                    html_fout << "border-style:outset;";
+                    break;
+                case AnnotBorder::borderInset:
+                    html_fout << "border-style:inset;";
+                    break;
+                case AnnotBorder::borderUnderlined:
+                    html_fout << "border-style:none;border-bottom-style:solid;";
+                    break;
+                default:
+                    cerr << "Warning:Unknown annotation border style: " << style << endl;
+                    html_fout << "border-style:solid;";
+            }
+
+
+            auto color = al->getColor();
+            double r,g,b;
+            if(color && (color->getSpace() == AnnotColor::colorRGB))
+            {
+                const double * v = color->getValues();
+                r = v[0];
+                g = v[1];
+                b = v[2];
+            }
+            else
+            {
+                r = g = b = 0;
+            }
+
+            html_fout << "border-color:rgb("
+                << dec << (int)dblToByte(r) << "," << (int)dblToByte(g) << "," << (int)dblToByte(b) << hex
+                << ");";
+        }
+        else
+        {
+            html_fout << "border-style:none;";
+        }
+    }
+    else
+    {
+        html_fout << "border-style:none;";
+    }
+
+    html_fout << "\"></div>";
 
     if(dest_str != "")
     {
