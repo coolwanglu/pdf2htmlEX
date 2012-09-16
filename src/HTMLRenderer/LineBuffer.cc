@@ -85,6 +85,7 @@ void HTMLRenderer::LineBuffer::flush(void)
         << "\""
         << " class=\"l t" << tm_id 
         << " h" << renderer->install_height(max_ascent)
+        << "\" data-asc=\"" << max_ascent
         << "\">";
 
     auto cur_state_iter = states.begin();

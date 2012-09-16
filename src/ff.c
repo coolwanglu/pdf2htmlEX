@@ -229,14 +229,14 @@ int ff_get_max_descent(void)
 void ff_set_ascent(int a)
 {
     cur_fv->sf->pfminfo.os2_winascent = a;
-//    cur_fv->sf->pfminfo.os2_typoascent = a;
+    cur_fv->sf->pfminfo.os2_typoascent = a;
     cur_fv->sf->pfminfo.hhead_ascent = a;
 }
 
 void ff_set_descent(int d)
 {
     cur_fv->sf->pfminfo.os2_windescent = d;
-//    cur_fv->sf->pfminfo.os2_typodescent = -d;
+    cur_fv->sf->pfminfo.os2_typodescent = -d;
     cur_fv->sf->pfminfo.hhead_descent = -d;
 }
 
