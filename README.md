@@ -40,10 +40,6 @@ This program is designed for scientific papers with complicate formulas and figu
 
 ## Get started
 
-**Boost library is no longer required**
-
-**Fontforge-git is no longer required, a recent version should be OK** 
-
 ### Ubuntu 
 
 There is a Ubuntu PPA set up at [here](https://launchpad.net/~coolwanglu/+archive/pdf2htmlex).
