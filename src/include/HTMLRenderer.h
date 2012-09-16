@@ -128,6 +128,8 @@ class HTMLRenderer : public OutputDev
 
         virtual void drawImage(GfxState * state, Object * ref, Stream * str, int width, int height, GfxImageColorMap * colorMap, GBool interpolate, int *maskColors, GBool inlineImg);
 
+        virtual void processLink(AnnotLink * al);
+
     protected:
         ////////////////////////////////////////////////////
         // misc
@@ -135,8 +137,6 @@ class HTMLRenderer : public OutputDev
         void pre_process();
         void post_process();
 
-        void process_links (void);
-        
         // set flags 
         void fix_stream (std::ostream & out);
 
@@ -144,8 +144,6 @@ class HTMLRenderer : public OutputDev
         void clean_tmp_files ();
         std::string dump_embedded_font (GfxFont * font, long long fn_id);
         void embed_font(const std::string & filepath, GfxFont * font, FontInfo & info, bool get_metric_only = false);
-
-        void draw_annot_link(AnnotLink * al);
 
         ////////////////////////////////////////////////////
         // manage styles

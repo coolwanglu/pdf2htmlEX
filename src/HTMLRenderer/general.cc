@@ -211,143 +211,18 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
 
 void HTMLRenderer::endPage() {
     close_line();
-    process_links();
+
+    // process links before the page is closed
+    cur_doc->processLinks(this, pageNum);
+
     // close page
     html_fout << "</div></div>" << endl;
-}
-
-void HTMLRenderer::pre_process()
-{
-    // we may output utf8 characters, so always use binary
-    {
-        /*
-         * If single-html && !split-pages
-         * we have to keep the generated css file into a temporary place
-         * and embed it into the main html later
-         *
-         *
-         * If single-html && split-page
-         * as there's no place to embed the css file, just leave it alone (into param->dest_dir)
-         *
-         * If !single-html
-         * leave it in param->dest_dir
-         */
-
-        auto fn = (param->single_html && (!param->split_pages))
-            ? str_fmt("%s/__css", param->tmp_dir.c_str())
-            : str_fmt("%s/%s", param->dest_dir.c_str(), param->css_filename.c_str());
-
-        if(param->single_html && (!param->split_pages))
-            add_tmp_file((char*)fn);
-
-        css_path = (char*)fn,
-        css_fout.open(css_path, ofstream::binary);
-        fix_stream(css_fout);
-    }
-
-    // if split-pages is specified, open & close the file in the process loop
-    // if not, open the file here:
-    if(!param->split_pages)
-    {
-        /*
-         * If single-html
-         * we have to keep the html file (for page) into a temporary place
-         * because we'll have to embed css before it
-         *
-         * Otherwise just generate it 
-         */
-        auto fn = str_fmt("%s/__pages", param->tmp_dir.c_str());
-        add_tmp_file((char*)fn);
-
-        html_path = (char*)fn;
-        html_fout.open(html_path, ofstream::binary); 
-        fix_stream(html_fout);
-    }
-}
-
-void HTMLRenderer::post_process()
-{
-    // close files
-    html_fout.close(); 
-    css_fout.close();
-
-    //only when split-page, do we have some work left to do
-    if(param->split_pages)
-        return;
-
-    ofstream output((char*)str_fmt("%s/%s", param->dest_dir.c_str(), param->output_filename.c_str()));
-    fix_stream(output);
-
-    // apply manifest
-    ifstream manifest_fin((char*)str_fmt("%s/%s", param->data_dir.c_str(), MANIFEST_FILENAME.c_str()));
-    if(!manifest_fin)
-        throw "Cannot open the manifest file";
-
-    bool embed_string = false;
-    string line;
-    while(getline(manifest_fin, line))
-    {
-        if(line == "\"\"\"")
-        {
-            embed_string = !embed_string;
-            continue;
-        }
-
-        if(embed_string)
-        {
-            output << line << endl;
-            continue;
-        }
-
-        if(line.empty() || line[0] == '#')
-            continue;
-
-
-        if(line[0] == '@')
-        {
-            embed_file(output, param->data_dir + "/" + line.substr(1), "", true);
-            continue;
-        }
-
-        if(line[0] == '$')
-        {
-            if(line == "$css")
-            {
-                embed_file(output, css_path, ".css", false);
-            }
-            else if (line == "$pages")
-            {
-                ifstream fin(html_path, ifstream::binary);
-                if(!fin)
-                    throw "Cannot open read the pages";
-                output << fin.rdbuf();
-            }
-            else
-            {
-                cerr << "Warning: unknown line in manifest: " << line << endl;
-            }
-            continue;
-        }
-
-        cerr << "Warning: unknown line in manifest: " << line << endl;
-    }
-}
-
-void HTMLRenderer::process_links (void)
-{
-    Links * links = cur_page->getLinks();
-    for(int i = 0; i < links->getNumLinks(); ++i)
-    {
-        AnnotLink * al = links->getLink(i);
-        draw_annot_link(al);
-    }
-    delete links;
 }
 
 /*
  * Based on pdftohtml from poppler
  */
-void HTMLRenderer::draw_annot_link (AnnotLink * al)
+void HTMLRenderer::processLink(AnnotLink * al)
 {
     std::string dest_str;
     auto action = al->getAction();
@@ -490,6 +365,124 @@ void HTMLRenderer::draw_annot_link (AnnotLink * al)
     if(dest_str != "")
     {
         html_fout << "</a>";
+    }
+}
+
+
+void HTMLRenderer::pre_process()
+{
+    // we may output utf8 characters, so always use binary
+    {
+        /*
+         * If single-html && !split-pages
+         * we have to keep the generated css file into a temporary place
+         * and embed it into the main html later
+         *
+         *
+         * If single-html && split-page
+         * as there's no place to embed the css file, just leave it alone (into param->dest_dir)
+         *
+         * If !single-html
+         * leave it in param->dest_dir
+         */
+
+        auto fn = (param->single_html && (!param->split_pages))
+            ? str_fmt("%s/__css", param->tmp_dir.c_str())
+            : str_fmt("%s/%s", param->dest_dir.c_str(), param->css_filename.c_str());
+
+        if(param->single_html && (!param->split_pages))
+            add_tmp_file((char*)fn);
+
+        css_path = (char*)fn,
+        css_fout.open(css_path, ofstream::binary);
+        fix_stream(css_fout);
+    }
+
+    // if split-pages is specified, open & close the file in the process loop
+    // if not, open the file here:
+    if(!param->split_pages)
+    {
+        /*
+         * If single-html
+         * we have to keep the html file (for page) into a temporary place
+         * because we'll have to embed css before it
+         *
+         * Otherwise just generate it 
+         */
+        auto fn = str_fmt("%s/__pages", param->tmp_dir.c_str());
+        add_tmp_file((char*)fn);
+
+        html_path = (char*)fn;
+        html_fout.open(html_path, ofstream::binary); 
+        fix_stream(html_fout);
+    }
+}
+
+void HTMLRenderer::post_process()
+{
+    // close files
+    html_fout.close(); 
+    css_fout.close();
+
+    //only when split-page, do we have some work left to do
+    if(param->split_pages)
+        return;
+
+    ofstream output((char*)str_fmt("%s/%s", param->dest_dir.c_str(), param->output_filename.c_str()));
+    fix_stream(output);
+
+    // apply manifest
+    ifstream manifest_fin((char*)str_fmt("%s/%s", param->data_dir.c_str(), MANIFEST_FILENAME.c_str()));
+    if(!manifest_fin)
+        throw "Cannot open the manifest file";
+
+    bool embed_string = false;
+    string line;
+    while(getline(manifest_fin, line))
+    {
+        if(line == "\"\"\"")
+        {
+            embed_string = !embed_string;
+            continue;
+        }
+
+        if(embed_string)
+        {
+            output << line << endl;
+            continue;
+        }
+
+        if(line.empty() || line[0] == '#')
+            continue;
+
+
+        if(line[0] == '@')
+        {
+            embed_file(output, param->data_dir + "/" + line.substr(1), "", true);
+            continue;
+        }
+
+        if(line[0] == '$')
+        {
+            if(line == "$css")
+            {
+                embed_file(output, css_path, ".css", false);
+            }
+            else if (line == "$pages")
+            {
+                ifstream fin(html_path, ifstream::binary);
+                if(!fin)
+                    throw "Cannot open read the pages";
+                output << fin.rdbuf();
+            }
+            else
+            {
+                cerr << "Warning: unknown line in manifest: " << line << endl;
+            }
+            continue;
+        }
+
+        cerr << "Warning: unknown line in manifest: " << line << endl;
     }
 }
 
