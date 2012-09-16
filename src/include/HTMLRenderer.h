@@ -51,6 +51,7 @@
  * c<hex> - Color
  * _<hex> - white space
  * r<hex> - Rise
+ * h<hex> - Height
  *
  */
 
@@ -148,6 +149,7 @@ class HTMLRenderer : public OutputDev
         long long install_color(const GfxRGB * rgb);
         long long install_whitespace(double ws_width, double & actual_width);
         long long install_rise(double rise);
+        long long install_height(double height);
 
         ////////////////////////////////////////////////////
         // export css styles
@@ -167,7 +169,7 @@ class HTMLRenderer : public OutputDev
         void export_color(long long color_id, const GfxRGB * rgb);
         void export_whitespace(long long ws_id, double ws_width);
         void export_rise(long long rise_id, double rise);
-
+        void export_height(long long height_id, double height);
 
         // depending on single-html, to embed the content or add a link to it
         // "type": specify the file type, usually it's the suffix, in which case this parameter could be ""
@@ -360,6 +362,7 @@ class HTMLRenderer : public OutputDev
         std::unordered_map<GfxRGB, long long, GfxRGB_hash, GfxRGB_equal> color_map; 
         std::map<double, long long> whitespace_map;
         std::map<double, long long> rise_map;
+        std::map<double, long long> height_map;
 
         int image_count;
 

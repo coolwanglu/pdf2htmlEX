@@ -135,4 +135,9 @@ void HTMLRenderer::export_rise (long long rise_id, double rise)
     css_fout << ".r" << rise_id << "{top:" << _round(-rise) << "px;}" << endl;
 }
 
+void HTMLRenderer::export_height (long long height_id, double height) 
+{
+    css_fout << ".h" << height_id << "{height:" << _round(height) << "px;}" << endl;
+}
+
 }
