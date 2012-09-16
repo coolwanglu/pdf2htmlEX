@@ -3,16 +3,25 @@ cmake_minimum_required(VERSION 2.6.0 FATAL_ERROR)
 
 include_directories(${CMAKE_SOURCE_DIR}/src/include)
 
+set(PDF2HTMLEX_VERSION "0.4")
+set(ARCHIVE_NAME pdf2htmlex-${PDF2HTMLEX_VERSION})
+add_custom_target(dist
+    COMMAND git archive --prefix=${ARCHIVE_NAME}/ HEAD
+        | bzip2 > ${CMAKE_BINARY_DIR}/${ARCHIVE_NAME}.tar.bz2
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+
 find_package(PkgConfig)
 pkg_check_modules(POPPLER REQUIRED poppler>=0.20.0)
 include_directories(${POPPLER_INCLUDE_DIRS})
 link_directories(${POPPLER_LIBRARY_DIRS})
+set(PDF2HTMLEX_LIBS ${PDF2HTMLEX_LIBS} ${POPPLER_LIBRARIES})
 
 # fontforge starts using pkg-config 'correctly' since 2.0.0
 pkg_check_modules(FONTFORGE libfontforge>=2.0.0)
 if(FONTFORGE_FOUND)
     include_directories(${FONTFORGE_INCLUDE_DIRS})
     link_directories(${FONTFORGE_LIBRARY_DIRS})
+    set(PDF2HTMLEX_LIBS ${PDF2HTMLEX_LIBS} ${FONTFORGE_LIBRARIES})
 else()
     find_path(FF_INCLUDE_PATH fontforge/fontforge.h)
     if(FF_INCLUDE_PATH)
@@ -33,42 +42,48 @@ else()
         message(FATAL_ERROR "Error: cannot locate fontforge.h")
     endif()
 
-    foreach(FF_LIB_NAME 
-        ${CMAKE_IMPORT_LIBRARY_PREFIX}fontforge${CMAKE_IMPORT_LIBRARY_SUFFIX}
-        ${CMAKE_SHARED_LIBRARY_PREFIX}fontforge${CMAKE_SHARED_LIBRARY_SUFFIX}
-    ${CMAKE_STATIC_LIBRARY_PREFIX}fontforge${CMAKE_STATIC_LIBRARY_SUFFIX}
-    )
-    find_library(FF_LIB ${FF_LIB_NAME})
-    if(FF_LIB)
-        message("Found ${FF_LIB_NAME}: ${FF_LIB}")
-        set(FONTFORGE_LIBRARIES ${FF_LIB})
-        break()
+    find_path(FF_CONFIG_INCLUDE_PATH config.h PATHS ${FONTFORGE_INCLUDE_DIRS})
+    if(FF_CONFIG_INCLUDE_PATH)
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -include ${FF_CONFIG_INCLUDE_PATH}/config.h")
+    else()
+        message("Cannot locate config.h for fontforge")
     endif()
-    endforeach()
 
-    if(NOT FF_LIB)
+    macro(wl_find_library LIB_NAME RESULT)
+        unset(RESULT)
+        foreach(FULL_LIB_NAME 
+            ${CMAKE_IMPORT_LIBRARY_PREFIX}${LIB_NAME}${CMAKE_IMPORT_LIBRARY_SUFFIX}
+            ${CMAKE_SHARED_LIBRARY_PREFIX}${LIB_NAME}${CMAKE_SHARED_LIBRARY_SUFFIX}
+            ${CMAKE_STATIC_LIBRARY_PREFIX}${LIB_NAME}${CMAKE_STATIC_LIBRARY_SUFFIX}
+        )
+            find_library(FULL_LIB ${FULL_LIB_NAME})
+            if(FULL_LIB)
+                message("Found ${LIB_NAME}: ${FULL_LIB}")
+                set(${RESULT} ${FULL_LIB})
+                unset(FULL_LIB)
+                break()
+            endif()
+        endforeach()
+        unset(FULL_LIB_NAME)
+        unset(FULL_LIB_NAME CACHE)
+        unset(FULL_LIB)
+        unset(FULL_LIB CACHE)
+    endmacro()
+
+    wl_find_library(fontforge FONTFORGE_LIBRARIES)
+    if(NOT DEFINED FONTFORGE_LIBRARIES)
         set(FONTFORGE_LIBRARIES fontforge)
-        message("Error: cannot locate ${FF_LIB_NAME}")
+        message("Error: cannot locate fontforge")
     endif()
+    set(PDF2HTMLEX_LIBS ${PDF2HTMLEX_LIBS} ${FONTFORGE_LIBRARIES})
+
+    wl_find_library(gunicode GUNICODE_LIBRARIES)
+    set(PDF2HTMLEX_LIBS ${PDF2HTMLEX_LIBS} ${GUNICODE_LIBRARIES})
 
     message("Looking for libraries of python, which is required by fontforge, if you can link fontforge without python, you may disable this")
     pkg_search_module(PYTHON python python-2.7)
+    set(PDF2HTMLEX_LIBS ${PDF2HTMLEX_LIBS} ${PYTHON_LIBRARIES})
 endif()
-find_path(FF_CONFIG_INCLUDE_PATH config.h PATHS ${FONTFORGE_INCLUDE_DIRS})
-if(FF_CONFIG_INCLUDE_PATH)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -include ${FF_CONFIG_INCLUDE_PATH}/config.h")
-else()
-    message("Cannot locate config.h for fontforge")
-endif()
-
-
-
-set(PDF2HTMLEX_VERSION "0.4")
-set(ARCHIVE_NAME pdf2htmlex-${PDF2HTMLEX_VERSION})
-add_custom_target(dist
-    COMMAND git archive --prefix=${ARCHIVE_NAME}/ HEAD
-        | bzip2 > ${CMAKE_BINARY_DIR}/${ARCHIVE_NAME}.tar.bz2
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wunused-function")
 #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2")
@@ -115,8 +130,7 @@ add_executable(pdf2htmlEX
     src/ArgParser.cc
     src/include/pdf2htmlEX-config.h
     )
-
-target_link_libraries(pdf2htmlEX ${POPPLER_LIBRARIES} ${FONTFORGE_LIBRARIES} ${PYTHON_LIBRARIES})
+target_link_libraries(pdf2htmlEX ${PDF2HTMLEX_LIBS})
 
 install (TARGETS pdf2htmlEX DESTINATION bin)
 file (GLOB datafiles share/*)
