@@ -55,8 +55,9 @@ Special thanks to Arthur Titeica for the [AUR Package](https://aur.archlinux.org
 #### Dependency
 
 * CMake, pkg-config
-* compilers support C++11
+* compilers support C++11, for example
  * GCC >= 4.4.6
+ * I heard about successful build with Clang 
 * libpoppler with xpdf header >= 0.20.0 (compile with --enable-xpdf-headers)
  * Install libpng (and headers) BEFORE you compile libpoppler if you want background images generated
  * Install poppler-data if your want CJK support
