@@ -56,6 +56,7 @@ HTMLRenderer::~HTMLRenderer()
 }
 
 static GBool annot_cb(Annot *, void *) {
+    return true;
     return false;
 };
 
@@ -296,28 +297,16 @@ void HTMLRenderer::processLink(AnnotLink * al)
         html_fout << "<a href=\"" << dest_str << "\">";
     }
 
-    double x1,x2,y1,y2;
-    al->getRect(&x1, &y1, &x2, &y2);
+    html_fout << "<div style=\"";
 
-    x1 = default_ctm[0] * x1 + default_ctm[2] * y1 + default_ctm[4];
-    y1 = default_ctm[1] * x1 + default_ctm[3] * y1 + default_ctm[5];
-    x2 = default_ctm[0] * x2 + default_ctm[2] * y2 + default_ctm[4];
-    y2 = default_ctm[1] * x2 + default_ctm[3] * y2 + default_ctm[5];
-
-    // TODO, in html, border width is included
-    html_fout << "<div style=\"position:absolute;"
-        << "left:" << _round(x1) << "px;"
-        << "bottom:" << _round(y1) << "px;"
-        << "width:" << _round(x2-x1) << "px;"
-        << "height:" << _round(y2-y1) << "px;";
-
+    double width = 0;
     auto * border = al->getBorder();
     if(border)
     {
-        double w = border->getWidth();
-        if(w > 0)
+        width = border->getWidth() * (param->zoom);
+        if(width > 0)
         {
-            html_fout << "border-width:" << _round(w) << "px;";
+            html_fout << "border-width:" << _round(width) << "px;";
             auto style = border->getStyle();
             switch(style)
             {
@@ -369,6 +358,22 @@ void HTMLRenderer::processLink(AnnotLink * al)
     {
         html_fout << "border-style:none;";
     }
+
+    double x1,x2,y1,y2;
+    al->getRect(&x1, &y1, &x2, &y2);
+
+    x1 = default_ctm[0] * x1 + default_ctm[2] * y1 + default_ctm[4];
+    y1 = default_ctm[1] * x1 + default_ctm[3] * y1 + default_ctm[5];
+    x2 = default_ctm[0] * x2 + default_ctm[2] * y2 + default_ctm[4];
+    y2 = default_ctm[1] * x2 + default_ctm[3] * y2 + default_ctm[5];
+
+    // TODO: check overlap when x2-x1-width<0 or y2-y1-width<0
+    html_fout << "position:absolute;"
+        << "left:" << _round(x1 - width/2) << "px;"
+        << "bottom:" << _round(y1 - width/2) << "px;"
+        << "width:" << _round(x2-x1-width) << "px;"
+        << "height:" << _round(y2-y1-width) << "px;";
+
 
     html_fout << "\"></div>";
 
