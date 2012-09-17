@@ -103,6 +103,8 @@ void ffw_load_font(const char * filename)
     if(!font->fv)
         FVAppend(_FontViewCreate(font));
 
+    assert(font->fv);
+
     cur_fv = font->fv;
 }
 
