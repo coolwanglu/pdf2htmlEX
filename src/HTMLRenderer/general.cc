@@ -160,24 +160,29 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
     html_fout << "<div class=\"b\" style=\"width:" << pageWidth << "px;height:" << pageHeight << "px;\">"
         << "<div id=\"p" << pageNum << "\" class=\"p\" style=\"width:" << pageWidth << "px;height:" << pageHeight << "px;";
 
-    html_fout << "background-image:url(";
-
+    if(param->process_nontext)
     {
-        if(param->single_html)
+        html_fout << "background-image:url(";
+
         {
-            auto path = str_fmt("%s/p%x.png", param->tmp_dir.c_str(), pageNum);
-            ifstream fin((char*)path, ifstream::binary);
-            if(!fin)
-                throw string("Cannot read background image ") + (char*)path;
-            html_fout << "'data:image/png;base64," << base64stream(fin) << "'";
+            if(param->single_html)
+            {
+                auto path = str_fmt("%s/p%x.png", param->tmp_dir.c_str(), pageNum);
+                ifstream fin((char*)path, ifstream::binary);
+                if(!fin)
+                    throw string("Cannot read background image ") + (char*)path;
+                html_fout << "'data:image/png;base64," << base64stream(fin) << "'";
+            }
+            else
+            {
+                html_fout << str_fmt("p%x.png", pageNum);
+            }
         }
-        else
-        {
-            html_fout << str_fmt("p%x.png", pageNum);
-        }
+
+        html_fout << ");background-position:0 0;background-size:" << pageWidth << "px " << pageHeight << "px;background-repeat:no-repeat;";
     }
-    
-    html_fout << ");background-position:0 0;background-size:" << pageWidth << "px " << pageHeight << "px;background-repeat:no-repeat;\">";
+
+    html_fout << "\">";
 
     html_fout << "<a name=\"p" << pageNum << "\"></a>";
             
