@@ -16,7 +16,7 @@
 #include "HTMLRenderer.h"
 #include "BackgroundRenderer.h"
 #include "namespace.h"
-#include "ff.h"
+#include "ffw.h"
 #include "pdf2htmlEX-config.h"
 
 namespace pdf2htmlEX {
@@ -36,17 +36,20 @@ HTMLRenderer::HTMLRenderer(const Param * param)
     ,image_count(0)
     ,param(param)
 {
-    //disable error function of poppler
-    setErrorCallback(&dummy, nullptr);
+    if(!(param->debug))
+    {
+        //disable error function of poppler
+        setErrorCallback(&dummy, nullptr);
+    }
 
-    ff_init();
+    ffw_init(param->debug);
     cur_mapping = new int32_t [0x10000];
     cur_mapping2 = new char* [0x100];
 }
 
 HTMLRenderer::~HTMLRenderer()
 { 
-    ff_fin();
+    ffw_fin();
     clean_tmp_files();
     delete [] cur_mapping;
     delete [] cur_mapping2;

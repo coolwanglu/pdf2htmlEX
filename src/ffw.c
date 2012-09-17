@@ -1,5 +1,5 @@
 /*
- * ff.c
+ * ffw.c: Fontforge wrapper
  *
  * Processing fonts using Fontforge
  *
@@ -16,7 +16,7 @@
 #include <fontforge.h>
 #include <baseviews.h>
 
-#include "ff.h"
+#include "ffw.h"
 
 static FontViewBase * cur_fv = NULL;
 static Encoding * original_enc = NULL;
@@ -45,14 +45,15 @@ static int max(int a, int b)
     return (a>b) ? a : b;
 }
 
-static void dummy(const char * format, ...)
+static void dumb_logwarning(const char * format, ...)
 {
-    va_list al;
-    va_start(al, format);
-    va_end(al);
 }
 
-void ff_init(void)
+static void dumb_post_error(const char * title, const char * error, ...)
+{
+}
+
+void ffw_init(int debug)
 {
     InitSimpleStuff();
     if ( default_encoding==NULL )
@@ -60,13 +61,17 @@ void ff_init(void)
     if ( default_encoding==NULL )
         default_encoding=&custom;	/* In case iconv is broken */
 
-    //disable error output of Fontforge
-    ui_interface->logwarning = &dummy;
+    if(!debug)
+    {
+        //disable error output of Fontforge
+        ui_interface->logwarning = &dumb_logwarning;
+        ui_interface->post_error = &dumb_post_error;
+    }
 
     original_enc = FindOrMakeEncoding("original");
 }
 
-void ff_fin(void)
+void ffw_fin(void)
 {
     while(enc_head)
     {
@@ -85,7 +90,7 @@ void ff_fin(void)
     }
 }
 
-void ff_load_font(const char * filename)
+void ffw_load_font(const char * filename)
 {
     char * _filename = strcopy(filename);
     SplineFont * font = LoadSplineFont(_filename, 1);
@@ -101,7 +106,7 @@ void ff_load_font(const char * filename)
     cur_fv = font->fv;
 }
 
-static void ff_do_reencode(Encoding * encoding, int force)
+static void ffw_do_reencode(Encoding * encoding, int force)
 {
     assert(encoding);
 
@@ -123,21 +128,21 @@ static void ff_do_reencode(Encoding * encoding, int force)
     SFReplaceEncodingBDFProps(cur_fv->sf, cur_fv->map);
 }
 
-void ff_reencode_glyph_order(void)
+void ffw_reencode_glyph_order(void)
 {
-    ff_do_reencode(original_enc, 0);
+    ffw_do_reencode(original_enc, 0);
 }
 
-void ff_reencode(const char * encname, int force)
+void ffw_reencode(const char * encname, int force)
 {
     Encoding * enc = FindOrMakeEncoding(encname);
     if(!enc)
         err("Unknown encoding %s\n", encname);
 
-    ff_do_reencode(enc, force);
+    ffw_do_reencode(enc, force);
 }
 
-void ff_reencode_raw(int32 * mapping, int mapping_len, int force)
+void ffw_reencode_raw(int32 * mapping, int mapping_len, int force)
 {
     Encoding * enc = calloc(1, sizeof(Encoding));
     enc->only_1byte = enc->has_1byte = true;
@@ -149,10 +154,10 @@ void ff_reencode_raw(int32 * mapping, int mapping_len, int force)
     enc->next = enc_head;
     enc_head = enc;
 
-    ff_do_reencode(enc, force);
+    ffw_do_reencode(enc, force);
 }
 
-void ff_reencode_raw2(char ** mapping, int mapping_len, int force)
+void ffw_reencode_raw2(char ** mapping, int mapping_len, int force)
 {
     Encoding * enc = calloc(1, sizeof(Encoding));
     enc->enc_name = strcopy("");
@@ -176,17 +181,17 @@ void ff_reencode_raw2(char ** mapping, int mapping_len, int force)
     enc->next = enc_head;
     enc_head = enc;
 
-    ff_do_reencode(enc, force);
+    ffw_do_reencode(enc, force);
 }
 
-void ff_cidflatten(void)
+void ffw_cidflatten(void)
 {
     if(!cur_fv->sf->cidmaster)
         err("Cannot flatten a non-CID font");
     SFFlatten(cur_fv->sf->cidmaster);
 }
 
-void ff_save(const char * filename)
+void ffw_save(const char * filename)
 {
     char * _filename = strcopy(filename);
     char * _ = strcopy("");
@@ -201,13 +206,13 @@ void ff_save(const char * filename)
         err("Cannot save font to %s\n", filename);
 }
 
-void ff_close(void)
+void ffw_close(void)
 {
     FontViewClose(cur_fv);
     cur_fv = NULL;
 }
 
-void ff_metric(int * ascent, int * descent)
+void ffw_metric(int * ascent, int * descent)
 {
     *ascent = cur_fv->sf->ascent;
     *descent = cur_fv->sf->descent;
@@ -227,33 +232,33 @@ void ff_metric(int * ascent, int * descent)
     cur_fv->sf->pfminfo.hheaddescent_add = 0;
 }
 
-int ff_get_em_size(void)
+int ffw_get_em_size(void)
 {
     return (cur_fv->sf->pfminfo.os2_typoascent - cur_fv->sf->pfminfo.os2_typodescent);
 }
 
-int ff_get_max_ascent(void)
+int ffw_get_max_ascent(void)
 {
     return max(cur_fv->sf->pfminfo.os2_winascent,
             max(cur_fv->sf->pfminfo.os2_typoascent,
                 cur_fv->sf->pfminfo.hhead_ascent));
 }
 
-int ff_get_max_descent(void)
+int ffw_get_max_descent(void)
 {
     return max(cur_fv->sf->pfminfo.os2_windescent,
             max(-cur_fv->sf->pfminfo.os2_typodescent,
                 -cur_fv->sf->pfminfo.hhead_descent));
 }
 
-void ff_set_ascent(int a)
+void ffw_set_ascent(int a)
 {
     cur_fv->sf->pfminfo.os2_winascent = a;
     cur_fv->sf->pfminfo.os2_typoascent = a;
     cur_fv->sf->pfminfo.hhead_ascent = a;
 }
 
-void ff_set_descent(int d)
+void ffw_set_descent(int d)
 {
     cur_fv->sf->pfminfo.os2_windescent = d;
     cur_fv->sf->pfminfo.os2_typodescent = -d;

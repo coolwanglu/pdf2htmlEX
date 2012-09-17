@@ -122,8 +122,8 @@ add_executable(pdf2htmlEX
     src/HTMLRenderer/image.cc
     src/include/namespace.h
     src/HTMLRenderer/LineBuffer.cc
-    src/include/ff.h
-    src/ff.c
+    src/include/ffw.h
+    src/ffw.c
     src/include/BackgroundRenderer.h 
     src/BackgroundRenderer.cc 
     src/include/FontPreprocessor.h
