@@ -92,6 +92,8 @@ void HTMLRenderer::process(PDFDoc *doc)
         {
             auto page_fn = str_fmt("%s/%s%d.page", param->dest_dir.c_str(), param->output_filename.c_str(), i);
             html_fout.open((char*)page_fn, ofstream::binary); 
+            if(!html_fout)
+                throw string("Cannot open ") + (char*)page_fn + " for writing";
             fix_stream(html_fout);
         }
 
@@ -399,6 +401,8 @@ void HTMLRenderer::pre_process()
 
         css_path = (char*)fn,
         css_fout.open(css_path, ofstream::binary);
+        if(!css_fout)
+            throw string("Cannot open ") + (char*)fn + " for writing";
         fix_stream(css_fout);
     }
 
@@ -418,6 +422,8 @@ void HTMLRenderer::pre_process()
 
         html_path = (char*)fn;
         html_fout.open(html_path, ofstream::binary); 
+        if(!html_fout)
+            throw string("Cannot open ") + (char*)fn + " for writing";
         fix_stream(html_fout);
     }
 }
@@ -432,11 +438,17 @@ void HTMLRenderer::post_process()
     if(param->split_pages)
         return;
 
-    ofstream output((char*)str_fmt("%s/%s", param->dest_dir.c_str(), param->output_filename.c_str()));
-    fix_stream(output);
+    ofstream output;
+    {
+        auto fn = str_fmt("%s/%s", param->dest_dir.c_str(), param->output_filename.c_str());
+        output.open((char*)fn, ofstream::binary);
+        if(!output)
+            throw string("Cannot open ") + (char*)fn + " for writing";
+        fix_stream(output);
+    }
 
     // apply manifest
-    ifstream manifest_fin((char*)str_fmt("%s/%s", param->data_dir.c_str(), MANIFEST_FILENAME.c_str()));
+    ifstream manifest_fin((char*)str_fmt("%s/%s", param->data_dir.c_str(), MANIFEST_FILENAME.c_str()), ifstream::binary);
     if(!manifest_fin)
         throw "Cannot open the manifest file";
 
@@ -538,7 +550,7 @@ void HTMLRenderer::embed_file(ostream & out, const string & path, const string &
     {
         ifstream fin(path, ifstream::binary);
         if(!fin)
-            throw string("Cannot open file for embedding: ") + path;
+            throw string("Cannot open file ") + path + " for embedding";
         out << iter->second.first << endl
             << fin.rdbuf()
             << iter->second.second << endl;
@@ -554,7 +566,11 @@ void HTMLRenderer::embed_file(ostream & out, const string & path, const string &
             ifstream fin(path, ifstream::binary);
             if(!fin)
                 throw string("Cannot copy file: ") + path;
-            ofstream(param->dest_dir + "/" + fn, ofstream::binary) << fin.rdbuf();
+            auto out_path = param->dest_dir + "/" + fn;
+            ofstream out(out_path, ofstream::binary);
+            if(!out)
+                throw string("Cannot open file ") + path + " for embedding";
+            out << fin.rdbuf();
         }
     }
 }

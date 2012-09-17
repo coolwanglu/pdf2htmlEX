@@ -128,6 +128,8 @@ string HTMLRenderer::dump_embedded_font (GfxFont * font, long long fn_id)
         add_tmp_file(filepath);
 
         ofstream outf(filepath, ofstream::binary);
+        if(!outf)
+            throw string("Cannot open file ") + filepath + " for writing";
 
         char buf[1024];
         int len;
