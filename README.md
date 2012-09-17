@@ -50,6 +50,8 @@ Special thanks to Arthur Titeica for the [AUR Package](https://aur.archlinux.org
 
 ### Build from source
 
+** If you cannot build it on Mac, please use commit f02e1d4 before we resolve the issue **
+
 #### Dependency
 
 * CMake, pkg-config

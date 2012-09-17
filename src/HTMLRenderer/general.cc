@@ -146,7 +146,6 @@ GBool HTMLRenderer::checkPageSlice(Page *page, double hDPI, double vDPI,
     GBool (*annotDisplayDecideCbk)(Annot *annot, void *user_data),
     void *annotDisplayDecideCbkData)
 {
-    cur_page = page;
     return gTrue;
 }
 

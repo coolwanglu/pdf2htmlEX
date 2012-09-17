@@ -22,7 +22,6 @@
 #include <goo/gtypes.h>
 #include <Object.h>
 #include <GfxFont.h>
-#include <Page.h>
 #include <Annot.h>
 
 #include "Param.h"
@@ -206,7 +205,6 @@ class HTMLRenderer : public OutputDev
         ////////////////////////////////////////////////////
         
         XRef * xref;
-        Page * cur_page;
         PDFDoc * cur_doc;
         double default_ctm[6];
 
