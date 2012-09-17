@@ -172,9 +172,11 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
 
     info.use_tounicode = (is_truetype_suffix(suffix) || (param->tounicode > 0));
 
+    const char * used_map = nullptr;
+
     if(!get_metric_only)
     {
-        const char * used_map = font_preprocessor.get_code_map(hash_ref(font->getID()));
+        used_map = font_preprocessor.get_code_map(hash_ref(font->getID()));
 
         /*
          * Step 1
@@ -383,6 +385,13 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
 
         ffw_set_ascent(ascent);
         ffw_set_descent(descent);
+
+        if(!get_metric_only)
+        {
+            if(font_8bit)
+            {
+            }
+        }
     }
 
     {
@@ -439,7 +448,7 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
 
     while (len > 0) {
         auto n = font->getNextChar(p, len, &code, &u, &uLen, &dx1, &dy1, &ox, &oy);
-        
+
         if(!(_equal(ox, 0) && _equal(oy, 0)))
         {
             cerr << "TODO: non-zero origins" << endl;

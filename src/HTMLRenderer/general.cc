@@ -304,11 +304,12 @@ void HTMLRenderer::processLink(AnnotLink * al)
     x2 = default_ctm[0] * x2 + default_ctm[2] * y2 + default_ctm[4];
     y2 = default_ctm[1] * x2 + default_ctm[3] * y2 + default_ctm[5];
 
+    // TODO, in html, border width is included
     html_fout << "<div style=\"position:absolute;"
-        << "left:" << x1 << "px;"
-        << "bottom:" << y1 << "px;"
-        << "width:" << (x2-x1) << "px;"
-        << "height:" << (y2-y1) << "px;";
+        << "left:" << _round(x1) << "px;"
+        << "bottom:" << _round(y1) << "px;"
+        << "width:" << _round(x2-x1) << "px;"
+        << "height:" << _round(y2-y1) << "px;";
 
     auto * border = al->getBorder();
     if(border)
