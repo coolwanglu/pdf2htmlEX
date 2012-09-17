@@ -79,7 +79,7 @@ class HTMLRenderer : public OutputDev
         virtual GBool interpretType3Chars() { return gFalse; }
 
         // Does this device need non-text content?
-        virtual GBool needNonText() { return gTrue; }
+        virtual GBool needNonText() { return gFalse; }
 
         virtual void setDefaultCTM(double *ctm);
 
