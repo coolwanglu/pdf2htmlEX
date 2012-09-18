@@ -6,29 +6,28 @@
  * modifiedy by Lu WANG
  */
 $(function() {
-  var $pages = $(".p"), 
-      $pageWrappers = $(".b"),
-      $main  = $("#pdf-main"),
-      l = $pages.length;
+  var $pages = $(".p");
+  var $page_boxes= $(".b");
+  var $main  = $("#pdf-main");
+  var l = $pages.length;
 
   function isPageVisible(i, H) {
-    var $pw = $($pageWrappers[i]),
-        t   = $pw.offset().top,
-        b   = t + $pw.height() ;
+    var $p = $($pages[i]);
+    var t = $p.offset().top;
+    var b = t + $p.height();
     return ( ! ( b < 0 || t >= H ) );
   }
 
   function setVisibilities(from, to, visible) {
     for(var i = from; i <= to; ++i) {
-      var $p = $($pages[i]);
-      if(visible) $p.show(); else $p.hide();
+      var $pb = $($page_boxes[i]);
+      if(visible) $pb.show(); else $pb.hide();
     }
   }
 
   // Selectively rendering of pages that are visible or will be visible
   function selectiveRender() {
-    var first = 0, last = l - 1,
-        H = $main.height();
+    var first = 0, last = l - 1, H = $main.height();
 
     // Find the first visible page
     while(first < l && !isPageVisible(first, H))

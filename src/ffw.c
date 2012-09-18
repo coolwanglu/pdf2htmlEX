@@ -216,22 +216,33 @@ void ffw_close(void)
 
 void ffw_metric(int * ascent, int * descent)
 {
-    *ascent = cur_fv->sf->ascent;
-    *descent = cur_fv->sf->descent;
+    DBounds bb;
+    SplineFont * sf = cur_fv->sf;
+    SplineFontFindBounds(sf, &bb);
+    struct pfminfo * info = &sf->pfminfo;
 
-    cur_fv->sf->pfminfo.os2_winascent = 0;
-    cur_fv->sf->pfminfo.os2_typoascent = 0;
-    cur_fv->sf->pfminfo.hhead_ascent = 0;
-    cur_fv->sf->pfminfo.winascent_add = 0;
-    cur_fv->sf->pfminfo.typoascent_add = 0;
-    cur_fv->sf->pfminfo.hheadascent_add = 0;
+    //debug
+    printf("%d %d\n", *ascent, *descent);
 
-    cur_fv->sf->pfminfo.os2_windescent = 0;
-    cur_fv->sf->pfminfo.os2_typodescent = 0;
-    cur_fv->sf->pfminfo.hhead_descent = 0;
-    cur_fv->sf->pfminfo.windescent_add = 0;
-    cur_fv->sf->pfminfo.typodescent_add = 0;
-    cur_fv->sf->pfminfo.hheaddescent_add = 0;
+    *ascent = sf->ascent;
+    *descent = sf->descent;
+
+    //debug
+    printf("%d %d\n", *ascent, *descent);
+
+    info->os2_winascent = 0;
+    info->os2_typoascent = 0;
+    info->hhead_ascent = 0;
+    info->winascent_add = 0;
+    info->typoascent_add = 0;
+    info->hheadascent_add = 0;
+
+    info->os2_windescent = 0;
+    info->os2_typodescent = 0;
+    info->hhead_descent = 0;
+    info->windescent_add = 0;
+    info->typodescent_add = 0;
+    info->hheaddescent_add = 0;
 }
 
 int ffw_get_em_size(void)

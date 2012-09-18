@@ -1,6 +1,6 @@
 /* hide all pages */
 (function(){
- var s = '.p{display:none;}';
+ var s = '.b{display:none;}';
  var n = document.createElement("style");
  n.type = "text/css";
  if (n.styleSheet) {

@@ -11,13 +11,16 @@
   /* for Chrome & Safari */
   -webkit-text-stroke-width:0.13px; 
 }
-.b {
+.p {
+  position:relative;
   background-color:white;
   margin: 13px auto;
   overflow: hidden;
 }
-.p {
-  position:relative;
+.b {
+  position:absolute;
+  top:0;
+  left:0;
   background-color:white;
   overflow:hidden;
   display:block;
