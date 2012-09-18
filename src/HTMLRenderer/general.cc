@@ -162,7 +162,9 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
 
     assert((!line_opened) && "Open line in startPage detected!");
 
-    html_fout << "<div class=\"b\" style=\"width:" << pageWidth << "px;height:" << pageHeight << "px;\">"
+    html_fout 
+        << "<a name=\"a" << pageNum << "\">"
+        << "<div class=\"b\" style=\"width:" << pageWidth << "px;height:" << pageHeight << "px;\">"
         << "<div id=\"p" << pageNum << "\" class=\"p\" style=\"width:" << pageWidth << "px;height:" << pageHeight << "px;";
 
     if(param->process_nontext)
@@ -188,9 +190,7 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
     }
 
     html_fout << "\">";
-
-    html_fout << "<a name=\"p" << pageNum << "\"></a>";
-            
+ 
     draw_scale = 1.0;
 
     cur_font_info = install_font(nullptr);
@@ -225,7 +225,7 @@ void HTMLRenderer::endPage() {
     cur_doc->processLinks(this, pageNum);
 
     // close page
-    html_fout << "</div></div>" << endl;
+    html_fout << "</div></div></a>" << endl;
 }
 
 /*
@@ -265,7 +265,7 @@ void HTMLRenderer::processLink(AnnotLink * al)
                         delete dest;
 
                         if(pageno > 0)
-                            dest_str = (char*)str_fmt("#p%x", pageno);
+                            dest_str = (char*)str_fmt("#a%x", pageno);
                     }
                 }
                 break;
