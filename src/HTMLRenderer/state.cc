@@ -232,7 +232,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
             }
             //else no solution
         }
-        // else force new lien
+        // else force new line
 
         if(!merged)
         {
