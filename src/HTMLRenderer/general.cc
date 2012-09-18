@@ -162,8 +162,11 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
 
     assert((!line_opened) && "Open line in startPage detected!");
 
-    html_fout << "<div class=\"b\" style=\"width:" << pageWidth << "px;height:" << pageHeight << "px;\">"
-        << "<div id=\"p" << pageNum << "\" class=\"p\" style=\"width:" << pageWidth << "px;height:" << pageHeight << "px;";
+    html_fout << "<div class=\"b\" style=\"width:" << pageWidth << "px;height:" << pageHeight << "px;\">";
+
+    html_fout << "<a name=\"p" << pageNum << "\"></a>";
+
+    html_fout << "<div id=\"p" << pageNum << "\" class=\"p\" style=\"width:" << pageWidth << "px;height:" << pageHeight << "px;";
 
     if(param->process_nontext)
     {
@@ -188,8 +191,6 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
     }
 
     html_fout << "\">";
-
-    html_fout << "<a name=\"p" << pageNum << "\"></a>";
             
     draw_scale = 1.0;
 
