@@ -24,7 +24,7 @@
 @base.css
 $css
 @jquery.js
-#@hide_pages.js
+@hide_pages.js
 
 """
 <title></title>
@@ -39,7 +39,7 @@ $pages
 </div>
 """
 
-#@scroll.js
+@scroll.js
 
 """
 </body>

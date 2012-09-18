@@ -87,7 +87,7 @@ GPLv2 & GPLv3 Dual licensed
 
 ## Credits
 
-The following projects have been consulted for pdf2htmlEX:
+pdf2htmlEX is inspired by the following projects:
 
 * pdftops & pdftohtml from poppler 
 * MuPDF
