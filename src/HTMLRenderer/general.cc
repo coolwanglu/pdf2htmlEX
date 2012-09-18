@@ -56,7 +56,6 @@ HTMLRenderer::~HTMLRenderer()
 }
 
 static GBool annot_cb(Annot *, void *) {
-    return true;
     return false;
 };
 
