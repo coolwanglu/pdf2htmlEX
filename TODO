@@ -1,6 +1,4 @@
-add fallback font for ' ', or create glyph for it
 fix glyph width as provided in pdf
-
 bug found in baidu & mail 
 
 option for tounicode-map
@@ -15,10 +13,11 @@ argument auto-completion
 
 remove the intermediate save to retrieve asc/des
 
-color invert
 use absolute positioning for long whitespace
+add fallback font for ' ', or create glyph for it
 
 ==Future==
+color invert
 detect duplicate base fonts when embedding
 disable selection if we know unicode is wrong
 combine lines (unwarp)
