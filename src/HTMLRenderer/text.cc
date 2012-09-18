@@ -361,37 +361,11 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
         ffw_load_font((char*)fn);
     }
 
+    ffw_metric(&info.ascent, &info.descent);
+
+    if(param->debug)
     {
-        // read metrics
-//        int em = ffw_get_em_size();
-        int ascent,descent;
-        ffw_metric(&ascent, &descent);
-        int em = ascent + descent;
-
-        if(em != 0)
-        {
-            info.ascent = ((double)ascent) / em;
-            info.descent = -((double)descent) / em;
-        }
-        else
-        {
-            info.ascent = 0;
-            info.descent = 0;
-        }
-        if(param->debug)
-        {
-            cerr << "Ascent: " << info.ascent << " Descent: " << info.descent << endl;
-        }
-
-        ffw_set_ascent(ascent);
-        ffw_set_descent(descent);
-
-        if(!get_metric_only)
-        {
-            if(font_8bit)
-            {
-            }
-        }
+        cerr << "Ascent: " << info.ascent << " Descent: " << info.descent << endl;
     }
 
     {

@@ -40,11 +40,6 @@ static char * strcopy(const char * str)
     return _;
 }
 
-static int max(int a, int b)
-{
-    return (a>b) ? a : b;
-}
-
 static void dumb_logwarning(const char * format, ...)
 {
 }
@@ -214,7 +209,7 @@ void ffw_close(void)
     cur_fv = NULL;
 }
 
-void ffw_metric(int * ascent, int * descent)
+void ffw_metric(double * ascent, double * descent)
 {
     DBounds bb;
     SplineFont * sf = cur_fv->sf;
@@ -222,59 +217,42 @@ void ffw_metric(int * ascent, int * descent)
     struct pfminfo * info = &sf->pfminfo;
 
     //debug
-    printf("%d %d\n", *ascent, *descent);
+    printf("bb %lf %lf\n", bb.maxy, bb.miny);
+    printf("_ %d %d\n", sf->ascent, sf->descent);
+    printf("win %d %d\n", info->os2_winascent, info->os2_windescent);
+    printf("%d %d\n", info->winascent_add, info->windescent_add);
+    printf("typo %d %d\n", info->os2_typoascent, info->os2_typodescent);
+    printf("%d %d\n", info->typoascent_add, info->typodescent_add);
+    printf("hhead %d %d\n", info->hhead_ascent, info->hhead_descent);
+    printf("%d %d\n", info->hheadascent_add, info->hheaddescent_add);
 
-    *ascent = sf->ascent;
-    *descent = sf->descent;
+    int em = sf->ascent + sf->descent;
 
-    //debug
-    printf("%d %d\n", *ascent, *descent);
+    if (em > 0)
+    {
+        *ascent = ((double)bb.maxy) / em;
+        *descent = ((double)bb.miny) / em;
+    }
+    else
+    {
+        *ascent = *descent = 0;
+    }
 
-    info->os2_winascent = 0;
-    info->os2_typoascent = 0;
-    info->hhead_ascent = 0;
+    info->os2_winascent = *ascent;
+    info->os2_typoascent = *ascent;
+    info->hhead_ascent = *ascent;
     info->winascent_add = 0;
     info->typoascent_add = 0;
     info->hheadascent_add = 0;
 
-    info->os2_windescent = 0;
-    info->os2_typodescent = 0;
-    info->hhead_descent = 0;
+    info->os2_windescent = -*descent;
+    info->os2_typodescent = *descent;
+    info->hhead_descent = *descent;
     info->windescent_add = 0;
     info->typodescent_add = 0;
     info->hheaddescent_add = 0;
-}
 
-int ffw_get_em_size(void)
-{
-    return (cur_fv->sf->pfminfo.os2_typoascent - cur_fv->sf->pfminfo.os2_typodescent);
-}
-
-int ffw_get_max_ascent(void)
-{
-    return max(cur_fv->sf->pfminfo.os2_winascent,
-            max(cur_fv->sf->pfminfo.os2_typoascent,
-                cur_fv->sf->pfminfo.hhead_ascent));
-}
-
-int ffw_get_max_descent(void)
-{
-    return max(cur_fv->sf->pfminfo.os2_windescent,
-            max(-cur_fv->sf->pfminfo.os2_typodescent,
-                -cur_fv->sf->pfminfo.hhead_descent));
-}
-
-void ffw_set_ascent(int a)
-{
-    cur_fv->sf->pfminfo.os2_winascent = a;
-    cur_fv->sf->pfminfo.os2_typoascent = a;
-    cur_fv->sf->pfminfo.hhead_ascent = a;
-}
-
-void ffw_set_descent(int d)
-{
-    cur_fv->sf->pfminfo.os2_windescent = d;
-    cur_fv->sf->pfminfo.os2_typodescent = -d;
-    cur_fv->sf->pfminfo.hhead_descent = -d;
+    info->pfmset = 1;
+    sf->changed = true;
 }
 

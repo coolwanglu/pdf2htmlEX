@@ -31,12 +31,7 @@ void ffw_save(const char * filename);
 void ffw_close(void);
 
 // fix metrics and get them
-void ffw_metric(int * ascent, int * descent);
-int ffw_get_em_size(void);
-int ffw_get_max_ascent(void);
-int ffw_get_max_descent(void);
-void ffw_set_ascent(int a);
-void ffw_set_descent(int d);
+void ffw_metric(double * ascent, double * descent);
 
 #ifdef __cplusplus
 }
