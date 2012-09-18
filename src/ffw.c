@@ -238,16 +238,22 @@ void ffw_metric(double * ascent, double * descent)
         *ascent = *descent = 0;
     }
 
-    info->os2_winascent = *ascent;
-    info->os2_typoascent = *ascent;
-    info->hhead_ascent = *ascent;
+    int a = bb.maxy;
+    int d = bb.miny;
+
+    sf->descent += sf->ascent;
+    sf->ascent = 0;
+
+    info->os2_winascent = a;
+    info->os2_typoascent = a;
+    info->hhead_ascent = a;
     info->winascent_add = 0;
     info->typoascent_add = 0;
     info->hheadascent_add = 0;
 
-    info->os2_windescent = -*descent;
-    info->os2_typodescent = *descent;
-    info->hhead_descent = *descent;
+    info->os2_windescent = -d;
+    info->os2_typodescent = d;
+    info->hhead_descent = d;
     info->windescent_add = 0;
     info->typodescent_add = 0;
     info->hheaddescent_add = 0;
