@@ -41,7 +41,6 @@ span {
 }
 ._ {
   color:transparent;
-  font-size:1px;
 }
 ::selection{
   background: rgba(127,255,255,1);

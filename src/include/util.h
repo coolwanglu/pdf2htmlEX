@@ -110,6 +110,7 @@ public:
     long long id;
     bool use_tounicode;
     double ascent, descent;
+    bool has_space; // whether space is included in the font
 };
 
 // wrapper of the transform matrix double[6]

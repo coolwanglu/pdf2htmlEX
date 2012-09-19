@@ -35,7 +35,15 @@ void HTMLRenderer::export_remote_font(const FontInfo & info, const string & suff
         }
     }
 
-    css_fout << ")format(\"" << fontfileformat << "\");}.f" << info.id << "{font-family:f" << info.id << ";line-height:" << _round(info.ascent - info.descent) << ";}" << endl;
+    css_fout << ")format(\"" << fontfileformat << "\");}.f" << info.id << "{font-family:f" << info.id << ";line-height:" << _round(info.ascent - info.descent) << ";}";
+
+    // when ' ' is not vaild in the font, when we use ' ' in padding
+    // the browser will use the fallback font, whose metrics could be (very) different, then the layout will be affected
+    // so set the font-zie to avoid being affected
+    if(!(info.has_space))
+        css_fout << ".f" << info.id << ">._{font-size:1px;}";
+
+    css_fout << endl;
 }
 
 static string general_font_family(GfxFont * font)

@@ -171,6 +171,7 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
         *iter = tolower(*iter);
 
     info.use_tounicode = (is_truetype_suffix(suffix) || (param->tounicode > 0));
+    info.has_space = false;
 
     const char * used_map = nullptr;
 
@@ -320,6 +321,9 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
                 {
                     u = unicode_from_font(i, font);
                 }
+
+                if(u == ' ')
+                    info.has_space = true;
 
                 if(codeset.insert(u).second)
                 {
