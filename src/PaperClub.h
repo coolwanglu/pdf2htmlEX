@@ -116,7 +116,7 @@ class PC_HTMLRenderer : public HTMLRenderer
         { 
             if(param->only_metadata) {
                 cout  << "{"
-                      << "\"title\":\"[";
+                      << "\"title\":[";
                 
                 std::sort(title_candidates.begin(), title_candidates.end(), title_cmp);
                 bool f = true;
