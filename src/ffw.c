@@ -12,6 +12,7 @@
 #include <string.h>
 #include <stdarg.h>
 #include <assert.h>
+#include <math.h>
 
 #include <fontforge.h>
 #include <baseviews.h>
@@ -252,8 +253,8 @@ void ffw_metric(double * ascent, double * descent, int * em_size)
     int a = bb.maxy;
     int d = bb.miny;
 
-    sf->descent += sf->ascent;
-    sf->ascent = 0;
+    sf->ascent = min((int)round(bb.maxy), em);
+    sf->descent = em - bb.maxy;
 
     info->os2_winascent = a;
     info->os2_typoascent = a;

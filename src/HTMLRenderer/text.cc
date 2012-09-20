@@ -391,15 +391,13 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
         // Generate an intermediate ttf font in order to retrieve the metrics
         // TODO: see if we can get the values without save/load
 
-
-        /*
         auto fn = str_fmt("%s/f%llx_.ttf", param->tmp_dir.c_str(), info.id);
         add_tmp_file((char*)fn);
 
         ffw_save((char*)fn);
         ffw_close();
         ffw_load_font((char*)fn);
-        */
+        ffw_metric(&info.ascent, &info.descent, &info.em_size);
     }
     {
         auto fn = str_fmt("%s/f%llx%s", 
