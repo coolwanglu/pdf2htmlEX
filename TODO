@@ -1,5 +1,4 @@
-fix glyph width as provided in pdf
-bug found in baidu & mail 
+bug found in baidu
 
 option for tounicode-map
 get unicode from charname using fontforge (test with 'Font' croc.pdf)
