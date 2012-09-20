@@ -10,8 +10,6 @@ round coordinate and check if it'll be faster
 
 argument auto-completion
 
-remove the intermediate save to retrieve asc/des
-
 use absolute positioning for long whitespace
 add fallback font for ' ', or create glyph for it
 
