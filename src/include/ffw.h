@@ -31,7 +31,9 @@ void ffw_save(const char * filename);
 void ffw_close(void);
 
 // fix metrics and get them
-void ffw_metric(double * ascent, double * descent);
+void ffw_metric(double * ascent, double * descent, int * em_size);
+
+void ffw_set_widths(int * width_list, int mapping_len);
 
 #ifdef __cplusplus
 }

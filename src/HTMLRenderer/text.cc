@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <unordered_set>
 #include <cctype>
+#include <cmath>
 
 #include <CharCodeToUnicode.h>
 #include <fofi/FoFiTrueType.h>
@@ -24,6 +25,7 @@ namespace pdf2htmlEX {
 using std::unordered_set;
 using std::min;
 using std::all_of;
+using std::round;
 
 string HTMLRenderer::dump_embedded_font (GfxFont * font, long long fn_id)
 {
@@ -165,6 +167,7 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
     int maxcode = 0;
 
     Gfx8BitFont * font_8bit = nullptr;
+    GfxCIDFont * font_cid = nullptr;
 
     string suffix = get_suffix(filepath);
     for(auto iter = suffix.begin(); iter != suffix.end(); ++iter)
@@ -174,6 +177,13 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
     info.has_space = false;
 
     const char * used_map = nullptr;
+
+    ffw_metric(&info.ascent, &info.descent, &info.em_size);
+
+    if(param->debug)
+    {
+        cerr << "Ascent: " << info.ascent << " Descent: " << info.descent << endl;
+    }
 
     if(!get_metric_only)
     {
@@ -250,6 +260,7 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
         }
         else
         {
+            font_cid = dynamic_cast<GfxCIDFont*>(font);
             maxcode = 0xffff;
 
             if(is_truetype_suffix(suffix))
@@ -278,6 +289,8 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
          * - For 8bit nonTruetype fonts:
          *   Try to calculate the correct Unicode value from the glyph names, unless param->always_apply_tounicode is set
          * 
+         *
+         * Also fill in the width_list, and set widths accordingly
          */
 
 
@@ -286,18 +299,27 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
             bool name_conflict_warned = false;
 
             auto ctu = font->getToUnicode();
-            memset(cur_mapping, 0, 0x10000 * sizeof(int32_t));
+            memset(cur_mapping, -1, 0x10000 * sizeof(*cur_mapping));
+            memset(width_list, -1, 0x1000 * sizeof(*width_list));
 
             if(code2GID)
                 maxcode = min(maxcode, code2GID_len - 1);
 
+            bool is_truetype = is_truetype_suffix(suffix);
             int max_key = maxcode;
+            /*
+             * Traverse all possible codes
+             */
             for(int i = 0; i <= maxcode; ++i)
             {
                 if(!used_map[i])
                     continue;
 
-                if(is_truetype_suffix(suffix) && (font_8bit != nullptr) && (font_8bit->getCharName(i) == nullptr))
+                /*
+                 * Skip glyphs without names (only for non-ttf fonts)
+                 */
+                if(!is_truetype && (font_8bit != nullptr) 
+                        && (font_8bit->getCharName(i) == nullptr))
                 {
                     continue;
                 }
@@ -338,9 +360,22 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
                         cerr << "Warning: encoding confliction detected in font: " << hex << info.id << dec << endl;
                     }
                 }
+
+                if(font_8bit)
+                {
+                    width_list[k] = (int)round(font_8bit->getWidth(i) * info.em_size);
+                }
+                else
+                {
+                    char buf[2];  
+                    buf[0] = (i >> 8) & 0xff;
+                    buf[1] = (i & 0xff);
+                    width_list[k] = (int)round(font_cid->getWidth(buf, 2) * info.em_size);
+                }
             }
 
             ffw_reencode_raw(cur_mapping, max_key + 1, 1);
+            ffw_set_widths(width_list, max_key + 1);
 
             if(ctu)
                 ctu->decRefCnt();
@@ -357,21 +392,15 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
         // TODO: see if we can get the values without save/load
 
 
+        /*
         auto fn = str_fmt("%s/f%llx_.ttf", param->tmp_dir.c_str(), info.id);
         add_tmp_file((char*)fn);
 
         ffw_save((char*)fn);
         ffw_close();
         ffw_load_font((char*)fn);
+        */
     }
-
-    ffw_metric(&info.ascent, &info.descent);
-
-    if(param->debug)
-    {
-        cerr << "Ascent: " << info.ascent << " Descent: " << info.descent << endl;
-    }
-
     {
         auto fn = str_fmt("%s/f%llx%s", 
                 (param->single_html ? param->tmp_dir : param->dest_dir).c_str(),

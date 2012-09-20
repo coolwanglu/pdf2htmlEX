@@ -109,6 +109,7 @@ class FontInfo
 public:
     long long id;
     bool use_tounicode;
+    int em_size;
     double ascent, descent;
     bool has_space; // whether space is included in the font
 };

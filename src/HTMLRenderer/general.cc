@@ -45,6 +45,7 @@ HTMLRenderer::HTMLRenderer(const Param * param)
     ffw_init(param->debug);
     cur_mapping = new int32_t [0x10000];
     cur_mapping2 = new char* [0x100];
+    width_list = new int [0x10000];
 }
 
 HTMLRenderer::~HTMLRenderer()
@@ -53,6 +54,7 @@ HTMLRenderer::~HTMLRenderer()
     clean_tmp_files();
     delete [] cur_mapping;
     delete [] cur_mapping2;
+    delete [] width_list;
 }
 
 static GBool annot_cb(Annot *, void *) {

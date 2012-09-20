@@ -18,6 +18,11 @@
 
 #include "ffw.h"
 
+static inline int min(int a, int b)
+{
+    return (a<b)?a:b;
+}
+
 static FontViewBase * cur_fv = NULL;
 static Encoding * original_enc = NULL;
 static Encoding * enc_head = NULL;
@@ -209,12 +214,16 @@ void ffw_close(void)
     cur_fv = NULL;
 }
 
-void ffw_metric(double * ascent, double * descent)
+void ffw_metric(double * ascent, double * descent, int * em_size)
 {
-    DBounds bb;
     SplineFont * sf = cur_fv->sf;
+
+    DBounds bb;
     SplineFontFindBounds(sf, &bb);
+
     struct pfminfo * info = &sf->pfminfo;
+
+    *em_size = sf->ascent + sf->descent;
 
     /*
     //debug
@@ -267,3 +276,29 @@ void ffw_metric(double * ascent, double * descent)
     sf->changed = true;
 }
 
+/*
+ * TODO:bitmap, reference have not been considered in this function
+ */
+void ffw_set_widths(int * width_list, int mapping_len)
+{
+    SplineFont * sf = cur_fv->sf;
+
+    EncMap * map = cur_fv->map;
+    int i;
+    int imax = min(mapping_len, map->enccount);
+    for(i = 0; i < imax; ++i)
+    {
+        // TODO why need this
+        // when width_list[i] == -1, the code itself should be unused.
+        // but might be reference within ttf etc
+        if(width_list[i] == -1) continue;
+
+        int j = map->map[i];
+        if(j == -1) continue;
+
+        SplineChar * sc = sf->glyphs[j];
+        if(sc == NULL) continue;
+
+        sc->width = width_list[i];
+    }
+}
