@@ -1,10 +1,9 @@
-bug found in baidu
+bug found in baidu(ubuntu...), bug_chn
 
 option for tounicode-map
 get unicode from charname using fontforge (test with 'Font' croc.pdf)
 also for CID Type 0
 
-rename single-html -> embed-font/image/css ...
 
 round coordinate and check if it'll be faster
 
@@ -12,6 +11,7 @@ argument auto-completion
 
 use absolute positioning for long whitespace
 add fallback font for ' ', or create glyph for it
+rename single-html -> embed-font/image/css ...
 
 ==Future==
 color invert
