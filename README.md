@@ -97,9 +97,9 @@ pdf2htmlEX is inspired by the following projects:
 
 ## Contact
 
-Suggestions and questions are welcome.
+Suggestions and questions are welcome. 
 
-Please read the [FAQ](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ) beforehand.
+Please read [FAQ](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ) before sending an email to me. Or your message might be ignored.
 
 * Lu Wang <coolwanglu@gmail.com>
 
