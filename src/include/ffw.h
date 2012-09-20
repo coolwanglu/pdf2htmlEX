@@ -35,6 +35,8 @@ void ffw_metric(double * ascent, double * descent, int * em_size);
 
 void ffw_set_widths(int * width_list, int mapping_len);
 
+void ffw_auto_hint(void);
+
 #ifdef __cplusplus
 }
 }

@@ -303,3 +303,8 @@ void ffw_set_widths(int * width_list, int mapping_len)
         sc->width = width_list[i];
     }
 }
+
+void ffw_auto_hint(void)
+{
+    FVAutoHint(cur_fv);
+}

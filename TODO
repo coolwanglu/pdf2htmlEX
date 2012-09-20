@@ -2,6 +2,8 @@ remove intermediate save for asc/des
 
 bug found in baidu(ubuntu...), bug_chn
 
+precise link dest
+
 option for tounicode-map
 get unicode from charname using fontforge (test with 'Font' croc.pdf)
 also for CID Type 0
@@ -9,13 +11,14 @@ also for CID Type 0
 
 round coordinate and check if it'll be faster
 
-argument auto-completion
 
-use absolute positioning for long whitespace
 add fallback font for ' ', or create glyph for it
 rename single-html -> embed-font/image/css ...
 
+argument auto-completion
+
 ==Future==
+use absolute positioning for long whitespace
 color invert
 detect duplicate base fonts when embedding
 disable selection if we know unicode is wrong
@@ -23,6 +26,5 @@ combine lines (unwarp)
 Printing
 multiple charcode mapped to a same glyph
 check if we can add information to the font, and let browsers show ligatures automatically
-custom html/css dir
 native support for image
 native support for draw

@@ -173,7 +173,10 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
     for(auto iter = suffix.begin(); iter != suffix.end(); ++iter)
         *iter = tolower(*iter);
 
-    info.use_tounicode = (is_truetype_suffix(suffix) || (param->tounicode > 0));
+    /*
+     * if parm->tounicode is 0, try the provided tounicode map first
+     */
+    info.use_tounicode = (is_truetype_suffix(suffix) || (param->tounicode >= 0));
     info.has_space = false;
 
     const char * used_map = nullptr;
