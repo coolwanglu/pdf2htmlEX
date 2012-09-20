@@ -253,7 +253,7 @@ void ffw_metric(double * ascent, double * descent, int * em_size)
     int a = bb.maxy;
     int d = bb.miny;
 
-    sf->ascent = min((int)round(bb.maxy), em);
+    sf->ascent = min(floor(bb.maxy+0.5), em);
     sf->descent = em - bb.maxy;
 
     info->os2_winascent = a;
