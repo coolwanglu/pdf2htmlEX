@@ -1,3 +1,10 @@
+/*
+ * scroll.js
+ * render only necessary pages
+ *
+ * by Hongliang TIAN
+ * modifiedy by Lu WANG
+ */
 $(function() {
   var $pages = $(".p"), 
       $pageWrappers = $(".b"),
@@ -37,22 +44,21 @@ $(function() {
   }
 
   // Listen to scrolling events to render proper pages
-  var scrollTimer = null;
+  var scrolled = false;
+  var last_scroll_time = Date.now();
   $("#pdf-main").scroll(function() {
-    // Now
-    lastScrollTime = Date.now();
-    // Make sure at most one timer runs
-    clearInterval(scrollTimer);
-    // Check when scrolling stops
-    scrollTimer = setInterval(function() {
-      // If scrolling pauses 200+ms
-      if (Date.now() - lastScrollTime > 200) {
-        clearInterval(scrollTimer);
-        // Only render pages that are or will be visible
-        selectiveRender();
-      }
-    }, 200);
+    scrolled = true;
+    last_scroll_time = Date.now();
   });
+
+  setInterval(function() {
+    // If scrolling pauses 200+ms
+    if (scrolled && (Date.now() - last_scroll_time> 100)) {
+      scrolled = false;
+      // Only render pages that are or will be visible
+      selectiveRender();
+    }
+  }, 100);
 
   // Trigger the event
   $("#pdf-main").scroll();

@@ -1,5 +1,12 @@
-Latest
+Latest v0.4
 
+v0.3
+2012.09.16
+
+* Links
+* New options: --data-dir --split-pages
+* Manifest for customized HTML generation
+* Smooth scrolling
 * Completely removed dependency of boost
 * Removed dependency of boost::filesystem
 * Relaxed dependency on c++11. Now can be built with GCC 4.4.6

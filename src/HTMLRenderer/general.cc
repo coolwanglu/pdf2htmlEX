@@ -11,11 +11,12 @@
 #include <ostream>
 
 #include <splash/SplashBitmap.h>
+#include <Link.h>
 
 #include "HTMLRenderer.h"
 #include "BackgroundRenderer.h"
 #include "namespace.h"
-#include "ff.h"
+#include "ffw.h"
 #include "pdf2htmlEX-config.h"
 
 namespace pdf2htmlEX {
@@ -29,22 +30,26 @@ static void dummy(void *, enum ErrorCategory, int pos, char *)
 }
 
 HTMLRenderer::HTMLRenderer(const Param * param)
-    :line_opened(false)
+    :OutputDev()
+    ,line_opened(false)
     ,line_buf(this)
     ,image_count(0)
     ,param(param)
 {
-    //disable error function of poppler
-    setErrorCallback(&dummy, nullptr);
+    if(!(param->debug))
+    {
+        //disable error function of poppler
+        setErrorCallback(&dummy, nullptr);
+    }
 
-    ff_init();
+    ffw_init(param->debug);
     cur_mapping = new int32_t [0x10000];
     cur_mapping2 = new char* [0x100];
 }
 
 HTMLRenderer::~HTMLRenderer()
 { 
-    ff_fin();
+    ffw_fin();
     clean_tmp_files();
     delete [] cur_mapping;
     delete [] cur_mapping2;
@@ -56,6 +61,7 @@ static GBool annot_cb(Annot *, void *) {
 
 void HTMLRenderer::process(PDFDoc *doc)
 {
+    cur_doc = doc;
     xref = doc->getXRef();
 
     cerr << "Preprocessing: ";
@@ -89,6 +95,8 @@ void HTMLRenderer::process(PDFDoc *doc)
         {
             auto page_fn = str_fmt("%s/%d.page", param->dest_dir.c_str(), i);
             html_fout.open((char*)page_fn, ofstream::binary); 
+            if(!html_fout)
+                throw string("Cannot open ") + (char*)page_fn + " for writing";
             fix_stream(html_fout);
         }
 
@@ -129,6 +137,251 @@ void HTMLRenderer::process(PDFDoc *doc)
     cerr << endl;
 }
 
+void HTMLRenderer::setDefaultCTM(double *ctm)
+{
+    memcpy(default_ctm, ctm, sizeof(default_ctm));
+}
+
+GBool HTMLRenderer::checkPageSlice(Page *page, double hDPI, double vDPI,
+    int rotate, GBool useMediaBox, GBool crop,
+    int sliceX, int sliceY, int sliceW, int sliceH,
+    GBool printing,
+    GBool (* abortCheckCbk)(void *data),
+    void * abortCheckCbkData,
+    GBool (*annotDisplayDecideCbk)(Annot *annot, void *user_data),
+    void *annotDisplayDecideCbkData)
+{
+    return gTrue;
+}
+
+void HTMLRenderer::startPage(int pageNum, GfxState *state) 
+{
+    this->pageNum = pageNum;
+    this->pageWidth = state->getPageWidth();
+    this->pageHeight = state->getPageHeight();
+
+    assert((!line_opened) && "Open line in startPage detected!");
+
+    html_fout 
+        << "<a name=\"a" << pageNum << "\">"
+        << "<div class=\"b\" style=\"width:" << pageWidth << "px;height:" << pageHeight << "px;\">"
+        << "<div id=\"p" << pageNum << "\" class=\"p\" style=\"width:" << pageWidth << "px;height:" << pageHeight << "px;";
+
+    if(param->process_nontext)
+    {
+        html_fout << "background-image:url(";
+
+        {
+            if(param->single_html)
+            {
+                auto path = str_fmt("%s/p%x.png", param->tmp_dir.c_str(), pageNum);
+                ifstream fin((char*)path, ifstream::binary);
+                if(!fin)
+                    throw string("Cannot read background image ") + (char*)path;
+                html_fout << "'data:image/png;base64," << base64stream(fin) << "'";
+            }
+            else
+            {
+                html_fout << str_fmt("p%x.png", pageNum);
+            }
+        }
+
+        html_fout << ");background-position:0 0;background-size:" << pageWidth << "px " << pageHeight << "px;background-repeat:no-repeat;";
+    }
+
+    html_fout << "\">";
+    draw_scale = 1.0;
+
+    cur_font_info = install_font(nullptr);
+    cur_font_size = draw_font_size = 0;
+    cur_fs_id = install_font_size(cur_font_size);
+    
+    memcpy(cur_ctm, id_matrix, sizeof(cur_ctm));
+    memcpy(draw_ctm, id_matrix, sizeof(draw_ctm));
+    cur_tm_id = install_transform_matrix(draw_ctm);
+
+    cur_letter_space = cur_word_space = 0;
+    cur_ls_id = install_letter_space(cur_letter_space);
+    cur_ws_id = install_word_space(cur_word_space);
+
+    cur_color.r = cur_color.g = cur_color.b = 0;
+    cur_color_id = install_color(&cur_color);
+
+    cur_rise = 0;
+    cur_rise_id = install_rise(cur_rise);
+
+    cur_tx = cur_ty = 0;
+    draw_tx = draw_ty = 0;
+
+    reset_state_change();
+    all_changed = true;
+}
+
+void HTMLRenderer::endPage() {
+    close_line();
+
+    // process links before the page is closed
+    cur_doc->processLinks(this, pageNum);
+
+    // close page
+    html_fout << "</div></div></a>" << endl;
+}
+
+/*
+ * Based on pdftohtml from poppler
+ */
+void HTMLRenderer::processLink(AnnotLink * al)
+{
+    std::string dest_str;
+    auto action = al->getAction();
+    if(action)
+    {
+        auto kind = action->getKind();
+        switch(kind)
+        {
+            case actionGoTo:
+                {
+                    auto catalog = cur_doc->getCatalog();
+                    auto * real_action = dynamic_cast<LinkGoTo*>(action);
+                    LinkDest * dest = nullptr;
+                    if(auto _ = real_action->getDest())
+                        dest = _->copy();
+                    else if (auto _ = real_action->getNamedDest())
+                        dest = catalog->findDest(_);
+                    if(dest)
+                    {
+                        int pageno = 0;
+                        if(dest->isPageRef())
+                        {
+                            auto pageref = dest->getPageRef();
+                            pageno = catalog->findPage(pageref.num, pageref.gen);
+                        }
+                        else
+                        {
+                            pageno = dest->getPageNum();
+                        }
+
+                        delete dest;
+
+                        if(pageno > 0)
+                            dest_str = (char*)str_fmt("#a%x", pageno);
+                    }
+                }
+                break;
+            case actionGoToR:
+                {
+                    cerr << "TODO: actionGoToR is not implemented." << endl;
+                }
+                break;
+            case actionURI:
+                {
+                    auto * real_action = dynamic_cast<LinkURI*>(action);
+                    dest_str = real_action->getURI()->getCString();
+                }
+                break;
+            case actionLaunch:
+                {
+                    cerr << "TODO: actionLaunch is not implemented." << endl;
+                }
+                break;
+            default:
+                cerr << "Warning: unknown annotation type: " << kind << endl;
+                break;
+        }
+    }
+
+    if(dest_str != "")
+    {
+        html_fout << "<a href=\"" << dest_str << "\">";
+    }
+
+    html_fout << "<div style=\"";
+
+    double width = 0;
+    auto * border = al->getBorder();
+    if(border)
+    {
+        width = border->getWidth() * (param->zoom);
+        if(width > 0)
+        {
+            html_fout << "border-width:" << _round(width) << "px;";
+            auto style = border->getStyle();
+            switch(style)
+            {
+                case AnnotBorder::borderSolid:
+                    html_fout << "border-style:solid;";
+                    break;
+                case AnnotBorder::borderDashed:
+                    html_fout << "border-style:dashed;";
+                    break;
+                case AnnotBorder::borderBeveled:
+                    html_fout << "border-style:outset;";
+                    break;
+                case AnnotBorder::borderInset:
+                    html_fout << "border-style:inset;";
+                    break;
+                case AnnotBorder::borderUnderlined:
+                    html_fout << "border-style:none;border-bottom-style:solid;";
+                    break;
+                default:
+                    cerr << "Warning:Unknown annotation border style: " << style << endl;
+                    html_fout << "border-style:solid;";
+            }
+
+
+            auto color = al->getColor();
+            double r,g,b;
+            if(color && (color->getSpace() == AnnotColor::colorRGB))
+            {
+                const double * v = color->getValues();
+                r = v[0];
+                g = v[1];
+                b = v[2];
+            }
+            else
+            {
+                r = g = b = 0;
+            }
+
+            html_fout << "border-color:rgb("
+                << dec << (int)dblToByte(r) << "," << (int)dblToByte(g) << "," << (int)dblToByte(b) << hex
+                << ");";
+        }
+        else
+        {
+            html_fout << "border-style:none;";
+        }
+    }
+    else
+    {
+        html_fout << "border-style:none;";
+    }
+
+    double x1,x2,y1,y2;
+    al->getRect(&x1, &y1, &x2, &y2);
+
+    x1 = default_ctm[0] * x1 + default_ctm[2] * y1 + default_ctm[4];
+    y1 = default_ctm[1] * x1 + default_ctm[3] * y1 + default_ctm[5];
+    x2 = default_ctm[0] * x2 + default_ctm[2] * y2 + default_ctm[4];
+    y2 = default_ctm[1] * x2 + default_ctm[3] * y2 + default_ctm[5];
+
+    // TODO: check overlap when x2-x1-width<0 or y2-y1-width<0
+    html_fout << "position:absolute;"
+        << "left:" << _round(x1 - width/2) << "px;"
+        << "bottom:" << _round(y1 - width/2) << "px;"
+        << "width:" << _round(x2-x1-width) << "px;"
+        << "height:" << _round(y2-y1-width) << "px;";
+
+
+    html_fout << "\"></div>";
+
+    if(dest_str != "")
+    {
+        html_fout << "</a>";
+    }
+}
+
+
 void HTMLRenderer::pre_process()
 {
     // we may output utf8 characters, so always use binary
@@ -155,6 +408,8 @@ void HTMLRenderer::pre_process()
 
         css_path = (char*)fn,
         css_fout.open(css_path, ofstream::binary);
+        if(!css_fout)
+            throw string("Cannot open ") + (char*)fn + " for writing";
         fix_stream(css_fout);
     }
 
@@ -174,6 +429,8 @@ void HTMLRenderer::pre_process()
 
         html_path = (char*)fn;
         html_fout.open(html_path, ofstream::binary); 
+        if(!html_fout)
+            throw string("Cannot open ") + (char*)fn + " for writing";
         fix_stream(html_fout);
     }
 }
@@ -188,11 +445,19 @@ void HTMLRenderer::post_process()
     if(param->split_pages)
         return;
 
-    ofstream output((char*)str_fmt("%s/%s", param->dest_dir.c_str(), param->output_filename.c_str()));
-    fix_stream(output);
+    ofstream output;
+    {
+        auto fn = str_fmt("%s/%s", param->dest_dir.c_str(), param->output_filename.c_str());
+        output.open((char*)fn, ofstream::binary);
+        if(!output)
+            throw string("Cannot open ") + (char*)fn + " for writing";
+        fix_stream(output);
+    }
 
     // apply manifest
-    ifstream manifest_fin((char*)str_fmt("%s/%s", param->data_dir.c_str(), MANIFEST_FILENAME.c_str()));
+    ifstream manifest_fin((char*)str_fmt("%s/%s", param->data_dir.c_str(), MANIFEST_FILENAME.c_str()), ifstream::binary);
+    if(!manifest_fin)
+        throw "Cannot open the manifest file";
 
     bool embed_string = false;
     string line;
@@ -228,7 +493,10 @@ void HTMLRenderer::post_process()
             }
             else if (line == "$pages")
             {
-                output << ifstream(html_path, ifstream::binary).rdbuf();
+                ifstream fin(html_path, ifstream::binary);
+                if(!fin)
+                    throw "Cannot open read the pages";
+                output << fin.rdbuf();
             }
             else
             {
@@ -241,68 +509,9 @@ void HTMLRenderer::post_process()
     }
 }
 
-void HTMLRenderer::startPage(int pageNum, GfxState *state) 
-{
-    this->pageNum = pageNum;
-    this->pageWidth = state->getPageWidth();
-    this->pageHeight = state->getPageHeight();
-
-    assert((!line_opened) && "Open line in startPage detected!");
-
-    html_fout << "<div class=\"b\">" 
-      << "<div id=\"p" << pageNum << "\" class=\"p\" style=\"width:" << pageWidth << "px;height:" << pageHeight << "px;";
-
-    html_fout << "background-image:url(";
-
-    {
-        if(param->single_html)
-        {
-            html_fout << "'data:image/png;base64," << base64stream(ifstream((char*)str_fmt("%s/p%x.png", param->tmp_dir.c_str(), pageNum) , ifstream::binary)) << "'";
-        }
-        else
-        {
-            html_fout << str_fmt("p%x.png", pageNum);
-        }
-    }
-    
-    html_fout << ");background-position:0 0;background-size:" << pageWidth << "px " << pageHeight << "px;background-repeat:no-repeat;\">";
-            
-    draw_scale = 1.0;
-
-    cur_font_info = install_font(nullptr);
-    cur_font_size = draw_font_size = 0;
-    cur_fs_id = install_font_size(cur_font_size);
-    
-    memcpy(cur_ctm, id_matrix, sizeof(cur_ctm));
-    memcpy(draw_ctm, id_matrix, sizeof(draw_ctm));
-    cur_tm_id = install_transform_matrix(draw_ctm);
-
-    cur_letter_space = cur_word_space = 0;
-    cur_ls_id = install_letter_space(cur_letter_space);
-    cur_ws_id = install_word_space(cur_word_space);
-
-    cur_color.r = cur_color.g = cur_color.b = 0;
-    cur_color_id = install_color(&cur_color);
-
-    cur_rise = 0;
-    cur_rise_id = install_rise(cur_rise);
-
-    cur_tx = cur_ty = 0;
-    draw_tx = draw_ty = 0;
-
-    reset_state_change();
-    all_changed = true;
-}
-
-void HTMLRenderer::endPage() {
-    close_line();
-    // close page
-    html_fout << "</div></div>" << endl;
-}
-
 void HTMLRenderer::fix_stream (std::ostream & out)
 {
-    out << fixed << hex;
+    out << hex;
 }
 
 void HTMLRenderer::add_tmp_file(const string & fn)
@@ -346,8 +555,11 @@ void HTMLRenderer::embed_file(ostream & out, const string & path, const string &
     
     if(param->single_html)
     {
+        ifstream fin(path, ifstream::binary);
+        if(!fin)
+            throw string("Cannot open file ") + path + " for embedding";
         out << iter->second.first << endl
-            << ifstream(path, ifstream::binary).rdbuf()
+            << fin.rdbuf()
             << iter->second.second << endl;
     }
     else
@@ -358,7 +570,14 @@ void HTMLRenderer::embed_file(ostream & out, const string & path, const string &
 
         if(copy)
         {
-            ofstream(param->dest_dir + "/" + fn, ofstream::binary) << ifstream(path, ifstream::binary).rdbuf();
+            ifstream fin(path, ifstream::binary);
+            if(!fin)
+                throw string("Cannot copy file: ") + path;
+            auto out_path = param->dest_dir + "/" + fn;
+            ofstream out(out_path, ofstream::binary);
+            if(!out)
+                throw string("Cannot open file ") + path + " for embedding";
+            out << fin.rdbuf();
         }
     }
 }

@@ -30,6 +30,7 @@ This program is designed for scientific papers with complicate formulas and figu
 * Text Selection
 * Font embedding & reencoding for Web
 * Proper styling (Color, Transformation...)
+* Links
 * Optimization for Web 
 
 ### Not supported yet
@@ -38,10 +39,6 @@ This program is designed for scientific papers with complicate formulas and figu
 * Non-text object (Don't worry, they will be rendered as images)
 
 ## Get started
-
-**Boost library is no longer required**
-
-**Fontforge-git is no longer required, a recent version should be OK** 
 
 ### Ubuntu 
 
@@ -56,8 +53,9 @@ Special thanks to Arthur Titeica for the [AUR Package](https://aur.archlinux.org
 #### Dependency
 
 * CMake, pkg-config
-* compilers support C++11
+* compilers support C++11, for example
  * GCC >= 4.4.6
+ * I heard about successful build with Clang 
 * libpoppler with xpdf header >= 0.20.0 (compile with --enable-xpdf-headers)
  * Install libpng (and headers) BEFORE you compile libpoppler if you want background images generated
  * Install poppler-data if your want CJK support
@@ -89,7 +87,7 @@ GPLv2 & GPLv3 Dual licensed
 
 ## Credits
 
-The following projects have been consulted for pdf2htmlEX:
+pdf2htmlEX is inspired by the following projects:
 
 * pdftops & pdftohtml from poppler 
 * MuPDF
@@ -99,9 +97,9 @@ The following projects have been consulted for pdf2htmlEX:
 
 ## Contact
 
-Suggestions and questions are welcome.
+Suggestions and questions are welcome. 
 
-Please read the [FAQ](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ) beforehand.
+Please read [FAQ](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ) before sending an email to me. Or your message might be ignored.
 
 * Lu Wang <coolwanglu@gmail.com>
 

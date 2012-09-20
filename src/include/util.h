@@ -48,6 +48,7 @@ namespace
     }
 }
 
+static inline double _round(double x) { return (std::abs(x) > EPS) ? x : 0.0; }
 static inline bool _equal(double x, double y) { return std::abs(x-y) < EPS; }
 static inline bool _is_positive(double x) { return x > EPS; }
 static inline bool _tm_equal(const double * tm1, const double * tm2, int size = 6)

@@ -98,7 +98,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
 
         if(!(new_font_info->id == cur_font_info->id))
         {
-            new_line_state = max(new_line_state, NLS_SPAN);
+            new_line_state = max(new_line_state, NLS_DIV);
             cur_font_info = new_font_info;
         }
 
@@ -232,7 +232,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
             }
             //else no solution
         }
-        // else force new lien
+        // else force new line
 
         if(!merged)
         {

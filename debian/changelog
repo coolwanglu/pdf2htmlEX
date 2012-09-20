@@ -1,3 +1,21 @@
+pdf2htmlex (0.4-1~git201209170124r8b4ec-0ubuntu1) precise; urgency=low
+
+  * Regularly re-packing. 
+
+ -- WANG Lu <coolwanglu@gmail.com>  Mon, 17 Sep 2012 01:24:29 +0800
+
+pdf2htmlex (0.4-1~git201209162328r8b4ec-0ubuntu1) precise; urgency=low
+
+  * Regularly re-packing. 
+
+ -- WANG Lu <coolwanglu@gmail.com>  Sun, 16 Sep 2012 23:28:03 +0800
+
+pdf2htmlex (0.3-1~git201209152353rf02e1-0ubuntu1) precise; urgency=low
+
+  * Regularly re-packing. 
+
+ -- WANG Lu <coolwanglu@gmail.com>  Sat, 15 Sep 2012 23:53:43 +0800
+
 pdf2htmlex (0.3-1~git201209071504ra0de6-0ubuntu1) precise; urgency=low
 
   * fix build 

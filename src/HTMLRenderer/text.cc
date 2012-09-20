@@ -15,7 +15,7 @@
 #include <CharCodeToUnicode.h>
 #include <fofi/FoFiTrueType.h>
 
-#include "ff.h"
+#include "ffw.h"
 #include "HTMLRenderer.h"
 #include "namespace.h"
 
@@ -128,6 +128,8 @@ string HTMLRenderer::dump_embedded_font (GfxFont * font, long long fn_id)
         add_tmp_file(filepath);
 
         ofstream outf(filepath, ofstream::binary);
+        if(!outf)
+            throw string("Cannot open file ") + filepath + " for writing";
 
         char buf[1024];
         int len;
@@ -156,7 +158,7 @@ string HTMLRenderer::dump_embedded_font (GfxFont * font, long long fn_id)
 
 void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo & info, bool get_metric_only)
 {
-    ff_load_font(filepath.c_str());
+    ffw_load_font(filepath.c_str());
 
     int * code2GID = nullptr;
     int code2GID_len = 0;
@@ -170,9 +172,11 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
 
     info.use_tounicode = (is_truetype_suffix(suffix) || (param->tounicode > 0));
 
+    const char * used_map = nullptr;
+
     if(!get_metric_only)
     {
-        const char * used_map = font_preprocessor.get_code_map(hash_ref(font->getID()));
+        used_map = font_preprocessor.get_code_map(hash_ref(font->getID()));
 
         /*
          * Step 1
@@ -196,7 +200,7 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
             maxcode = 0xff;
             if(is_truetype_suffix(suffix))
             {
-                ff_reencode_glyph_order();
+                ffw_reencode_glyph_order();
                 FoFiTrueType *fftt = nullptr;
                 if((fftt = FoFiTrueType::load((char*)filepath.c_str())) != nullptr)
                 {
@@ -240,7 +244,7 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
                     }
                 }
 
-                ff_reencode_raw2(cur_mapping2, 256, 0);
+                ffw_reencode_raw2(cur_mapping2, 256, 0);
             }
         }
         else
@@ -249,7 +253,7 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
 
             if(is_truetype_suffix(suffix))
             {
-                ff_reencode_glyph_order();
+                ffw_reencode_glyph_order();
 
                 GfxCIDFont * _font = dynamic_cast<GfxCIDFont*>(font);
 
@@ -259,7 +263,7 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
             }
             else
             {
-                ff_cidflatten();
+                ffw_cidflatten();
             }
         }
 
@@ -332,7 +336,7 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
                 }
             }
 
-            ff_reencode_raw(cur_mapping, max_key + 1, 1);
+            ffw_reencode_raw(cur_mapping, max_key + 1, 1);
 
             if(ctu)
                 ctu->decRefCnt();
@@ -352,16 +356,18 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
         auto fn = str_fmt("%s/f%llx_.ttf", param->tmp_dir.c_str(), info.id);
         add_tmp_file((char*)fn);
 
-        ff_save((char*)fn);
-        ff_close();
-        ff_load_font((char*)fn);
+        ffw_save((char*)fn);
+        ffw_close();
+        ffw_load_font((char*)fn);
     }
 
     {
         // read metrics
-        int em = ff_get_em_size();
-        int ascent = ff_get_max_ascent();
-        int descent = ff_get_max_descent();
+//        int em = ffw_get_em_size();
+        int ascent,descent;
+        ffw_metric(&ascent, &descent);
+        int em = ascent + descent;
+
         if(em != 0)
         {
             info.ascent = ((double)ascent) / em;
@@ -377,8 +383,15 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
             cerr << "Ascent: " << info.ascent << " Descent: " << info.descent << endl;
         }
 
-        ff_set_ascent(ascent);
-        ff_set_descent(descent);
+        ffw_set_ascent(ascent);
+        ffw_set_descent(descent);
+
+        if(!get_metric_only)
+        {
+            if(font_8bit)
+            {
+            }
+        }
     }
 
     {
@@ -389,8 +402,8 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
         if(param->single_html)
             add_tmp_file((char*)fn);
 
-        ff_save((char*)fn);
-        ff_close();
+        ffw_save((char*)fn);
+        ffw_close();
     }
 }
 
@@ -435,7 +448,7 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
 
     while (len > 0) {
         auto n = font->getNextChar(p, len, &code, &u, &uLen, &dx1, &dy1, &ox, &oy);
-        
+
         if(!(_equal(ox, 0) && _equal(oy, 0)))
         {
             cerr << "TODO: non-zero origins" << endl;

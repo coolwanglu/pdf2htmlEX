@@ -293,4 +293,18 @@ long long HTMLRenderer::install_rise(double rise)
     return new_rise_id;
 }
 
+long long HTMLRenderer::install_height(double height)
+{
+    auto iter = height_map.lower_bound(height - EPS);
+    if((iter != height_map.end()) && (abs(iter->first - height) < EPS))
+    {
+        return iter->second;
+    }
+
+    long long new_height_id = height_map.size();
+    height_map.insert(make_pair(height, new_height_id));
+    export_height(new_height_id, height);
+    return new_height_id;
+}
+
 } // namespace pdf2htmlEX

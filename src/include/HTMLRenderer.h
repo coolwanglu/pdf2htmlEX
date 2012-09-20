@@ -18,13 +18,11 @@
 #include <OutputDev.h>
 #include <GfxState.h>
 #include <Stream.h>
-#include <XRef.h>
-#include <Catalog.h>
-#include <Page.h>
 #include <PDFDoc.h>
 #include <goo/gtypes.h>
 #include <Object.h>
 #include <GfxFont.h>
+#include <Annot.h>
 
 #include "Param.h"
 #include "util.h"
@@ -51,6 +49,7 @@
  * c<hex> - Color
  * _<hex> - white space
  * r<hex> - Rise
+ * h<hex> - Height
  *
  */
 
@@ -82,8 +81,16 @@ class HTMLRenderer : public OutputDev
         // Does this device need non-text content?
         virtual GBool needNonText() { return gFalse; }
 
-        virtual void pre_process();
-        virtual void post_process();
+        virtual void setDefaultCTM(double *ctm);
+
+        virtual GBool checkPageSlice(Page *page, double hDPI, double vDPI,
+            int rotate, GBool useMediaBox, GBool crop,
+            int sliceX, int sliceY, int sliceW, int sliceH,
+            GBool printing,
+            GBool (* abortCheckCbk)(void *data) = NULL,
+            void * abortCheckCbkData = NULL,
+            GBool (*annotDisplayDecideCbk)(Annot *annot, void *user_data) = NULL,
+            void *annotDisplayDecideCbkData = NULL);
 
         // Start a page.
         virtual void startPage(int pageNum, GfxState *state);
@@ -120,11 +127,15 @@ class HTMLRenderer : public OutputDev
 
         virtual void drawImage(GfxState * state, Object * ref, Stream * str, int width, int height, GfxImageColorMap * colorMap, GBool interpolate, int *maskColors, GBool inlineImg);
 
+        virtual void processLink(AnnotLink * al);
+
     protected:
         ////////////////////////////////////////////////////
         // misc
         ////////////////////////////////////////////////////
-        
+        void pre_process();
+        void post_process();
+
         // set flags 
         void fix_stream (std::ostream & out);
 
@@ -148,6 +159,7 @@ class HTMLRenderer : public OutputDev
         long long install_color(const GfxRGB * rgb);
         long long install_whitespace(double ws_width, double & actual_width);
         long long install_rise(double rise);
+        long long install_height(double height);
 
         ////////////////////////////////////////////////////
         // export css styles
@@ -167,7 +179,7 @@ class HTMLRenderer : public OutputDev
         void export_color(long long color_id, const GfxRGB * rgb);
         void export_whitespace(long long ws_id, double ws_width);
         void export_rise(long long rise_id, double rise);
-
+        void export_height(long long height_id, double height);
 
         // depending on single-html, to embed the content or add a link to it
         // "type": specify the file type, usually it's the suffix, in which case this parameter could be ""
@@ -193,6 +205,8 @@ class HTMLRenderer : public OutputDev
         ////////////////////////////////////////////////////
         
         XRef * xref;
+        PDFDoc * cur_doc;
+        double default_ctm[6];
 
         // page info
         int pageNum;
@@ -360,6 +374,7 @@ class HTMLRenderer : public OutputDev
         std::unordered_map<GfxRGB, long long, GfxRGB_hash, GfxRGB_equal> color_map; 
         std::map<double, long long> whitespace_map;
         std::map<double, long long> rise_map;
+        std::map<double, long long> height_map;
 
         int image_count;
 
