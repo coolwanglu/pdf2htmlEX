@@ -33,13 +33,13 @@
 
 <p>A beautiful demo is worth a thousand words:</p>
 
-<p><a href="http://coolwanglu.github.com/pdf2htmlEX/demo/geneve.html"><strong>Typography</strong></a></p>
+<p><a href="http://coolwanglu.github.com/pdf2htmlEX/demo/geneve.html"><strong>Typography</strong></a> <a href="https://github.com/raphink/geneve_1564/raw/master/geneve_1564.pdf">Original</a></p>
 
-<p><a href="http://coolwanglu.github.com/pdf2htmlEX/demo/cheat.html"><strong>Formulas</strong></a></p>
+<p><a href="http://coolwanglu.github.com/pdf2htmlEX/demo/cheat.html"><strong>Formulas</strong></a> <a href="http://www.tug.org/texshowcase/cheat.pdf">Original</a></p>
 
-<p><a href="http://coolwanglu.github.com/pdf2htmlEX/demo/demo.html"><strong>Scientific Paper</strong></a></p>
+<p><a href="http://coolwanglu.github.com/pdf2htmlEX/demo/demo.html"><strong>Scientific Paper</strong></a> <a href="http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.148.349&amp;rep=rep1&amp;type=pdf">Original</a></p>
 
-<p><a href="http://coolwanglu.github.com/pdf2htmlEX/demo/chn.html"><strong>Chinese</strong></a></p>
+<p><a href="http://coolwanglu.github.com/pdf2htmlEX/demo/chn.html"><strong>Chinese</strong></a> <a href="http://files.cnblogs.com/phphuaibei/git%E6%90%AD%E5%BB%BA.pdf">Original</a></p>
 
 <p><strong>WINDOWS XP USERS: Please make sure ClearType is turned on</strong> </p>
 
@@ -61,6 +61,7 @@
 <li>Text Selection</li>
 <li>Font embedding &amp; reencoding for Web</li>
 <li>Proper styling (Color, Transformation...)</li>
+<li>Links</li>
 <li>Optimization for Web </li>
 </ul><h3>Not supported yet</h3>
 
@@ -68,8 +69,6 @@
 <li>Type 3 fonts</li>
 <li>Non-text object (Don't worry, they will be rendered as images)</li>
 </ul><h2>Get started</h2>
-
-<p><strong>Fontforge-git is no longer required, a recent version should be OK</strong> </p>
 
 <h3>Ubuntu</h3>
 
@@ -84,22 +83,27 @@
 <h4>Dependency</h4>
 
 <ul>
-<li>CMake </li>
-<li>compilers support C++11
+<li>CMake, pkg-config</li>
+<li>compilers support C++11, for example
 
 <ul>
-<li>GCC &gt;= 4.6.x</li>
+<li>GCC &gt;= 4.4.6</li>
+<li>I heard about successful build with Clang </li>
 </ul>
 </li>
-<li>libpoppler with xpdf header &gt;= 0.20.2 (compile with --enable-xpdf-headers)
+<li>libpoppler with xpdf header &gt;= 0.20.0 (compile with --enable-xpdf-headers)
 
 <ul>
 <li>Install libpng (and headers) BEFORE you compile libpoppler if you want background images generated</li>
+<li>Install poppler-data if your want CJK support</li>
 </ul>
 </li>
-<li>boost c++ library (program options, gil, filesystem, system(which is actually required by filesystem))</li>
 <li>fontforge (with header files)</li>
-</ul><h4>Compiling</h4>
+</ul><p><strong>Build On Windows</strong></p>
+
+<p>I've tested with CYGWIN without any problem, and I believe it also works on MinGW without many modifications.</p>
+
+<h4>Compiling</h4>
 
 <pre><code>cmake . &amp;&amp; make &amp;&amp; sudo make install
 </code></pre>
@@ -115,13 +119,15 @@ pdf2htmlEX --help
 
 <p>GPLv2 &amp; GPLv3 Dual licensed</p>
 
-<p><strong>Please credit pdf2htmlEX if you use it in your work, especially for commercial use</strong></p>
+<p><strong>pdf2htmlEX is totally free, please credit pdf2htmlEX if you use it</strong></p>
 
-<p><strong>Font extraction or conversion may be illegal, please check your local laws</strong></p>
+<p><strong>Please consider sponsoring it if you use it for commercial purpose</strong></p>
+
+<p><strong>Font extraction, conversion or redistribution may be illegal, please check your local laws</strong></p>
 
 <h2>Credits</h2>
 
-<p>The following projects have been consulted for pdf2htmlEX:</p>
+<p>pdf2htmlEX is inspired by the following projects:</p>
 
 <ul>
 <li>pdftops &amp; pdftohtml from poppler </li>
@@ -131,9 +137,9 @@ pdf2htmlEX --help
 <li>Google Doc</li>
 </ul><h2>Contact</h2>
 
-<p>Suggestions and questions are welcome.</p>
+<p>Suggestions and questions are welcome. </p>
 
-<p>Please read the <a href="https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ">FAQ</a> beforehand.</p>
+<p>Please read <a href="https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ">FAQ</a> before sending an email to me. Or your message might be ignored.</p>
 
 <ul>
 <li>Lu Wang <a href="mailto:coolwanglu@gmail.com">coolwanglu@gmail.com</a>
