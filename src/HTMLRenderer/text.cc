@@ -185,12 +185,6 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
     const char * used_map = nullptr;
 
     ffw_metric(&info.ascent, &info.descent, &info.em_size);
-
-    if(param->debug)
-    {
-        cerr << "Ascent: " << info.ascent << " Descent: " << info.descent << endl;
-    }
-
     if(!get_metric_only)
     {
         used_map = font_preprocessor.get_code_map(hash_ref(font->getID()));
@@ -398,6 +392,11 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
 
         ffw_save((char*)fn);
         ffw_close();
+    }
+
+    if(param->debug)
+    {
+        cerr << "Ascent: " << info.ascent << " Descent: " << info.descent << endl;
     }
 }
 
