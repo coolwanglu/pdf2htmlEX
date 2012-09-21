@@ -3,7 +3,9 @@ Latest v0.4
 * (should) do not freeze Firefox
 * auto hint fonts, good for Chrome
 * many fixes for IE
+(Why no fix for Opera? Because everything has been fine)
 * [Experimental] adjust widths of fonts according to PDF
+
 
 v0.3
 2012.09.16

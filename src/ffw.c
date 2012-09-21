@@ -276,7 +276,6 @@ void ffw_metric(double * ascent, double * descent, int * em_size)
 
     info->os2_typolinegap = 0;
     info->linegap = 0;
-
 }
 
 /*
