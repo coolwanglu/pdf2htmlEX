@@ -310,9 +310,6 @@ void ffw_auto_hint(void)
     // convert to quadratic
     if(!(cur_fv->sf->layers[ly_fore].order2))
     {
-        // for now, disable conversion because it breaks Firefox
-        return;
-
         SFCloseAllInstrs(cur_fv->sf);
         SFConvertToOrder2(cur_fv->sf);
     }
