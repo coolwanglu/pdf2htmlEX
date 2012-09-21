@@ -61,6 +61,7 @@ I have tested with CYGWIN without any problem, and I believe it also works on Mi
 #### Dependency
 
 * CMake, pkg-config
+* GNU Getopt
 * compilers support C++11, for example
  * GCC >= 4.4.6
  * I heard about successful build with Clang 
@@ -68,6 +69,7 @@ I have tested with CYGWIN without any problem, and I believe it also works on Mi
  * Install libpng (and headers) BEFORE you compile libpoppler if you want background images generated
  * Install poppler-data if your want CJK support
 * fontforge (with header files)
+ * git version is recommended to avoid annoying compilation issues
 
 #### Compiling
 
@@ -95,6 +97,12 @@ GPLv2 & GPLv3 Dual licensed
 
 ## Credits
 
+pdf2htmlEX is possible because of the following projects:
+
+* poppler
+* fontforge
+* GNU Getopt
+
 pdf2htmlEX is inspired by the following projects:
 
 * pdftops & pdftohtml from poppler 
@@ -109,7 +117,7 @@ Suggestions and questions are welcome.
 
 Please read [FAQ](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ) before sending an email to me. Or your message might be ignored.
 
-I'm much more user-friendly than pdf2htmlEX.
+I should be much more user-friendly than pdf2htmlEX.
 
 * Lu Wang <coolwanglu@gmail.com>
 
