@@ -18,8 +18,6 @@
 #include <string>
 #include <map>
 
-#include <UTF8.h>
-
 #ifndef nullptr
 #define nullptr (NULL)
 #endif
@@ -37,16 +35,6 @@ extern const std::map<std::string, std::string> GB_ENCODED_FONT_NAME_MAP;
 // key: (suffix, if_embed_content)
 // value: (prefix string, suffix string)
 extern const std::map<std::pair<std::string, bool>, std::pair<std::string, std::string> > EMBED_STRING_MAP;
-
-// mute gcc warning of unused function
-namespace
-{
-    template <class T>
-    void _(){ 
-        auto _1 = &mapUCS2; 
-        auto _2 = &mapUTF8;
-    }
-}
 
 static inline double _round(double x) { return (std::abs(x) > EPS) ? x : 0.0; }
 static inline bool _equal(double x, double y) { return std::abs(x-y) < EPS; }
