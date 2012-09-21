@@ -101,7 +101,6 @@ pdf2htmlEX is made possible thanks to the following projects:
 
 * [poppler](http://poppler.freedesktop.org/)
 * [Fontforge](http://fontforge.org/)
-* [GNU Getopt](http://www.gnu.org/software/libc/manual/html_node/Getopt.html)
 
 pdf2htmlEX is inspired by the following projects:
 
