@@ -254,9 +254,6 @@ void ffw_metric(double * ascent, double * descent, int * em_size)
         *ascent = *descent = 0;
     }
 
-    int a = bb.maxy;
-    int d = bb.miny;
-
     sf->ascent = min(floor(bb.maxy+0.5), em);
     sf->descent = em - bb.maxy;
 
