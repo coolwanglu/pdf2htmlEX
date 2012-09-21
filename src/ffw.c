@@ -107,10 +107,6 @@ void ffw_load_font(const char * filename)
     assert(font->fv);
 
     cur_fv = font->fv;
-
-    SFDefaultOS2Info(&font->pfminfo, font, font->fontname);
-    font->pfminfo.pfmset = 1;
-    font->changed = 1;
 }
 
 static void ffw_do_reencode(Encoding * encoding, int force)
@@ -222,16 +218,18 @@ void ffw_close(void)
 void ffw_metric(double * ascent, double * descent, int * em_size)
 {
     SplineFont * sf = cur_fv->sf;
+    struct pfminfo * info = &sf->pfminfo;
+
+    SFDefaultOS2Info(info, sf, sf->fontname);
+    info->pfmset = 1;
+    sf->changed = 1;
 
     DBounds bb;
     SplineFontFindBounds(sf, &bb);
 
-    struct pfminfo * info = &sf->pfminfo;
-
     *em_size = sf->ascent + sf->descent;
 
     /*
-    //debug
     printf("bb %lf %lf\n", bb.maxy, bb.miny);
     printf("_ %d %d\n", sf->ascent, sf->descent);
     printf("win %d %d\n", info->os2_winascent, info->os2_windescent);
@@ -254,22 +252,28 @@ void ffw_metric(double * ascent, double * descent, int * em_size)
         *ascent = *descent = 0;
     }
 
-    sf->ascent = min(floor(bb.maxy+0.5), em);
+    int a = floor(bb.maxy + 0.5);
+    int d = floor(bb.miny + 0.5);
+    
+    if(a < 0) a = 0;
+    if(d > 0) d = 0;
+
+    sf->ascent = min(a, em);
     sf->descent = em - bb.maxy;
 
-    info->os2_winascent = 0;
-    info->os2_typoascent = 0;
-    info->hhead_ascent = 0;
-    info->winascent_add = 1;
-    info->typoascent_add = 1;
-    info->hheadascent_add = 1;
+    info->os2_winascent = a;
+    info->os2_typoascent = a;
+    info->hhead_ascent = a;
+    info->winascent_add = 0;
+    info->typoascent_add = 0;
+    info->hheadascent_add = 0;
 
-    info->os2_windescent = 0;
-    info->os2_typodescent = 0;
-    info->hhead_descent = 0;
-    info->windescent_add = 1;
-    info->typodescent_add = 1;
-    info->hheaddescent_add = 1;
+    info->os2_windescent = -d;
+    info->os2_typodescent = d;
+    info->hhead_descent = d;
+    info->windescent_add = 0;
+    info->typodescent_add = 0;
+    info->hheaddescent_add = 0;
 
     info->os2_typolinegap = 0;
     info->linegap = 0;
@@ -282,14 +286,21 @@ void ffw_set_widths(int * width_list, int mapping_len)
 {
     SplineFont * sf = cur_fv->sf;
 
+    if(sf->onlybitmaps 
+            && cur_fv->active_bitmap != NULL 
+            && sf->bitmaps != NULL)
+    {
+        printf("TODO: width vs bitmap\n");
+    }
+
     EncMap * map = cur_fv->map;
     int i;
     int imax = min(mapping_len, map->enccount);
     for(i = 0; i < imax; ++i)
     {
-        // TODO why need this
-        // when width_list[i] == -1, the code itself should be unused.
-        // but might be reference within ttf etc
+        /*
+         * Do mess with it if the glyphs is not used.
+         */
         if(width_list[i] == -1) continue;
 
         int j = map->map[i];

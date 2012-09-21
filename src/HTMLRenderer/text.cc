@@ -177,209 +177,216 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
         *iter = tolower(*iter);
 
     /*
+     * TODO
      * if parm->tounicode is 0, try the provided tounicode map first
      */
-    info.use_tounicode = (is_truetype_suffix(suffix) || (param->tounicode >= 0));
+    info.use_tounicode = (is_truetype_suffix(suffix) || (param->tounicode > 0));
     info.has_space = false;
 
     const char * used_map = nullptr;
 
     ffw_metric(&info.ascent, &info.descent, &info.em_size);
-    if(!get_metric_only)
+
+    if(param->debug)
     {
-        used_map = font_preprocessor.get_code_map(hash_ref(font->getID()));
+        cerr << "Ascent: " << info.ascent << " Descent: " << info.descent << endl;
+    }
 
-        /*
-         * Step 1
-         * dump the font file directly from the font descriptor and put the glyphs into the correct slots
-         *
-         * for 8bit + nonTrueType
-         * re-encoding the font using a PostScript encoding list (glyph id <-> glpyh name)
-         *
-         * for 8bit + TrueType
-         * sort the glpyhs as the original order, and later will map GID (instead of char code) to Unicode
-         *
-         * for CID + nonTrueType
-         * Flatten the font 
-         *
-         * for CID Truetype
-         * same as 8bitTrueType, except for that we have to check 65536 charcodes
-         */
-        if(!font->isCIDFont())
+    if(get_metric_only)
+        return;
+
+    used_map = font_preprocessor.get_code_map(hash_ref(font->getID()));
+
+    /*
+     * Step 1
+     * dump the font file directly from the font descriptor and put the glyphs into the correct slots
+     *
+     * for 8bit + nonTrueType
+     * re-encoding the font using a PostScript encoding list (glyph id <-> glpyh name)
+     *
+     * for 8bit + TrueType
+     * sort the glpyhs as the original order, and later will map GID (instead of char code) to Unicode
+     *
+     * for CID + nonTrueType
+     * Flatten the font 
+     *
+     * for CID Truetype
+     * same as 8bitTrueType, except for that we have to check 65536 charcodes
+     */
+    if(!font->isCIDFont())
+    {
+        font_8bit = dynamic_cast<Gfx8BitFont*>(font);
+        maxcode = 0xff;
+        if(is_truetype_suffix(suffix))
         {
-            font_8bit = dynamic_cast<Gfx8BitFont*>(font);
-            maxcode = 0xff;
-            if(is_truetype_suffix(suffix))
+            ffw_reencode_glyph_order();
+            FoFiTrueType *fftt = nullptr;
+            if((fftt = FoFiTrueType::load((char*)filepath.c_str())) != nullptr)
             {
-                ffw_reencode_glyph_order();
-                FoFiTrueType *fftt = nullptr;
-                if((fftt = FoFiTrueType::load((char*)filepath.c_str())) != nullptr)
-                {
-                    code2GID = font_8bit->getCodeToGIDMap(fftt);
-                    code2GID_len = 256;
-                    delete fftt;
-                }
-            }
-            else
-            {
-                // move the slot such that it's consistent with the encoding seen in PDF
-                unordered_set<string> nameset;
-                bool name_conflict_warned = false;
-
-                memset(cur_mapping2, 0, 0x100 * sizeof(char*));
-
-                for(int i = 0; i < 256; ++i)
-                {
-                    if(!used_map[i]) continue;
-
-                    auto cn = font_8bit->getCharName(i);
-                    if(cn == nullptr)
-                    {
-                        continue;
-                    }
-                    else
-                    {
-                        if(nameset.insert(string(cn)).second)
-                        {
-                            cur_mapping2[i] = cn;    
-                        }
-                        else
-                        {
-                            if(!name_conflict_warned)
-                            {
-                                name_conflict_warned = true;
-                                //TODO: may be resolved using advanced font properties?
-                                cerr << "Warning: encoding confliction detected in font: " << hex << info.id << dec << endl;
-                            }
-                        }
-                    }
-                }
-
-                ffw_reencode_raw2(cur_mapping2, 256, 0);
+                code2GID = font_8bit->getCodeToGIDMap(fftt);
+                code2GID_len = 256;
+                delete fftt;
             }
         }
         else
         {
-            font_cid = dynamic_cast<GfxCIDFont*>(font);
-            maxcode = 0xffff;
+            // move the slot such that it's consistent with the encoding seen in PDF
+            unordered_set<string> nameset;
+            bool name_conflict_warned = false;
 
-            if(is_truetype_suffix(suffix))
+            memset(cur_mapping2, 0, 0x100 * sizeof(char*));
+
+            for(int i = 0; i < 256; ++i)
             {
-                ffw_reencode_glyph_order();
+                if(!used_map[i]) continue;
 
-                GfxCIDFont * _font = dynamic_cast<GfxCIDFont*>(font);
+                auto cn = font_8bit->getCharName(i);
+                if(cn == nullptr)
+                {
+                    continue;
+                }
+                else
+                {
+                    if(nameset.insert(string(cn)).second)
+                    {
+                        cur_mapping2[i] = cn;    
+                    }
+                    else
+                    {
+                        if(!name_conflict_warned)
+                        {
+                            name_conflict_warned = true;
+                            //TODO: may be resolved using advanced font properties?
+                            cerr << "Warning: encoding confliction detected in font: " << hex << info.id << dec << endl;
+                        }
+                    }
+                }
+            }
 
-                // code2GID has been stored for embedded CID fonts
-                code2GID = _font->getCIDToGID();
-                code2GID_len = _font->getCIDToGIDLen();
+            ffw_reencode_raw2(cur_mapping2, 256, 0);
+        }
+    }
+    else
+    {
+        font_cid = dynamic_cast<GfxCIDFont*>(font);
+        maxcode = 0xffff;
+
+        if(is_truetype_suffix(suffix))
+        {
+            ffw_reencode_glyph_order();
+
+            GfxCIDFont * _font = dynamic_cast<GfxCIDFont*>(font);
+
+            // code2GID has been stored for embedded CID fonts
+            code2GID = _font->getCIDToGID();
+            code2GID_len = _font->getCIDToGIDLen();
+        }
+        else
+        {
+            ffw_cidflatten();
+        }
+    }
+
+    /*
+     * Step 2
+     * map charcode (or GID for CID truetype)
+     * generate an Consortium encoding file and let fontforge handle it.
+     *
+     * - Always map to Unicode for 8bit TrueType fonts and CID fonts
+     *
+     * - For 8bit nonTruetype fonts:
+     *   Try to calculate the correct Unicode value from the glyph names, unless param->always_apply_tounicode is set
+     * 
+     *
+     * Also fill in the width_list, and set widths accordingly
+     */
+
+
+    {
+        unordered_set<int> codeset;
+        bool name_conflict_warned = false;
+
+        auto ctu = font->getToUnicode();
+        memset(cur_mapping, -1, 0x10000 * sizeof(*cur_mapping));
+        memset(width_list, -1, 0x10000 * sizeof(*width_list));
+
+        if(code2GID)
+            maxcode = min(maxcode, code2GID_len - 1);
+
+        bool is_truetype = is_truetype_suffix(suffix);
+        int max_key = maxcode;
+        /*
+         * Traverse all possible codes
+         */
+        for(int i = 0; i <= maxcode; ++i)
+        {
+            if(!used_map[i])
+                continue;
+
+            /*
+             * Skip glyphs without names (only for non-ttf fonts)
+             */
+            if(!is_truetype && (font_8bit != nullptr) 
+                    && (font_8bit->getCharName(i) == nullptr))
+            {
+                continue;
+            }
+
+            int k = i;
+            if(code2GID)
+            {
+                if((k = code2GID[i]) == 0) continue;
+            }
+
+            if(k > max_key)
+                max_key = k;
+
+            Unicode u, *pu=&u;
+            if(info.use_tounicode)
+            {
+                int n = ctu ? (ctu->mapToUnicode(i, &pu)) : 0;
+                u = check_unicode(pu, n, i, font);
             }
             else
             {
-                ffw_cidflatten();
+                u = unicode_from_font(i, font);
             }
-        }
 
-        /*
-         * Step 2
-         * map charcode (or GID for CID truetype)
-         * generate an Consortium encoding file and let fontforge handle it.
-         *
-         * - Always map to Unicode for 8bit TrueType fonts and CID fonts
-         *
-         * - For 8bit nonTruetype fonts:
-         *   Try to calculate the correct Unicode value from the glyph names, unless param->always_apply_tounicode is set
-         * 
-         *
-         * Also fill in the width_list, and set widths accordingly
-         */
+            if(u == ' ')
+                info.has_space = true;
 
-
-        {
-            unordered_set<int> codeset;
-            bool name_conflict_warned = false;
-
-            auto ctu = font->getToUnicode();
-            memset(cur_mapping, -1, 0x10000 * sizeof(*cur_mapping));
-            memset(width_list, -1, 0x1000 * sizeof(*width_list));
-
-            if(code2GID)
-                maxcode = min(maxcode, code2GID_len - 1);
-
-            bool is_truetype = is_truetype_suffix(suffix);
-            int max_key = maxcode;
-            /*
-             * Traverse all possible codes
-             */
-            for(int i = 0; i <= maxcode; ++i)
+            if(codeset.insert(u).second)
             {
-                if(!used_map[i])
-                    continue;
-
-                /*
-                 * Skip glyphs without names (only for non-ttf fonts)
-                 */
-                if(!is_truetype && (font_8bit != nullptr) 
-                        && (font_8bit->getCharName(i) == nullptr))
+                cur_mapping[k] = u;
+            }
+            else
+            {
+                if(!name_conflict_warned)
                 {
-                    continue;
-                }
-
-                int k = i;
-                if(code2GID)
-                {
-                    if((k = code2GID[i]) == 0) continue;
-                }
-
-                if(k > max_key)
-                    max_key = k;
-
-                Unicode u, *pu=&u;
-                if(info.use_tounicode)
-                {
-                    int n = ctu ? (ctu->mapToUnicode(i, &pu)) : 0;
-                    u = check_unicode(pu, n, i, font);
-                }
-                else
-                {
-                    u = unicode_from_font(i, font);
-                }
-
-                if(u == ' ')
-                    info.has_space = true;
-
-                if(codeset.insert(u).second)
-                {
-                    cur_mapping[k] = u;
-                }
-                else
-                {
-                    if(!name_conflict_warned)
-                    {
-                        name_conflict_warned = true;
-                        //TODO: may be resolved using advanced font properties?
-                        cerr << "Warning: encoding confliction detected in font: " << hex << info.id << dec << endl;
-                    }
-                }
-
-                if(font_8bit)
-                {
-                    width_list[k] = (int)round(font_8bit->getWidth(i) * info.em_size);
-                }
-                else
-                {
-                    char buf[2];  
-                    buf[0] = (i >> 8) & 0xff;
-                    buf[1] = (i & 0xff);
-                    width_list[k] = (int)round(font_cid->getWidth(buf, 2) * info.em_size);
+                    name_conflict_warned = true;
+                    //TODO: may be resolved using advanced font properties?
+                    cerr << "Warning: encoding confliction detected in font: " << hex << info.id << dec << endl;
                 }
             }
 
-            ffw_reencode_raw(cur_mapping, max_key + 1, 1);
-            ffw_set_widths(width_list, max_key + 1);
-
-            if(ctu)
-                ctu->decRefCnt();
+            if(font_8bit)
+            {
+                width_list[k] = (int)round(font_8bit->getWidth(i) * info.em_size);
+            }
+            else
+            {
+                char buf[2];  
+                buf[0] = (i >> 8) & 0xff;
+                buf[1] = (i & 0xff);
+                width_list[k] = (int)round(font_cid->getWidth(buf, 2) * info.em_size);
+            }
         }
+
+        ffw_reencode_raw(cur_mapping, max_key + 1, 1);
+        ffw_set_widths(width_list, max_key + 1);
+
+        if(ctu)
+            ctu->decRefCnt();
     }
 
     {
@@ -392,11 +399,11 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
 
         ffw_save((char*)fn);
         ffw_close();
-    }
 
-    if(param->debug)
-    {
-        cerr << "Ascent: " << info.ascent << " Descent: " << info.descent << endl;
+        ffw_load_font((char*)fn);
+        ffw_metric(&info.ascent, &info.descent, &info.em_size);
+        ffw_save((char*)fn);
+        ffw_close();
     }
 }
 
