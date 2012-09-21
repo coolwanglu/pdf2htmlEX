@@ -105,6 +105,8 @@ Suggestions and questions are welcome.
 
 Please read [FAQ](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ) before sending an email to me. Or your message might be ignored.
 
+I'm much more user-friendly than pdf2htmlEX.
+
 * Lu Wang <coolwanglu@gmail.com>
 
 ### Special Thanks
