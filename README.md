@@ -42,11 +42,11 @@ This program is designed for scientific papers with complicate formulas and figu
 
 ### Ubuntu 
 
-There is a Ubuntu PPA set up at [here](https://launchpad.net/~coolwanglu/+archive/pdf2htmlex).
+A not so up-to-date [Ubuntu PPA](https://launchpad.net/~coolwanglu/+archive/pdf2htmlex).
 
 ### ArchLinux
 
-Special thanks to Arthur Titeica for the [AUR Package](https://aur.archlinux.org/packages.php?ID=62426).
+[AUR Package](https://aur.archlinux.org/packages.php?ID=62426), special thanks to Arthur Titeica
 
 ### Mac
 
