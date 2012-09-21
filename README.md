@@ -54,7 +54,7 @@ MacPorts and Homebrew are coming soon
 
 ### Windows
 
-I've tested with CYGWIN without any problem, and I believe it also works on MinGW without many modifications.
+I have tested with CYGWIN without any problem, and I believe it also works on MinGW without many modifications.
 
 ### Build from source
 
@@ -78,6 +78,10 @@ I've tested with CYGWIN without any problem, and I believe it also works on MinG
     pdf2htmlEX /path/to/foobar.pdf
 
     pdf2htmlEX --help
+
+## FAQ
+
+[here](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ)
 
 ## LICENSE
 

@@ -159,6 +159,7 @@ string HTMLRenderer::dump_embedded_font (GfxFont * font, long long fn_id)
 }
 
 void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo & info, bool get_metric_only)
+
 {
     ffw_load_font(filepath.c_str());
     if(param->auto_hint)

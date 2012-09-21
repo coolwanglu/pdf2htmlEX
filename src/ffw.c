@@ -260,19 +260,19 @@ void ffw_metric(double * ascent, double * descent, int * em_size)
     sf->ascent = min(floor(bb.maxy+0.5), em);
     sf->descent = em - bb.maxy;
 
-    info->os2_winascent = a;
-    info->os2_typoascent = a;
-    info->hhead_ascent = a;
-    info->winascent_add = 0;
-    info->typoascent_add = 0;
-    info->hheadascent_add = 0;
+    info->os2_winascent = 0;
+    info->os2_typoascent = 0;
+    info->hhead_ascent = 0;
+    info->winascent_add = 1;
+    info->typoascent_add = 1;
+    info->hheadascent_add = 1;
 
-    info->os2_windescent = -d;
-    info->os2_typodescent = d;
-    info->hhead_descent = d;
-    info->windescent_add = 0;
-    info->typodescent_add = 0;
-    info->hheaddescent_add = 0;
+    info->os2_windescent = 0;
+    info->os2_typodescent = 0;
+    info->hhead_descent = 0;
+    info->windescent_add = 1;
+    info->typodescent_add = 1;
+    info->hheaddescent_add = 1;
 
     info->os2_typolinegap = 0;
     info->linegap = 0;
@@ -310,6 +310,8 @@ void ffw_auto_hint(void)
     // convert to quadratic
     if(!(cur_fv->sf->layers[ly_fore].order2))
     {
+        return;
+
         SFCloseAllInstrs(cur_fv->sf);
         SFConvertToOrder2(cur_fv->sf);
     }
