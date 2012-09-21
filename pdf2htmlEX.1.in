@@ -59,7 +59,7 @@ Whether to process non-text objects (as images)
 .B --single-html <0|1> (Default: 1)
 Whether to embed everything into one HTML file.
 
-If switched out, there will be several files generated along with the HTML file including files for fonts, css, images.
+If switched off, there will be several files generated along with the HTML file including files for fonts, css, images.
 .TP
 .B --split-pages <0|1> (Default: 0)
 If turned on, each page is saved in a separated files, also the generated css file will be store separatedly as if single-html=0
