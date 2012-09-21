@@ -48,6 +48,14 @@ There is a Ubuntu PPA set up at [here](https://launchpad.net/~coolwanglu/+archiv
 
 Special thanks to Arthur Titeica for the [AUR Package](https://aur.archlinux.org/packages.php?ID=62426).
 
+### Mac
+
+MacPorts and Homebrew are coming soon
+
+### Windows
+
+I've tested with CYGWIN without any problem, and I believe it also works on MinGW without many modifications.
+
 ### Build from source
 
 #### Dependency
@@ -60,10 +68,6 @@ Special thanks to Arthur Titeica for the [AUR Package](https://aur.archlinux.org
  * Install libpng (and headers) BEFORE you compile libpoppler if you want background images generated
  * Install poppler-data if your want CJK support
 * fontforge (with header files)
-
-**Build On Windows**
-
-I've tested with CYGWIN without any problem, and I believe it also works on MinGW without many modifications.
 
 #### Compiling
 
