@@ -385,6 +385,7 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
         }
     }
 
+    if(0)
     {
         /*
          * [Win|Typo|HHead][Ascent|Descent]

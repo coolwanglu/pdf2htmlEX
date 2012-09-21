@@ -230,6 +230,7 @@ void HTMLRenderer::endPage() {
 
 /*
  * Based on pdftohtml from poppler
+ * TODO: CSS for link rectangles
  */
 void HTMLRenderer::processLink(AnnotLink * al)
 {
@@ -357,6 +358,9 @@ void HTMLRenderer::processLink(AnnotLink * al)
     {
         html_fout << "border-style:none;";
     }
+
+    // fix for IE
+    html_fout << "background-color:rgba(255,255,255,0.000001);";
 
     double x1,x2,y1,y2;
     al->getRect(&x1, &y1, &x2, &y2);

@@ -107,6 +107,10 @@ void ffw_load_font(const char * filename)
     assert(font->fv);
 
     cur_fv = font->fv;
+
+    SFDefaultOS2Info(&font->pfminfo, font, font->fontname);
+    font->pfminfo.pfmset = 1;
+    font->changed = 1;
 }
 
 static void ffw_do_reencode(Encoding * encoding, int force)
@@ -273,8 +277,6 @@ void ffw_metric(double * ascent, double * descent, int * em_size)
     info->os2_typolinegap = 0;
     info->linegap = 0;
 
-    info->pfmset = 1;
-    sf->changed = true;
 }
 
 /*
