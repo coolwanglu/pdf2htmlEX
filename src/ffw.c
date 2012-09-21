@@ -308,5 +308,13 @@ void ffw_set_widths(int * width_list, int mapping_len)
 
 void ffw_auto_hint(void)
 {
+    // convert to quadratic
+    if(!(cur_fv->sf->layers[ly_fore].order2))
+    {
+        SFCloseAllInstrs(cur_fv->sf);
+        SFConvertToOrder2(cur_fv->sf);
+    }
+    memset(cur_fv->selected, 1, cur_fv->map->enccount);
     FVAutoHint(cur_fv);
+    FVAutoInstr(cur_fv);
 }

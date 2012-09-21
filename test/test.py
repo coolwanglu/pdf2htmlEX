@@ -5,7 +5,7 @@ DIR = 'pdf'
 import os
 
 with open('out.html','w') as outf:
-    outf.write('<html><head><meta charset=\"utf-8\"></head><body><div style="position:absolute;top:0;left:0;width:80%;height:100%;"><iframe width="100%" height="100%" name="pdf"></iframe></div><div style="position:absolute;top:0;right:0;width:20%;height:100%;overflow:auto;text-align:right;">')
+    outf.write('<!DOCTYPE html>\n<html><head><meta charset=\"utf-8\"></head><body><div style="position:absolute;top:0;left:0;width:80%;height:100%;"><iframe width="100%" height="100%" name="pdf"></iframe></div><div style="position:absolute;top:0;right:0;width:20%;height:100%;overflow:auto;text-align:right;">')
 
     for f in os.listdir(DIR):
         if not f.lower().endswith('.pdf'):

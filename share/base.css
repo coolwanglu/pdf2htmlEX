@@ -8,8 +8,6 @@
   right:0;
   overflow:auto;
   background-color:grey;
-  /* for Chrome & Safari */
-  -webkit-text-stroke-width:0.13px; 
 }
 .p {
   position:relative;
