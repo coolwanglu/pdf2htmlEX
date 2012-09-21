@@ -97,11 +97,11 @@ GPLv2 & GPLv3 Dual licensed
 
 ## Credits
 
-pdf2htmlEX is possible because of the following projects:
+pdf2htmlEX is made possible thanks to the following projects:
 
-* poppler
-* fontforge
-* GNU Getopt
+* [poppler](http://poppler.freedesktop.org/)
+* [Fontforge](http://fontforge.org/)
+* [GNU Getopt](http://www.gnu.org/software/libc/manual/html_node/Getopt.html)
 
 pdf2htmlEX is inspired by the following projects:
 
