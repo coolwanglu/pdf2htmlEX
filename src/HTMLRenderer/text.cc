@@ -400,8 +400,8 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
         ffw_save((char*)fn);
         ffw_close();
 
+        // get accurate ascent/descent
         //TODO
-        //this is for CID fonts
         ffw_load_font((char*)fn);
         ffw_metric(&info.ascent, &info.descent, &info.em_size);
         ffw_save((char*)fn);
