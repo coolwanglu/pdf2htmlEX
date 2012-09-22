@@ -19,13 +19,9 @@ var pdf2htmlEX = (function(){
     default_scale_ratio : 1.0,
     cur_scale_ratio : 1.0,
 
-
-
     /* Constants */
     render_timeout : 200,
     scale_step : 0.9,
-
-
 
     init_before_loading_content : function() {
       /*hide all pages before loading, will reveal only visible ones later */
@@ -170,7 +166,7 @@ var pdf2htmlEX = (function(){
         var pb = $(this.page_boxes[i]);
         p.height(pb.height() * ratio);
         p.width(pb.width() * ratio);
-        pb.css('transform', 'scale('+ratio+')');
+        pb.css('transform', 'scale('+ratio.toFixed(3)+')');
       }
 
       this.schedule_render();
