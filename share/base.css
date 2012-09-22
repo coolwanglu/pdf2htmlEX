@@ -1,5 +1,8 @@
 /* Base CSS */
 /* by Wang Lu */
+body {
+  position:relative;
+}
 #pdf-main {
   position:absolute;
   top:0;
