@@ -8,6 +8,7 @@
  */
 
 #include <cstring>
+#include <iostream>
 
 #include <GfxState.h>
 #include <GfxFont.h>
@@ -17,8 +18,13 @@
 
 namespace pdf2htmlEX {
 
-Preprocessor::Preprocessor(void)
+using std::cerr;
+using std::endl;
+using std::flush;
+
+Preprocessor::Preprocessor(const Param * param)
     : OutputDev()
+    , param(param)
     , cur_font_id(0)
     , cur_code_map(nullptr)
 { }
@@ -27,6 +33,19 @@ Preprocessor::~Preprocessor(void)
 {
     for(auto iter = code_maps.begin(); iter != code_maps.end(); ++iter)
         delete [] iter->second;
+}
+
+void Preprocessor::process(PDFDoc * doc)
+{
+    for(int i = param->first_page; i <= param->last_page ; ++i) 
+    {
+        doc->displayPage(this, i, param->h_dpi, param->v_dpi,
+                0, true, false, false,
+                nullptr, nullptr, nullptr, nullptr);
+
+        cerr << "." << flush;
+    }
+    cerr << endl;
 }
 
 void Preprocessor::drawChar(GfxState *state, double x, double y,

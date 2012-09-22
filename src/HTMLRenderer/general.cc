@@ -33,6 +33,7 @@ HTMLRenderer::HTMLRenderer(const Param * param)
     :OutputDev()
     ,line_opened(false)
     ,line_buf(this)
+    ,preprocessor(param)
     ,image_count(0)
     ,param(param)
 {
@@ -67,14 +68,7 @@ void HTMLRenderer::process(PDFDoc *doc)
     xref = doc->getXRef();
 
     cerr << "Preprocessing: ";
-    for(int i = param->first_page; i <= param->last_page ; ++i) 
-    {
-        doc->displayPage(&preprocessor, i, param->h_dpi, param->v_dpi,
-                0, true, false, false,
-                nullptr, nullptr, nullptr, nullptr);
-        cerr << "." << flush;
-    }
-    cerr << endl;
+    preprocessor.process(doc);
 
     cerr << "Working: ";
     BackgroundRenderer * bg_renderer = nullptr;
@@ -142,18 +136,6 @@ void HTMLRenderer::process(PDFDoc *doc)
 void HTMLRenderer::setDefaultCTM(double *ctm)
 {
     memcpy(default_ctm, ctm, sizeof(default_ctm));
-}
-
-GBool HTMLRenderer::checkPageSlice(Page *page, double hDPI, double vDPI,
-    int rotate, GBool useMediaBox, GBool crop,
-    int sliceX, int sliceY, int sliceW, int sliceH,
-    GBool printing,
-    GBool (* abortCheckCbk)(void *data),
-    void * abortCheckCbkData,
-    GBool (*annotDisplayDecideCbk)(Annot *annot, void *user_data),
-    void *annotDisplayDecideCbkData)
-{
-    return gTrue;
 }
 
 void HTMLRenderer::startPage(int pageNum, GfxState *state) 

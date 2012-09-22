@@ -101,6 +101,7 @@ pdf2htmlEX is made possible thanks to the following projects:
 
 * [poppler](http://poppler.freedesktop.org/)
 * [Fontforge](http://fontforge.org/)
+* [jQuery](http://jquery.com/)
 
 pdf2htmlEX is inspired by the following projects:
 

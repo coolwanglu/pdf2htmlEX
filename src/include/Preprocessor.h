@@ -4,6 +4,7 @@
  * PDF is so complicated that we have to scan twice
  *
  * Check used codes for each font
+ * Collect all used link destinations
  *
  * by WangLu
  * 2012.09.07
@@ -16,18 +17,25 @@
 #include <unordered_map>
 
 #include <OutputDev.h>
+#include <PDFDoc.h>
+#include <Annot.h>
+
+#include "Param.h"
 
 namespace pdf2htmlEX {
 
 class Preprocessor : public OutputDev {
 public:
-    Preprocessor(void);
+    Preprocessor(const Param * param);
     virtual ~Preprocessor(void);
+
+    void process(PDFDoc * doc);
 
     virtual GBool upsideDown() { return gFalse; }
     virtual GBool useDrawChar() { return gTrue; }
     virtual GBool interpretType3Chars() { return gFalse; }
     virtual GBool needNonText() { return gFalse; }
+
     virtual void drawChar(GfxState *state, double x, double y,
       double dx, double dy,
       double originX, double originY,
@@ -36,6 +44,8 @@ public:
     const char * get_code_map (long long font_id) const;
 
 protected:
+    const Param * param;
+
     long long cur_font_id;
     char * cur_code_map;
 
