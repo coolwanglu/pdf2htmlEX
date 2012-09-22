@@ -389,6 +389,13 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
             ctu->decRefCnt();
     }
 
+    /*
+     * Step 3
+     *
+     * Generate the font as desired
+     *
+     * Reload to retrieve accurate ascent/descent <-- TODO: remove this
+     */
     {
         auto fn = str_fmt("%s/f%llx%s", 
                 (param->single_html ? param->tmp_dir : param->dest_dir).c_str(),
@@ -400,8 +407,6 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
         ffw_save((char*)fn);
         ffw_close();
 
-        // get accurate ascent/descent
-        //TODO
         ffw_load_font((char*)fn);
         ffw_metric(&info.ascent, &info.descent, &info.em_size);
         ffw_save((char*)fn);
