@@ -11,7 +11,7 @@
  */
 
 var pdf2htmlEX = (function(){
-  var obj = {
+  return {
     pages : [],
     page_boxes : [],
     container : null,
@@ -44,6 +44,8 @@ var pdf2htmlEX = (function(){
 
       var _ = this;
       $(document).ready(function(){_.init_after_loading_content();});
+
+      return this;
     },
 
     hide_pages : function() {
@@ -84,8 +86,7 @@ var pdf2htmlEX = (function(){
         $(this.page_boxes[i]).hide();
       }
     },
-  };
 
-  obj.init();
-  return obj;
+    __last_member__ : 'no comma' /*,*/
+  }.init();
 })();
