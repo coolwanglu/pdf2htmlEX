@@ -136,6 +136,11 @@ add_executable(pdf2htmlEX
 target_link_libraries(pdf2htmlEX ${PDF2HTMLEX_LIBS})
 
 install (TARGETS pdf2htmlEX DESTINATION bin)
-file (GLOB datafiles share/*)
+file (GLOB datafiles 
+    share/base.css
+    share/jquery.js
+    share/pdf2htmlEX.js
+    share/manifest
+    )
 install (FILES ${datafiles} DESTINATION share/pdf2htmlEX)
 install (FILES pdf2htmlEX.1 DESTINATION share/man/man1)

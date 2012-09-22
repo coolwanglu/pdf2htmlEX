@@ -9,6 +9,7 @@
 
 #include <cstdio>
 #include <ostream>
+#include <cmath>
 
 #include <splash/SplashBitmap.h>
 #include <Link.h>
@@ -24,6 +25,7 @@ namespace pdf2htmlEX {
 using std::fixed;
 using std::flush;
 using std::ostream;
+using std::max;
 
 static void dummy(void *, enum ErrorCategory, int pos, char *)
 {
@@ -47,6 +49,12 @@ HTMLRenderer::HTMLRenderer(const Param * param)
     cur_mapping = new int32_t [0x10000];
     cur_mapping2 = new char* [0x100];
     width_list = new int [0x10000];
+
+    /*
+     * determine scale factors
+     */
+    scale_factor1 = max(param->zoom, param->font_size_multiplier);  
+    scale_factor2 = (param->zoom) / scale_factor1;
 }
 
 HTMLRenderer::~HTMLRenderer()
@@ -113,7 +121,7 @@ void HTMLRenderer::process(PDFDoc *doc)
             }
         }
 
-        doc->displayPage(this, i, param->zoom * DEFAULT_DPI, param->zoom * DEFAULT_DPI,
+        doc->displayPage(this, i, scale_factor1 * DEFAULT_DPI, scale_factor1 * DEFAULT_DPI,
                 0, true, false, false,
                 nullptr, nullptr, nullptr, nullptr);
 
@@ -147,8 +155,18 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
     assert((!line_opened) && "Open line in startPage detected!");
 
     html_fout 
-        << "<div id=\"p" << pageNum << "\" class=\"p\" style=\"width:" << pageWidth << "px;height:" << pageHeight << "px;\">"
-        << "<div id=\"b" << pageNum << "\" class=\"b\" style=\"width:" << pageWidth << "px;height:" << pageHeight << "px;";
+        << "<div id=\"p" << pageNum << "\" class=\"p\" style=\"width:" 
+            << (pageWidth * scale_factor2) << "px;height:" 
+            << (pageHeight * scale_factor2) << "px;\">"
+        << "<div id=\"b" << pageNum << "\" class=\"b\" style=\"width:" 
+            << pageWidth << "px;height:" 
+            << pageHeight << "px;";
+
+    {
+        auto prefixes = {"", "-ms-", "-moz-", "-webkit-", "-o-"};
+        for(auto iter = prefixes.begin(); iter != prefixes.end(); ++iter)
+            html_fout << *iter << "transform:scale(" << scale_factor2 << ");";
+    }
 
     if(param->process_nontext)
     {

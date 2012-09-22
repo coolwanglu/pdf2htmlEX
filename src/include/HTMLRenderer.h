@@ -204,6 +204,18 @@ class HTMLRenderer : public OutputDev
         double pageWidth ;
         double pageHeight ;
 
+        /*
+         * The content of each page is first scaled with factor1 (>=1), then scale back with factor2(<=1)
+         *
+         * factor1 is use to multiplied with all metrics (height/width/font-size...), in order to improve accuracy
+         * factor2 is applied with css transform, and is exposed to Javascript
+         *
+         * factor1 & factor 2 are determined according to zoom and font-size-multiplier
+         *
+         */
+        double scale_factor1;
+        double scale_factor2;
+
 
         ////////////////////////////////////////////////////
         // states

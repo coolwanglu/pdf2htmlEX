@@ -1,8 +1,5 @@
 /* Base CSS */
 /* by Wang Lu */
-body {
-  position:relative;
-}
 #pdf-main {
   position:absolute;
   top:0;
@@ -25,6 +22,11 @@ body {
   background-color:white;
   overflow:hidden;
   display:block;
+  transform-origin:0% 0%;
+  -ms-transform-origin:0% 0%;
+  -moz-transform-origin:0% 0%;
+  -webkit-transform-origin:0% 0%;
+  -o-transform-origin:0% 0%;
 }
 .l {
   position:absolute;
