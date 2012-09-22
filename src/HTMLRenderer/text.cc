@@ -195,7 +195,7 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
     if(get_metric_only)
         return;
 
-    used_map = font_preprocessor.get_code_map(hash_ref(font->getID()));
+    used_map = preprocessor.get_code_map(hash_ref(font->getID()));
 
     /*
      * Step 1

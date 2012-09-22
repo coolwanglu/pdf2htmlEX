@@ -26,7 +26,7 @@
 
 #include "Param.h"
 #include "util.h"
-#include "FontPreprocessor.h"
+#include "Preprocessor.h"
 
 /*
  * Naming Convention
@@ -358,7 +358,7 @@ class HTMLRenderer : public OutputDev
         int32_t * cur_mapping;
         char ** cur_mapping2;
         int * width_list;
-        FontPreprocessor font_preprocessor;
+        Preprocessor preprocessor;
 
         // for string formatting
         string_formatter str_fmt;

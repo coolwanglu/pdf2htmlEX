@@ -1,5 +1,7 @@
 /*
- * FontPreprocessor.h
+ * Preprocessor.h
+ *
+ * PDF is so complicated that we have to scan twice
  *
  * Check used codes for each font
  *
@@ -8,8 +10,8 @@
  */
 
 
-#ifndef FONTPREPROCESSOR_H__
-#define FONTPREPROCESSOR_H__
+#ifndef PREPROCESSOR_H__
+#define PREPROCESSOR_H__
 
 #include <unordered_map>
 
@@ -17,10 +19,10 @@
 
 namespace pdf2htmlEX {
 
-class FontPreprocessor : public OutputDev {
+class Preprocessor : public OutputDev {
 public:
-    FontPreprocessor(void);
-    virtual ~FontPreprocessor(void);
+    Preprocessor(void);
+    virtual ~Preprocessor(void);
 
     virtual GBool upsideDown() { return gFalse; }
     virtual GBool useDrawChar() { return gTrue; }
@@ -42,4 +44,4 @@ protected:
 
 } // namespace pdf2htmlEX
 
-#endif //FONTPREPROCESSOR_H__
+#endif //PREPROCESSOR_H__

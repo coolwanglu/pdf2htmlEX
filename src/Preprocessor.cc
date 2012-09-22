@@ -1,5 +1,5 @@
 /*
- * FontPreprocessor.h
+ * Preprocessor.cc
  *
  * Check used codes for each font
  *
@@ -12,23 +12,24 @@
 #include <GfxState.h>
 #include <GfxFont.h>
 
-#include "FontPreprocessor.h"
+#include "Preprocessor.h"
 #include "util.h"
 
 namespace pdf2htmlEX {
 
-FontPreprocessor::FontPreprocessor(void)
-    : cur_font_id(0)
+Preprocessor::Preprocessor(void)
+    : OutputDev()
+    , cur_font_id(0)
     , cur_code_map(nullptr)
 { }
 
-FontPreprocessor::~FontPreprocessor(void)
+Preprocessor::~Preprocessor(void)
 {
     for(auto iter = code_maps.begin(); iter != code_maps.end(); ++iter)
         delete [] iter->second;
 }
 
-void FontPreprocessor::drawChar(GfxState *state, double x, double y,
+void Preprocessor::drawChar(GfxState *state, double x, double y,
       double dx, double dy,
       double originX, double originY,
       CharCode code, int nBytes, Unicode *u, int uLen)
@@ -56,7 +57,7 @@ void FontPreprocessor::drawChar(GfxState *state, double x, double y,
     cur_code_map[code] = 1;
 }
 
-const char * FontPreprocessor::get_code_map (long long font_id) const
+const char * Preprocessor::get_code_map (long long font_id) const
 {
     auto iter = code_maps.find(font_id);
     return (iter == code_maps.end()) ? nullptr : (iter->second);

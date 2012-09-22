@@ -69,7 +69,7 @@ void HTMLRenderer::process(PDFDoc *doc)
     cerr << "Preprocessing: ";
     for(int i = param->first_page; i <= param->last_page ; ++i) 
     {
-        doc->displayPage(&font_preprocessor, i, param->h_dpi, param->v_dpi,
+        doc->displayPage(&preprocessor, i, param->h_dpi, param->v_dpi,
                 0, true, false, false,
                 nullptr, nullptr, nullptr, nullptr);
         cerr << "." << flush;
