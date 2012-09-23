@@ -1,6 +1,10 @@
 project(pdftohtmlEX)
 cmake_minimum_required(VERSION 2.6.0 FATAL_ERROR)
 
+# Options
+option(ENABLE_OPTIMIZATION "Enable -O2 optimization flags" 1)
+option(ENABLE_WARNINGS "Enable security & code-checking warning options" 1)
+
 include_directories(${CMAKE_SOURCE_DIR}/src/include)
 
 set(PDF2HTMLEX_VERSION "0.4")
@@ -87,17 +91,24 @@ else()
 message("Cannot locate config.h for fontforge")
 endif()
 
-
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2")
+if(ENABLE_WARNINGS)
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
+endif()
+if(ENABLE_OPTIMIZATION)
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2")
+endif()
 #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ggdb")
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+if(ENABLE_WARNINGS)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+endif()
 # clang compiler need c++11 flag
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
 endif()
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2")
+if(ENABLE_OPTIMIZATION)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2")
+endif()
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ggdb")
 
 # CYGWIN or GCC 4.5.x bug
