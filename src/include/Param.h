@@ -46,6 +46,8 @@ struct Param
     std::string css_filename;
     std::string font_suffix, font_format;
 
+    std::string external_hint_tool;
+
     int debug;
     int clean_tmp;
 };

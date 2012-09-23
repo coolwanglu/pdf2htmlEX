@@ -81,6 +81,7 @@ void parse_options (int argc, char **argv)
         .add("css-filename", &param.css_filename, "", "Specify the file name of the generated css file")
         .add("font-suffix", &param.font_suffix, ".ttf", "suffix for extracted font files")
         .add("font-format", &param.font_format, "opentype", "format for extracted font files")
+        .add("external-hint-tool", &param.external_hint_tool, "", "external tool for hintting fonts")
 
         .add("debug", &param.debug, 0, "output debug information")
         .add("clean-tmp", &param.clean_tmp, 1, "clean temporary files after processing")

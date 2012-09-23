@@ -393,23 +393,38 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
      *
      * Generate the font as desired
      *
+     */
+    string tmp_fn = (char*)str_fmt("%s/__font%s", param->tmp_dir.c_str(), param->font_suffix.c_str());
+    add_tmp_file(tmp_fn);
+    string fn = (char*)str_fmt("%s/f%llx%s", 
+        (param->single_html ? param->tmp_dir : param->dest_dir).c_str(),
+        info.id, param->font_suffix.c_str());
+
+    if(param->single_html)
+        add_tmp_file(fn);
+
+    ffw_save(fn.c_str());
+    ffw_close();
+
+    /* 
+     * Step 4 
      * Reload to retrieve accurate ascent/descent <-- TODO: remove this
      */
+    rename(fn.c_str(), tmp_fn.c_str());
+    ffw_load_font(tmp_fn.c_str());
+    ffw_metric(&info.ascent, &info.descent, &info.em_size);
+    ffw_save(fn.c_str());
+    ffw_close();
+
+    /*
+     * Step 5 (keeping the scope)
+     * Call external hinting program
+     */
+
+    if(param->external_hint_tool != "")
     {
-        auto fn = str_fmt("%s/f%llx%s", 
-                (param->single_html ? param->tmp_dir : param->dest_dir).c_str(),
-                info.id, param->font_suffix.c_str());
-
-        if(param->single_html)
-            add_tmp_file((char*)fn);
-
-        ffw_save((char*)fn);
-        ffw_close();
-
-        ffw_load_font((char*)fn);
-        ffw_metric(&info.ascent, &info.descent, &info.em_size);
-        ffw_save((char*)fn);
-        ffw_close();
+        rename(fn.c_str(), tmp_fn.c_str());
+        system((char*)str_fmt("%s %s %s", param->external_hint_tool.c_str(), tmp_fn.c_str(), fn.c_str()));
     }
 }
 
