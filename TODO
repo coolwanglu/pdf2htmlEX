@@ -1,12 +1,6 @@
-scale
-
 ttfautohint
 
 multi font in the same line (IE)
-
-intermediate asc/des
-
-fix auto hint
 
 bug found in baidu(ubuntu...), bug_chn
 
