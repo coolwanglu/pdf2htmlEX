@@ -146,6 +146,7 @@ class PC_HTMLRenderer : public HTMLRenderer
         virtual void process(PDFDoc * doc) 
         {
             if(param->only_metadata) {
+                cur_doc = doc;
                 xref = doc->getXRef();
 
                 num_pages = doc->getNumPages();

@@ -215,6 +215,9 @@ int main(int argc, char **argv)
             }
         }
 
+        if(param.only_metadata)
+            param.process_nontext = 0;
+
         HTMLRenderer * htmlOut = new PC_HTMLRenderer(&param);
         htmlOut->process(doc);
         delete htmlOut;
