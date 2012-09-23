@@ -11,7 +11,7 @@ with open('out.html','w') as outf:
         if not f.lower().endswith('.pdf'):
             continue
         print f
-        os.system('pdf2htmlEX --dest-dir html "%s/%s"' % (DIR,f))
+        os.system('pdf2htmlEX --dest-dir html --external-hint-tool=ttfautohint "%s/%s"' % (DIR,f))
         ff = f[:-3]
         outf.write('<a href="html/%shtml" target="pdf">%s</a><br/>' % (ff,ff))
         outf.flush();
