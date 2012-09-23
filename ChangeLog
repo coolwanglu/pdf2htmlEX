@@ -1,5 +1,6 @@
 Latest v0.4
 
+* external hint tool
 * (should) do not freeze Firefox
 * [Experimental] --auto-hint, good for Chrome
 * many fixes for IE
