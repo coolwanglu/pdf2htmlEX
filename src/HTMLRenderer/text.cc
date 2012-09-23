@@ -405,19 +405,8 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
 
     ffw_save(fn.c_str());
     ffw_close();
-
-    /* 
-     * Step 4 
-     * Reload to retrieve accurate ascent/descent <-- TODO: remove this
-     */
-    rename(fn.c_str(), tmp_fn.c_str());
-    ffw_load_font(tmp_fn.c_str());
-    ffw_metric(&info.ascent, &info.descent, &info.em_size);
-    ffw_save(fn.c_str());
-    ffw_close();
-
     /*
-     * Step 5 (keeping the scope)
+     * Step 4
      * Call external hinting program
      */
 
@@ -426,6 +415,17 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
         rename(fn.c_str(), tmp_fn.c_str());
         system((char*)str_fmt("%s %s %s", param->external_hint_tool.c_str(), tmp_fn.c_str(), fn.c_str()));
     }
+
+    /* 
+     * Step 5 
+     * Reload to retrieve/fix accurate ascent/descent
+     */
+    rename(fn.c_str(), tmp_fn.c_str());
+    ffw_load_font(tmp_fn.c_str());
+    ffw_metric(&info.ascent, &info.descent, &info.em_size);
+    ffw_save(fn.c_str());
+    ffw_close();
+
 }
 
 void HTMLRenderer::drawString(GfxState * state, GooString * s)
