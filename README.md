@@ -19,7 +19,7 @@ A beautiful demo is worth a thousand words:
 
 pdf2htmlEX renders PDF files in HTML, utilizing modern Web technologies, aims to provide an accuracy rendering, while keeping optimized for Web display.
 
-It is optimized for modern web browsers such as Mozilla Firefox & Google Chrome.
+It is optimized for modern web browsers.On Linux/Mac, the generated HTML pages could be as beautiful as PDF files.
 
 This program is designed for scientific papers with complicate formulas and figures, therefore precise rendering is the #1 concern. But of course general PDF files are also supported.
 
