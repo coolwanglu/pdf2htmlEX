@@ -71,7 +71,7 @@ I have tested with CYGWIN without any problem, and I believe it also works on Mi
 * fontforge (with header files)
  * git version is recommended to avoid annoying compilation issues
 * [Optional] ttfautohint
- * use --external-hint-tool=ttfautohint to enable it
+ * run pdf2htmlEX with --external-hint-tool=ttfautohint to enable it
 
 #### Compiling
 
