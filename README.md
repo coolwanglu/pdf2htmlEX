@@ -65,8 +65,8 @@ I have tested with CYGWIN without any problem, and I believe it also works on Mi
 * compilers support C++11, for example
  * GCC >= 4.4.6
  * I heard about successful build with Clang 
-* libpoppler with xpdf header >= 0.20.0 (compile with --enable-xpdf-headers)
- * Install libpng (and headers) BEFORE you compile libpoppler if you want background images generated
+* poppler with xpdf header >= 0.20.0 (compile with --enable-xpdf-headers)
+ * Install libpng (and headers) BEFORE you compile poppler if you want background images generated
  * Install poppler-data if your want CJK support
 * fontforge (with header files)
  * git version is recommended to avoid annoying compilation issues
