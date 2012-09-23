@@ -70,6 +70,13 @@ void ffw_init(int debug)
     }
 
     original_enc = FindOrMakeEncoding("original");
+
+    {
+        Val v;
+        v.type = v_int;
+        v.u.ival = 1;
+        SetPrefs("DetectDiagonalStems", &v, NULL);
+    }
 }
 
 void ffw_fin(void)

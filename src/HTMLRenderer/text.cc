@@ -404,25 +404,30 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
     ffw_close();
     /*
      * Step 4
-     * Call external hinting program
+     * Font Hinting
      */
 
+    bool hinted = false;
+    rename(fn.c_str(), tmp_fn.c_str());
+
+    // Call external hinting program if specified 
     if(param->external_hint_tool != "")
     {
-        rename(fn.c_str(), tmp_fn.c_str());
-        if(system((char*)str_fmt("%s \"%s\" \"%s\"", param->external_hint_tool.c_str(), tmp_fn.c_str(), fn.c_str())) != 0)
-        {
-            if(param->auto_hint)
-            {
-                ffw_load_font(tmp_fn.c_str());
-                ffw_auto_hint();
-                ffw_save(fn.c_str());
-            }
-            else
-            {
-                rename(tmp_fn.c_str(), fn.c_str());
-            }
-        }
+        hinted = (system((char*)str_fmt("%s \"%s\" \"%s\"", param->external_hint_tool.c_str(), tmp_fn.c_str(), fn.c_str())) == 0);
+    }
+
+    // Call internal hinting procedure if specified 
+    if((!hinted) && (param->auto_hint))
+    {
+        ffw_load_font(tmp_fn.c_str());
+        ffw_auto_hint();
+        ffw_save(fn.c_str());
+        hinted = true;
+    }
+
+    if(!hinted)
+    {
+        rename(tmp_fn.c_str(), fn.c_str());
     }
 
     /* 
