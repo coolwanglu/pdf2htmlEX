@@ -21,7 +21,7 @@ pdf2htmlEX renders PDF files in HTML, utilizing modern Web technologies, aims to
 
 It is optimized for modern web browsers such as Mozilla Firefox & Google Chrome.
 
-This program is designed for scientific papers with complicate formulas and figures, so a precise rendering is also the #1 concern. But of course general PDF files are also supported.
+This program is designed for scientific papers with complicate formulas and figures, therefore precise rendering is the #1 concern. But of course general PDF files are also supported.
 
 ## Features
 
