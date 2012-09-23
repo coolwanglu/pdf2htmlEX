@@ -215,7 +215,12 @@ void ffw_close(void)
     cur_fv = NULL;
 }
 
-void ffw_metric(double * ascent, double * descent, int * em_size)
+int ffw_get_em_size(void)
+{
+    return cur_fv->sf->ascent + cur_fv->sf->descent;
+}
+
+void ffw_metric(double * ascent, double * descent)
 {
     SplineFont * sf = cur_fv->sf;
     struct pfminfo * info = &sf->pfminfo;
@@ -226,8 +231,6 @@ void ffw_metric(double * ascent, double * descent, int * em_size)
 
     DBounds bb;
     SplineFontFindBounds(sf, &bb);
-
-    *em_size = sf->ascent + sf->descent;
 
     /*
     printf("bb %lf %lf\n", bb.maxy, bb.miny);

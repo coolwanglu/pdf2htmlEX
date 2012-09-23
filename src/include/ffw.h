@@ -30,8 +30,9 @@ void ffw_cidflatten(void);
 void ffw_save(const char * filename);
 void ffw_close(void);
 
+int ffw_get_em_size(void);
 // fix metrics and get them
-void ffw_metric(double * ascent, double * descent, int * em_size);
+void ffw_metric(double * ascent, double * descent);
 
 void ffw_set_widths(int * width_list, int mapping_len);
 

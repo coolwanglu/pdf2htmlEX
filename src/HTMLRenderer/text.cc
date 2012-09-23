@@ -161,9 +161,6 @@ string HTMLRenderer::dump_embedded_font (GfxFont * font, long long fn_id)
 void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo & info, bool get_metric_only)
 {
     ffw_load_font(filepath.c_str());
-    if(param->auto_hint)
-        ffw_auto_hint();
-
     int * code2GID = nullptr;
     int code2GID_len = 0;
     int maxcode = 0;
@@ -184,7 +181,7 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
 
     const char * used_map = nullptr;
 
-    ffw_metric(&info.ascent, &info.descent, &info.em_size);
+    info.em_size = ffw_get_em_size();
 
     if(param->debug)
     {
@@ -415,7 +412,16 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
         rename(fn.c_str(), tmp_fn.c_str());
         if(system((char*)str_fmt("%s \"%s\" \"%s\"", param->external_hint_tool.c_str(), tmp_fn.c_str(), fn.c_str())) != 0)
         {
-            rename(tmp_fn.c_str(), fn.c_str());
+            if(param->auto_hint)
+            {
+                ffw_load_font(tmp_fn.c_str());
+                ffw_auto_hint();
+                ffw_save(fn.c_str());
+            }
+            else
+            {
+                rename(tmp_fn.c_str(), fn.c_str());
+            }
         }
     }
 
@@ -425,7 +431,7 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
      */
     rename(fn.c_str(), tmp_fn.c_str());
     ffw_load_font(tmp_fn.c_str());
-    ffw_metric(&info.ascent, &info.descent, &info.em_size);
+    ffw_metric(&info.ascent, &info.descent);
     ffw_save(fn.c_str());
     ffw_close();
 
