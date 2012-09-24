@@ -1,10 +1,8 @@
-bug found in baidu(ubuntu...), bug_chn
+bug found in baidu(ubuntu...)
 
 precise link dest
 
-option for tounicode-map
-get unicode from charname using fontforge (test with 'Font' croc.pdf)
-also for CID Type 0
+try harder finding glyph names (using fontforge) for CID Type 0
 
 rename single-html -> embed-font/image/css ...
 
