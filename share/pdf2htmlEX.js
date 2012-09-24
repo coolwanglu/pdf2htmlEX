@@ -192,8 +192,8 @@ var pdf2htmlEX = (function(){
             default:
               return;
           }
+          e.preventDefault();
         }
-        e.preventDefault();
       });
     },
 
