@@ -173,10 +173,9 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
         *iter = tolower(*iter);
 
     /*
-     * TODO
      * if parm->tounicode is 0, try the provided tounicode map first
      */
-    info.use_tounicode = (is_truetype_suffix(suffix) || (param->tounicode > 0));
+    info.use_tounicode = (is_truetype_suffix(suffix) || (param->tounicode >= 0));
     info.has_space = false;
 
     const char * used_map = nullptr;
@@ -314,6 +313,7 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
         /*
          * Traverse all possible codes
          */
+        bool retried = false; // avoid infinite loop
         for(int i = 0; i <= maxcode; ++i)
         {
             if(!used_map[i])
@@ -357,6 +357,22 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
             }
             else
             {
+                // collision detected
+                if(param->tounicode == 0)
+                {
+                    // in auto mode, just drop the tounicode map
+                    if(!retried)
+                    {
+                        cerr << "ToUnicode CMap is not valid and got dropped" << endl;
+                        retried = true;
+                        codeset.clear();
+                        info.use_tounicode = false;
+                        memset(cur_mapping, -1, 0x10000 * sizeof(*cur_mapping));
+                        memset(width_list, -1, 0x10000 * sizeof(*width_list));
+                        i = -1;
+                        continue;
+                    }
+                }
                 if(!name_conflict_warned)
                 {
                     name_conflict_warned = true;
