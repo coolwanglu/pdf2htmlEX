@@ -87,7 +87,7 @@ pdf2htmlEX would try to optimize the generated HTML file moving Text within this
 .B --space-threshold <ratio> (Default: 1.0/6)
 pdf2htmlEX would insert a whitespace character ' ' if the distance between two consecutive letters in the same line is wider than ratio * font_size.
 .TP
-.B --font-size-multiplier <ratio> (Default: 1.0)
+.B --font-size-multiplier <ratio> (Default: 4.0)
 Many web browsers limit the minimum font size, and many would round the given font size, which results in incorrect rendering.
 
 Specify a ratio greater than 1 would resolve this issue, however it might freeze some browsers.

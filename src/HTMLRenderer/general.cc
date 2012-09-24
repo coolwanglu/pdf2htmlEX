@@ -121,7 +121,7 @@ void HTMLRenderer::process(PDFDoc *doc)
             }
         }
 
-        doc->displayPage(this, i, scale_factor1 * DEFAULT_DPI, scale_factor1 * DEFAULT_DPI,
+        doc->displayPage(this, i, (param->zoom) * DEFAULT_DPI, (param->zoom) * DEFAULT_DPI,
                 0, true, false, false,
                 nullptr, nullptr, nullptr, nullptr);
 
@@ -162,11 +162,13 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
             << pageWidth << "px;height:" 
             << pageHeight << "px;";
 
+    /*
     {
         auto prefixes = {"", "-ms-", "-moz-", "-webkit-", "-o-"};
         for(auto iter = prefixes.begin(); iter != prefixes.end(); ++iter)
             html_fout << *iter << "transform:scale(" << scale_factor2 << ");";
     }
+    */
 
     if(param->process_nontext)
     {
