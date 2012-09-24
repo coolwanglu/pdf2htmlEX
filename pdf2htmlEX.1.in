@@ -97,7 +97,7 @@ For some versions of Firefox, however, there will be a problem when the font siz
 .B --auto-hint <0|1> (Default: 0)
 If set to 1, hints will be generated for the fonts using fontforge. 
 
-This may be overrided by --external-hint-tool. 
+This may be preceded by --external-hint-tool. 
 .TP
 .B --tounicode <-1|0|1> (Default: 0)
 A ToUnicode map may be provided for each font in PDF which indicates the 'meaning' of the characters. However often there is better "ToUnicode" info in Type 0/1 fonts, and sometimes the ToUnicode map provided is wrong. 
@@ -122,7 +122,7 @@ If it's empty, the file name will be determined automatically.
 Specify the suffix and format of fonts extracted from the PDF file. They should be consistent.
 .TP
 .B --external-hint-tool <tool> (Default: "")
-If specified, the tool will be called in order to enhanced hinting for fonts, this will override --auto-hint.
+If specified, the tool will be called in order to enhanced hinting for fonts, this will precede --auto-hint.
 
 The tool will be called as '<tool> <in.suffix> <out.suffix>', where suffix will be the same as specified for --font-suffix.
 .TP

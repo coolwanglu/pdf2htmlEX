@@ -76,8 +76,8 @@ var pdf2htmlEX = (function(){
       this.container = $("#pdf-main");
 
       var new_pages = new Array();
-      var pl= $(".p");
-      var pbl = $(".b");
+      var pl= $(".p", this.container);
+      var pbl = $(".b", this.container);
       for(var i = 0, l = pl.length; i < l; ++i) {
         new_pages.push(new Page($(pl[i]), $(pbl[i]), false));
       }
@@ -129,7 +129,7 @@ var pdf2htmlEX = (function(){
       for(i = 0; i < l; ++i) {
         var p = pl[i];
 
-        if(p.p.offset().top + p.p.height() >= 0) break;
+        if(p.p.position().top + p.p.height() >= 0) break;
         if(i > 0) pl[i-1].hide();
       }
 
@@ -139,7 +139,7 @@ var pdf2htmlEX = (function(){
         var p = pl[i];
         p.show();
 
-        if(p.p.offset().top > ch) break;
+        if(p.p.position().top > ch) break;
       }
 
       for(++i; i < l; ++i) {
