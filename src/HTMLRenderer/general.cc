@@ -156,9 +156,9 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
 
     html_fout 
         << "<div id=\"p" << pageNum << "\" class=\"p\" style=\"width:" 
-            << (pageWidth * scale_factor2) << "px;height:" 
-            << (pageHeight * scale_factor2) << "px;\">"
-        << "<div id=\"b" << pageNum << "\" class=\"b\" style=\"width:" 
+            << (pageWidth) << "px;height:" 
+            << (pageHeight) << "px;\">"
+        << "<div class=\"b\" style=\"width:" 
             << pageWidth << "px;height:" 
             << pageHeight << "px;";
 
