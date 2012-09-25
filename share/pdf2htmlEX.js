@@ -6,7 +6,7 @@
  * pdf2htmlEX.js
  *
  * handles UI events/actions/effects
- *
+
  * Copyright 2012 Lu Wang <coolwanglu@gmail.com>
  */
 
@@ -27,7 +27,7 @@ var pdf2htmlEX = (function(){
     return [ctm[0] * pos[0] + ctm[2] * pos[1] + ctm[4]
            ,ctm[1] * pos[0] + ctm[3] * pos[1] + ctm[5]];
   };
-  var Page = function(page) {
+  var Page = function(page, container) {
     if(page == undefined) return undefined;
 
     this.p = $(page);
@@ -47,6 +47,7 @@ var pdf2htmlEX = (function(){
 
     this.ctm = this.data.ctm;
     this.ictm = invert(this.ctm);
+    this.container = container;
   };
   Page.prototype.hide = function(){
     this.b.hide();
@@ -74,10 +75,21 @@ var pdf2htmlEX = (function(){
     this.p.width(this.b.width() * this.set_r);
   };
   Page.prototype.is_visible = function() {
-    var p = this.p;
-    var off = p.position();
-    return !((off.top + p.height() < 0) || (off.top > p.offsetParent().height()));
+    var off = this.position();
+    return !((off[1] > this.height()) || (off[1] + this.container.height() < 0));
   };
+
+  /* return the coordinate of the top-left corner of container
+   * in our cooridnate system
+   */
+  Page.prototype.position = function () {
+    var off = this.p.offset();
+    var off_c = this.container.offset();
+    return [off_c.left-off.left, off_c.top-off.top];
+  };
+  Page.prototype.height = function() {
+    return this.p.height();
+  }
 
   return {
     pages : [],
@@ -100,7 +112,7 @@ var pdf2htmlEX = (function(){
       var pl= $('.p', this.container);
       /* don't use for(..in..) */
       for(var i = 0, l = pl.length; i < l; ++i) {
-        var p = new Page(pl[i]);
+        var p = new Page(pl[i], this.container);
         new_pages[p.n] = p;
       }
       this.pages = new_pages;
@@ -148,10 +160,11 @@ var pdf2htmlEX = (function(){
       var pl = this.pages;
       for(var i in pl) {
         var p = pl[i];
-        if(p.is_visible())
+        if(p.is_visible()){
           p.show();
-        else
+        } else {
           p.hide();
+        }
       }
     },
 
@@ -224,9 +237,10 @@ var pdf2htmlEX = (function(){
       var t = $(e.currentTarget);
       var cur_page = _.get_containing_page(t);
       if(cur_page == undefined) return;
-    
-      var off = cur_page.p.position();
-      var cur_pos = transform(cur_page.ictm, [-off.left, cur_page.p.height()+off.top]);
+
+      var cur_pos = cur_page.position();
+      //get the coordinates in default user system
+      cur_pos = transform(cur_page.ictm, [cur_pos[0], cur_page.height()-cur_pos[1]]);
 
       var detail_str = t.attr('data-dest-detail');
       if(detail_str == undefined) return;
@@ -241,10 +255,11 @@ var pdf2htmlEX = (function(){
           var pos = [(detail[2] == null) ? cur_pos[0] : detail[2]
                     ,(detail[3] == null) ? cur_pos[1] : detail[3]];
           pos = transform(cur_page.ctm, pos);
-          var off = target_page.p.position();
 
-          _.container.scrollLeft(_.container.scrollLeft()+off.left+pos[0]);
-          _.container.scrollTop(_.container.scrollTop()+off.top+target_page.p.height()-pos[1]);
+          var cur_target_pos = target_page.position();
+
+          _.container.scrollLeft(_.container.scrollLeft()-cur_target_pos[0]+pos[0]);
+          _.container.scrollTop(_.container.scrollTop()-cur_target_pos[1]+target_page.height()-pos[1]);
           ok = true;
           break;
         default:

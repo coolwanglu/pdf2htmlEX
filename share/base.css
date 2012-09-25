@@ -9,17 +9,28 @@
   overflow:auto;
   background-color:grey;
 }
-.p {
+.d {
   position:relative;
-  background-color:white;
   margin: 13px auto;
+  border: 1px solid black;
+  overflow: hidden;
+}
+.p {
+  position:absolute;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background-color:white;
   overflow: hidden;
 }
 .b {
   position:absolute;
+  border-width:0;
   top:0;
   left:0;
-  background-color:white;
+  width:100%;
+  height:100%;
   overflow:hidden;
   display:block;
   transform-origin:0% 0%;

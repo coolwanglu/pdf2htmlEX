@@ -36,6 +36,7 @@
  * _ - white space
  * a - Annot link
  * b - page Box
+ * d - page Decoration
  * l - Line
  * i - Image
  * j - Js data

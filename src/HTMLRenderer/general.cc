@@ -154,21 +154,11 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
     assert((!line_opened) && "Open line in startPage detected!");
 
     html_fout 
-        << "<div id=\"p" << pageNum << "\" data-page-no=\"" << pageNum
-            << "\" class=\"p\" style=\"width:" 
+        << "<div class=\"d\" style=\"width:" 
             << (pageWidth) << "px;height:" 
             << (pageHeight) << "px;\">"
-        << "<div class=\"b\" style=\"width:" 
-            << pageWidth << "px;height:" 
-            << pageHeight << "px;";
-
-    /*
-    {
-        auto prefixes = {"", "-ms-", "-moz-", "-webkit-", "-o-"};
-        for(auto iter = prefixes.begin(); iter != prefixes.end(); ++iter)
-            html_fout << *iter << "transform:scale(" << scale_factor2 << ");";
-    }
-    */
+        << "<div id=\"p" << pageNum << "\" data-page-no=\"" << pageNum << "\" class=\"p\">"
+        << "<div class=\"b\" style=\"";
 
     if(param->process_nontext)
     {
@@ -246,7 +236,7 @@ void HTMLRenderer::endPage() {
     html_fout << "}'></div>";
     
     // close page
-    html_fout << "</div>" << endl;
+    html_fout << "</div></div>" << endl;
 }
 
 void HTMLRenderer::pre_process()
