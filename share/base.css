@@ -8,6 +8,11 @@
   right:0;
   overflow:auto;
   background-color:grey;
+  /* margin & border-width have to be 0, 
+   * otherwise pdf2htmlEX may not calculate the coordinates correctly
+   */
+  margin:0;
+  border-width:0;
 }
 .d {
   position:relative;
@@ -24,6 +29,11 @@
   height:100%;
   background-color:white;
   overflow: hidden;
+  /* margin & border-width have to be 0, 
+   * otherwise pdf2htmlEX may not calculate the coordinates correctly
+   */
+  margin:0;
+  border-width:0;
 }
 .b {
   position:absolute;
