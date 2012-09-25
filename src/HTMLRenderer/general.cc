@@ -1,7 +1,7 @@
 /*
  * general.cc
  *
- * Hanlding general stuffs
+ * Handling general stuffs
  *
  * by WangLu
  * 2012.08.14
@@ -12,7 +12,6 @@
 #include <cmath>
 
 #include <splash/SplashBitmap.h>
-#include <Link.h>
 
 #include "HTMLRenderer.h"
 #include "BackgroundRenderer.h"
@@ -155,7 +154,8 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
     assert((!line_opened) && "Open line in startPage detected!");
 
     html_fout 
-        << "<div id=\"p" << pageNum << "\" class=\"p\" style=\"width:" 
+        << "<div id=\"p" << pageNum << "\" data-page-no=\"" << pageNum
+            << "\" class=\"p\" style=\"width:" 
             << (pageWidth) << "px;height:" 
             << (pageHeight) << "px;\">"
         << "<div class=\"b\" style=\"width:" 
@@ -226,169 +226,28 @@ void HTMLRenderer::endPage() {
     // process links before the page is closed
     cur_doc->processLinks(this, pageNum);
 
+    // close box
+    html_fout << "</div>";
+
+    // dump info for js
+    // TODO: create a function for this
+    // BE CAREFUL WITH ESCAPES
+    html_fout << "<div class=\"j\" data-data='{";
+    
+    //default CTM
+    html_fout << "\"ctm\":[";
+    for(int i = 0; i < 6; ++i)
+    {
+        if(i > 0) html_fout << ",";
+        html_fout << _round(default_ctm[i]);
+    }
+    html_fout << "]";
+
+    html_fout << "}'></div>";
+    
     // close page
-    html_fout << "</div></div>" << endl;
+    html_fout << "</div>" << endl;
 }
-
-/*
- * Based on pdftohtml from poppler
- * TODO: CSS for link rectangles
- */
-void HTMLRenderer::processLink(AnnotLink * al)
-{
-    std::string dest_str;
-    auto action = al->getAction();
-    if(action)
-    {
-        auto kind = action->getKind();
-        switch(kind)
-        {
-            case actionGoTo:
-                {
-                    auto catalog = cur_doc->getCatalog();
-                    auto * real_action = dynamic_cast<LinkGoTo*>(action);
-                    LinkDest * dest = nullptr;
-                    if(auto _ = real_action->getDest())
-                        dest = _->copy();
-                    else if (auto _ = real_action->getNamedDest())
-                        dest = catalog->findDest(_);
-                    if(dest)
-                    {
-                        int pageno = 0;
-                        if(dest->isPageRef())
-                        {
-                            auto pageref = dest->getPageRef();
-                            pageno = catalog->findPage(pageref.num, pageref.gen);
-                        }
-                        else
-                        {
-                            pageno = dest->getPageNum();
-                        }
-
-                        delete dest;
-
-                        if(pageno > 0)
-                            dest_str = (char*)str_fmt("#p%x", pageno);
-                    }
-                }
-                break;
-            case actionGoToR:
-                {
-                    cerr << "TODO: actionGoToR is not implemented." << endl;
-                }
-                break;
-            case actionURI:
-                {
-                    auto * real_action = dynamic_cast<LinkURI*>(action);
-                    dest_str = real_action->getURI()->getCString();
-                }
-                break;
-            case actionLaunch:
-                {
-                    cerr << "TODO: actionLaunch is not implemented." << endl;
-                }
-                break;
-            default:
-                cerr << "Warning: unknown annotation type: " << kind << endl;
-                break;
-        }
-    }
-
-    if(dest_str != "")
-    {
-        html_fout << "<a href=\"" << dest_str << "\">";
-    }
-
-    html_fout << "<div style=\"";
-
-    double width = 0;
-    auto * border = al->getBorder();
-    if(border)
-    {
-        width = border->getWidth() * (param->zoom);
-        if(width > 0)
-        {
-            html_fout << "border-width:" << _round(width) << "px;";
-            auto style = border->getStyle();
-            switch(style)
-            {
-                case AnnotBorder::borderSolid:
-                    html_fout << "border-style:solid;";
-                    break;
-                case AnnotBorder::borderDashed:
-                    html_fout << "border-style:dashed;";
-                    break;
-                case AnnotBorder::borderBeveled:
-                    html_fout << "border-style:outset;";
-                    break;
-                case AnnotBorder::borderInset:
-                    html_fout << "border-style:inset;";
-                    break;
-                case AnnotBorder::borderUnderlined:
-                    html_fout << "border-style:none;border-bottom-style:solid;";
-                    break;
-                default:
-                    cerr << "Warning:Unknown annotation border style: " << style << endl;
-                    html_fout << "border-style:solid;";
-            }
-
-
-            auto color = al->getColor();
-            double r,g,b;
-            if(color && (color->getSpace() == AnnotColor::colorRGB))
-            {
-                const double * v = color->getValues();
-                r = v[0];
-                g = v[1];
-                b = v[2];
-            }
-            else
-            {
-                r = g = b = 0;
-            }
-
-            html_fout << "border-color:rgb("
-                << dec << (int)dblToByte(r) << "," << (int)dblToByte(g) << "," << (int)dblToByte(b) << hex
-                << ");";
-        }
-        else
-        {
-            html_fout << "border-style:none;";
-        }
-    }
-    else
-    {
-        html_fout << "border-style:none;";
-    }
-
-    // fix for IE
-    html_fout << "background-color:rgba(255,255,255,0.000001);";
-
-    double x1,x2,y1,y2;
-    al->getRect(&x1, &y1, &x2, &y2);
-
-    x1 = default_ctm[0] * x1 + default_ctm[2] * y1 + default_ctm[4];
-    y1 = default_ctm[1] * x1 + default_ctm[3] * y1 + default_ctm[5];
-    x2 = default_ctm[0] * x2 + default_ctm[2] * y2 + default_ctm[4];
-    y2 = default_ctm[1] * x2 + default_ctm[3] * y2 + default_ctm[5];
-
-    // TODO: check overlap when x2-x1-width<0 or y2-y1-width<0
-    html_fout << "position:absolute;"
-        << "left:" << _round(x1 - width/2) << "px;"
-        << "bottom:" << _round(y1 - width/2) << "px;"
-        << "width:" << _round(x2-x1-width) << "px;"
-        << "height:" << _round(y2-y1-width) << "px;";
-
-    html_fout << "background-color:rgb(0,0,0,0);";
-
-    html_fout << "\"></div>";
-
-    if(dest_str != "")
-    {
-        html_fout << "</a>";
-    }
-}
-
 
 void HTMLRenderer::pre_process()
 {

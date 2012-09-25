@@ -33,11 +33,13 @@
  *
  * CSS classes
  *
- * b - page Box
- * p - Page
- * l - Line
  * _ - white space
+ * a - Annot link
+ * b - page Box
+ * l - Line
  * i - Image
+ * j - Js data
+ * p - Page
  *
  * Reusable CSS classes
  *
