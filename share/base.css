@@ -17,8 +17,8 @@
 .d {
   position:relative;
   margin: 13px auto;
-  border: 1px solid black;
-  box-shadow: 2px 2px 2px black;
+  border-width: 0;
+  box-shadow: 1px 1px 3px 1px #333;
   overflow: hidden;
 }
 .p {
