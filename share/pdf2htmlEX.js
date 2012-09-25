@@ -11,6 +11,8 @@
  */
 
 var pdf2htmlEX = (function(){
+  var pdf2htmlEX = new Object();
+
   var EPS = 1e-6;
   var invert = function(ctm) {
     var det = ctm[0] * ctm[3] - ctm[1] * ctm[2];
@@ -49,49 +51,50 @@ var pdf2htmlEX = (function(){
     this.ictm = invert(this.ctm);
     this.container = container;
   };
-  Page.prototype.hide = function(){
-    this.b.hide();
-  };
-  Page.prototype.show = function(){
-    if(Math.abs(this.set_r - this.cur_r) > EPS) {
-      this.cur_r = this.set_r;
-      this.b.css('transform', 'scale('+this.cur_r.toFixed(3)+')');
+  $.extend(Page.prototype, {
+    hide : function(){
+      this.b.hide();
+    },
+    show : function(){
+      if(Math.abs(this.set_r - this.cur_r) > EPS) {
+        this.cur_r = this.set_r;
+        this.b.css('transform', 'scale('+this.cur_r.toFixed(3)+')');
+      }
+      this.b.show();
+    },
+    rescale : function(ratio, is_relative) {
+      if(ratio == 0) {
+        this.set_r = this.default_r;
+      } else if (is_relative) {
+        this.set_r *= ratio;
+      } else {
+        this.set_r = ratio;
+      }
+
+      /* wait for redraw */
+      this.hide();
+
+      this.p.height(this.b.height() * this.set_r);
+      this.p.width(this.b.width() * this.set_r);
+    },
+    is_visible : function() {
+      var off = this.position();
+      return !((off[1] > this.height()) || (off[1] + this.container.height() < 0));
+    },
+    /* return the coordinate of the top-left corner of container
+     * in our cooridnate system
+     */
+    position : function () {
+      var off = this.p.offset();
+      var off_c = this.container.offset();
+      return [off_c.left-off.left, off_c.top-off.top];
+    },
+    height : function() {
+      return this.p.height();
     }
-    this.b.show();
-  };
-  Page.prototype.rescale = function(ratio, is_relative) {
-    if(ratio == 0) {
-      this.set_r = this.default_r;
-    } else if (is_relative) {
-      this.set_r *= ratio;
-    } else {
-      this.set_r = ratio;
-    }
+  });
 
-    /* wait for redraw */
-    this.hide();
-
-    this.p.height(this.b.height() * this.set_r);
-    this.p.width(this.b.width() * this.set_r);
-  };
-  Page.prototype.is_visible = function() {
-    var off = this.position();
-    return !((off[1] > this.height()) || (off[1] + this.container.height() < 0));
-  };
-
-  /* return the coordinate of the top-left corner of container
-   * in our cooridnate system
-   */
-  Page.prototype.position = function () {
-    var off = this.p.offset();
-    var off_c = this.container.offset();
-    return [off_c.left-off.left, off_c.top-off.top];
-  };
-  Page.prototype.height = function() {
-    return this.p.height();
-  }
-
-  var pdf2htmlEX = function(container_id) {
+  pdf2htmlEX.Viewer = function(container_id) {
     this.container_id = container_id;
     this.init_before_loading_content();
 
@@ -99,7 +102,7 @@ var pdf2htmlEX = (function(){
     $(function(){_.init_after_loading_content();});
   };
 
-  $.extend(pdf2htmlEX.prototype, {
+  $.extend(pdf2htmlEX.Viewer.prototype, {
     /* Constants */
     render_timeout : 130,
     scale_step : 0.9,

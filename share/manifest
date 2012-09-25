@@ -28,7 +28,7 @@ $css
 
 """
 <script type="text/javascript">
-new pdf2htmlEX('pdf-main');
+new pdf2htmlEX.Viewer('pdf-main');
 </script>
 
 <title></title>
