@@ -101,7 +101,7 @@ var pdf2htmlEX = (function(){
 
   $.extend(pdf2htmlEX.prototype, {
     /* Constants */
-    render_timeout : 200,
+    render_timeout : 130,
     scale_step : 0.9,
 
     init_before_loading_content : function() {
