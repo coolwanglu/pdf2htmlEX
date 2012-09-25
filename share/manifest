@@ -27,6 +27,11 @@ $css
 @pdf2htmlEX.js
 
 """
+<script type="text/javascript">
+pdf2htmlEX.init('pdf-main');
+alert(pdf2htmlEX);
+</script>
+
 <title></title>
 </head>
 <body>

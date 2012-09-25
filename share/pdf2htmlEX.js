@@ -106,7 +106,7 @@ var pdf2htmlEX = (function(){
     },
 
     init_after_loading_content : function() {
-      this.container = $('#pdf-main');
+      this.container = $('#'+this.container_id);
 
       var new_pages = new Array();
       var pl= $('.p', this.container);
@@ -127,7 +127,8 @@ var pdf2htmlEX = (function(){
       this.render();
     },
 
-    init : function() {
+    init : function(container_id) {
+      this.container_id = container_id;
       this.init_before_loading_content();
 
       var _ = this;
@@ -247,19 +248,14 @@ var pdf2htmlEX = (function(){
 
       var ok = false;
       var detail= JSON.parse(detail_str);
-      var target_page = _.pages[detail[0]];
-      if(target_page == undefined) return;
-
       switch(detail[1]) {
         case 'XYZ':
           var pos = [(detail[2] == null) ? cur_pos[0] : detail[2]
                     ,(detail[3] == null) ? cur_pos[1] : detail[3]];
           pos = transform(cur_page.ctm, pos);
 
-          var cur_target_pos = target_page.position();
+          _.scroll_to(detail[0], pos);
 
-          _.container.scrollLeft(_.container.scrollLeft()-cur_target_pos[0]+pos[0]);
-          _.container.scrollTop(_.container.scrollTop()-cur_target_pos[1]+target_page.height()-pos[1]);
           ok = true;
           break;
         default:
@@ -268,6 +264,18 @@ var pdf2htmlEX = (function(){
 
       if(ok)
         e.preventDefault();
-    }, __last_member__ : 'no comma' /*,*/
-  }.init();
+    }, 
+    
+    scroll_to : function(pageno, pos) {
+      var target_page = this.pages[pageno];
+      if(target_page == undefined) return;
+
+      var cur_target_pos = target_page.position();
+
+      this.container.scrollLeft(this.container.scrollLeft()-cur_target_pos[0]+pos[0]);
+      this.container.scrollTop(this.container.scrollTop()-cur_target_pos[1]+target_page.height()-pos[1]);
+    },
+
+    __last_member__ : 'no comma' /*,*/
+  };
 })();
