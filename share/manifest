@@ -28,7 +28,7 @@ $css
 
 """
 <script type="text/javascript">
-pdf2htmlEX.init('pdf-main');
+new pdf2htmlEX('pdf-main');
 </script>
 
 <title></title>

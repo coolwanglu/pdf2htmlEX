@@ -91,11 +91,15 @@ var pdf2htmlEX = (function(){
     return this.p.height();
   }
 
-  return {
-    pages : [],
-    container : null,
-    render_timer : null,
+  var pdf2htmlEX = function(container_id) {
+    this.container_id = container_id;
+    this.init_before_loading_content();
 
+    var _ = this;
+    $(function(){_.init_after_loading_content();});
+  };
+
+  $.extend(pdf2htmlEX.prototype, {
     /* Constants */
     render_timeout : 200,
     scale_step : 0.9,
@@ -127,15 +131,6 @@ var pdf2htmlEX = (function(){
       this.render();
     },
 
-    init : function(container_id) {
-      this.container_id = container_id;
-      this.init_before_loading_content();
-
-      var _ = this;
-      $(function(){_.init_after_loading_content();});
-
-      return this;
-    },
 
     pre_hide_pages : function() {
       /* pages might have not been loaded yet, so add a CSS rule */
@@ -277,5 +272,7 @@ var pdf2htmlEX = (function(){
     },
 
     __last_member__ : 'no comma' /*,*/
-  };
+  });
+
+  return pdf2htmlEX;
 })();
