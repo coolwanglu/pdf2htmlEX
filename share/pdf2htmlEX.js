@@ -241,12 +241,7 @@ var pdf2htmlEX = (function(){
           var pos = [(detail[2] == null) ? cur_pos[0] : detail[2]
                     ,(detail[3] == null) ? cur_pos[1] : detail[3]];
           pos = transform(cur_page.ctm, pos);
-
-          console.log(pos);
-
           var off = target_page.p.position();
-
-          console.log(off);
 
           _.container.scrollLeft(_.container.scrollLeft()+off.left+pos[0]);
           _.container.scrollTop(_.container.scrollTop()+off.top+target_page.p.height()-pos[1]);

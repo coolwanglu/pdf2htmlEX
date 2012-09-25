@@ -35,7 +35,11 @@ void HTMLRenderer::export_remote_font(const FontInfo & info, const string & suff
         }
     }
 
-    css_fout << ")format(\"" << fontfileformat << "\");}.f" << info.id << "{font-family:f" << info.id << ";line-height:" << _round(info.ascent - info.descent) << ";}";
+    css_fout << ")format(\"" << fontfileformat 
+        << "\");}.f" << info.id 
+        << "{font-family:f" << info.id 
+        << ";line-height:" << _round(info.ascent - info.descent) 
+        << ";font-style:normal;font-weight:normal;}";
 
     // when ' ' is not vaild in the font, when we use ' ' in padding
     // the browser will use the fallback font, whose metrics could be (very) different, then the layout will be affected
@@ -73,11 +77,15 @@ void HTMLRenderer::export_local_font(const FontInfo & info, GfxFont * font, cons
 
     if(font->isBold() || (fn.find("bold") != string::npos))
         css_fout << "font-weight:bold;";
+    else
+        css_fout << "font-weight:normal;";
 
     if(fn.find("oblique") != string::npos)
         css_fout << "font-style:oblique;";
     else if(font->isItalic() || (fn.find("italic") != string::npos))
         css_fout << "font-style:italic;";
+    else
+        css_fout << "font-style:normal;";
 
     css_fout << "line-height:" << _round(info.ascent - info.descent) << ";";
 
