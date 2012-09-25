@@ -1,5 +1,7 @@
 Latest v0.4
 
+* Precise link destination within the document
+* Better appearance
 * UI events/actions with Javascript
 * external hint tool
 * (should) do not freeze Firefox
