@@ -48,7 +48,7 @@ Specify the first page to process
 Specify the last page to process
 .TP
 .B --zoom <ratio>, --fit-width <width>, --fit-height <height>
---zoom specifies the zoom factor directly, --fit-width/height specifies the maximum width/height of a page.
+--zoom specifies the zoom factor directly; --fit-width/height specifies the maximum width/height of a page, the values are in pixels.
 
 If multiple values are specified, the minimum one will be used.
 
