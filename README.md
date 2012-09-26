@@ -115,14 +115,12 @@ pdf2htmlEX is inspired by the following projects:
 
 ## Contact
 
-Suggestions and questions are welcome. 
-
-Please read [FAQ](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ) before sending an email to me. Or your message might be ignored.
-
-I should be much more user-friendly than pdf2htmlEX.
-
 * Lu Wang <coolwanglu@gmail.com>
+  * Suggestions and questions are welcome. 
+  * Please read [FAQ](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ) before sending an email to me. Or your message might be ignored.
+  * Expect me to be much more user-friendly than pdf2htmlEX.
   * Accepting messages in Chinese, English or Japanese
+
 
 ### Special Thanks
 
