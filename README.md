@@ -1,4 +1,6 @@
-# pdf2html**EX**
+# pdf2html**EX** 
+
+[![Click here to lend your support to: pdf2htmlEX and make a donation at www.pledgie.com !]['http://www.pledgie.com/campaigns/18320.png?skin_name=chrome']](http://www.pledgie.com/campaigns/18320)
 
 A beautiful demo is worth a thousand words:
 
