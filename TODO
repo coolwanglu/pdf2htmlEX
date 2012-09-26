@@ -2,18 +2,16 @@ merge sub/sup into one line
 
 bug found in baidu(ubuntu...)
 
-precise link dest
-more types
-cancel margins
+precise link dest: more types
 
 try harder finding glyph names (using fontforge) for CID Type 0
 
 rename single-html -> embed-font/image/css ...
 
-argument auto-completion
-add fallback font for ' ', or create glyph for it
+create a glyph for ' ', if there is not in a font
 
 ==Future==
+argument auto-completion
 use absolute positioning for long whitespace
 color invert
 detect duplicate base fonts when embedding

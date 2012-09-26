@@ -245,25 +245,61 @@ var pdf2htmlEX = (function(){
       if(detail_str == undefined) return;
 
       var ok = false;
-      var detail= JSON.parse(detail_str);
+      var detail = JSON.parse(detail_str);
+
+      var target_page = _.pages[detail[0]];
+      if(target_page == undefined) return;
+
+      var pos = [0,0];
+      var upside_down = true;
+      // TODO: zoom
+      // TODO: BBox
       switch(detail[1]) {
         case 'XYZ':
-          var pos = [(detail[2] == null) ? cur_pos[0] : detail[2]
-                    ,(detail[3] == null) ? cur_pos[1] : detail[3]];
-          pos = transform(cur_page.ctm, pos);
-
-          _.scroll_to(detail[0], pos);
-
+          pos = [(detail[2] == null) ? cur_pos[0] : detail[2]
+                 ,(detail[3] == null) ? cur_pos[1] : detail[3]];
+          ok = true;
+          break;
+        case 'Fit':
+        case 'FitB':
+          pos = [0,0];
+          ok = true;
+          break;
+        case 'FitH':
+        case 'FitBH':
+          pos = [0, (detail[2] == null) ? cur_pos[1] : detail[2]]
+          ok = true;
+          break;
+        case 'FitV':
+        case 'FitBV':
+          pos = [(detail[2] == null) ? cur_pos[0] : detail[2], 0];
+          ok = true;
+          break;
+        case 'FitR':
+          /* locate the top-left corner of the rectangle */
+          pos = [detail[2], detail[5]];
+          upside_down = false;
+          ok = true;
+          break;
+          pos = [0,0];
           ok = true;
           break;
         default:
+          ok = false;
           break;
       }
 
-      if(ok)
+      if(ok) {
+        pos = transform(target_page.ctm, pos);
+        if(upside_down) {
+          pos[1] = target_page.height() - pos[1];
+        }
+        _.scroll_to(detail[0], pos);
         e.preventDefault();
+      }
     }, 
     
+    /* pos=[x,y], where (0,0) is the top-left corner */
     scroll_to : function(pageno, pos) {
       var target_page = this.pages[pageno];
       if(target_page == undefined) return;
@@ -271,7 +307,7 @@ var pdf2htmlEX = (function(){
       var cur_target_pos = target_page.position();
 
       this.container.scrollLeft(this.container.scrollLeft()-cur_target_pos[0]+pos[0]);
-      this.container.scrollTop(this.container.scrollTop()-cur_target_pos[1]+target_page.height()-pos[1]);
+      this.container.scrollTop(this.container.scrollTop()-cur_target_pos[1]+pos[1]);
     },
 
     __last_member__ : 'no comma' /*,*/
