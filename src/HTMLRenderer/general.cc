@@ -10,6 +10,8 @@
 #include <cstdio>
 #include <ostream>
 #include <cmath>
+#include <algorithm>
+#include <vector>
 
 #include <splash/SplashBitmap.h>
 
@@ -25,6 +27,8 @@ using std::fixed;
 using std::flush;
 using std::ostream;
 using std::max;
+using std::min_element;
+using std::vector;
 
 static void dummy(void *, enum ErrorCategory, int pos, char *)
 {
@@ -48,12 +52,6 @@ HTMLRenderer::HTMLRenderer(const Param * param)
     cur_mapping = new int32_t [0x10000];
     cur_mapping2 = new char* [0x100];
     width_list = new int [0x10000];
-
-    /*
-     * determine scale factors
-     */
-    scale_factor1 = max(param->zoom, param->font_size_multiplier);  
-    scale_factor2 = (param->zoom) / scale_factor1;
 }
 
 HTMLRenderer::~HTMLRenderer()
@@ -76,6 +74,43 @@ void HTMLRenderer::process(PDFDoc *doc)
 
     cerr << "Preprocessing: ";
     preprocessor.process(doc);
+
+    /*
+     * determine scale factors
+     */
+    {
+        double zoom = 1.0;
+
+        vector<double> zoom_factors;
+        
+        if(abs(param->zoom) > EPS)
+        {
+            zoom_factors.push_back(param->zoom);
+        }
+
+        if(abs(param->fit_width) > EPS)
+        {
+            zoom_factors.push_back((param->fit_width) / preprocessor.get_max_width());
+        }
+
+        if(abs(param->fit_height) > EPS)
+        {
+            zoom_factors.push_back((param->fit_height) / preprocessor.get_max_height());
+        }
+
+        if(zoom_factors.empty())
+        {
+            zoom = 1.0;
+        }
+        else
+        {
+            zoom = *min_element(zoom_factors.begin(), zoom_factors.end());
+        }
+        
+        scale_factor1 = max(zoom, param->font_size_multiplier);  
+        scale_factor2 = zoom / scale_factor1;
+    }
+
 
     cerr << "Working: ";
     BackgroundRenderer * bg_renderer = nullptr;
@@ -120,7 +155,7 @@ void HTMLRenderer::process(PDFDoc *doc)
             }
         }
 
-        doc->displayPage(this, i, (param->zoom) * DEFAULT_DPI, (param->zoom) * DEFAULT_DPI,
+        doc->displayPage(this, i, zoom_factor() * DEFAULT_DPI, zoom_factor() * DEFAULT_DPI,
                 0, true, false, false,
                 nullptr, nullptr, nullptr, nullptr);
 

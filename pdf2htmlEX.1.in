@@ -47,8 +47,12 @@ Specify the first page to process
 .B -l, --last-page <num> (Default: last page)
 Specify the last page to process
 .TP
-.B --zoom <ratio> (Default: 1.0)
-Specify the zoom ratio of the HTML file
+.B --zoom <ratio>, --fit-width <width>, --fit-height <height>
+--zoom specifies the zoom factor directly, --fit-width/height specifies the maximum width/height of a page.
+
+If multiple values are specified, the minimum one will be used.
+
+If none is specified, pages will be rendered as 72DPI.
 .TP
 .B --hpdi <dpi>, --vpdi <dpi> (Default: 144)
 Specify the horizontal and vertical DPI for images

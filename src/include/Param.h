@@ -26,6 +26,7 @@ struct Param
     int first_page, last_page;
 
     double zoom;
+    double fit_width, fit_height;
     double h_dpi, v_dpi;
 
     int process_nontext;

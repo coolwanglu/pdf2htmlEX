@@ -9,6 +9,7 @@
 
 #include <cstring>
 #include <iostream>
+#include <algorithm>
 
 #include <GfxState.h>
 #include <GfxFont.h>
@@ -21,10 +22,13 @@ namespace pdf2htmlEX {
 using std::cerr;
 using std::endl;
 using std::flush;
+using std::max;
 
 Preprocessor::Preprocessor(const Param * param)
     : OutputDev()
     , param(param)
+    , max_width(0)
+    , max_height(0)
     , cur_font_id(0)
     , cur_code_map(nullptr)
 { }
@@ -39,7 +43,7 @@ void Preprocessor::process(PDFDoc * doc)
 {
     for(int i = param->first_page; i <= param->last_page ; ++i) 
     {
-        doc->displayPage(this, i, param->h_dpi, param->v_dpi,
+        doc->displayPage(this, i, DEFAULT_DPI, DEFAULT_DPI,
                 0, true, false, false,
                 nullptr, nullptr, nullptr, nullptr);
 
@@ -74,6 +78,12 @@ void Preprocessor::drawChar(GfxState *state, double x, double y,
     }
 
     cur_code_map[code] = 1;
+}
+
+void Preprocessor::startPage(int pageNum, GfxState *state)
+{
+    max_width = max(max_width, state->getPageWidth());
+    max_height = max(max_height, state->getPageHeight());
 }
 
 const char * Preprocessor::get_code_map (long long font_id) const

@@ -50,8 +50,8 @@ void parse_options (int argc, char **argv)
         .add("help,h", "show all options", &show_usage_and_exit)
         .add("version,v", "show copyright and version info", &show_usage_and_exit)
 
-        .add("owner-password,o", &param.owner_password, "", "owner password (for encrypted files)")
-        .add("user-password,u", &param.user_password, "", "user password (for encrypted files)")
+        .add("owner-password,o", &param.owner_password, "", "owner password (for encrypted files)", nullptr, true)
+        .add("user-password,u", &param.user_password, "", "user password (for encrypted files)", nullptr, true)
 
         .add("dest-dir", &param.dest_dir, ".", "specify destination directory")
         .add("data-dir", &param.data_dir, PDF2HTMLEX_DATA_PATH, "specify data directory")
@@ -59,7 +59,9 @@ void parse_options (int argc, char **argv)
         .add("first-page,f", &param.first_page, 1, "first page to process")
         .add("last-page,l", &param.last_page, numeric_limits<int>::max(), "last page to process")
 
-        .add("zoom", &param.zoom, 1.0, "zoom ratio")
+        .add("zoom", &param.zoom, 0, "zoom ratio", nullptr, true)
+        .add("fit-width", &param.fit_width, 0, "fit width", nullptr, true) 
+        .add("fit-height", &param.fit_height, 0, "fit height", nullptr, true)
         .add("hdpi", &param.h_dpi, 144.0, "horizontal DPI for non-text")
         .add("vdpi", &param.v_dpi, 144.0, "vertical DPI for non-text")
 

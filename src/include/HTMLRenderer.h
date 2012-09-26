@@ -216,6 +216,7 @@ class HTMLRenderer : public OutputDev
          * factor1 & factor 2 are determined according to zoom and font-size-multiplier
          *
          */
+        double zoom_factor (void) const { return scale_factor1 * scale_factor2; }
         double scale_factor1;
         double scale_factor2;
 

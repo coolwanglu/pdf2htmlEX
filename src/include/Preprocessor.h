@@ -19,7 +19,6 @@
 #include <OutputDev.h>
 #include <PDFDoc.h>
 #include <Annot.h>
-
 #include "Param.h"
 
 namespace pdf2htmlEX {
@@ -41,10 +40,16 @@ public:
       double originX, double originY,
       CharCode code, int nBytes, Unicode *u, int uLen);
 
+    virtual void startPage(int pageNum, GfxState *state);
+
     const char * get_code_map (long long font_id) const;
+    double get_max_width (void) const { return max_width; }
+    double get_max_height (void) const { return max_height; }
 
 protected:
     const Param * param;
+
+    double max_width, max_height;
 
     long long cur_font_id;
     char * cur_code_map;
