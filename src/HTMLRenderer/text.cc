@@ -26,6 +26,7 @@ using std::unordered_set;
 using std::min;
 using std::all_of;
 using std::round;
+using std::swap;
 
 string HTMLRenderer::dump_embedded_font (GfxFont * font, long long fn_id)
 {
@@ -407,8 +408,46 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
      * Generate the font as desired
      *
      */
-    string tmp_fn = (char*)str_fmt("%s/__font%s", param->tmp_dir.c_str(), param->font_suffix.c_str());
-    add_tmp_file(tmp_fn);
+    string cur_tmp_fn = (char*)str_fmt("%s/__tmp_font1%s", param->tmp_dir.c_str(), param->font_suffix.c_str());
+    add_tmp_file(cur_tmp_fn);
+    string other_tmp_fn = (char*)str_fmt("%s/__tmp_font2%s", param->tmp_dir.c_str(), param->font_suffix.c_str());
+    add_tmp_file(other_tmp_fn);
+
+    ffw_save(cur_tmp_fn.c_str());
+    ffw_close();
+
+    /*
+     * Step 4
+     * Font Hinting
+     */
+    bool hinted = false;
+
+    // Call external hinting program if specified 
+    if(param->external_hint_tool != "")
+    {
+        hinted = (system((char*)str_fmt("%s \"%s\" \"%s\"", param->external_hint_tool.c_str(), cur_tmp_fn.c_str(), other_tmp_fn.c_str())) == 0);
+    }
+
+    // Call internal hinting procedure if specified 
+    if((!hinted) && (param->auto_hint))
+    {
+        ffw_load_font(cur_tmp_fn.c_str());
+        ffw_auto_hint();
+        ffw_save(other_tmp_fn.c_str());
+        ffw_close();
+        hinted = true;
+    }
+
+    if(hinted)
+    {
+        swap(cur_tmp_fn, other_tmp_fn);
+    }
+
+    /* 
+     * Step 5 
+     * Generate the font
+     * Reload to retrieve/fix accurate ascent/descent
+     */
     string fn = (char*)str_fmt("%s/f%llx%s", 
         (param->single_html ? param->tmp_dir : param->dest_dir).c_str(),
         info.id, param->font_suffix.c_str());
@@ -416,46 +455,10 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
     if(param->single_html)
         add_tmp_file(fn);
 
-    ffw_save(fn.c_str());
-    ffw_close();
-    /*
-     * Step 4
-     * Font Hinting
-     */
-
-    bool hinted = false;
-    rename(fn.c_str(), tmp_fn.c_str());
-
-    // Call external hinting program if specified 
-    if(param->external_hint_tool != "")
-    {
-        hinted = (system((char*)str_fmt("%s \"%s\" \"%s\"", param->external_hint_tool.c_str(), tmp_fn.c_str(), fn.c_str())) == 0);
-    }
-
-    // Call internal hinting procedure if specified 
-    if((!hinted) && (param->auto_hint))
-    {
-        ffw_load_font(tmp_fn.c_str());
-        ffw_auto_hint();
-        ffw_save(fn.c_str());
-        hinted = true;
-    }
-
-    if(!hinted)
-    {
-        rename(tmp_fn.c_str(), fn.c_str());
-    }
-
-    /* 
-     * Step 5 
-     * Reload to retrieve/fix accurate ascent/descent
-     */
-    rename(fn.c_str(), tmp_fn.c_str());
-    ffw_load_font(tmp_fn.c_str());
+    ffw_load_font(cur_tmp_fn.c_str());
     ffw_metric(&info.ascent, &info.descent);
     ffw_save(fn.c_str());
     ffw_close();
-
 }
 
 void HTMLRenderer::drawString(GfxState * state, GooString * s)
