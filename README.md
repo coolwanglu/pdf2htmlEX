@@ -122,7 +122,7 @@ Please read [FAQ](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ) before send
 I should be much more user-friendly than pdf2htmlEX.
 
 * Lu Wang <coolwanglu@gmail.com>
-  * Messages in Chinese, English or Japanese are accepted
+  * Accepting messages in Chinese, English or Japanese
 
 ### Special Thanks
 
