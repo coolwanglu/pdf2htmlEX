@@ -7,7 +7,7 @@ cmake_minimum_required(VERSION 2.6.0 FATAL_ERROR)
 
 include_directories(${CMAKE_SOURCE_DIR}/src/include)
 
-set(PDF2HTMLEX_VERSION "0.4")
+set(PDF2HTMLEX_VERSION "0.5")
 set(ARCHIVE_NAME pdf2htmlex-${PDF2HTMLEX_VERSION})
 add_custom_target(dist
     COMMAND git archive --prefix=${ARCHIVE_NAME}/ HEAD
