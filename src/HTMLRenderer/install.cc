@@ -11,8 +11,9 @@
 #include <cmath>
 #include <algorithm>
 
-#include "Param.h"
+#include <GlobalParams.h>
 
+#include "Param.h"
 #include "HTMLRenderer.h"
 #include "namespace.h"
 #include "util.h"
@@ -109,15 +110,24 @@ void HTMLRenderer::install_base_font(GfxFont * font, GfxFontLoc * font_loc, Font
     string psname(font_loc->path->getCString());
     string basename = psname.substr(0, psname.find('-'));
 
-    GfxFontLoc * localfontloc = font->locateFont(xref, gFalse);
+    GfxFontLoc * localfontloc = font->locateFont(xref, gTrue);
     if(param->embed_base_font)
     {
         if(localfontloc != nullptr)
         {
-            embed_font(string(localfontloc->path->getCString()), font, info);
-            export_remote_font(info, param->font_suffix, param->font_format, font);
-            delete localfontloc;
-            return;
+            GooString * path = globalParams->findBase14FontFile(localfontloc->path, font);
+            if(path)
+            {
+                embed_font(string(path->getCString()), font, info);
+                export_remote_font(info, param->font_suffix, param->font_format, font);
+                delete localfontloc;
+                delete path;
+                return;
+            }
+            else
+            {
+                cerr << "Cannot embed base font: f" << hex << info.id << dec << ' ' << psname << endl;
+            }
         }
         else
         {
