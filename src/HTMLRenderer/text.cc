@@ -161,6 +161,11 @@ string HTMLRenderer::dump_embedded_font (GfxFont * font, long long fn_id)
 
 void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo & info, bool get_metric_only)
 {
+    if(param->debug)
+    {
+        cerr << "Embed font: " << filepath << " " << info.id << endl;
+    }
+
     ffw_load_font(filepath.c_str());
     int * code2GID = nullptr;
     int code2GID_len = 0;
@@ -182,11 +187,6 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
     const char * used_map = nullptr;
 
     info.em_size = ffw_get_em_size();
-
-    if(param->debug)
-    {
-        cerr << "Ascent: " << info.ascent << " Descent: " << info.descent << endl;
-    }
 
     if(get_metric_only)
         return;
