@@ -6,7 +6,7 @@ A beautiful demo is worth a thousand words:
 
 [**Typography**](http://coolwanglu.github.com/pdf2htmlEX/demo/geneve.html) [Original](https://github.com/raphink/geneve_1564/raw/master/geneve_1564.pdf)
 
-[**Magazine(large)**](http://coolwanglu.github.com/pdf2htmlEX/demo/issue65_en.html) [Sample](http://coolwanglu.github.com/pdf2htmlEX/demo/issue65_en_sample.html) [Original](https://github.com/raphink/geneve_1564/raw/master/geneve_1564.pdf)
+[**Full Circle Magazine(large)**](http://coolwanglu.github.com/pdf2htmlEX/demo/issue65_en.html) [Sample](http://coolwanglu.github.com/pdf2htmlEX/demo/issue65_en_sample.html) [Original](http://dl.fullcirclemagazine.org/issue65_en.pdf)
 
 [**Formulas**](http://coolwanglu.github.com/pdf2htmlEX/demo/cheat.html) [Original](http://www.tug.org/texshowcase/cheat.pdf)
 
