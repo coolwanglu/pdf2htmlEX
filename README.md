@@ -1,6 +1,6 @@
 # pdf2html**EX** 
 
-[**Donate Now**](http://coolwanglu.github.com/pdf2htmlEX/donate.html)
+### [**Donate Now**](http://coolwanglu.github.com/pdf2htmlEX/donate.html)
 
 A beautiful demo is worth a thousand words:
 
