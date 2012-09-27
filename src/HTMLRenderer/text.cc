@@ -25,7 +25,7 @@ namespace pdf2htmlEX {
 using std::unordered_set;
 using std::min;
 using std::all_of;
-using std::round;
+using std::floor;
 using std::swap;
 
 string HTMLRenderer::dump_embedded_font (GfxFont * font, long long fn_id)
@@ -384,14 +384,14 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
 
             if(font_8bit)
             {
-                width_list[k] = (int)round(font_8bit->getWidth(i) * info.em_size);
+                width_list[k] = (int)floor(font_8bit->getWidth(i) * info.em_size + 0.5);
             }
             else
             {
                 char buf[2];  
                 buf[0] = (i >> 8) & 0xff;
                 buf[1] = (i & 0xff);
-                width_list[k] = (int)round(font_cid->getWidth(buf, 2) * info.em_size);
+                width_list[k] = (int)floor(font_cid->getWidth(buf, 2) * info.em_size + 0.5);
             }
         }
 
