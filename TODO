@@ -1,16 +1,11 @@
-page width
+try harder finding glyph names (using fontforge) for CID Type 0
+rename single-html -> embed-font/image/css ...
+create a glyph for ' ', if there is not in a font
 
 merge sub/sup into one line
-
 bug found in baidu(ubuntu...)
+precise link dest: zoom
 
-precise link dest: more types
-
-try harder finding glyph names (using fontforge) for CID Type 0
-
-rename single-html -> embed-font/image/css ...
-
-create a glyph for ' ', if there is not in a font
 
 ==Future==
 argument auto-completion
