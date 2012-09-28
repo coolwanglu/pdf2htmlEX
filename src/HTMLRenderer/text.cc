@@ -528,8 +528,16 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
             }
             else
             {
-                Unicode uu = (cur_font_info->use_tounicode ? check_unicode(u, uLen, code, font) : unicode_from_font(code, font));
-                line_buf.append_unicodes(&uu, 1);
+                if(cur_font_info->use_tounicode)
+                {
+                    Unicode uu = check_unicode(u, uLen, code, font);
+                    line_buf.append_unicodes(&uu, 1);
+                }
+                else
+                {
+                    Unicode uu = unicode_from_font(code, font);
+                    line_buf.append_unicodes(&uu, 1);
+                }
             }
         }
 
