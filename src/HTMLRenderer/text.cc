@@ -522,13 +522,21 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
         }
         else
         {
-            if((param->decompose_ligature) && all_of(u, u+uLen, isLegalUnicode))
+            if(cur_font_info->use_tounicode)
             {
-                line_buf.append_unicodes(u, uLen);
+                if((param->decompose_ligature) && all_of(u, u+uLen, isLegalUnicode))
+                {
+                    line_buf.append_unicodes(u, uLen);
+                }
+                else
+                {
+                    Unicode uu = check_unicode(u, uLen, code, font);
+                    line_buf.append_unicodes(&uu, 1);
+                }
             }
             else
             {
-                Unicode uu = (cur_font_info->use_tounicode ? check_unicode(u, uLen, code, font) : unicode_from_font(code, font));
+                Unicode uu = unicode_from_font(code, font);
                 line_buf.append_unicodes(&uu, 1);
             }
         }
