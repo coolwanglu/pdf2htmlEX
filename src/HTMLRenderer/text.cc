@@ -522,7 +522,7 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
         }
         else
         {
-            if((param->decompose_ligature) && all_of(u, u+uLen, isLegalUnicode))
+            if((param->decompose_ligature) && (uLen > 1) && all_of(u, u+uLen, isLegalUnicode))
             {
                 line_buf.append_unicodes(u, uLen);
             }
