@@ -189,14 +189,17 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
     info.em_size = ffw_get_em_size();
 
     if(get_metric_only)
+    {
+        ffw_metric(&info.ascent, &info.descent);
+        ffw_close();
         return;
+    }
 
     used_map = preprocessor.get_code_map(hash_ref(font->getID()));
 
     /*
      * Step 1
-     * dump the font file directly from the font descriptor and put the glyphs into the correct slots
-     *
+     * dump the font file directly from the font descriptor and put the glyphs into the correct slots *
      * for 8bit + nonTrueType
      * re-encoding the font using a PostScript encoding list (glyph id <-> glpyh name)
      *
@@ -395,8 +398,8 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
             }
         }
 
-        ffw_reencode_raw(cur_mapping, max_key + 1, 1);
         ffw_set_widths(width_list, max_key + 1);
+        ffw_reencode_raw(cur_mapping, max_key + 1, 1);
 
         if(ctu)
             ctu->decRefCnt();
@@ -458,6 +461,7 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
     ffw_load_font(cur_tmp_fn.c_str());
     ffw_metric(&info.ascent, &info.descent);
     ffw_save(fn.c_str());
+
     ffw_close();
 }
 

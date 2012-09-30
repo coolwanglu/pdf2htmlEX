@@ -1,3 +1,11 @@
+about glyph width:
+ - IE
+ - parameter for transform/trunc when width is too wide/narrow
+ - stretching ratio might not be correct..
+
+better wrapper of ff
+ - need C++ class
+
 try harder finding glyph names (using fontforge) for CID Type 0
 rename single-html -> embed-font/image/css ...
 create a glyph for ' ', if there is not in a font
