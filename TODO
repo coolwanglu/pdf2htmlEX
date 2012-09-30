@@ -1,7 +1,6 @@
 about glyph width:
  - IE
- - parameter for transform/trunc when width is too wide/narrow
- - stretching ratio might not be correct..
+ - stretching ratio might not be correct.. letter 'f'
 
 better wrapper of ff
  - need C++ class
@@ -13,6 +12,8 @@ create a glyph for ' ', if there is not in a font
 merge sub/sup into one line
 bug found in baidu(ubuntu...)
 precise link dest: zoom
+
+position history stack (popstate)
 
 
 ==Future==
