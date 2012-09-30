@@ -398,7 +398,7 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
             }
         }
 
-        ffw_set_widths(width_list, max_key + 1);
+        ffw_set_widths(width_list, max_key + 1, param->stretch_narrow_glyph, param->squeeze_wide_glyph);
         ffw_reencode_raw(cur_mapping, max_key + 1, 1);
 
         if(ctu)

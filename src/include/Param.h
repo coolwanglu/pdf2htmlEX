@@ -40,9 +40,13 @@ struct Param
     double h_eps, v_eps;
     double space_threshold;
     double font_size_multiplier;
+
     int auto_hint;
     int tounicode;
     int space_as_offset;
+    
+    int stretch_narrow_glyph;
+    int squeeze_wide_glyph;
 
     std::string css_filename;
     std::string font_suffix, font_format;

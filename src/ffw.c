@@ -19,6 +19,8 @@
 
 #include "ffw.h"
 
+static real EPS=1e-6;
+
 static inline int min(int a, int b)
 {
     return (a<b)?a:b;
@@ -294,16 +296,16 @@ void ffw_metric(double * ascent, double * descent)
 /*
  * TODO:bitmap, reference have not been considered in this function
  */
-void ffw_set_widths(int * width_list, int mapping_len)
+void ffw_set_widths(int * width_list, int mapping_len, int stretch_narrow, int squeeze_wide)
 {
+    /*
+     * Disabled, because it causes crashing
+     
     memset(cur_fv->selected, 1, cur_fv->map->enccount);
     // remove kern
     FVRemoveKerns(cur_fv);
     FVRemoveVKerns(cur_fv);
-    // remove bearing
-    // TODO: optimize this, merge the transform matrix with width setting  (below)
-    //FVSetWidthScript(cur_fv, wt_lbearing, 0, 0);
-    //FVSetWidthScript(cur_fv, wt_rbearing, 0, 0);
+    */
 
     SplineFont * sf = cur_fv->sf;
 
@@ -333,12 +335,12 @@ void ffw_set_widths(int * width_list, int mapping_len)
         DBounds bb;
         SplineCharFindBounds(sc, &bb);
 
-        // TODO: add an option
         double glyph_width = bb.maxx - bb.minx;
-        if(glyph_width > width_list[i])
+        if((glyph_width > EPS)
+                && (((glyph_width > width_list[i] + EPS) && (squeeze_wide))
+                    || ((glyph_width < width_list[i] - EPS) && (stretch_narrow)))) 
         {
-            real transform[6];
-            transform[0] = ((double)width_list[i]) / glyph_width;
+            real transform[6]; transform[0] = ((double)width_list[i]) / glyph_width;
             transform[3] = 1.0;
             transform[1] = transform[2] = transform[4] = transform[5] = 0;
             FVTrans(cur_fv, sc, transform, NULL, fvt_alllayers | fvt_dontmovewidth);
