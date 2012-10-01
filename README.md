@@ -2,7 +2,7 @@
 
 ### [**Donate Now**](http://coolwanglu.github.com/pdf2htmlEX/donate.html)
 
-### [**Feature Commision**](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ#wiki-feature_commission) are now accepted.
+### [**Feature Commission**](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ#wiki-feature_commission) are now accepted.
 
 A beautiful demo is worth a thousand words:
 
