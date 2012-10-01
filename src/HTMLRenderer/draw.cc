@@ -81,18 +81,18 @@ void HTMLRenderer::css_draw(GfxState *state, bool fill)
             if(y1 > y2) swap(y1, y2);
 
             double x,y,w,h,lw[2];
-            css_fix_rectangle_border_width(x1, y1, x2, y2, state->getLineWidth(), 
+            css_fix_rectangle_border_width(x1, y1, x2, y2, (fill ? 0.0 : state->getLineWidth()),
                     x,y,w,h,lw[0],lw[1]);
 
             GfxRGB stroke_color;
-            state->getStrokeRGB(&stroke_color);
+            if(!fill) state->getStrokeRGB(&stroke_color);
 
             GfxRGB fill_color;
             if(fill) state->getFillRGB(&fill_color);
 
             int lw_count = 2;
 
-            GfxRGB * ps = &stroke_color;
+            GfxRGB * ps = fill ? nullptr : (&stroke_color);
             GfxRGB * pf = fill ? (&fill_color) : nullptr;
 
             if(_equal(h, 0) || _equal(w, 0))
@@ -100,8 +100,8 @@ void HTMLRenderer::css_draw(GfxState *state, bool fill)
                 // orthogonal line
 
                 // TODO: check length
+                pf = ps;
                 ps = nullptr;
-                pf = &stroke_color;
                 h += lw[0];
                 w += lw[1];
             }
