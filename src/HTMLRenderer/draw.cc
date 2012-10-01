@@ -156,8 +156,9 @@ void HTMLRenderer::css_draw_rectangle(double x, double y, double w, double h,
     html_fout << "bottom:" << _round(y) << "px;"
         << "left:" << _round(x) << "px;"
         << "width:" << _round(w) << "px;"
-        << "height:" << _round(h) << "px;"
-        << "\"></div>";
+        << "height:" << _round(h) << "px;";
+
+    html_fout << "\"></div>";
 }
 
 
