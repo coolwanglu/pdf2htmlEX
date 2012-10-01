@@ -127,6 +127,7 @@ add_executable(pdf2htmlEX
     src/HTMLRenderer/export.cc
     src/HTMLRenderer/text.cc
     src/HTMLRenderer/image.cc
+    src/HTMLRenderer/draw.cc
     src/HTMLRenderer/link.cc
     src/include/namespace.h
     src/HTMLRenderer/LineBuffer.cc

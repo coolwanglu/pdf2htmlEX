@@ -22,62 +22,6 @@ using std::ostringstream;
 using std::min;
 using std::max;
 
-static void _transform(const double * ctm, double & x, double & y)
-{
-    double xx = x, yy = y;
-    x = ctm[0] * xx + ctm[2] * yy + ctm[4];
-    y = ctm[1] * xx + ctm[3] * yy + ctm[5];
-}
-
-static void _get_transformed_rect(AnnotLink * link, const double * ctm, double & x1, double & y1, double & x2, double & y2)
-{
-    double _x1, _x2, _y1, _y2;
-    link->getRect(&_x1, &_y1, &_x2, &_y2);
-
-    _transform(ctm, _x1, _y1);
-    _transform(ctm, _x2, _y2);
-
-    x1 = min(_x1, _x2);
-    x2 = max(_x1, _x2);
-    y1 = min(_y1, _y2);
-    y2 = max(_y1, _y2);
-}
-
-/*
- * In PDF, edges of the rectangle are in the middle of the borders
- * In HTML, edges are completely outside the rectangle
- */
-static void _fix_border_width(double & x1, double & y1, double & x2, double & y2, 
-        double border_width, double & border_top_bottom_width, double & border_left_right_width)
-{
-    double w = x2 - x1;
-    if(w > border_width)
-    {
-        x1 += border_width / 2;
-        x2 -= border_width / 2;
-        border_left_right_width = border_width;
-    }
-    else
-    {
-        x1 += w / 2;
-        x2 -= w / 2;
-        border_left_right_width = border_width + w/2;
-    }
-    double h = y2 - y1;
-    if(h > border_width)
-    {
-        y1 += border_width / 2;
-        y2 -= border_width / 2;
-        border_top_bottom_width = border_width;
-    }
-    else
-    {
-        y1 += h / 2;
-        y2 -= h / 2;
-        border_top_bottom_width = border_width + h/2;
-    }
-}
-
 /*
  * The detailed rectangle area of the link destination
  * Will be parsed and performed by Javascript
@@ -164,6 +108,7 @@ static string get_dest_detail_str(int pageno, LinkDest * dest)
 /*
  * Based on pdftohtml from poppler
  * TODO: CSS for link rectangles
+ * TODO: share rectangle draw with css-draw
  */
 void HTMLRenderer::processLink(AnnotLink * al)
 {
@@ -239,10 +184,17 @@ void HTMLRenderer::processLink(AnnotLink * al)
         html_fout << ">";
     }
 
-    html_fout << "<div style=\"";
+    html_fout << "<div class=\"cr tm"
+        << install_transform_matrix(default_ctm)
+        << "\" style=\"";
 
+    double x,y,w,h;
     double x1, y1, x2, y2;
-    _get_transformed_rect(al, default_ctm, x1, y1, x2, y2);
+    al->getRect(&x1, &y1, &x2, &y2);
+    x = min(x1, x2);
+    y = min(y1, y2);
+    w = max(x1, x2) - x;
+    h = max(y1, y2) - y;
     
     double border_width = 0; 
     double border_top_bottom_width = 0;
@@ -254,8 +206,10 @@ void HTMLRenderer::processLink(AnnotLink * al)
         if(border_width > 0)
         {
             {
-                _fix_border_width(x1, y1, x2, y1, 
-                        border_width, border_top_bottom_width, border_left_right_width);
+                css_fix_rectangle_border_width(x1, y2, x2, y2, border_width, 
+                        x, y, w, h,
+                        border_top_bottom_width, border_left_right_width);
+
                 if(abs(border_top_bottom_width - border_left_right_width) < EPS)
                     html_fout << "border-width:" << _round(border_top_bottom_width) << "px;";
                 else
@@ -313,12 +267,13 @@ void HTMLRenderer::processLink(AnnotLink * al)
         html_fout << "border-style:none;";
     }
 
+    _transform(default_ctm, x, y);
 
     html_fout << "position:absolute;"
-        << "left:" << _round(x1- border_left_right_width) << "px;"
-        << "bottom:" << _round(y1 - border_top_bottom_width) << "px;"
-        << "width:" << _round(x2-x1) << "px;"
-        << "height:" << _round(y2-y1) << "px;";
+        << "left:" << _round(x) << "px;"
+        << "bottom:" << _round(y) << "px;"
+        << "width:" << _round(w) << "px;"
+        << "height:" << _round(h) << "px;";
 
     // fix for IE
     html_fout << "background-color:rgba(255,255,255,0.000001);";

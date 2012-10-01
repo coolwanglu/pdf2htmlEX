@@ -42,6 +42,8 @@
  * j - Js data
  * p - Page
  *
+ * cr - CSS draw Rectangle
+ *
  * Reusable CSS classes
  *
  * t<hex> - Transform matrix
@@ -82,7 +84,7 @@ class HTMLRenderer : public OutputDev
         virtual GBool interpretType3Chars() { return gFalse; }
 
         // Does this device need non-text content?
-        virtual GBool needNonText() { return gFalse; }
+        virtual GBool needNonText() { return gTrue; }
 
         virtual void setDefaultCTM(double *ctm);
 
@@ -120,6 +122,8 @@ class HTMLRenderer : public OutputDev
         virtual void drawString(GfxState * state, GooString * s);
 
         virtual void drawImage(GfxState * state, Object * ref, Stream * str, int width, int height, GfxImageColorMap * colorMap, GBool interpolate, int *maskColors, GBool inlineImg);
+
+        virtual void stroke(GfxState *state);
 
         virtual void processLink(AnnotLink * al);
 
@@ -190,8 +194,13 @@ class HTMLRenderer : public OutputDev
         void reset_state_change();
         // prepare the line context, (close old tags, open new tags)
         // make sure the current HTML style consistent with PDF
-        void prepare_line(GfxState * state);
-        void close_line();
+        void prepare_text_line(GfxState * state);
+        void close_text_line();
+
+        ////////////////////////////////////////////////////
+        // CSS drawing
+        ////////////////////////////////////////////////////
+        void css_draw_rectange();
 
 
         ////////////////////////////////////////////////////
@@ -246,16 +255,15 @@ class HTMLRenderer : public OutputDev
         bool font_changed;
 
         // transform matrix
-        long long cur_tm_id;
+        long long cur_ttm_id;
         bool ctm_changed;
         bool text_mat_changed;
         // horizontal scaling
         bool hori_scale_changed;
-        // this is CTM * TextMAT in PDF, not only CTM
+        // this is CTM * TextMAT in PDF
         // [4] and [5] are ignored,
         // as we'll calculate the position of the origin separately
-        // TODO: changed this for images
-        double cur_ctm[6]; // unscaled
+        double cur_text_tm[6]; // unscaled
 
         // letter spacing 
         long long cur_ls_id;
@@ -283,7 +291,7 @@ class HTMLRenderer : public OutputDev
         
         // draw_ctm is cur_ctm scaled by 1/draw_scale, 
         // so everything redenered should be multiplied by draw_scale
-        double draw_ctm[6];
+        double draw_text_tm[6];
         double draw_font_size;
         double draw_scale; 
 

@@ -225,9 +225,9 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
     cur_font_size = draw_font_size = 0;
     cur_fs_id = install_font_size(cur_font_size);
     
-    memcpy(cur_ctm, id_matrix, sizeof(cur_ctm));
-    memcpy(draw_ctm, id_matrix, sizeof(draw_ctm));
-    cur_tm_id = install_transform_matrix(draw_ctm);
+    memcpy(cur_text_tm, id_matrix, sizeof(cur_text_tm));
+    memcpy(draw_text_tm, id_matrix, sizeof(draw_text_tm));
+    cur_ttm_id = install_transform_matrix(draw_text_tm);
 
     cur_letter_space = cur_word_space = 0;
     cur_ls_id = install_letter_space(cur_letter_space);
@@ -247,7 +247,7 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
 }
 
 void HTMLRenderer::endPage() {
-    close_line();
+    close_text_line();
 
     // process links before the page is closed
     cur_doc->processLinks(this, pageNum);
@@ -404,7 +404,9 @@ void HTMLRenderer::post_process()
 
 void HTMLRenderer::fix_stream (std::ostream & out)
 {
-    out << hex;
+    // we output all ID's in hex
+    // browsers are not happy with scientific notations
+    out << hex << fixed;
 }
 
 void HTMLRenderer::add_tmp_file(const string & fn)

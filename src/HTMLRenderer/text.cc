@@ -484,7 +484,7 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
 
     // see if the line has to be closed due to state change
     check_state_change(state);
-    prepare_line(state);
+    prepare_text_line(state);
 
     // Now ready to output
     // get the unicodes

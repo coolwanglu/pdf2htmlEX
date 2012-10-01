@@ -81,4 +81,12 @@ span {
 }
 .a {
 }
+.cr {
+  position:absolute;
+  transform-origin:0% 100%;
+  -ms-transform-origin:0% 100%;
+  -moz-transform-origin:0% 100%;
+  -webkit-transform-origin:0% 100%;
+  -o-transform-origin:0% 100%;
+}
 /* Base CSS END */

@@ -22,7 +22,7 @@ using std::ostream;
 void HTMLRenderer::LineBuffer::reset(GfxState * state)
 {
     state->transform(state->getCurX(), state->getCurY(), &x, &y);
-    tm_id = renderer->cur_tm_id;
+    tm_id = renderer->cur_ttm_id;
 }
 
 void HTMLRenderer::LineBuffer::append_unicodes(const Unicode * u, int l)

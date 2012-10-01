@@ -47,6 +47,8 @@ static inline bool _tm_equal(const double * tm1, const double * tm2, int size = 
     return true;
 }
 
+void _transform(const double * ctm, double & x, double & y, bool is_delta = false);
+
 static inline long long hash_ref(const Ref * id)
 {
     return (((long long)(id->num)) << (sizeof(id->gen)*8)) | (id->gen);
@@ -222,6 +224,16 @@ bool is_truetype_suffix(const std::string & suffix);
 
 std::string get_filename(const std::string & path);
 std::string get_suffix(const std::string & path);
+
+/*
+ * In PDF, edges of the rectangle are in the middle of the borders
+ * In HTML, edges are completely outside the rectangle
+ */
+void css_fix_rectangle_border_width(double x1, double y1, double x2, double y2, 
+        double border_width, 
+        double & x, double & y, double & w, double & h,
+        double & border_top_bottom_width, 
+        double & border_left_right_width);
 
 } // namespace util
 #endif //UTIL_H__

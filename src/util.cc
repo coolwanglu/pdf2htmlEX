@@ -54,6 +54,18 @@ const std::map<std::pair<std::string, bool>, std::pair<std::string, std::string>
         {{".js", 1}, {"<script type=\"text/javascript\">", "</script>"}}
 });
 
+void _transform(const double * ctm, double & x, double & y, bool is_delta)
+{
+    double xx = x, yy = y;
+    x = ctm[0] * xx + ctm[2] * yy;
+    y = ctm[1] * xx + ctm[3] * yy;
+    if(!is_delta)
+    {
+        x += ctm[4];
+        y += ctm[5];
+    }
+}
+
 bool isLegalUnicode(Unicode u)
 {
     /*
@@ -247,6 +259,40 @@ string get_suffix(const string & path)
             *iter = tolower(*iter);
         return s;
     }
+}
+
+void css_fix_rectangle_border_width(double x1, double y1, 
+        double x2, double y2, 
+        double border_width, 
+        double & x, double & y, double & w, double & h,
+        double & border_top_bottom_width, 
+        double & border_left_right_width)
+{
+    w = x2 - x1;
+    if(w > border_width)
+    {
+        w -= border_width;
+        border_left_right_width = border_width;
+    }
+    else
+    {
+        border_left_right_width = border_width + w/2;
+        w = 0;
+    }
+    x = x1 - border_width / 2;
+
+    h = y2 - y1;
+    if(h > border_width)
+    {
+        h -= border_width;
+        border_top_bottom_width = border_width;
+    }
+    else
+    {
+        border_top_bottom_width = border_width + h/2;
+        h = 0;
+    }
+    y = y1 - border_width / 2;
 }
 
 } // namespace pdf2htmlEX
