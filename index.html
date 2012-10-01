@@ -56,15 +56,18 @@
 
 <p>A beautiful demo is worth a thousand words:</p>
 
-<p><a href="http://coolwanglu.github.com/pdf2htmlEX/demo/geneve.html"><strong>Typography</strong></a> <a href="https://github.com/raphink/geneve_1564/raw/master/geneve_1564.pdf">Original</a></p>
+<table border="0" style="margin:13px;">
+    <tr>
+        <td><a href="http://coolwanglu.github.com/pdf2htmlEX/demo/geneve.html"><strong>Typography</strong></a></td>
+        <td><a href="http://coolwanglu.github.com/pdf2htmlEX/demo/issue65_en.html"><strong>Full Circle Magazine(large)</strong></a></td>
+    </tr><tr>
+        <td><a href="http://coolwanglu.github.com/pdf2htmlEX/demo/cheat.html"><strong>Formulas</strong></a></td>
+        <td><a href="http://coolwanglu.github.com/pdf2htmlEX/demo/demo.html"><strong>Scientific Paper</strong></a></td>
+    </tr><tr>
+        <td><a href="http://coolwanglu.github.com/pdf2htmlEX/demo/chn.html"><strong>Chinese</strong></a></td>
+    </tr>
+</table>
 
-<p><a href="http://coolwanglu.github.com/pdf2htmlEX/demo/issue65_en.html"><strong>Full Circle Magazine(large)</strong></a> <a href="http://coolwanglu.github.com/pdf2htmlEX/demo/issue65_en_sample.html">Sample</strong></a> <a href="http://dl.fullcirclemagazine.org/issue65_en.pdf">Original</a></p>
-
-<p><a href="http://coolwanglu.github.com/pdf2htmlEX/demo/cheat.html"><strong>Formulas</strong></a> <a href="http://www.tug.org/texshowcase/cheat.pdf">Original</a></p>
-
-<p><a href="http://coolwanglu.github.com/pdf2htmlEX/demo/demo.html"><strong>Scientific Paper</strong></a> <a href="http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.148.349&amp;rep=rep1&amp;type=pdf">Original</a></p>
-
-<p><a href="http://coolwanglu.github.com/pdf2htmlEX/demo/chn.html"><strong>Chinese</strong></a> <a href="http://files.cnblogs.com/phphuaibei/git%E6%90%AD%E5%BB%BA.pdf">Original</a></p>
 
 <p><strong>WINDOWS XP USERS: Please make sure ClearType is turned on</strong> </p>
 
@@ -88,57 +91,12 @@
 <li>Proper styling (Color, Transformation...)</li>
 <li>Links</li>
 <li>Optimization for Web </li>
-</ul><h3>Not supported yet</h3>
-
-<ul>
-<li>Type 3 fonts</li>
-<li>Non-text object (Don't worry, they will be rendered as images)</li>
-</ul><h2>Get started</h2>
-
-<h3>Ubuntu</h3>
-
-<p>There is a Ubuntu PPA set up at <a href="https://launchpad.net/%7Ecoolwanglu/+archive/pdf2htmlex">here</a>.</p>
-
-<h3>ArchLinux</h3>
-
-<p>Special thanks to Arthur Titeica for the <a href="https://aur.archlinux.org/packages.php?ID=62426">AUR Package</a>.</p>
-
-<h3>Build from source</h3>
-
-<h4>Dependency</h4>
-
-<ul>
-<li>CMake, pkg-config</li>
-<li>compilers support C++11, for example
-
-<ul>
-<li>GCC &gt;= 4.4.6</li>
-<li>I heard about successful build with Clang </li>
+<li><a href="https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ#wiki-feature_commission"><strong>More</strong></a>
 </ul>
-</li>
-<li>libpoppler with xpdf header &gt;= 0.20.0 (compile with --enable-xpdf-headers)
 
-<ul>
-<li>Install libpng (and headers) BEFORE you compile libpoppler if you want background images generated</li>
-<li>Install poppler-data if your want CJK support</li>
-</ul>
-</li>
-<li>fontforge (with header files)</li>
-</ul><p><strong>Build On Windows</strong></p>
+<h2>Get Started</h2>
 
-<p>I've tested with CYGWIN without any problem, and I believe it also works on MinGW without many modifications.</p>
-
-<h4>Compiling</h4>
-
-<pre><code>cmake . &amp;&amp; make &amp;&amp; sudo make install
-</code></pre>
-
-<h2>Usage</h2>
-
-<pre><code>pdf2htmlEX /path/to/foobar.pdf
-
-pdf2htmlEX --help
-</code></pre>
+<p>Find more info on the <a href="http://github.com/coolwanglu/pdf2htmlEX">project page</a>.<p>
 
 <h2>LICENSE</h2>
 
@@ -150,26 +108,17 @@ pdf2htmlEX --help
 
 <p><strong>Font extraction, conversion or redistribution may be illegal, please check your local laws</strong></p>
 
-<h2>Credits</h2>
+<h2>Contact</h2>
 
-<p>pdf2htmlEX is inspired by the following projects:</p>
-
-<ul>
-<li>pdftops &amp; pdftohtml from poppler </li>
-<li>MuPDF</li>
-<li>PDF.js</li>
-<li>Crocodoc</li>
-<li>Google Doc</li>
-</ul><h2>Contact</h2>
-
-<p>Suggestions and questions are welcome. </p>
-
-<p>Please read <a href="https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ">FAQ</a> before sending an email to me. Or your message might be ignored.</p>
+<p>Lu Wang <a href="mailto:coolwanglu@gmail.com">coolwanglu@gmail.com</a></p>
 
 <ul>
-<li>Lu Wang <a href="mailto:coolwanglu@gmail.com">coolwanglu@gmail.com</a>
-</li>
-</ul><h3>Special Thanks</h3>
+    <li>Suggestions and questions are welcome.</li>
+    <li>Please read <a href="https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ">FAQ</a>, or your message might be ignored.</li>
+    <li>Accepting messages in Chinese, English or Japanese.</li>
+</ul>
+
+<h3>Special Thanks</h3>
 
 <ul>
 <li>Hongliang Tian <a href="mailto:tatetian@gmail.com">tatetian@gmail.com</a>

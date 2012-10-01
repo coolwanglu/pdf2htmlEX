@@ -201,7 +201,7 @@ hr {
 }
 
 table {
-  width: 100%;
+  width: auto;
   border: 1px solid #ebebeb;
 }
 
@@ -212,7 +212,8 @@ th {
 td {
   border: 1px solid #ebebeb;
   text-align: center; 
-  font-weight: 300;
+  font-weight:; 300;
+  padding:2px 13px;
 }
 
 form {
