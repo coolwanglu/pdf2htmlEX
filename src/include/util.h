@@ -235,5 +235,7 @@ void css_fix_rectangle_border_width(double x1, double y1, double x2, double y2,
         double & border_top_bottom_width, 
         double & border_left_right_width);
 
+std::ostream & operator << (std::ostream & out, const GfxRGB & rgb);
+
 } // namespace util
 #endif //UTIL_H__

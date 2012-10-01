@@ -30,6 +30,10 @@ static bool is_rectangle(GfxSubpath * path)
               && _equal(path->getY(0), path->getY(4)))))
             return false;
 
+    for(int i = 1; i < path->getNumPoints(); ++i)
+        if(path->getCurve(i))
+            return false;
+
     return (_equal(path->getY(0), path->getY(1))
             && _equal(path->getX(1), path->getX(2))
             && _equal(path->getY(2), path->getY(3))
@@ -42,7 +46,7 @@ static bool is_rectangle(GfxSubpath * path)
 
 //TODO track state
 //TODO connection style
-void HTMLRenderer::stroke(GfxState *state)
+void HTMLRenderer::css_draw(GfxState *state, bool fill)
 {
     GfxPath * path = state->getPath();
     for(int i = 0; i < path->getNumSubpaths(); ++i)
@@ -51,18 +55,19 @@ void HTMLRenderer::stroke(GfxState *state)
 
         if(is_horizontal_line(subpath))
         {
-            close_text_line();
             double x1 = subpath->getX(0);
             double x2 = subpath->getX(1);
             double y = subpath->getY(0);
             if(x1 > x2) swap(x1, x2);
 
-            _transform(state->getCTM(), x1, y);
+            GfxRGB stroke_color;
+            state->getStrokeRGB(&stroke_color);
 
-            html_fout << "<div style=\"border:solid red;border-width:1px 0 0 0;position:absolute;bottom:" 
-                << _round(y) << "px;left:" 
-                << _round(x1) << "px;width:"
-                << _round(x2-x1) << "px;height:0;\"></div>";
+            double lw = state->getLineWidth();
+
+            css_draw_rectangle(x1, y - lw/2, x2-x1, lw,
+                    nullptr, 0,
+                    nullptr, &stroke_color, state);
         }
         else if (is_rectangle(subpath))
         {
@@ -75,22 +80,85 @@ void HTMLRenderer::stroke(GfxState *state)
             if(x1 > x2) swap(x1, x2);
             if(y1 > y2) swap(y1, y2);
 
-            double x,y,w,h,w1,w2;
+            double x,y,w,h,lw[2];
             css_fix_rectangle_border_width(x1, y1, x2, y2, state->getLineWidth(), 
-                    x,y,w,h,w1,w2);
-            
-            _transform(state->getCTM(), x, y);
+                    x,y,w,h,lw[0],lw[1]);
 
-            html_fout << "<div class=\"cr t" << install_transform_matrix(state->getCTM())
-                << "\" style=\"border:solid red;border-width:"
-                << _round(w1) << "px " 
-                << _round(w2) << " px;left:" 
-                << _round(x) << "px;bottom:" 
-                << _round(y) << "px;width:"
-                << _round(w) << "px;height:"
-                << _round(h) << "px;\"></div>";
+            GfxRGB stroke_color;
+            state->getStrokeRGB(&stroke_color);
+
+            GfxRGB fill_color;
+            if(fill) state->getFillRGB(&fill_color);
+
+            int lw_count = 2;
+
+            GfxRGB * ps = &stroke_color;
+            GfxRGB * pf = fill ? (&fill_color) : nullptr;
+
+            if(_equal(h, 0) || _equal(w, 0))
+            {
+                // orthogonal line
+
+                // TODO: check length
+                ps = nullptr;
+                pf = &stroke_color;
+                h += lw[0];
+                w += lw[1];
+            }
+
+            css_draw_rectangle(x, y, w, h,
+                    lw, lw_count,
+                    ps, pf, state);
         }
     }
 }
+
+void HTMLRenderer::css_draw_rectangle(double x, double y, double w, double h,
+        double * line_width_array, int line_width_count,
+        const GfxRGB * line_color, const GfxRGB * fill_color,
+        GfxState * state)
+{
+    close_text_line();
+
+    html_fout << "<div class=\"Cd t" << install_transform_matrix(state->getCTM()) << "\" style=\"";
+
+    if(line_color)
+    {
+        html_fout << "border-color:" << *line_color << ";";
+
+        html_fout << "border-width:";
+        for(int i = 0; i < line_width_count; ++i)
+        {
+            if(i > 0) html_fout << ' ';
+
+            double lw = line_width_array[i];
+            html_fout << _round(lw);
+            if(lw > EPS) html_fout << "px";
+        }
+        html_fout << ";";
+    }
+    else
+    {
+        html_fout << "border:none;";
+    }
+
+    if(fill_color)
+    {
+        html_fout << "background-color:" << (*fill_color) << ";";
+    }
+    else
+    {
+        html_fout << "background-color:transparent;";
+    }
+
+    _transform(state->getCTM(), x, y);
+
+    html_fout << "bottom:" << _round(y) << "px;"
+        << "left:" << _round(x) << "px;"
+        << "width:" << _round(w) << "px;"
+        << "height:" << _round(h) << "px;"
+        << "\"></div>";
+}
+
 
 } // namespace pdf2htmlEX

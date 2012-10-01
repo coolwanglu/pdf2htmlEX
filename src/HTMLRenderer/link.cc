@@ -184,7 +184,7 @@ void HTMLRenderer::processLink(AnnotLink * al)
         html_fout << ">";
     }
 
-    html_fout << "<div class=\"cr tm"
+    html_fout << "<div class=\"Cd t"
         << install_transform_matrix(default_ctm)
         << "\" style=\"";
 
@@ -206,7 +206,7 @@ void HTMLRenderer::processLink(AnnotLink * al)
         if(border_width > 0)
         {
             {
-                css_fix_rectangle_border_width(x1, y2, x2, y2, border_width, 
+                css_fix_rectangle_border_width(x1, y1, x2, y2, border_width, 
                         x, y, w, h,
                         border_top_bottom_width, border_left_right_width);
 

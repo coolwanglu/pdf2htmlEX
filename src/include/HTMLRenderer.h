@@ -42,7 +42,7 @@
  * j - Js data
  * p - Page
  *
- * cr - CSS draw Rectangle
+ * Cd - CSS Draw
  *
  * Reusable CSS classes
  *
@@ -123,7 +123,8 @@ class HTMLRenderer : public OutputDev
 
         virtual void drawImage(GfxState * state, Object * ref, Stream * str, int width, int height, GfxImageColorMap * colorMap, GBool interpolate, int *maskColors, GBool inlineImg);
 
-        virtual void stroke(GfxState *state);
+        virtual void stroke(GfxState *state) { css_draw(state, false); }
+        virtual void fill(GfxState *state) { css_draw(state, true); }
 
         virtual void processLink(AnnotLink * al);
 
@@ -200,7 +201,18 @@ class HTMLRenderer : public OutputDev
         ////////////////////////////////////////////////////
         // CSS drawing
         ////////////////////////////////////////////////////
-        void css_draw_rectange();
+        void css_draw(GfxState *state, bool fill);
+        /*
+         * coordinates are to transformed by state->getCTM()
+         * (x,y) should be the bottom-left corner INCLUDING border
+         * w,h should be the metrics WITHOUT border
+         *
+         * line_color & fill_color may be specified as nullptr to indicate none
+         */
+        void css_draw_rectangle(double x, double y, double w, double h,
+                double * line_width_array, int line_width_count,
+                const GfxRGB * line_color, const GfxRGB * fill_color,
+                GfxState * state);
 
 
         ////////////////////////////////////////////////////

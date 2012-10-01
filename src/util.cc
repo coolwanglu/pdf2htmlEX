@@ -295,4 +295,15 @@ void css_fix_rectangle_border_width(double x1, double y1,
     y = y1 - border_width / 2;
 }
 
+ostream & operator << (ostream & out, const GfxRGB & rgb)
+{
+    auto flags= out.flags();
+    out << std::dec << "rgb(" 
+        << (int)colToByte(rgb.r) << "," 
+        << (int)colToByte(rgb.g) << "," 
+        << (int)colToByte(rgb.b) << ")";
+    out.flags(flags);
+    return out;
+}
+
 } // namespace pdf2htmlEX
