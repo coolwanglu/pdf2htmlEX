@@ -35,7 +35,7 @@ Specify owner password
 .B -u, --user-password <password>
 Specify user password
 .TP
-.B --dest-dir <dir> (Default: ".")
+.B --dest-dir <dir> (Default: .)
 Specify destination folder
 .TP
 .B --data-dir <dir> (Default: @CMAKE_INSTALL_PREFIX@/share/pdf2htmlEX)
@@ -117,15 +117,21 @@ Treat space characters as offsets, which may increase the size of the output.
 
 Turn it on if space characters are not displayed correctly, or you want to remove positional spaces.
 .TP
-.B --css-filename <filename> (Default: "")
+.B --stretch-narrow-glyph <0|1> (Default: 0)
+If set to 1, glyphs narrower than described in PDF will be strecth; otherwise space will be padded to the right of the glyphs
+.TP
+.B --squeeze_wide_glyph <0|1> (Default: 0)
+If set to 1, glyphs wider than described in PDF will be squeezed; otherwise it will be truncated.
+.TP
+.B --css-filename <filename> (Default: <none>)
 Specify the filename of the generated css file, if not embedded.
 
 If it's empty, the file name will be determined automatically.
 .TP
-.B --font-suffix <suffix> (Default: ".ttf"), --font-format <format> (Default: "truetype")
+.B --font-suffix <suffix> (Default: .ttf), --font-format <format> (Default: truetype)
 Specify the suffix and format of fonts extracted from the PDF file. They should be consistent.
 .TP
-.B --external-hint-tool <tool> (Default: "")
+.B --external-hint-tool <tool> (Default: <none>)
 If specified, the tool will be called in order to enhanced hinting for fonts, this will precede --auto-hint.
 
 The tool will be called as '<tool> <in.suffix> <out.suffix>', where suffix will be the same as specified for --font-suffix.
@@ -141,10 +147,10 @@ If switched off, intermediate files won't be cleaned in the end.
 .B pdf2htmlEX /path/to/file.pdf
 Convert file.pdf into file.html
 .TP
-.B pdf2htmlEX --tmp-dir tmp --clean-tmp 0 --debug 1 /path/to/file.pdf
+.B pdf2htmlEX --clean-tmp 0 --debug 1 /path/to/file.pdf
 Convert file.pdf and leave all intermediate files.
 .TP
-.B pdf2htmlEX --dest-dir out --single-html 0 --debug 1 /path/to/file.pdf
+.B pdf2htmlEX --dest-dir out --single-html 0 /path/to/file.pdf
 Convert file.pdf into out/file.html and leave font/image files separated.
 
 .SH COPYRIGHT

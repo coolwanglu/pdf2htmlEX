@@ -2,6 +2,8 @@
 
 ### [**Donate Now**](http://coolwanglu.github.com/pdf2htmlEX/donate.html)
 
+### [**Feature Commision**](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ#wiki-feature_commission) are now accepted.
+
 A beautiful demo is worth a thousand words:
 
 [**Typography**](http://coolwanglu.github.com/pdf2htmlEX/demo/geneve.html) [Original](https://github.com/raphink/geneve_1564/raw/master/geneve_1564.pdf)

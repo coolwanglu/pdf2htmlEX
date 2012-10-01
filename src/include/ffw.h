@@ -34,7 +34,7 @@ int ffw_get_em_size(void);
 // fix metrics and get them
 void ffw_metric(double * ascent, double * descent);
 
-void ffw_set_widths(int * width_list, int mapping_len);
+void ffw_set_widths(int * width_list, int mapping_len, int stretch_narrow, int squeeze_wide);
 
 void ffw_auto_hint(void);
 

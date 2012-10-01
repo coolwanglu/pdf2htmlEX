@@ -11,8 +11,9 @@
 #include <cmath>
 #include <algorithm>
 
-#include "Param.h"
+#include <GlobalParams.h>
 
+#include "Param.h"
 #include "HTMLRenderer.h"
 #include "namespace.h"
 #include "util.h"
@@ -114,7 +115,7 @@ void HTMLRenderer::install_base_font(GfxFont * font, GfxFontLoc * font_loc, Font
     {
         if(localfontloc != nullptr)
         {
-            embed_font(string(localfontloc->path->getCString()), font, info);
+            embed_font(localfontloc->path->getCString(), font, info);
             export_remote_font(info, param->font_suffix, param->font_format, font);
             delete localfontloc;
             return;

@@ -1,6 +1,18 @@
+
+about glyph width:
+ - IE
+ - stretching ratio might not be correct.. letter 'f'
+
+draw lines with CSS
+
+create a glyph for ' ', if there is not in a font
+
+position history stack (popstate)
+
+==Wait until someone asks==
+
 try harder finding glyph names (using fontforge) for CID Type 0
 rename single-html -> embed-font/image/css ...
-create a glyph for ' ', if there is not in a font
 
 merge sub/sup into one line
 bug found in baidu(ubuntu...)

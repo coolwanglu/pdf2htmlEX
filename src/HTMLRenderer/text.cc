@@ -25,7 +25,7 @@ namespace pdf2htmlEX {
 using std::unordered_set;
 using std::min;
 using std::all_of;
-using std::round;
+using std::floor;
 using std::swap;
 
 string HTMLRenderer::dump_embedded_font (GfxFont * font, long long fn_id)
@@ -189,14 +189,17 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
     info.em_size = ffw_get_em_size();
 
     if(get_metric_only)
+    {
+        ffw_metric(&info.ascent, &info.descent);
+        ffw_close();
         return;
+    }
 
     used_map = preprocessor.get_code_map(hash_ref(font->getID()));
 
     /*
      * Step 1
-     * dump the font file directly from the font descriptor and put the glyphs into the correct slots
-     *
+     * dump the font file directly from the font descriptor and put the glyphs into the correct slots *
      * for 8bit + nonTrueType
      * re-encoding the font using a PostScript encoding list (glyph id <-> glpyh name)
      *
@@ -384,19 +387,19 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
 
             if(font_8bit)
             {
-                width_list[k] = (int)round(font_8bit->getWidth(i) * info.em_size);
+                width_list[k] = (int)floor(font_8bit->getWidth(i) * info.em_size + 0.5);
             }
             else
             {
                 char buf[2];  
                 buf[0] = (i >> 8) & 0xff;
                 buf[1] = (i & 0xff);
-                width_list[k] = (int)round(font_cid->getWidth(buf, 2) * info.em_size);
+                width_list[k] = (int)floor(font_cid->getWidth(buf, 2) * info.em_size + 0.5);
             }
         }
 
+        ffw_set_widths(width_list, max_key + 1, param->stretch_narrow_glyph, param->squeeze_wide_glyph);
         ffw_reencode_raw(cur_mapping, max_key + 1, 1);
-        ffw_set_widths(width_list, max_key + 1);
 
         if(ctu)
             ctu->decRefCnt();
@@ -458,6 +461,7 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
     ffw_load_font(cur_tmp_fn.c_str());
     ffw_metric(&info.ascent, &info.descent);
     ffw_save(fn.c_str());
+
     ffw_close();
 }
 
@@ -522,14 +526,22 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
         }
         else
         {
-            if((param->decompose_ligature) && all_of(u, u+uLen, isLegalUnicode))
+            if((param->decompose_ligature) && (uLen > 1) && all_of(u, u+uLen, isLegalUnicode))
             {
                 line_buf.append_unicodes(u, uLen);
             }
             else
             {
-                Unicode uu = (cur_font_info->use_tounicode ? check_unicode(u, uLen, code, font) : unicode_from_font(code, font));
-                line_buf.append_unicodes(&uu, 1);
+                if(cur_font_info->use_tounicode)
+                {
+                    Unicode uu = check_unicode(u, uLen, code, font);
+                    line_buf.append_unicodes(&uu, 1);
+                }
+                else
+                {
+                    Unicode uu = unicode_from_font(code, font);
+                    line_buf.append_unicodes(&uu, 1);
+                }
             }
         }
 
