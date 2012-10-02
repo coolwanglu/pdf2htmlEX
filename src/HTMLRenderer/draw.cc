@@ -7,6 +7,12 @@
  * 2012.10.01
  */
 
+#include <algorithm>
+#include <cmath>
+#include <sstream>
+#include <vector>
+#include <iostream>
+
 #include "HTMLRenderer.h"
 #include "util.h"
 #include "namespace.h"
@@ -14,6 +20,14 @@
 namespace pdf2htmlEX {
 
 using std::swap;
+using std::min;
+using std::max;
+using std::acos;
+using std::asin;
+using std::ostringstream;
+using std::sqrt;
+using std::vector;
+using std::ostream;
 
 static bool is_horizontal_line(GfxSubpath * path)
 {
@@ -44,6 +58,157 @@ static bool is_rectangle(GfxSubpath * path)
             && _equal(path->getY(3), path->getY(0)));
 }
 
+static void get_shading_bbox(GfxState * state, GfxShading * shading,
+        double & x1, double & y1, double & x2, double & y2)
+{
+    // from SplashOutputDev.cc in poppler
+    if(shading->getHasBBox())
+    {
+        shading->getBBox(&x1, &y1, &x2, &y2);
+    }
+    else
+    {
+        state->getClipBBox(&x1, &y1, &x2, &y2);
+        Matrix ctm, ictm;
+        state->getCTM(&ctm);
+        ctm.invertTo(&ictm);
+
+        double x[4], y[4];
+        ictm.transform(x1, y1, &x[0], &y[0]);
+        ictm.transform(x2, y1, &x[1], &y[1]);
+        ictm.transform(x1, y2, &x[2], &y[2]);
+        ictm.transform(x2, y2, &x[3], &y[3]);
+
+        x1 = x2 = x[0];
+        y1 = y2 = y[0];
+
+        for(int i = 1; i < 4; ++i)
+        {
+            x1 = min<double>(x1, x[i]);
+            y1 = min<double>(y1, y[i]);
+            x2 = max<double>(x2, x[i]);
+            y2 = max<double>(y2, y[i]);
+        }
+    }
+}
+
+static double get_degree(double dx, double dy)
+{
+    static const double PI = acos(-1.0);
+    double r = hypot(dx, dy);
+
+    double ang = acos(dx / r);
+    if(!_is_positive(dy))
+        ang = 2 * PI - ang;
+
+    return ang * 180.0 / PI;
+}
+
+class LinearGradient
+{
+public:
+    LinearGradient(GfxAxialShading * shading, 
+            double x1, double y1, double x2, double y2);
+
+    void dumpto (ostream & out);
+
+    static void style_function (void * p, ostream & out)
+    {
+        static_cast<LinearGradient*>(p)->dumpto(out);
+    }
+
+    // TODO, add alpha
+    class ColorStop
+    {
+    public:
+        GfxRGB rgb;
+        double pos; // [0,1]
+    };
+
+    vector<ColorStop> stops;
+    double degree;
+};
+
+LinearGradient::LinearGradient (GfxAxialShading * shading,
+        double x1, double y1, double x2, double y2)
+{
+    // coordinate for t = 0 and t = 1
+    double t0x, t0y, t1x, t1y;
+    shading->getCoords(&t0x, &t0y, &t1x, &t1y);
+
+    degree = get_degree(t1x - t0x, t1y - t0y);
+
+    // get the range of t in the box
+    // from GfxState.cc in poppler
+    double box_tmin, box_tmax;
+    {
+        double idx = t1x - t0x;
+        double idy = t1y - t0y;
+        double inv_len = 1.0 / (idx * idx + idy * idy);
+        idx *= inv_len;
+        idy *= inv_len;
+
+        // t of (x1,y1)
+        box_tmin = box_tmax = (x1 - t0x) * idx + (y1 - t0y) * idy;
+        double tdx = (x2 - x1) * idx;
+        if(tdx < 0)
+            box_tmin += tdx;
+        else
+            box_tmax += tdx;
+
+        double tdy = (y2 - y1) * idy;
+        if(tdy < 0)
+            box_tmin += tdy; 
+        else
+            box_tmax += tdy;
+    }
+
+    // get the domain of t in the box
+    double domain_tmin = max<double>(box_tmin, shading->getDomain0());
+    double domain_tmax = min<double>(box_tmax, shading->getDomain1());
+
+    // TODO: better sampling
+    // TODO: check background color
+    {
+        stops.clear();
+        double tstep = (domain_tmax - domain_tmin) / 13.0;
+        for(double t = domain_tmin; t <= domain_tmax; t += tstep)
+        {
+            GfxColor color;
+            shading->getColor(t, &color);
+
+            ColorStop stop;
+            shading->getColorSpace()->getRGB(&color, &stop.rgb);
+            stop.pos = (t - box_tmin) / (box_tmax - box_tmin);
+
+            stops.push_back(stop);
+        }
+    }
+}
+
+void LinearGradient::dumpto (ostream & out)
+{
+    out << "background-color:red;";
+}
+
+GBool HTMLRenderer::axialShadedFill(GfxState *state, GfxAxialShading *shading, double tMin, double tMax)
+{
+    if(!(param->css_draw)) return gFalse;
+
+    double x1, y1, x2, y2;
+    get_shading_bbox(state, shading, x1, y1, x2, y2);
+
+    LinearGradient lg(shading, x1, y1, x2, y2);
+
+    // TODO: check background color
+    css_draw_rectangle(x1, y1, x2-x1, y2-y1, state->getCTM(),
+            nullptr, 0,
+            nullptr, nullptr,
+            LinearGradient::style_function, &lg);
+
+    return gTrue;
+}
+
 //TODO track state
 //TODO connection style
 void HTMLRenderer::css_draw(GfxState *state, bool fill)
@@ -67,9 +232,9 @@ void HTMLRenderer::css_draw(GfxState *state, bool fill)
 
             double lw = state->getLineWidth();
 
-            css_draw_rectangle(x1, y - lw/2, x2-x1, lw,
+            css_draw_rectangle(x1, y - lw/2, x2-x1, lw, state->getCTM(),
                     nullptr, 0,
-                    nullptr, &stroke_color, state);
+                    nullptr, &stroke_color);
         }
         else if (is_rectangle(subpath))
         {
@@ -108,34 +273,36 @@ void HTMLRenderer::css_draw(GfxState *state, bool fill)
                 w += lw[1];
             }
 
-            css_draw_rectangle(x, y, w, h,
+            css_draw_rectangle(x, y, w, h, state->getCTM(),
                     lw, lw_count,
-                    ps, pf, state);
+                    ps, pf);
         }
     }
 }
 
-void HTMLRenderer::css_draw_rectangle(double x, double y, double w, double h,
+void HTMLRenderer::css_draw_rectangle(double x, double y, double w, double h, const double * tm,
         double * line_width_array, int line_width_count,
-        const GfxRGB * line_color, const GfxRGB * fill_color,
-        GfxState * state)
+        const GfxRGB * line_color, const GfxRGB * fill_color, 
+        void (*style_function)(void *, ostream &), void * style_function_data)
 {
     close_text_line();
 
-    double ctm[6];
-    memcpy(ctm, state->getCTM(), sizeof(ctm));
+    double new_tm[6];
+    memcpy(new_tm, tm, sizeof(new_tm));
 
-    _transform(ctm, x, y);
+    _transform(new_tm, x, y);
 
     double scale = 1.0;
     {
-        double i1 = ctm[0] + ctm[2];
-        double i2 = ctm[1] + ctm[3];
-        scale = sqrt((i1 * i1 + i2 * i2) / 2.0);
+        static const double sqrt2 = sqrt(2.0);
+
+        double i1 = (new_tm[0] + new_tm[2]) / sqrt2;
+        double i2 = (new_tm[1] + new_tm[3]) / sqrt2;
+        scale = hypot(i1, i2);
         if(_is_positive(scale))
         {
             for(int i = 0; i < 4; ++i)
-                ctm[i] /= scale;
+                new_tm[i] /= scale;
         }
         else
         {
@@ -143,7 +310,7 @@ void HTMLRenderer::css_draw_rectangle(double x, double y, double w, double h,
         }
     }
 
-    html_fout << "<div class=\"Cd t" << install_transform_matrix(ctm) << "\" style=\"";
+    html_fout << "<div class=\"Cd t" << install_transform_matrix(new_tm) << "\" style=\"";
 
     if(line_color)
     {
@@ -172,6 +339,11 @@ void HTMLRenderer::css_draw_rectangle(double x, double y, double w, double h,
     else
     {
         html_fout << "background-color:transparent;";
+    }
+
+    if(style_function)
+    { 
+        style_function(style_function_data, html_fout);
     }
 
     html_fout << "bottom:" << _round(y) << "px;"

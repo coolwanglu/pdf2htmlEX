@@ -102,7 +102,7 @@ void HTMLRenderer::process(PDFDoc *doc)
             zoom = *min_element(zoom_factors.begin(), zoom_factors.end());
         }
         
-        text_scale_factor1 = max(zoom, param->font_size_multiplier);  
+        text_scale_factor1 = max<double>(zoom, param->font_size_multiplier);  
         text_scale_factor2 = zoom / text_scale_factor1;
     }
 

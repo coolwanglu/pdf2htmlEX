@@ -20,6 +20,10 @@ void CairoBackgroundRenderer::drawChar(GfxState *state, double x, double y,
     //    CairoOutputDev::drawChar(state,x,y,dx,dy,originX,originY,code, nBytes, u, uLen);
 }
 
+void CairoBackgroundRenderer::render_page(PDFDoc * doc, int pageno, const std::string & filename)
+{
+}
+
 } // namespace pdf2htmlEX
 
 #endif // HAVE_CAIRO

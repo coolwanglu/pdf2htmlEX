@@ -79,6 +79,12 @@ class HTMLRenderer : public OutputDev
         // Does this device use drawChar() or drawString()?
         virtual GBool useDrawChar() { return gFalse; }
 
+        // Does this device use functionShadedFill(), axialShadedFill(), and
+        // radialShadedFill()?  If this returns false, these shaded fills
+        // will be reduced to a series of other drawing operations.
+        virtual GBool useShadedFills(int type) { return type == 2; }
+
+
         // Does this device use beginType3Char/endType3Char?  Otherwise,
         // text in Type 3 fonts will be drawn with drawChar/drawString.
         virtual GBool interpretType3Chars() { return gFalse; }
@@ -125,6 +131,7 @@ class HTMLRenderer : public OutputDev
 
         virtual void stroke(GfxState *state) { css_draw(state, false); }
         virtual void fill(GfxState *state) { css_draw(state, true); }
+        virtual GBool axialShadedFill(GfxState *state, GfxAxialShading *shading, double tMin, double tMax);
 
         virtual void processLink(AnnotLink * al);
 
@@ -208,11 +215,12 @@ class HTMLRenderer : public OutputDev
          * w,h should be the metrics WITHOUT border
          *
          * line_color & fill_color may be specified as nullptr to indicate none
+         * style_function & style_function_data may be provided to provide more styles
          */
-        void css_draw_rectangle(double x, double y, double w, double h,
+        void css_draw_rectangle(double x, double y, double w, double h, const double * tm,
                 double * line_width_array, int line_width_count,
-                const GfxRGB * line_color, const GfxRGB * fill_color,
-                GfxState * state);
+                const GfxRGB * line_color, const GfxRGB * fill_color, 
+                void (*style_function)(void *, std::ostream &) = nullptr, void * style_function_data = nullptr );
 
 
         ////////////////////////////////////////////////////
@@ -396,7 +404,7 @@ class HTMLRenderer : public OutputDev
 
         std::unordered_map<long long, FontInfo> font_name_map;
         std::map<double, long long> font_size_map;
-        std::map<TM, long long> transform_matrix_map;
+        std::map<Matrix, long long, Matrix_less> transform_matrix_map;
         std::map<double, long long> letter_space_map;
         std::map<double, long long> word_space_map;
         std::unordered_map<GfxRGB, long long, GfxRGB_hash, GfxRGB_equal> color_map; 

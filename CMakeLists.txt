@@ -20,13 +20,19 @@ include_directories(${POPPLER_INCLUDE_DIRS})
 link_directories(${POPPLER_LIBRARY_DIRS})
 set(PDF2HTMLEX_LIBS ${PDF2HTMLEX_LIBS} ${POPPLER_LIBRARIES})
 
-find_path(CAIRO_OUTPUTDEV_INCLUDE_PATH CairoOutputDev.h PATHS
-    ${POPPLER_INCLUDE_DIRS} NO_DEFAULT_PATH)
-if(CAIRO_OUTPUTDEV_INCLUDE_PATH)
-    message("Found CairoOutputDev.h: ${POPPLER_INCLUDE_DIRS}/CairoOutputDev.h")
+# disable CAIRO for now
+if(0)
+pkg_check_modules(POPPLER_CAIRO poppler-cairo>=0.20.0)
+if(POPPLER_CAIRO_FOUND)
     set(HAVE_CAIRO 1)
+    include_directories(${POPPLER_CAIRO_INCLUDE_DIRS})
+    link_directories(${POPPLER_CAIRO_LIBRARY_DIRS})
+    set(PDF2HTMLEX_LIBS ${PDF2HTMLEX_LIBS} ${POPPLER_CAIRO_LIBRARIES})
 else()
     set(HAVE_CAIRO 0)
+endif()
+else()
+set(HAVE_CAIRO 0)
 endif()
     
 

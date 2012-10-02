@@ -75,7 +75,7 @@ void HTMLRenderer::LineBuffer::flush(void)
     for(auto iter = states.begin(); iter != states.end(); ++iter)
     {
         const auto & s = *iter;
-        max_ascent = max(max_ascent, s.ascent * s.draw_font_size);
+        max_ascent = max<double>(max_ascent, s.ascent * s.draw_font_size);
     }
 
     ostream & out = renderer->html_fout;
@@ -155,7 +155,7 @@ void HTMLRenderer::LineBuffer::flush(void)
             ++ cur_offset_iter;
         }
 
-        size_t next_text_idx = min(cur_state_iter->start_idx, cur_offset_iter->start_idx);
+        size_t next_text_idx = min<size_t>(cur_state_iter->start_idx, cur_offset_iter->start_idx);
 
         outputUnicodes(out, (&text.front()) + cur_text_idx, next_text_idx - cur_text_idx);
         cur_text_idx = next_text_idx;

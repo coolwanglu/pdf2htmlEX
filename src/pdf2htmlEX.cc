@@ -183,8 +183,8 @@ int main(int argc, char **argv)
             throw "Copying of text from this document is not allowed.";
         }
 
-        param.first_page = min(max(param.first_page, 1), doc->getNumPages());
-        param.last_page = min(max(param.last_page, param.first_page), doc->getNumPages());
+        param.first_page = min<int>(max<int>(param.first_page, 1), doc->getNumPages());
+        param.last_page = min<int>(max<int>(param.last_page, param.first_page), doc->getNumPages());
 
         if(param.output_filename == "")
         {

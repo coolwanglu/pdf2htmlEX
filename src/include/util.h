@@ -104,28 +104,21 @@ public:
     bool has_space; // whether space is included in the font
 };
 
-// wrapper of the transform matrix double[6]
-// Transform Matrix
-class TM
+class Matrix_less
 {
 public:
-    TM() {}
-    TM(const double * m) {memcpy(_, m, sizeof(_));}
-    bool operator < (const TM & m) const {
+    bool operator () (const Matrix & m1, const Matrix & m2) const
+    {
         // Note that we only care about the first 4 elements
         for(int i = 0; i < 4; ++i)
         {
-            if(_[i] < m._[i] - EPS)
+            if(m1.m[i] < m2.m[i] - EPS)
                 return true;
-            if(_[i] > m._[i] + EPS)
+            if(m1.m[i] > m2.m[i] + EPS)
                 return false;
         }
         return false;
     }
-    bool operator == (const TM & m) const {
-        return _tm_equal(_, m._, 4);
-    }
-    double _[6];
 };
 
 class base64stream
@@ -203,7 +196,7 @@ public:
         va_end(vlist);
         if(l >= (int)buf.capacity()) 
         {
-            buf.reserve(std::max((long)(l+1), (long)buf.capacity() * 2));
+            buf.reserve(std::max<long>((long)(l+1), (long)buf.capacity() * 2));
             va_start(vlist, format);
             l = vsnprintf(&buf.front(), buf.capacity(), format, vlist);
             va_end(vlist);

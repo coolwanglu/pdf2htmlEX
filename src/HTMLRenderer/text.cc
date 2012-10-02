@@ -310,7 +310,7 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
         memset(width_list, -1, 0x10000 * sizeof(*width_list));
 
         if(code2GID)
-            maxcode = min(maxcode, code2GID_len - 1);
+            maxcode = min<int>(maxcode, code2GID_len - 1);
 
         bool is_truetype = is_truetype_suffix(suffix);
         int max_key = maxcode;

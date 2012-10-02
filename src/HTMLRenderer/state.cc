@@ -12,6 +12,7 @@
  * optimize lines using nested <span> (reuse classes)
  */
 
+#include <cmath>
 #include <algorithm>
 
 #include "HTMLRenderer.h"
@@ -22,6 +23,7 @@ namespace pdf2htmlEX {
 
 using std::max;
 using std::abs;
+using std::hypot;
 
 void HTMLRenderer::updateAll(GfxState * state) 
 { 
@@ -98,7 +100,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
 
         if(!(new_font_info->id == cur_font_info->id))
         {
-            new_line_state = max(new_line_state, NLS_SPAN);
+            new_line_state = max<NewLineState>(new_line_state, NLS_SPAN);
             cur_font_info = new_font_info;
         }
 
@@ -146,7 +148,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
         double new_draw_text_tm[6];
         memcpy(new_draw_text_tm, cur_text_tm, sizeof(new_draw_text_tm));
 
-        double new_draw_text_scale = 1.0/text_scale_factor2 * sqrt(new_draw_text_tm[2] * new_draw_text_tm[2] + new_draw_text_tm[3] * new_draw_text_tm[3]);
+        double new_draw_text_scale = 1.0/text_scale_factor2 * hypot(new_draw_text_tm[2], new_draw_text_tm[3]);
 
         double new_draw_font_size = cur_font_size;
         if(_is_positive(new_draw_text_scale))
@@ -168,13 +170,13 @@ void HTMLRenderer::check_state_change(GfxState * state)
 
         if(!(_equal(new_draw_font_size, draw_font_size)))
         {
-            new_line_state = max(new_line_state, NLS_SPAN);
+            new_line_state = max<NewLineState>(new_line_state, NLS_SPAN);
             draw_font_size = new_draw_font_size;
             cur_fs_id = install_font_size(draw_font_size);
         }
         if(!(_tm_equal(new_draw_text_tm, draw_text_tm, 4)))
         {
-            new_line_state = max(new_line_state, NLS_DIV);
+            new_line_state = max<NewLineState>(new_line_state, NLS_DIV);
             memcpy(draw_text_tm, new_draw_text_tm, sizeof(draw_text_tm));
             cur_ttm_id = install_transform_matrix(draw_text_tm);
         }
@@ -236,7 +238,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
 
         if(!merged)
         {
-            new_line_state = max(new_line_state, NLS_DIV);
+            new_line_state = max<NewLineState>(new_line_state, NLS_DIV);
         }
     }
 
@@ -247,7 +249,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
         double new_letter_space = state->getCharSpace();
         if(!_equal(cur_letter_space, new_letter_space))
         {
-            new_line_state = max(new_line_state, NLS_SPAN);
+            new_line_state = max<NewLineState>(new_line_state, NLS_SPAN);
             cur_letter_space = new_letter_space;
             cur_ls_id = install_letter_space(cur_letter_space * draw_text_scale);
         }
@@ -260,7 +262,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
         double new_word_space = state->getWordSpace();
         if(!_equal(cur_word_space, new_word_space))
         {
-            new_line_state = max(new_line_state, NLS_SPAN);
+            new_line_state = max<NewLineState>(new_line_state, NLS_SPAN);
             cur_word_space = new_word_space;
             cur_ws_id = install_word_space(cur_word_space * draw_text_scale);
         }
@@ -273,7 +275,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
         state->getFillRGB(&new_color);
         if(!((new_color.r == cur_color.r) && (new_color.g == cur_color.g) && (new_color.b == cur_color.b)))
         {
-            new_line_state = max(new_line_state, NLS_SPAN);
+            new_line_state = max<NewLineState>(new_line_state, NLS_SPAN);
             cur_color = new_color;
             cur_color_id = install_color(&new_color);
         }
@@ -286,7 +288,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
         double new_rise = state->getRise();
         if(!_equal(cur_rise, new_rise))
         {
-            new_line_state = max(new_line_state, NLS_SPAN);
+            new_line_state = max<NewLineState>(new_line_state, NLS_SPAN);
             cur_rise = new_rise;
             cur_rise_id = install_rise(new_rise * draw_text_scale);
         }

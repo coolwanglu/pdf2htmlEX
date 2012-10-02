@@ -191,10 +191,10 @@ void HTMLRenderer::processLink(AnnotLink * al)
     double x,y,w,h;
     double x1, y1, x2, y2;
     al->getRect(&x1, &y1, &x2, &y2);
-    x = min(x1, x2);
-    y = min(y1, y2);
-    w = max(x1, x2) - x;
-    h = max(y1, y2) - y;
+    x = min<double>(x1, x2);
+    y = min<double>(y1, y2);
+    w = max<double>(x1, x2) - x;
+    h = max<double>(y1, y2) - y;
     
     double border_width = 0; 
     double border_top_bottom_width = 0;
