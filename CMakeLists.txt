@@ -20,6 +20,16 @@ include_directories(${POPPLER_INCLUDE_DIRS})
 link_directories(${POPPLER_LIBRARY_DIRS})
 set(PDF2HTMLEX_LIBS ${PDF2HTMLEX_LIBS} ${POPPLER_LIBRARIES})
 
+find_path(CAIRO_OUTPUTDEV_INCLUDE_PATH CairoOutputDev.h PATHS
+    ${POPPLER_INCLUDE_DIRS} NO_DEFAULT_PATH)
+if(CAIRO_OUTPUTDEV_INCLUDE_PATH)
+    message("Found CairoOutputDev.h: ${POPPLER_INCLUDE_DIRS}/CairoOutputDev.h")
+    set(HAVE_CAIRO 1)
+else()
+    set(HAVE_CAIRO 0)
+endif()
+    
+
 # fontforge starts using pkg-config 'correctly' since 2.0.0
 pkg_check_modules(FONTFORGE libfontforge>=2.0.0)
 if(FONTFORGE_FOUND)
@@ -134,7 +144,10 @@ add_executable(pdf2htmlEX
     src/include/ffw.h
     src/ffw.c
     src/include/BackgroundRenderer.h 
-    src/BackgroundRenderer.cc 
+    src/include/SplashBackgroundRenderer.h 
+    src/SplashBackgroundRenderer.cc 
+    src/include/CairoBackgroundRenderer.h 
+    src/CairoBackgroundRenderer.cc 
     src/include/Preprocessor.h
     src/Preprocessor.cc
     src/include/util.h
