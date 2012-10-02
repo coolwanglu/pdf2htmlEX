@@ -82,7 +82,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
 
     bool need_recheck_position = false;
     bool need_rescale_font = false;
-    bool draw_scale_changed = false;
+    bool draw_text_scale_changed = false;
 
     // text position
     // we've been tracking the text position positively in the update*** functions
@@ -139,31 +139,31 @@ void HTMLRenderer::check_state_change(GfxState * state)
         }
     }
 
-    // draw_text_tm, draw_scale
+    // draw_text_tm, draw_text_scale
     // depends: font size & ctm & text_ctm & hori scale
     if(need_rescale_font)
     {
         double new_draw_text_tm[6];
         memcpy(new_draw_text_tm, cur_text_tm, sizeof(new_draw_text_tm));
 
-        double new_draw_scale = 1.0/scale_factor2 * sqrt(new_draw_text_tm[2] * new_draw_text_tm[2] + new_draw_text_tm[3] * new_draw_text_tm[3]);
+        double new_draw_text_scale = 1.0/text_scale_factor2 * sqrt(new_draw_text_tm[2] * new_draw_text_tm[2] + new_draw_text_tm[3] * new_draw_text_tm[3]);
 
         double new_draw_font_size = cur_font_size;
-        if(_is_positive(new_draw_scale))
+        if(_is_positive(new_draw_text_scale))
         {
-            new_draw_font_size *= new_draw_scale;
+            new_draw_font_size *= new_draw_text_scale;
             for(int i = 0; i < 4; ++i)
-                new_draw_text_tm[i] /= new_draw_scale;
+                new_draw_text_tm[i] /= new_draw_text_scale;
         }
         else
         {
-            new_draw_scale = 1.0;
+            new_draw_text_scale = 1.0;
         }
 
-        if(!(_equal(new_draw_scale, draw_scale)))
+        if(!(_equal(new_draw_text_scale, draw_text_scale)))
         {
-            draw_scale_changed = true;
-            draw_scale = new_draw_scale;
+            draw_text_scale_changed = true;
+            draw_text_scale = new_draw_text_scale;
         }
 
         if(!(_equal(new_draw_font_size, draw_font_size)))
@@ -241,28 +241,28 @@ void HTMLRenderer::check_state_change(GfxState * state)
     }
 
     // letter space
-    // depends: draw_scale
-    if(all_changed || letter_space_changed || draw_scale_changed)
+    // depends: draw_text_scale
+    if(all_changed || letter_space_changed || draw_text_scale_changed)
     {
         double new_letter_space = state->getCharSpace();
         if(!_equal(cur_letter_space, new_letter_space))
         {
             new_line_state = max(new_line_state, NLS_SPAN);
             cur_letter_space = new_letter_space;
-            cur_ls_id = install_letter_space(cur_letter_space * draw_scale);
+            cur_ls_id = install_letter_space(cur_letter_space * draw_text_scale);
         }
     }
 
     // word space
-    // depends draw_scale
-    if(all_changed || word_space_changed || draw_scale_changed)
+    // depends draw_text_scale
+    if(all_changed || word_space_changed || draw_text_scale_changed)
     {
         double new_word_space = state->getWordSpace();
         if(!_equal(cur_word_space, new_word_space))
         {
             new_line_state = max(new_line_state, NLS_SPAN);
             cur_word_space = new_word_space;
-            cur_ws_id = install_word_space(cur_word_space * draw_scale);
+            cur_ws_id = install_word_space(cur_word_space * draw_text_scale);
         }
     }
 
@@ -280,15 +280,15 @@ void HTMLRenderer::check_state_change(GfxState * state)
     }
 
     // rise
-    // depends draw_scale
-    if(all_changed || rise_changed || draw_scale_changed)
+    // depends draw_text_scale
+    if(all_changed || rise_changed || draw_text_scale_changed)
     {
         double new_rise = state->getRise();
         if(!_equal(cur_rise, new_rise))
         {
             new_line_state = max(new_line_state, NLS_SPAN);
             cur_rise = new_rise;
-            cur_rise_id = install_rise(new_rise * draw_scale);
+            cur_rise_id = install_rise(new_rise * draw_text_scale);
         }
     }
 
@@ -333,7 +333,7 @@ void HTMLRenderer::prepare_text_line(GfxState * state)
     {
         // align horizontal position
         // try to merge with the last line if possible
-        double target = (cur_tx - draw_tx) * draw_scale;
+        double target = (cur_tx - draw_tx) * draw_text_scale;
         if(abs(target) < param->h_eps)
         {
             // ignore it
@@ -341,7 +341,7 @@ void HTMLRenderer::prepare_text_line(GfxState * state)
         else
         {
             line_buf.append_offset(target);
-            draw_tx += target / draw_scale;
+            draw_tx += target / draw_text_scale;
         }
     }
 

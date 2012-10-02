@@ -202,7 +202,7 @@ void HTMLRenderer::processLink(AnnotLink * al)
     auto * border = al->getBorder();
     if(border)
     {
-        border_width = border->getWidth() * zoom_factor();
+        border_width = border->getWidth();
         if(border_width > 0)
         {
             {

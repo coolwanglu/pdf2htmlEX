@@ -237,9 +237,9 @@ class HTMLRenderer : public OutputDev
          * factor1 & factor 2 are determined according to zoom and font-size-multiplier
          *
          */
-        double zoom_factor (void) const { return scale_factor1 * scale_factor2; }
-        double scale_factor1;
-        double scale_factor2;
+        double text_zoom_factor (void) const { return text_scale_factor1 * text_scale_factor2; }
+        double text_scale_factor1;
+        double text_scale_factor2;
 
 
         ////////////////////////////////////////////////////
@@ -301,11 +301,11 @@ class HTMLRenderer : public OutputDev
         // we try to render the final font size directly
         // to reduce the effect of ctm as much as possible
         
-        // draw_ctm is cur_ctm scaled by 1/draw_scale, 
-        // so everything redenered should be multiplied by draw_scale
+        // draw_ctm is cur_ctm scaled by 1/draw_text_scale, 
+        // so everything redenered should be multiplied by draw_text_scale
         double draw_text_tm[6];
         double draw_font_size;
-        double draw_scale; 
+        double draw_text_scale; 
 
         // the position of next char, in text coords
         // this is actual position (in HTML), which might be different from cur_tx/ty (in PDF)

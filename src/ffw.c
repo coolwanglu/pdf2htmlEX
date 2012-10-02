@@ -332,15 +332,11 @@ void ffw_set_widths(int * width_list, int mapping_len, int stretch_narrow, int s
         SplineChar * sc = sf->glyphs[j];
         if(sc == NULL) continue;
 
-        DBounds bb;
-        SplineCharFindBounds(sc, &bb);
-
-        double glyph_width = bb.maxx - bb.minx;
-        if((glyph_width > EPS)
-                && (((glyph_width > width_list[i] + EPS) && (squeeze_wide))
-                    || ((glyph_width < width_list[i] - EPS) && (stretch_narrow)))) 
+        if(((sc->width > EPS)
+                && (((sc->width > width_list[i] + EPS) && (squeeze_wide))
+                    || ((sc->width < width_list[i] - EPS) && (stretch_narrow))))) 
         {
-            real transform[6]; transform[0] = ((double)width_list[i]) / glyph_width;
+            real transform[6]; transform[0] = ((double)width_list[i]) / (sc->width);
             transform[3] = 1.0;
             transform[1] = transform[2] = transform[4] = transform[5] = 0;
             FVTrans(cur_fv, sc, transform, NULL, fvt_alllayers | fvt_dontmovewidth);

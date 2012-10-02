@@ -108,8 +108,8 @@ void HTMLRenderer::process(PDFDoc *doc)
             zoom = *min_element(zoom_factors.begin(), zoom_factors.end());
         }
         
-        scale_factor1 = max(zoom, param->font_size_multiplier);  
-        scale_factor2 = zoom / scale_factor1;
+        text_scale_factor1 = max(zoom, param->font_size_multiplier);  
+        text_scale_factor2 = zoom / text_scale_factor1;
     }
 
 
@@ -156,7 +156,8 @@ void HTMLRenderer::process(PDFDoc *doc)
             }
         }
 
-        doc->displayPage(this, i, zoom_factor() * DEFAULT_DPI, zoom_factor() * DEFAULT_DPI,
+        doc->displayPage(this, i, 
+                text_zoom_factor() * DEFAULT_DPI, text_zoom_factor() * DEFAULT_DPI,
                 0, true, false, false,
                 nullptr, nullptr, nullptr, nullptr);
 
@@ -219,7 +220,7 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
     }
 
     html_fout << "\">";
-    draw_scale = 1.0;
+    draw_text_scale = 1.0;
 
     cur_font_info = install_font(nullptr);
     cur_font_size = draw_font_size = 0;
