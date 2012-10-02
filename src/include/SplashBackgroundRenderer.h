@@ -10,8 +10,12 @@
 #ifndef SPLASH_BACKGROUND_RENDERER_H__
 #define SPLASH_BACKGROUND_RENDERER_H__
 
+#include <string>
+
 #include <splash/SplashBitmap.h>
 #include <SplashOutputDev.h>
+
+#include "Param.h"
 
 namespace pdf2htmlEX {
 
@@ -21,8 +25,9 @@ class SplashBackgroundRenderer : public SplashOutputDev
 public:
   static const SplashColor white;
 
-  SplashBackgroundRenderer()
+  SplashBackgroundRenderer(const Param * param)
       : SplashOutputDev(splashModeRGB8, 4, gFalse, (SplashColorPtr)&white, gTrue, gTrue)
+      , param(param)
   { }
 
   virtual ~SplashBackgroundRenderer() { }
@@ -31,6 +36,11 @@ public:
       double dx, double dy,
       double originX, double originY,
       CharCode code, int nBytes, Unicode *u, int uLen);
+
+  void render_page(PDFDoc * doc, int pageno, const std::string & filename);
+
+protected:
+  const Param * param;
 };
 
 } // namespace pdf2htmlEX

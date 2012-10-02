@@ -62,10 +62,6 @@ HTMLRenderer::~HTMLRenderer()
     delete [] width_list;
 }
 
-static GBool annot_cb(Annot *, void *) {
-    return false;
-};
-
 void HTMLRenderer::process(PDFDoc *doc)
 {
     cur_doc = doc;
@@ -115,7 +111,7 @@ void HTMLRenderer::process(PDFDoc *doc)
     BackgroundRenderer * bg_renderer = nullptr;
     if(param->process_nontext)
     {
-        bg_renderer = new BackgroundRenderer();
+        bg_renderer = new BackgroundRenderer(param);
         bg_renderer->startDoc(doc);
     }
 
@@ -134,19 +130,11 @@ void HTMLRenderer::process(PDFDoc *doc)
 
         if(param->process_nontext)
         {
-            doc->displayPage(bg_renderer, i, param->h_dpi, param->v_dpi,
-                    0, true, false, false,
-                    nullptr, nullptr, &annot_cb, nullptr);
+            auto fn = str_fmt("%s/p%x.png", (param->single_html ? param->tmp_dir : param->dest_dir).c_str(), i);
+            if(param->single_html)
+                add_tmp_file((char*)fn);
 
-            {
-                auto fn = str_fmt("%s/p%x.png", (param->single_html ? param->tmp_dir : param->dest_dir).c_str(), i);
-                if(param->single_html)
-                    add_tmp_file((char*)fn);
-
-                bg_renderer->getBitmap()->writeImgFile(splashFormatPng, 
-                        (char*)fn,
-                        param->h_dpi, param->v_dpi);
-            }
+            bg_renderer->render_page(doc, i, (char*)fn);
         }
 
         doc->displayPage(this, i, 
