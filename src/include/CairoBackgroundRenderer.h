@@ -6,8 +6,8 @@
  */
 
 
-#ifndef SPLASH_BACKGROUND_RENDERER_H__
-#define SPLASH_BACKGROUND_RENDERER_H__
+#ifndef CAIRO_BACKGROUND_RENDERER_H__
+#define CAIRO_BACKGROUND_RENDERER_H__
 
 #include <splash/SplashBitmap.h>
 #include <SplashOutputDev.h>
@@ -34,4 +34,4 @@ public:
 
 }
 
-#endif //SPLASH_BACKGROUND_RENDERER_H__
+#endif //CAIRO_BACKGROUND_RENDERER_H__

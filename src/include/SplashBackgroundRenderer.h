@@ -7,8 +7,8 @@
  */
 
 
-#ifndef BACKGROUND_RENDERER_H__
-#define BACKGROUND_RENDERER_H__
+#ifndef SPLASH_BACKGROUND_RENDERER_H__
+#define SPLASH_BACKGROUND_RENDERER_H__
 
 #include <splash/SplashBitmap.h>
 #include <SplashOutputDev.h>
@@ -19,13 +19,13 @@ namespace pdf2htmlEX {
 class SplashBackgroundRenderer : public SplashOutputDev 
 {
 public:
+  static const SplashColor white;
+
   SplashBackgroundRenderer()
-  { 
-      SplashColor color;
-      color[0] = color[1] = color[2] = 255;
-      SplashOutputDev(splashModeRGB8, 4, gFlase, color, gTrue, gTrue)`
-  }
-  virtual ~BackgroundRenderer() { }
+      : SplashOutputDev(splashModeRGB8, 4, gFalse, (SplashColorPtr)&white, gTrue, gTrue)
+  { }
+
+  virtual ~SplashBackgroundRenderer() { }
   
   virtual void drawChar(GfxState *state, double x, double y,
       double dx, double dy,
@@ -33,6 +33,6 @@ public:
       CharCode code, int nBytes, Unicode *u, int uLen);
 };
 
-}
+} // namespace pdf2htmlEX
 
-#endif //BACKGROUND_RENDERER_H__
+#endif // SPLASH_BACKGROUND_RENDERER_H__

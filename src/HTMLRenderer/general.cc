@@ -3,7 +3,7 @@
  *
  * Handling general stuffs
  *
- * by WangLu
+ * Copyright (C) 2012 Lu Wang <coolwanglu@gmail.com>
  * 2012.08.14
  */
 
@@ -12,8 +12,6 @@
 #include <cmath>
 #include <algorithm>
 #include <vector>
-
-#include <splash/SplashBitmap.h>
 
 #include "HTMLRenderer.h"
 #include "BackgroundRenderer.h"
@@ -117,12 +115,7 @@ void HTMLRenderer::process(PDFDoc *doc)
     BackgroundRenderer * bg_renderer = nullptr;
     if(param->process_nontext)
     {
-        // Render non-text objects as image
-        // copied from poppler
-        SplashColor color;
-        color[0] = color[1] = color[2] = 255;
-
-        bg_renderer = new BackgroundRenderer(splashModeRGB8, 4, gFalse, color);
+        bg_renderer = new BackgroundRenderer();
         bg_renderer->startDoc(doc);
     }
 
