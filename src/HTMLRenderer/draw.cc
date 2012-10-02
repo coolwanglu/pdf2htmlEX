@@ -194,12 +194,16 @@ LinearGradient::LinearGradient (GfxAxialShading * shading,
 
 void LinearGradient::dumpto (ostream & out)
 {
-    out << "background-image:-moz-linear-gradient(" << _round(angle) << "rad";
-    for(auto iter = stops.begin(); iter != stops.end(); ++iter)
+    auto prefixes = {"", "-ms-", "-moz-", "-webkit-", "-o-"};
+    for(auto iter = prefixes.begin(); iter != prefixes.end(); ++iter)
     {
-        out << "," << (iter->rgb) << " " << _round((iter->pos) * 100) << "%";
+        out << "background-image:" << (*iter) << "linear-gradient(" << _round(angle) << "rad";
+        for(auto iter2 = stops.begin(); iter2 != stops.end(); ++iter2)
+        {
+            out << "," << (iter2->rgb) << " " << _round((iter2->pos) * 100) << "%";
+        }
+        out << ");";
     }
-    out << ");";
 }
 
 GBool HTMLRenderer::axialShadedFill(GfxState *state, GfxAxialShading *shading, double tMin, double tMax)
