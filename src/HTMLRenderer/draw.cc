@@ -92,16 +92,21 @@ static void get_shading_bbox(GfxState * state, GfxShading * shading,
     }
 }
 
-static double get_degree(double dx, double dy)
+/*
+ * Note that the coordinate system in HTML and PDF are different
+ * In HTML:
+ * UP = 0
+ * RIGHT = PI / 2
+ * DOWN = PI
+ * LEFT = - PI / 2
+ */
+static double get_angle(double dx, double dy)
 {
-    static const double PI = acos(-1.0);
     double r = hypot(dx, dy);
 
     double ang = acos(dx / r);
-    if(!_is_positive(dy))
-        ang = 2 * PI - ang;
 
-    return ang * 180.0 / PI;
+    return ang;
 }
 
 class LinearGradient
@@ -118,6 +123,7 @@ public:
     }
 
     // TODO, add alpha
+
     class ColorStop
     {
     public:
@@ -126,7 +132,7 @@ public:
     };
 
     vector<ColorStop> stops;
-    double degree;
+    double angle;
 };
 
 LinearGradient::LinearGradient (GfxAxialShading * shading,
@@ -136,7 +142,7 @@ LinearGradient::LinearGradient (GfxAxialShading * shading,
     double t0x, t0y, t1x, t1y;
     shading->getCoords(&t0x, &t0y, &t1x, &t1y);
 
-    degree = get_degree(t1x - t0x, t1y - t0y);
+    angle = get_angle(t1x - t0x, t1y - t0y);
 
     // get the range of t in the box
     // from GfxState.cc in poppler
@@ -188,7 +194,12 @@ LinearGradient::LinearGradient (GfxAxialShading * shading,
 
 void LinearGradient::dumpto (ostream & out)
 {
-    out << "background-color:red;";
+    out << "background-image:-moz-linear-gradient(" << _round(angle) << "rad";
+    for(auto iter = stops.begin(); iter != stops.end(); ++iter)
+    {
+        out << "," << (iter->rgb) << " " << _round((iter->pos) * 100) << "%";
+    }
+    out << ");";
 }
 
 GBool HTMLRenderer::axialShadedFill(GfxState *state, GfxAxialShading *shading, double tMin, double tMax)
