@@ -84,17 +84,17 @@ void HTMLRenderer::process(PDFDoc *doc)
 
         vector<double> zoom_factors;
         
-        if(abs(param->zoom) > EPS)
+        if(_is_positive(param->zoom))
         {
             zoom_factors.push_back(param->zoom);
         }
 
-        if(abs(param->fit_width) > EPS)
+        if(_is_positive(param->fit_width))
         {
             zoom_factors.push_back((param->fit_width) / preprocessor.get_max_width());
         }
 
-        if(abs(param->fit_height) > EPS)
+        if(_is_positive(param->fit_height))
         {
             zoom_factors.push_back((param->fit_height) / preprocessor.get_max_height());
         }

@@ -48,6 +48,8 @@ static bool is_rectangle(GfxSubpath * path)
 //TODO connection style
 void HTMLRenderer::css_draw(GfxState *state, bool fill)
 {
+    if(!(param->css_draw)) return;
+
     GfxPath * path = state->getPath();
     for(int i = 0; i < path->getNumSubpaths(); ++i)
     {
@@ -120,7 +122,28 @@ void HTMLRenderer::css_draw_rectangle(double x, double y, double w, double h,
 {
     close_text_line();
 
-    html_fout << "<div class=\"Cd t" << install_transform_matrix(state->getCTM()) << "\" style=\"";
+    double ctm[6];
+    memcpy(ctm, state->getCTM(), sizeof(ctm));
+
+    _transform(ctm, x, y);
+
+    double scale = 1.0;
+    {
+        double i1 = ctm[0] + ctm[2];
+        double i2 = ctm[1] + ctm[3];
+        scale = sqrt((i1 * i1 + i2 * i2) / 2.0);
+        if(_is_positive(scale))
+        {
+            for(int i = 0; i < 4; ++i)
+                ctm[i] /= scale;
+        }
+        else
+        {
+            scale = 1.0;
+        }
+    }
+
+    html_fout << "<div class=\"Cd t" << install_transform_matrix(ctm) << "\" style=\"";
 
     if(line_color)
     {
@@ -131,9 +154,9 @@ void HTMLRenderer::css_draw_rectangle(double x, double y, double w, double h,
         {
             if(i > 0) html_fout << ' ';
 
-            double lw = line_width_array[i];
+            double lw = line_width_array[i] * scale;
             html_fout << _round(lw);
-            if(lw > EPS) html_fout << "px";
+            if(_is_positive(lw)) html_fout << "px";
         }
         html_fout << ";";
     }
@@ -151,12 +174,10 @@ void HTMLRenderer::css_draw_rectangle(double x, double y, double w, double h,
         html_fout << "background-color:transparent;";
     }
 
-    _transform(state->getCTM(), x, y);
-
     html_fout << "bottom:" << _round(y) << "px;"
         << "left:" << _round(x) << "px;"
-        << "width:" << _round(w) << "px;"
-        << "height:" << _round(h) << "px;";
+        << "width:" << _round(w * scale) << "px;"
+        << "height:" << _round(h * scale) << "px;";
 
     html_fout << "\"></div>";
 }

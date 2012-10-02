@@ -91,6 +91,7 @@ void parse_options (int argc, char **argv)
 
         .add("debug", &param.debug, 0, "output debug information")
         .add("clean-tmp", &param.clean_tmp, 1, "clean temporary files after processing")
+        .add("css-draw", &param.css_draw, 0, "[Experimental and Unsupported] CSS Drawing")
         .add("", &param.input_filename, "", "")
         .add("", &param.output_filename, "", "")
         ;

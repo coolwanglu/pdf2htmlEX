@@ -206,13 +206,13 @@ void HTMLRenderer::check_state_change(GfxState * state)
 
             if(_equal(cur_text_tm[0] * tdy, cur_text_tm[1] * tdx))
             {
-                if(abs(cur_text_tm[0]) > EPS)
+                if(_is_positive(cur_text_tm[0]))
                 {
                     draw_tx += tdx / cur_text_tm[0];
                     draw_ty += dy;
                     merged = true;
                 }
-                else if (abs(cur_text_tm[1]) > EPS)
+                else if (_is_positive(cur_text_tm[1]))
                 {
                     draw_tx += tdy / cur_text_tm[1];
                     draw_ty += dy;
@@ -220,7 +220,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
                 }
                 else
                 {
-                    if((abs(tdx) < EPS) && (abs(tdy) < EPS))
+                    if((_equal(tdx,0)) && (_equal(tdy,0)))
                     {
                         // free
                         draw_tx = cur_tx;
