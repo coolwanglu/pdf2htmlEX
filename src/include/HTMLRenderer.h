@@ -82,7 +82,7 @@ class HTMLRenderer : public OutputDev
         // Does this device use functionShadedFill(), axialShadedFill(), and
         // radialShadedFill()?  If this returns false, these shaded fills
         // will be reduced to a series of other drawing operations.
-        virtual GBool useShadedFills(int type) { return type == 2; }
+        virtual GBool useShadedFills(int type) { return (type == 2) ? gTrue: gFalse; }
 
 
         // Does this device use beginType3Char/endType3Char?  Otherwise,
@@ -90,7 +90,7 @@ class HTMLRenderer : public OutputDev
         virtual GBool interpretType3Chars() { return gFalse; }
 
         // Does this device need non-text content?
-        virtual GBool needNonText() { return gTrue; }
+        virtual GBool needNonText() { return (param->process_nontext) ? gTrue: gFalse; }
 
         virtual void setDefaultCTM(double *ctm);
 
@@ -104,6 +104,13 @@ class HTMLRenderer : public OutputDev
          * To optmize false alarms
          * We just mark as changed, and recheck if they have been changed when we are about to output a new string
          */
+
+        /*
+         * Ugly implementation of save/restore
+         */
+        virtual void saveState(GfxState * state) {updateAll(state);}
+        virtual void restoreState(GfxState * state) {updateAll(state);}
+
         virtual void updateAll(GfxState * state);
 
         virtual void updateRise(GfxState * state);
@@ -129,11 +136,15 @@ class HTMLRenderer : public OutputDev
 
         virtual void drawImage(GfxState * state, Object * ref, Stream * str, int width, int height, GfxImageColorMap * colorMap, GBool interpolate, int *maskColors, GBool inlineImg);
 
-        virtual void stroke(GfxState *state) { css_draw(state, false); }
-        virtual void fill(GfxState *state) { css_draw(state, true); }
+        virtual void stroke(GfxState *state) { css_do_path(state, false); }
+        virtual void fill(GfxState *state) { css_do_path(state, true); }
         virtual GBool axialShadedFill(GfxState *state, GfxAxialShading *shading, double tMin, double tMax);
 
         virtual void processLink(AnnotLink * al);
+
+        /* capacity test */
+        bool can_stroke(GfxState *state) { return css_do_path(state, false, true); }
+        bool can_fill(GfxState *state) { return css_do_path(state, true, true); }
 
     protected:
         ////////////////////////////////////////////////////
@@ -208,7 +219,10 @@ class HTMLRenderer : public OutputDev
         ////////////////////////////////////////////////////
         // CSS drawing
         ////////////////////////////////////////////////////
-        void css_draw(GfxState *state, bool fill);
+        /*
+         * test_only is for capacity check
+         */
+        bool css_do_path(GfxState *state, bool fill, bool test_only = false);
         /*
          * coordinates are to transformed by state->getCTM()
          * (x,y) should be the bottom-left corner INCLUDING border

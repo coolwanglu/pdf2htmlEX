@@ -111,7 +111,7 @@ void HTMLRenderer::process(PDFDoc *doc)
     BackgroundRenderer * bg_renderer = nullptr;
     if(param->process_nontext)
     {
-        bg_renderer = new BackgroundRenderer(param);
+        bg_renderer = new BackgroundRenderer(this, param);
         bg_renderer->startDoc(doc);
     }
 
