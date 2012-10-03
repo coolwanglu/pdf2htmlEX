@@ -43,10 +43,10 @@ This program is designed for scientific papers with complicate formulas and figu
  * Rectangles
  * Linear gradients 
 
-### Not supported yet
+### Objects rendered as images
 
 * Type 3 fonts
-* Non-text object (Don't worry, they will be rendered as images)
+* Non-text object
 
 ## Get started
 
