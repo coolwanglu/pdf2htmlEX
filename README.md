@@ -99,7 +99,7 @@ I have tested with CYGWIN without any problem, and I believe it also works on Mi
 
 * Experimental and unsupported
 
-    pdf2htmlEX --process-nontext 0 --css-draw 0 /path/to/foobar.pdf
+    pdf2htmlEX --process-nontext 0 --css-draw 1 /path/to/foobar.pdf
 
 ## FAQ
 
