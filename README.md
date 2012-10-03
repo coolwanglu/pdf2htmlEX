@@ -60,7 +60,9 @@ This program is designed for scientific papers with complicate formulas and figu
 
 ### Mac
 
-MacPorts and Homebrew are coming soon
+[Homebrew Formula](https://github.com/jamiely/homebrew/blob/pdf2htmlex/Library/Formula/pdf2htmlex.rb), special thanks to Jamie Ly <me@jamie.ly>
+
+MacPorts is coming soon
 
 ### Windows
 
