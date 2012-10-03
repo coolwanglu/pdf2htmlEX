@@ -39,6 +39,9 @@ This program is designed for scientific papers with complicate formulas and figu
 * Links
 * Optimization for Web 
 * [EXPERIMENTAL] Path drawing with CSS
+ * Orthogonal lines
+ * Rectangles
+ * Linear gradients 
 
 ### Not supported yet
 
