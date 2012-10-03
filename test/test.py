@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 DIR = 'pdf'
+DIR = '../../pdf.js/test/pdfs'
 
 import os
 

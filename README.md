@@ -37,6 +37,7 @@ This program is designed for scientific papers with complicate formulas and figu
 * Proper styling (Color, Transformation...)
 * Links
 * Optimization for Web 
+* [EXPERIMENTAL] Path drawing with CSS
 
 ### Not supported yet
 
