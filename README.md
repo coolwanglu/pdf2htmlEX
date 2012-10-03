@@ -62,11 +62,13 @@ This program is designed for scientific papers with complicate formulas and figu
 
 [Homebrew Formula](https://github.com/jamiely/homebrew/blob/pdf2htmlex/Library/Formula/pdf2htmlex.rb), special thanks to Jamie Ly <me@jamie.ly>
 
-MacPorts is coming soon
+[Macports (local repo)](https://github.com/iapain/pdf2htmlEX-macport), special thanks to Deepak Thukral <iapain@iapa.in>
 
 ### Windows
 
-I have tested with CYGWIN without any problem, and I believe it also works on MinGW without many modifications.
+The code may be built with Cygwin.
+
+Or with MinGW with [some modifications](http://oku.edu.mie-u.ac.jp/~okumura/texwiki/?pdf2htmlEX) (Japanese site)
 
 ### Build from source
 
@@ -120,7 +122,7 @@ GPLv2 & GPLv3 Dual licensed
 
 **Font extraction, conversion or redistribution may be illegal, please check your local laws**
 
-## Credits
+## Acknowledge
 
 pdf2htmlEX is made possible thanks to the following projects:
 
@@ -135,6 +137,9 @@ pdf2htmlEX is inspired by the following projects:
 * PDF.js
 * Crocodoc
 * Google Doc
+
+Special thanks to Haruhiko Okumura, for the [pdf2htmlEX page in TeX Wiki](http://oku.edu.mie-u.ac.jp/~okumura/texwiki/?pdf2htmlEX) (in Japanese).
+
 
 ## Contact
 
