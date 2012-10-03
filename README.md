@@ -101,7 +101,9 @@ I have tested with CYGWIN without any problem, and I believe it also works on Mi
 
 ## FAQ
 
-[here](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ)
+* [How can I help](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ#wiki-help)
+* [I want more features](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ#wiki-feature_commission)
+* [More](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ)
 
 ## LICENSE
 
