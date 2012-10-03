@@ -36,6 +36,13 @@ static bool is_horizontal_line(GfxSubpath * path)
             && (_equal(path->getY(0), path->getY(1))));
 }
 
+static bool is_vertical_line(GfxSubpath * path)
+{
+    return ((path->getNumPoints() == 2)
+            && (!path->getCurve(1))
+            && (_equal(path->getX(0), path->getX(1))));
+}
+
 static bool is_rectangle(GfxSubpath * path)
 {
     if (!(((path->getNumPoints() != 4) && (path->isClosed()))
@@ -94,17 +101,20 @@ static void get_shading_bbox(GfxState * state, GfxShading * shading,
 
 /*
  * Note that the coordinate system in HTML and PDF are different
- * In HTML:
- * UP = 0
- * RIGHT = PI / 2
- * DOWN = PI
- * LEFT = - PI / 2
  */
 static double get_angle(double dx, double dy)
 {
     double r = hypot(dx, dy);
 
+    /*
+     * acos always returns [0, pi]
+     */
     double ang = acos(dx / r);
+    /*
+     * for angle below x-axis
+     */
+    if(dy < 0)
+        ang = -ang;
 
     return ang;
 }
@@ -112,7 +122,7 @@ static double get_angle(double dx, double dy)
 class LinearGradient
 {
 public:
-    LinearGradient(GfxAxialShading * shading, 
+    LinearGradient(GfxAxialShading * shading,
             double x1, double y1, double x2, double y2);
 
     void dumpto (ostream & out);
@@ -251,7 +261,23 @@ void HTMLRenderer::css_draw(GfxState *state, bool fill)
                     nullptr, 0,
                     nullptr, &stroke_color);
         }
-        else if (is_rectangle(subpath))
+        else if(is_vertical_line(subpath))
+        {
+            double x = subpath->getX(0);
+            double y1 = subpath->getY(0);
+            double y2 = subpath->getY(1);
+            if(y1 > y2) swap(y1, y2);
+
+            GfxRGB stroke_color;
+            state->getStrokeRGB(&stroke_color);
+
+            double lw = state->getLineWidth();
+
+            css_draw_rectangle(x-lw/2, y1, lw, y2-y1, state->getCTM(),
+                    nullptr, 0,
+                    nullptr, &stroke_color);
+        }
+        else if(is_rectangle(subpath))
         {
             close_text_line();
             double x1 = subpath->getX(0);
@@ -305,7 +331,7 @@ void HTMLRenderer::css_draw_rectangle(double x, double y, double w, double h, co
     double new_tm[6];
     memcpy(new_tm, tm, sizeof(new_tm));
 
-    _transform(new_tm, x, y);
+    _tm_transform(new_tm, x, y);
 
     double scale = 1.0;
     {

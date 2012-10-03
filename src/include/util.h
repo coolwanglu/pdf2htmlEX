@@ -47,7 +47,8 @@ static inline bool _tm_equal(const double * tm1, const double * tm2, int size = 
     return true;
 }
 
-void _transform(const double * ctm, double & x, double & y, bool is_delta = false);
+void _tm_transform(const double * tm, double & x, double & y, bool is_delta = false);
+void _tm_multiply(double * tm_left, const double * tm_right);
 
 static inline long long hash_ref(const Ref * id)
 {

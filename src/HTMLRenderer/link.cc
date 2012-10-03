@@ -267,7 +267,7 @@ void HTMLRenderer::processLink(AnnotLink * al)
         html_fout << "border-style:none;";
     }
 
-    _transform(default_ctm, x, y);
+    _tm_transform(default_ctm, x, y);
 
     html_fout << "position:absolute;"
         << "left:" << _round(x) << "px;"
