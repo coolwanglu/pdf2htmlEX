@@ -141,9 +141,7 @@ void HTMLRenderer::export_word_space (long long ws_id, double word_space)
 
 void HTMLRenderer::export_color (long long color_id, const GfxRGB * rgb) 
 {
-    css_fout << ".c" << color_id << "{color:rgb("
-        << dec << (int)colToByte(rgb->r) << "," << (int)colToByte(rgb->g) << "," << (int)colToByte(rgb->b) << ");}" << hex
-        << endl;
+    css_fout << ".c" << color_id << "{color:" << (*rgb) << ";}" << endl;
 }
 
 void HTMLRenderer::export_whitespace (long long ws_id, double ws_width) 

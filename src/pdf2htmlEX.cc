@@ -82,7 +82,7 @@ void parse_options (int argc, char **argv)
         .add("tounicode", &param.tounicode, 0, "Specify how to deal with ToUnicode map, 0 for auto, 1 for forced, -1 for disabled")
         .add("space-as-offset", &param.space_as_offset, 0, "treat space characters as offsets")
         .add("stretch_narrow_glyph", &param.stretch_narrow_glyph, 0, "stretch narrow glyphs instead of padding space")
-        .add("squeeze_wide_glyph", &param.squeeze_wide_glyph, 0, "squeeze wide glyphs instead of truncating")
+        .add("squeeze-wide-glyph", &param.squeeze_wide_glyph, 0, "squeeze wide glyphs instead of truncating")
 
         .add("css-filename", &param.css_filename, "", "Specify the file name of the generated css file")
         .add("font-suffix", &param.font_suffix, ".ttf", "suffix for extracted font files")
@@ -91,6 +91,7 @@ void parse_options (int argc, char **argv)
 
         .add("debug", &param.debug, 0, "output debug information")
         .add("clean-tmp", &param.clean_tmp, 1, "clean temporary files after processing")
+        .add("css-draw", &param.css_draw, 0, "[Experimental and Unsupported] CSS Drawing")
         .add("", &param.input_filename, "", "")
         .add("", &param.output_filename, "", "")
         ;
@@ -182,8 +183,8 @@ int main(int argc, char **argv)
             throw "Copying of text from this document is not allowed.";
         }
 
-        param.first_page = min(max(param.first_page, 1), doc->getNumPages());
-        param.last_page = min(max(param.last_page, param.first_page), doc->getNumPages());
+        param.first_page = min<int>(max<int>(param.first_page, 1), doc->getNumPages());
+        param.last_page = min<int>(max<int>(param.last_page, param.first_page), doc->getNumPages());
 
         if(param.output_filename == "")
         {

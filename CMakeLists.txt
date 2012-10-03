@@ -20,6 +20,22 @@ include_directories(${POPPLER_INCLUDE_DIRS})
 link_directories(${POPPLER_LIBRARY_DIRS})
 set(PDF2HTMLEX_LIBS ${PDF2HTMLEX_LIBS} ${POPPLER_LIBRARIES})
 
+# disable CAIRO for now
+if(0)
+pkg_check_modules(POPPLER_CAIRO poppler-cairo>=0.20.0)
+if(POPPLER_CAIRO_FOUND)
+    set(HAVE_CAIRO 1)
+    include_directories(${POPPLER_CAIRO_INCLUDE_DIRS})
+    link_directories(${POPPLER_CAIRO_LIBRARY_DIRS})
+    set(PDF2HTMLEX_LIBS ${PDF2HTMLEX_LIBS} ${POPPLER_CAIRO_LIBRARIES})
+else()
+    set(HAVE_CAIRO 0)
+endif()
+else()
+set(HAVE_CAIRO 0)
+endif()
+    
+
 # fontforge starts using pkg-config 'correctly' since 2.0.0
 pkg_check_modules(FONTFORGE libfontforge>=2.0.0)
 if(FONTFORGE_FOUND)
@@ -127,13 +143,17 @@ add_executable(pdf2htmlEX
     src/HTMLRenderer/export.cc
     src/HTMLRenderer/text.cc
     src/HTMLRenderer/image.cc
+    src/HTMLRenderer/draw.cc
     src/HTMLRenderer/link.cc
     src/include/namespace.h
     src/HTMLRenderer/LineBuffer.cc
     src/include/ffw.h
     src/ffw.c
     src/include/BackgroundRenderer.h 
-    src/BackgroundRenderer.cc 
+    src/include/SplashBackgroundRenderer.h 
+    src/SplashBackgroundRenderer.cc 
+    src/include/CairoBackgroundRenderer.h 
+    src/CairoBackgroundRenderer.cc 
     src/include/Preprocessor.h
     src/Preprocessor.cc
     src/include/util.h

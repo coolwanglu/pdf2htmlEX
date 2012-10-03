@@ -12,6 +12,7 @@
  * optimize lines using nested <span> (reuse classes)
  */
 
+#include <cmath>
 #include <algorithm>
 
 #include "HTMLRenderer.h"
@@ -22,6 +23,7 @@ namespace pdf2htmlEX {
 
 using std::max;
 using std::abs;
+using std::hypot;
 
 void HTMLRenderer::updateAll(GfxState * state) 
 { 
@@ -82,7 +84,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
 
     bool need_recheck_position = false;
     bool need_rescale_font = false;
-    bool draw_scale_changed = false;
+    bool draw_text_scale_changed = false;
 
     // text position
     // we've been tracking the text position positively in the update*** functions
@@ -98,7 +100,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
 
         if(!(new_font_info->id == cur_font_info->id))
         {
-            new_line_state = max(new_line_state, NLS_SPAN);
+            new_line_state = max<NewLineState>(new_line_state, NLS_SPAN);
             cur_font_info = new_font_info;
         }
 
@@ -112,7 +114,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
 
     // backup the current ctm for need_recheck_position
     double old_ctm[6];
-    memcpy(old_ctm, cur_ctm, sizeof(old_ctm));
+    memcpy(old_ctm, cur_text_tm, sizeof(old_ctm));
 
     // ctm & text ctm & hori scale
     if(all_changed || ctm_changed || text_mat_changed || hori_scale_changed)
@@ -131,52 +133,52 @@ void HTMLRenderer::check_state_change(GfxState * state)
         new_ctm[5] = m1[1] * m2[4] + m1[3] * m2[5] + m1[5];
         //new_ctm[4] = new_ctm[5] = 0;
 
-        if(!_tm_equal(new_ctm, cur_ctm))
+        if(!_tm_equal(new_ctm, cur_text_tm))
         {
             need_recheck_position = true;
             need_rescale_font = true;
-            memcpy(cur_ctm, new_ctm, sizeof(cur_ctm));
+            memcpy(cur_text_tm, new_ctm, sizeof(cur_text_tm));
         }
     }
 
-    // draw_ctm, draw_scale
+    // draw_text_tm, draw_text_scale
     // depends: font size & ctm & text_ctm & hori scale
     if(need_rescale_font)
     {
-        double new_draw_ctm[6];
-        memcpy(new_draw_ctm, cur_ctm, sizeof(new_draw_ctm));
+        double new_draw_text_tm[6];
+        memcpy(new_draw_text_tm, cur_text_tm, sizeof(new_draw_text_tm));
 
-        double new_draw_scale = 1.0/scale_factor2 * sqrt(new_draw_ctm[2] * new_draw_ctm[2] + new_draw_ctm[3] * new_draw_ctm[3]);
+        double new_draw_text_scale = 1.0/text_scale_factor2 * hypot(new_draw_text_tm[2], new_draw_text_tm[3]);
 
         double new_draw_font_size = cur_font_size;
-        if(_is_positive(new_draw_scale))
+        if(_is_positive(new_draw_text_scale))
         {
-            new_draw_font_size *= new_draw_scale;
+            new_draw_font_size *= new_draw_text_scale;
             for(int i = 0; i < 4; ++i)
-                new_draw_ctm[i] /= new_draw_scale;
+                new_draw_text_tm[i] /= new_draw_text_scale;
         }
         else
         {
-            new_draw_scale = 1.0;
+            new_draw_text_scale = 1.0;
         }
 
-        if(!(_equal(new_draw_scale, draw_scale)))
+        if(!(_equal(new_draw_text_scale, draw_text_scale)))
         {
-            draw_scale_changed = true;
-            draw_scale = new_draw_scale;
+            draw_text_scale_changed = true;
+            draw_text_scale = new_draw_text_scale;
         }
 
         if(!(_equal(new_draw_font_size, draw_font_size)))
         {
-            new_line_state = max(new_line_state, NLS_SPAN);
+            new_line_state = max<NewLineState>(new_line_state, NLS_SPAN);
             draw_font_size = new_draw_font_size;
             cur_fs_id = install_font_size(draw_font_size);
         }
-        if(!(_tm_equal(new_draw_ctm, draw_ctm, 4)))
+        if(!(_tm_equal(new_draw_text_tm, draw_text_tm, 4)))
         {
-            new_line_state = max(new_line_state, NLS_DIV);
-            memcpy(draw_ctm, new_draw_ctm, sizeof(draw_ctm));
-            cur_tm_id = install_transform_matrix(draw_ctm);
+            new_line_state = max<NewLineState>(new_line_state, NLS_DIV);
+            memcpy(draw_text_tm, new_draw_text_tm, sizeof(draw_text_tm));
+            cur_ttm_id = install_transform_matrix(draw_text_tm);
         }
     }
 
@@ -198,29 +200,29 @@ void HTMLRenderer::check_state_change(GfxState * state)
          */
 
         bool merged = false;
-        if(_tm_equal(old_ctm, cur_ctm, 4))
+        if(_tm_equal(old_ctm, cur_text_tm, 4))
         {
             double dy = cur_ty - draw_ty;
-            double tdx = old_ctm[4] - cur_ctm[4] - cur_ctm[2] * dy;
-            double tdy = old_ctm[5] - cur_ctm[5] - cur_ctm[3] * dy;
+            double tdx = old_ctm[4] - cur_text_tm[4] - cur_text_tm[2] * dy;
+            double tdy = old_ctm[5] - cur_text_tm[5] - cur_text_tm[3] * dy;
 
-            if(_equal(cur_ctm[0] * tdy, cur_ctm[1] * tdx))
+            if(_equal(cur_text_tm[0] * tdy, cur_text_tm[1] * tdx))
             {
-                if(abs(cur_ctm[0]) > EPS)
+                if(_is_positive(cur_text_tm[0]))
                 {
-                    draw_tx += tdx / cur_ctm[0];
+                    draw_tx += tdx / cur_text_tm[0];
                     draw_ty += dy;
                     merged = true;
                 }
-                else if (abs(cur_ctm[1]) > EPS)
+                else if (_is_positive(cur_text_tm[1]))
                 {
-                    draw_tx += tdy / cur_ctm[1];
+                    draw_tx += tdy / cur_text_tm[1];
                     draw_ty += dy;
                     merged = true;
                 }
                 else
                 {
-                    if((abs(tdx) < EPS) && (abs(tdy) < EPS))
+                    if((_equal(tdx,0)) && (_equal(tdy,0)))
                     {
                         // free
                         draw_tx = cur_tx;
@@ -236,33 +238,33 @@ void HTMLRenderer::check_state_change(GfxState * state)
 
         if(!merged)
         {
-            new_line_state = max(new_line_state, NLS_DIV);
+            new_line_state = max<NewLineState>(new_line_state, NLS_DIV);
         }
     }
 
     // letter space
-    // depends: draw_scale
-    if(all_changed || letter_space_changed || draw_scale_changed)
+    // depends: draw_text_scale
+    if(all_changed || letter_space_changed || draw_text_scale_changed)
     {
         double new_letter_space = state->getCharSpace();
         if(!_equal(cur_letter_space, new_letter_space))
         {
-            new_line_state = max(new_line_state, NLS_SPAN);
+            new_line_state = max<NewLineState>(new_line_state, NLS_SPAN);
             cur_letter_space = new_letter_space;
-            cur_ls_id = install_letter_space(cur_letter_space * draw_scale);
+            cur_ls_id = install_letter_space(cur_letter_space * draw_text_scale);
         }
     }
 
     // word space
-    // depends draw_scale
-    if(all_changed || word_space_changed || draw_scale_changed)
+    // depends draw_text_scale
+    if(all_changed || word_space_changed || draw_text_scale_changed)
     {
         double new_word_space = state->getWordSpace();
         if(!_equal(cur_word_space, new_word_space))
         {
-            new_line_state = max(new_line_state, NLS_SPAN);
+            new_line_state = max<NewLineState>(new_line_state, NLS_SPAN);
             cur_word_space = new_word_space;
-            cur_ws_id = install_word_space(cur_word_space * draw_scale);
+            cur_ws_id = install_word_space(cur_word_space * draw_text_scale);
         }
     }
 
@@ -273,22 +275,22 @@ void HTMLRenderer::check_state_change(GfxState * state)
         state->getFillRGB(&new_color);
         if(!((new_color.r == cur_color.r) && (new_color.g == cur_color.g) && (new_color.b == cur_color.b)))
         {
-            new_line_state = max(new_line_state, NLS_SPAN);
+            new_line_state = max<NewLineState>(new_line_state, NLS_SPAN);
             cur_color = new_color;
             cur_color_id = install_color(&new_color);
         }
     }
 
     // rise
-    // depends draw_scale
-    if(all_changed || rise_changed || draw_scale_changed)
+    // depends draw_text_scale
+    if(all_changed || rise_changed || draw_text_scale_changed)
     {
         double new_rise = state->getRise();
         if(!_equal(cur_rise, new_rise))
         {
-            new_line_state = max(new_line_state, NLS_SPAN);
+            new_line_state = max<NewLineState>(new_line_state, NLS_SPAN);
             cur_rise = new_rise;
-            cur_rise_id = install_rise(new_rise * draw_scale);
+            cur_rise_id = install_rise(new_rise * draw_text_scale);
         }
     }
 
@@ -312,7 +314,7 @@ void HTMLRenderer::reset_state_change()
 
     color_changed = false;
 }
-void HTMLRenderer::prepare_line(GfxState * state)
+void HTMLRenderer::prepare_text_line(GfxState * state)
 {
     if(!line_opened)
     {
@@ -321,7 +323,7 @@ void HTMLRenderer::prepare_line(GfxState * state)
     
     if(new_line_state == NLS_DIV)
     {
-        close_line();
+        close_text_line();
 
         line_buf.reset(state);
 
@@ -333,7 +335,7 @@ void HTMLRenderer::prepare_line(GfxState * state)
     {
         // align horizontal position
         // try to merge with the last line if possible
-        double target = (cur_tx - draw_tx) * draw_scale;
+        double target = (cur_tx - draw_tx) * draw_text_scale;
         if(abs(target) < param->h_eps)
         {
             // ignore it
@@ -341,7 +343,7 @@ void HTMLRenderer::prepare_line(GfxState * state)
         else
         {
             line_buf.append_offset(target);
-            draw_tx += target / draw_scale;
+            draw_tx += target / draw_text_scale;
         }
     }
 
@@ -353,7 +355,7 @@ void HTMLRenderer::prepare_line(GfxState * state)
     line_opened = true;
 }
 
-void HTMLRenderer::close_line()
+void HTMLRenderer::close_text_line()
 {
     if(line_opened)
     {

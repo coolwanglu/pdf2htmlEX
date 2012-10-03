@@ -3,7 +3,7 @@
  *
  * Handling general stuffs
  *
- * by WangLu
+ * Copyright (C) 2012 Lu Wang <coolwanglu@gmail.com>
  * 2012.08.14
  */
 
@@ -12,8 +12,6 @@
 #include <cmath>
 #include <algorithm>
 #include <vector>
-
-#include <splash/SplashBitmap.h>
 
 #include "HTMLRenderer.h"
 #include "BackgroundRenderer.h"
@@ -64,10 +62,6 @@ HTMLRenderer::~HTMLRenderer()
     delete [] width_list;
 }
 
-static GBool annot_cb(Annot *, void *) {
-    return false;
-};
-
 void HTMLRenderer::process(PDFDoc *doc)
 {
     cur_doc = doc;
@@ -84,17 +78,17 @@ void HTMLRenderer::process(PDFDoc *doc)
 
         vector<double> zoom_factors;
         
-        if(abs(param->zoom) > EPS)
+        if(_is_positive(param->zoom))
         {
             zoom_factors.push_back(param->zoom);
         }
 
-        if(abs(param->fit_width) > EPS)
+        if(_is_positive(param->fit_width))
         {
             zoom_factors.push_back((param->fit_width) / preprocessor.get_max_width());
         }
 
-        if(abs(param->fit_height) > EPS)
+        if(_is_positive(param->fit_height))
         {
             zoom_factors.push_back((param->fit_height) / preprocessor.get_max_height());
         }
@@ -108,8 +102,8 @@ void HTMLRenderer::process(PDFDoc *doc)
             zoom = *min_element(zoom_factors.begin(), zoom_factors.end());
         }
         
-        scale_factor1 = max(zoom, param->font_size_multiplier);  
-        scale_factor2 = zoom / scale_factor1;
+        text_scale_factor1 = max<double>(zoom, param->font_size_multiplier);  
+        text_scale_factor2 = zoom / text_scale_factor1;
     }
 
 
@@ -117,12 +111,7 @@ void HTMLRenderer::process(PDFDoc *doc)
     BackgroundRenderer * bg_renderer = nullptr;
     if(param->process_nontext)
     {
-        // Render non-text objects as image
-        // copied from poppler
-        SplashColor color;
-        color[0] = color[1] = color[2] = 255;
-
-        bg_renderer = new BackgroundRenderer(splashModeRGB8, 4, gFalse, color);
+        bg_renderer = new BackgroundRenderer(param);
         bg_renderer->startDoc(doc);
     }
 
@@ -141,22 +130,15 @@ void HTMLRenderer::process(PDFDoc *doc)
 
         if(param->process_nontext)
         {
-            doc->displayPage(bg_renderer, i, param->h_dpi, param->v_dpi,
-                    0, true, false, false,
-                    nullptr, nullptr, &annot_cb, nullptr);
+            auto fn = str_fmt("%s/p%x.png", (param->single_html ? param->tmp_dir : param->dest_dir).c_str(), i);
+            if(param->single_html)
+                add_tmp_file((char*)fn);
 
-            {
-                auto fn = str_fmt("%s/p%x.png", (param->single_html ? param->tmp_dir : param->dest_dir).c_str(), i);
-                if(param->single_html)
-                    add_tmp_file((char*)fn);
-
-                bg_renderer->getBitmap()->writeImgFile(splashFormatPng, 
-                        (char*)fn,
-                        param->h_dpi, param->v_dpi);
-            }
+            bg_renderer->render_page(doc, i, (char*)fn);
         }
 
-        doc->displayPage(this, i, zoom_factor() * DEFAULT_DPI, zoom_factor() * DEFAULT_DPI,
+        doc->displayPage(this, i, 
+                text_zoom_factor() * DEFAULT_DPI, text_zoom_factor() * DEFAULT_DPI,
                 0, true, false, false,
                 nullptr, nullptr, nullptr, nullptr);
 
@@ -219,15 +201,15 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
     }
 
     html_fout << "\">";
-    draw_scale = 1.0;
+    draw_text_scale = 1.0;
 
     cur_font_info = install_font(nullptr);
     cur_font_size = draw_font_size = 0;
     cur_fs_id = install_font_size(cur_font_size);
     
-    memcpy(cur_ctm, id_matrix, sizeof(cur_ctm));
-    memcpy(draw_ctm, id_matrix, sizeof(draw_ctm));
-    cur_tm_id = install_transform_matrix(draw_ctm);
+    memcpy(cur_text_tm, id_matrix, sizeof(cur_text_tm));
+    memcpy(draw_text_tm, id_matrix, sizeof(draw_text_tm));
+    cur_ttm_id = install_transform_matrix(draw_text_tm);
 
     cur_letter_space = cur_word_space = 0;
     cur_ls_id = install_letter_space(cur_letter_space);
@@ -247,7 +229,7 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
 }
 
 void HTMLRenderer::endPage() {
-    close_line();
+    close_text_line();
 
     // process links before the page is closed
     cur_doc->processLinks(this, pageNum);
@@ -404,7 +386,9 @@ void HTMLRenderer::post_process()
 
 void HTMLRenderer::fix_stream (std::ostream & out)
 {
-    out << hex;
+    // we output all ID's in hex
+    // browsers are not happy with scientific notations
+    out << hex << fixed;
 }
 
 void HTMLRenderer::add_tmp_file(const string & fn)

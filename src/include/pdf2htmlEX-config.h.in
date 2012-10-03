@@ -11,6 +11,8 @@
 
 #include <string>
 
+#define HAVE_CAIRO @HAVE_CAIRO@
+
 namespace pdf2htmlEX {
 
 static const std::string PDF2HTMLEX_VERSION = "@PDF2HTMLEX_VERSION@";

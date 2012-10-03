@@ -38,6 +38,7 @@ This program is designed for scientific papers with complicate formulas and figu
 * Proper styling (Color, Transformation...)
 * Links
 * Optimization for Web 
+* [EXPERIMENTAL] Path drawing with CSS
 
 ### Not supported yet
 
@@ -88,6 +89,12 @@ I have tested with CYGWIN without any problem, and I believe it also works on Mi
     pdf2htmlEX /path/to/foobar.pdf
 
     pdf2htmlEX --help
+
+### For Geeks
+
+* Experimental and unsupported
+
+    pdf2htmlEX --process-nontext 0 --css-draw 0 /path/to/foobar.pdf
 
 ## FAQ
 

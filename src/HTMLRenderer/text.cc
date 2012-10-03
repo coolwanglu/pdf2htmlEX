@@ -310,7 +310,7 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
         memset(width_list, -1, 0x10000 * sizeof(*width_list));
 
         if(code2GID)
-            maxcode = min(maxcode, code2GID_len - 1);
+            maxcode = min<int>(maxcode, code2GID_len - 1);
 
         bool is_truetype = is_truetype_suffix(suffix);
         int max_key = maxcode;
@@ -484,7 +484,7 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
 
     // see if the line has to be closed due to state change
     check_state_change(state);
-    prepare_line(state);
+    prepare_text_line(state);
 
     // Now ready to output
     // get the unicodes
@@ -522,7 +522,7 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
         if(is_space && (param->space_as_offset))
         {
             // ignore horiz_scaling, as it's merged in CTM
-            line_buf.append_offset((dx1 * cur_font_size + cur_letter_space + cur_word_space) * draw_scale); 
+            line_buf.append_offset((dx1 * cur_font_size + cur_letter_space + cur_word_space) * draw_text_scale); 
         }
         else
         {

@@ -42,6 +42,8 @@
  * j - Js data
  * p - Page
  *
+ * Cd - CSS Draw
+ *
  * Reusable CSS classes
  *
  * t<hex> - Transform matrix
@@ -77,12 +79,18 @@ class HTMLRenderer : public OutputDev
         // Does this device use drawChar() or drawString()?
         virtual GBool useDrawChar() { return gFalse; }
 
+        // Does this device use functionShadedFill(), axialShadedFill(), and
+        // radialShadedFill()?  If this returns false, these shaded fills
+        // will be reduced to a series of other drawing operations.
+        virtual GBool useShadedFills(int type) { return type == 2; }
+
+
         // Does this device use beginType3Char/endType3Char?  Otherwise,
         // text in Type 3 fonts will be drawn with drawChar/drawString.
         virtual GBool interpretType3Chars() { return gFalse; }
 
         // Does this device need non-text content?
-        virtual GBool needNonText() { return gFalse; }
+        virtual GBool needNonText() { return gTrue; }
 
         virtual void setDefaultCTM(double *ctm);
 
@@ -120,6 +128,10 @@ class HTMLRenderer : public OutputDev
         virtual void drawString(GfxState * state, GooString * s);
 
         virtual void drawImage(GfxState * state, Object * ref, Stream * str, int width, int height, GfxImageColorMap * colorMap, GBool interpolate, int *maskColors, GBool inlineImg);
+
+        virtual void stroke(GfxState *state) { css_draw(state, false); }
+        virtual void fill(GfxState *state) { css_draw(state, true); }
+        virtual GBool axialShadedFill(GfxState *state, GfxAxialShading *shading, double tMin, double tMax);
 
         virtual void processLink(AnnotLink * al);
 
@@ -190,8 +202,25 @@ class HTMLRenderer : public OutputDev
         void reset_state_change();
         // prepare the line context, (close old tags, open new tags)
         // make sure the current HTML style consistent with PDF
-        void prepare_line(GfxState * state);
-        void close_line();
+        void prepare_text_line(GfxState * state);
+        void close_text_line();
+
+        ////////////////////////////////////////////////////
+        // CSS drawing
+        ////////////////////////////////////////////////////
+        void css_draw(GfxState *state, bool fill);
+        /*
+         * coordinates are to transformed by state->getCTM()
+         * (x,y) should be the bottom-left corner INCLUDING border
+         * w,h should be the metrics WITHOUT border
+         *
+         * line_color & fill_color may be specified as nullptr to indicate none
+         * style_function & style_function_data may be provided to provide more styles
+         */
+        void css_draw_rectangle(double x, double y, double w, double h, const double * tm,
+                double * line_width_array, int line_width_count,
+                const GfxRGB * line_color, const GfxRGB * fill_color, 
+                void (*style_function)(void *, std::ostream &) = nullptr, void * style_function_data = nullptr );
 
 
         ////////////////////////////////////////////////////
@@ -216,9 +245,9 @@ class HTMLRenderer : public OutputDev
          * factor1 & factor 2 are determined according to zoom and font-size-multiplier
          *
          */
-        double zoom_factor (void) const { return scale_factor1 * scale_factor2; }
-        double scale_factor1;
-        double scale_factor2;
+        double text_zoom_factor (void) const { return text_scale_factor1 * text_scale_factor2; }
+        double text_scale_factor1;
+        double text_scale_factor2;
 
 
         ////////////////////////////////////////////////////
@@ -246,16 +275,15 @@ class HTMLRenderer : public OutputDev
         bool font_changed;
 
         // transform matrix
-        long long cur_tm_id;
+        long long cur_ttm_id;
         bool ctm_changed;
         bool text_mat_changed;
         // horizontal scaling
         bool hori_scale_changed;
-        // this is CTM * TextMAT in PDF, not only CTM
+        // this is CTM * TextMAT in PDF
         // [4] and [5] are ignored,
         // as we'll calculate the position of the origin separately
-        // TODO: changed this for images
-        double cur_ctm[6]; // unscaled
+        double cur_text_tm[6]; // unscaled
 
         // letter spacing 
         long long cur_ls_id;
@@ -281,11 +309,11 @@ class HTMLRenderer : public OutputDev
         // we try to render the final font size directly
         // to reduce the effect of ctm as much as possible
         
-        // draw_ctm is cur_ctm scaled by 1/draw_scale, 
-        // so everything redenered should be multiplied by draw_scale
-        double draw_ctm[6];
+        // draw_ctm is cur_ctm scaled by 1/draw_text_scale, 
+        // so everything redenered should be multiplied by draw_text_scale
+        double draw_text_tm[6];
         double draw_font_size;
-        double draw_scale; 
+        double draw_text_scale; 
 
         // the position of next char, in text coords
         // this is actual position (in HTML), which might be different from cur_tx/ty (in PDF)
@@ -376,7 +404,7 @@ class HTMLRenderer : public OutputDev
 
         std::unordered_map<long long, FontInfo> font_name_map;
         std::map<double, long long> font_size_map;
-        std::map<TM, long long> transform_matrix_map;
+        std::map<Matrix, long long, Matrix_less> transform_matrix_map;
         std::map<double, long long> letter_space_map;
         std::map<double, long long> word_space_map;
         std::unordered_map<GfxRGB, long long, GfxRGB_hash, GfxRGB_equal> color_map; 

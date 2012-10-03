@@ -55,6 +55,9 @@ struct Param
 
     int debug;
     int clean_tmp;
+
+    // experimental
+    int css_draw;
 };
 
 } // namespace pdf2htmlEX
