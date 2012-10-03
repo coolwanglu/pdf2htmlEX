@@ -92,6 +92,8 @@ I have tested with CYGWIN without any problem, and I believe it also works on Mi
     pdf2htmlEX /path/to/foobar.pdf
 
     pdf2htmlEX --help
+    
+    man pdf2htmlEX
 
 ### For Geeks
 
@@ -101,6 +103,7 @@ I have tested with CYGWIN without any problem, and I believe it also works on Mi
 
 ## FAQ
 
+* [Troubleshooting compilation errors](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ#wiki-compile)
 * [How can I help](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ#wiki-help)
 * [I want more features](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ#wiki-feature_commission)
 * [More](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ)
