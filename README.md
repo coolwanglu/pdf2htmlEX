@@ -68,7 +68,10 @@ This program is designed for scientific papers with complicate formulas and figu
 
 The code may be built with Cygwin.
 
-Or with MinGW with [some modifications](http://oku.edu.mie-u.ac.jp/~okumura/texwiki/?pdf2htmlEX) (Japanese site)
+Or with MinGW with some modifications.
+
+More info can be found on [the pdf2htmlEX page in TeX Wiki](http://oku.edu.mie-u.ac.jp/~okumura/texwiki/?pdf2htmlEX) (in Japanese), special thanks to Haruhiko Okumura
+
 
 ### Build from source
 
@@ -137,8 +140,6 @@ pdf2htmlEX is inspired by the following projects:
 * PDF.js
 * Crocodoc
 * Google Doc
-
-Special thanks to Haruhiko Okumura, for the [pdf2htmlEX page in TeX Wiki](http://oku.edu.mie-u.ac.jp/~okumura/texwiki/?pdf2htmlEX) (in Japanese).
 
 
 ## Contact
