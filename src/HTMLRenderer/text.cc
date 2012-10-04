@@ -417,6 +417,14 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
     add_tmp_file(other_tmp_fn);
 
     ffw_save(cur_tmp_fn.c_str());
+
+    if(param->debug)
+    {
+        auto fn = str_fmt("%s/__raw_font_%lld%s", param->tmp_dir.c_str(), info.id, param->font_suffix.c_str());
+        add_tmp_file((char*)fn);
+        ffw_save((char*)fn);
+    }
+
     ffw_close();
 
     /*
