@@ -19,6 +19,7 @@
 <html>
 <head>
 <meta charset="utf-8">
+<meta name="generator" content="pdf2htmlEX"/>
 """
 
 @base.css
