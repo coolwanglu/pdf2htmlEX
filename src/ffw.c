@@ -296,7 +296,9 @@ void ffw_metric(double * ascent, double * descent)
 /*
  * TODO:bitmap, reference have not been considered in this function
  */
-void ffw_set_widths(int * width_list, int mapping_len, int stretch_narrow, int squeeze_wide)
+void ffw_set_widths(int * width_list, int mapping_len, 
+        int stretch_narrow, int squeeze_wide,
+        int remove_unused)
 {
     /*
      * Disabled, because it causes crashing
@@ -315,6 +317,11 @@ void ffw_set_widths(int * width_list, int mapping_len, int stretch_narrow, int s
     {
         printf("TODO: width vs bitmap\n");
     }
+    
+    // debug
+    printf("enccount %d\n", (int)(cur_fv->map->enccount));
+
+    memset(cur_fv->selected, 0, cur_fv->map->enccount);
 
     EncMap * map = cur_fv->map;
     int i;
@@ -324,7 +331,11 @@ void ffw_set_widths(int * width_list, int mapping_len, int stretch_narrow, int s
         /*
          * Do mess with it if the glyphs is not used.
          */
-        if(width_list[i] == -1) continue;
+        if(width_list[i] == -1) 
+        {
+            cur_fv->selected[i] = 1;
+            continue;
+        }
 
         int j = map->map[i];
         if(j == -1) continue;
@@ -344,6 +355,12 @@ void ffw_set_widths(int * width_list, int mapping_len, int stretch_narrow, int s
 
         sc->width = width_list[i];
     }
+
+    for(; i < cur_fv->map->enccount; ++i)
+        cur_fv->selected[i] = 1;
+
+    if(remove_unused)
+        FVDetachAndRemoveGlyphs(cur_fv);
 }
 
 void ffw_auto_hint(void)

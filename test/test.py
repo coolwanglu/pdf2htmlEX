@@ -12,8 +12,8 @@ with open('out.html','w') as outf:
         if not f.lower().endswith('.pdf'):
             continue
         print f
-        #os.system('pdf2htmlEX --dest-dir html --auto-hint=1 --external-hint-tool="ttfautohint" "%s/%s"' % (DIR,f))
-        os.system('pdf2htmlEX --dest-dir html --process-nontext 0 --css-draw 1 "%s/%s"' % (DIR,f))
+        os.system('pdf2htmlEX --dest-dir html --auto-hint=1 --external-hint-tool="ttfautohint" --remove-unused-glyph 1 "%s/%s"' % (DIR,f))
+        #os.system('pdf2htmlEX --dest-dir html --process-nontext 0 --css-draw 1 "%s/%s"' % (DIR,f))
         ff = f[:-3]
         outf.write('<a href="html/%shtml" target="pdf">%s</a><br/>' % (ff,ff))
         outf.flush();

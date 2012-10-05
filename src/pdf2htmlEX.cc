@@ -1,6 +1,6 @@
 // pdftohtmlEX.cc
 //
-// Copyright (C) 2012 Lu Wang coolwanglu<at>gmail.com
+// Copyright (C) 2012 Lu Wang <coolwanglu@gmail.com>
 
 #include <cstdio>
 #include <cstdlib>
@@ -34,7 +34,7 @@ void show_usage_and_exit(const char * dummy = nullptr)
 {
     cerr << "pdftohtmlEX version " << PDF2HTMLEX_VERSION << endl;
     cerr << endl;
-    cerr << "Copyright 2012 Lu Wang (coolwanglu<at>gmail.com)" << endl;
+    cerr << "Copyright 2012 Lu Wang <coolwanglu@gmail.com>" << endl;
     cerr << endl;
     cerr << "Usage: pdf2htmlEX [Options] <input.pdf> [<output.html>]" << endl;
     cerr << endl;
@@ -83,11 +83,12 @@ void parse_options (int argc, char **argv)
         .add("space-as-offset", &param.space_as_offset, 0, "treat space characters as offsets")
         .add("stretch_narrow_glyph", &param.stretch_narrow_glyph, 0, "stretch narrow glyphs instead of padding space")
         .add("squeeze-wide-glyph", &param.squeeze_wide_glyph, 0, "squeeze wide glyphs instead of truncating")
+        .add("remove-unused-glyph", &param.remove_unused_glyph, 0, "remove unused glyphs in embedded fonts")
 
-        .add("css-filename", &param.css_filename, "", "Specify the file name of the generated css file")
         .add("font-suffix", &param.font_suffix, ".ttf", "suffix for extracted font files")
         .add("font-format", &param.font_format, "opentype", "format for extracted font files")
         .add("external-hint-tool", &param.external_hint_tool, "", "external tool for hintting fonts.(overrides --auto-hint)")
+        .add("css-filename", &param.css_filename, "", "Specify the file name of the generated css file")
 
         .add("debug", &param.debug, 0, "output debug information")
         .add("clean-tmp", &param.clean_tmp, 1, "clean temporary files after processing")

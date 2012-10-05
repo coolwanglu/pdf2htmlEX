@@ -123,10 +123,8 @@ If set to 1, glyphs narrower than described in PDF will be strecth; otherwise sp
 .B --squeeze_wide_glyph <0|1> (Default: 0)
 If set to 1, glyphs wider than described in PDF will be squeezed; otherwise it will be truncated.
 .TP
-.B --css-filename <filename> (Default: <none>)
-Specify the filename of the generated css file, if not embedded.
-
-If it's empty, the file name will be determined automatically.
+.B --remove-unused-glyph <0|1> (Default: 0)
+[Experimental] If set to 1, remove unused glyphs in embedded fonts in order to reduce the file size.
 .TP
 .B --font-suffix <suffix> (Default: .ttf), --font-format <format> (Default: truetype)
 Specify the suffix and format of fonts extracted from the PDF file. They should be consistent.
@@ -135,6 +133,11 @@ Specify the suffix and format of fonts extracted from the PDF file. They should 
 If specified, the tool will be called in order to enhanced hinting for fonts, this will precede --auto-hint.
 
 The tool will be called as '<tool> <in.suffix> <out.suffix>', where suffix will be the same as specified for --font-suffix.
+.TP
+.B --css-filename <filename> (Default: <none>)
+Specify the filename of the generated css file, if not embedded.
+
+If it's empty, the file name will be determined automatically.
 .TP
 .B --debug <0|1> (Default: 0)
 Show debug information.

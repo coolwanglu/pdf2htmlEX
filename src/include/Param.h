@@ -37,22 +37,34 @@ struct Param
     int decompose_ligature;
 
     // Advanced tweak
+    /*
+     * Position & Size
+     */
     double h_eps, v_eps;
     double space_threshold;
     double font_size_multiplier;
 
+    /*
+     * Font
+     */
     int auto_hint;
     int tounicode;
     int space_as_offset;
-    
     int stretch_narrow_glyph;
     int squeeze_wide_glyph;
+    int remove_unused_glyph;
 
-    std::string css_filename;
     std::string font_suffix, font_format;
-
     std::string external_hint_tool;
 
+    /*
+     * Output
+     */
+    std::string css_filename;
+
+    /*
+     * Debug
+     */
     int debug;
     int clean_tmp;
 

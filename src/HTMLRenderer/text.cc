@@ -3,8 +3,7 @@
  *
  * Handling text & font, and relative stuffs
  *
- * by WangLu
- * 2012.08.14
+ * Copyright (C) 2012 Lu Wang <coolwanglu@gmail.com>
  */
 
 #include <iostream>
@@ -167,6 +166,14 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
     }
 
     ffw_load_font(filepath.c_str());
+
+    if(param->debug)
+    {
+        auto fn = str_fmt("%s/__raw_font_%lld%s", param->tmp_dir.c_str(), info.id, param->font_suffix.c_str());
+        add_tmp_file((char*)fn);
+        ffw_save((char*)fn);
+    }
+
     int * code2GID = nullptr;
     int code2GID_len = 0;
     int maxcode = 0;
@@ -398,7 +405,10 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
             }
         }
 
-        ffw_set_widths(width_list, max_key + 1, param->stretch_narrow_glyph, param->squeeze_wide_glyph);
+        //debug
+        cerr << info.id << endl;
+
+        ffw_set_widths(width_list, max_key + 1, param->stretch_narrow_glyph, param->squeeze_wide_glyph, param->remove_unused_glyph);
         ffw_reencode_raw(cur_mapping, max_key + 1, 1);
 
         if(ctu)
@@ -417,13 +427,6 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
     add_tmp_file(other_tmp_fn);
 
     ffw_save(cur_tmp_fn.c_str());
-
-    if(param->debug)
-    {
-        auto fn = str_fmt("%s/__raw_font_%lld%s", param->tmp_dir.c_str(), info.id, param->font_suffix.c_str());
-        add_tmp_file((char*)fn);
-        ffw_save((char*)fn);
-    }
 
     ffw_close();
 
