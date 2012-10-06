@@ -17,13 +17,12 @@
 
 #include "HTMLRenderer.h"
 #include "namespace.h"
-
+#include "util.h"
 
 namespace pdf2htmlEX {
 
 using std::max;
 using std::abs;
-using std::hypot;
 
 void HTMLRenderer::updateAll(GfxState * state) 
 { 
@@ -148,7 +147,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
         double new_draw_text_tm[6];
         memcpy(new_draw_text_tm, cur_text_tm, sizeof(new_draw_text_tm));
 
-        double new_draw_text_scale = 1.0/text_scale_factor2 * hypot(new_draw_text_tm[2], new_draw_text_tm[3]);
+        double new_draw_text_scale = 1.0/text_scale_factor2 * _hypot(new_draw_text_tm[2], new_draw_text_tm[3]);
 
         double new_draw_font_size = cur_font_size;
         if(_is_positive(new_draw_text_scale))

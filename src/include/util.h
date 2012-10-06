@@ -46,6 +46,7 @@ static inline bool _tm_equal(const double * tm1, const double * tm2, int size = 
             return false;
     return true;
 }
+static inline double _hypot(double x, double y) { return std::sqrt(x*x+y*y); }
 
 void _tm_transform(const double * tm, double & x, double & y, bool is_delta = false);
 void _tm_multiply(double * tm_left, const double * tm_right);

@@ -104,7 +104,7 @@ static void get_shading_bbox(GfxState * state, GfxShading * shading,
  */
 static double get_angle(double dx, double dy)
 {
-    double r = hypot(dx, dy);
+    double r = _hypot(dx, dy);
 
     /*
      * acos always returns [0, pi]
@@ -358,7 +358,7 @@ void HTMLRenderer::css_draw_rectangle(double x, double y, double w, double h, co
 
         double i1 = (new_tm[0] + new_tm[2]) / sqrt2;
         double i2 = (new_tm[1] + new_tm[3]) / sqrt2;
-        scale = hypot(i1, i2);
+        scale = _hypot(i1, i2);
         if(_is_positive(scale))
         {
             for(int i = 0; i < 4; ++i)
