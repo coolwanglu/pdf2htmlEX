@@ -98,6 +98,8 @@ void ffw_fin(void)
 
 void ffw_load_font(const char * filename)
 {
+    assert((cur_fv == NULL) && "Previous font is not destroyed");
+
     char * _filename = strcopy(filename);
     SplineFont * font = LoadSplineFont(_filename, 1);
 
@@ -119,14 +121,10 @@ void ffw_load_font(const char * filename)
  */
 void ffw_prepare_font(void)
 {
-    /*
-     * Disabled, because it causes crashing
-     
     memset(cur_fv->selected, 1, cur_fv->map->enccount);
     // remove kern
     FVRemoveKerns(cur_fv);
     FVRemoveVKerns(cur_fv);
-    */
 
     /*
      * Remove Alternate Unicodes
@@ -169,6 +167,9 @@ static void ffw_do_reencode(Encoding * encoding, int force)
     }
 
     SFReplaceEncodingBDFProps(cur_fv->sf, cur_fv->map);
+
+    free(cur_fv->selected);
+    cur_fv->selected = gcalloc(cur_fv->map->enccount, sizeof(char));
 }
 
 void ffw_reencode_glyph_order(void)
@@ -376,7 +377,7 @@ void ffw_set_widths(int * width_list, int mapping_len,
         sc->width = width_list[i];
     }
 
-    for(; i < cur_fv->map->enccount; ++i)
+    for(; i < map->enccount; ++i)
         cur_fv->selected[i] = 1;
 
     if(remove_unused)
