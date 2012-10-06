@@ -60,11 +60,18 @@ This program is designed for scientific papers with complicate formulas and figu
 
 ### Mac
 
-MacPorts and Homebrew are coming soon
+[Homebrew Formula](https://github.com/jamiely/homebrew/blob/pdf2htmlex/Library/Formula/pdf2htmlex.rb), special thanks to Jamie Ly <me@jamie.ly>
+
+[Macports (local repo)](https://github.com/iapain/pdf2htmlEX-macport), special thanks to Deepak Thukral <iapain@iapa.in>
 
 ### Windows
 
-I have tested with CYGWIN without any problem, and I believe it also works on MinGW without many modifications.
+The code may be built with Cygwin.
+
+Or with MinGW with some modifications.
+
+More info can be found on [the pdf2htmlEX page in TeX Wiki](http://oku.edu.mie-u.ac.jp/~okumura/texwiki/?pdf2htmlEX) (in Japanese), special thanks to Haruhiko Okumura
+
 
 ### Build from source
 
@@ -92,16 +99,21 @@ I have tested with CYGWIN without any problem, and I believe it also works on Mi
     pdf2htmlEX /path/to/foobar.pdf
 
     pdf2htmlEX --help
+    
+    man pdf2htmlEX
 
 ### For Geeks
 
 * Experimental and unsupported
 
-    pdf2htmlEX --process-nontext 0 --css-draw 0 /path/to/foobar.pdf
+    pdf2htmlEX --process-nontext 0 --css-draw 1 /path/to/foobar.pdf
 
 ## FAQ
 
-[here](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ)
+* [Troubleshooting compilation errors](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ#wiki-compile)
+* [How can I help](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ#wiki-help)
+* [I want more features](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ#wiki-feature_commission)
+* [More](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ)
 
 ## LICENSE
 
@@ -113,7 +125,7 @@ GPLv2 & GPLv3 Dual licensed
 
 **Font extraction, conversion or redistribution may be illegal, please check your local laws**
 
-## Credits
+## Acknowledge
 
 pdf2htmlEX is made possible thanks to the following projects:
 
@@ -128,6 +140,7 @@ pdf2htmlEX is inspired by the following projects:
 * PDF.js
 * Crocodoc
 * Google Doc
+
 
 ## Contact
 
