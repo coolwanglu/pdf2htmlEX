@@ -83,7 +83,7 @@ void parse_options (int argc, char **argv)
         .add("space-as-offset", &param.space_as_offset, 0, "treat space characters as offsets")
         .add("stretch_narrow_glyph", &param.stretch_narrow_glyph, 0, "stretch narrow glyphs instead of padding space")
         .add("squeeze-wide-glyph", &param.squeeze_wide_glyph, 0, "squeeze wide glyphs instead of truncating")
-        .add("remove-unused-glyph", &param.remove_unused_glyph, 0, "remove unused glyphs in embedded fonts")
+        .add("remove-unused-glyph", &param.remove_unused_glyph, 1, "remove unused glyphs in embedded fonts")
 
         .add("font-suffix", &param.font_suffix, ".ttf", "suffix for extracted font files")
         .add("font-format", &param.font_format, "opentype", "format for extracted font files")
