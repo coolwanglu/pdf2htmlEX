@@ -379,6 +379,7 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
                         retried = true;
                         codeset.clear();
                         info.use_tounicode = false;
+                        //TODO: constant for the length
                         memset(cur_mapping, -1, 0x10000 * sizeof(*cur_mapping));
                         memset(width_list, -1, 0x10000 * sizeof(*width_list));
                         i = -1;
