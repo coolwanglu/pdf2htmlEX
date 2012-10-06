@@ -23,7 +23,8 @@ namespace pdf2htmlEX {
 
 using std::max;
 using std::abs;
-using std::hypot;
+//using std::hypot;
+using ::hypot;
 
 void HTMLRenderer::updateAll(GfxState * state) 
 { 
