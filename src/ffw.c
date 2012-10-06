@@ -318,9 +318,6 @@ void ffw_set_widths(int * width_list, int mapping_len,
         printf("TODO: width vs bitmap\n");
     }
     
-    // debug
-    printf("enccount %d\n", (int)(cur_fv->map->enccount));
-
     memset(cur_fv->selected, 0, cur_fv->map->enccount);
 
     EncMap * map = cur_fv->map;
