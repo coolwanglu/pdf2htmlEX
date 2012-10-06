@@ -209,7 +209,7 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
      * Step 1
      * dump the font file directly from the font descriptor and put the glyphs into the correct slots *
      * for 8bit + nonTrueType
-     * re-encoding the font using a PostScript encoding list (glyph id <-> glpyh name)
+     * re-encoding the font by glyph names
      *
      * for 8bit + TrueType
      * sort the glpyhs as the original order, and later will map GID (instead of char code) to Unicode
@@ -296,16 +296,15 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
 
     /*
      * Step 2
-     * map charcode (or GID for CID truetype)
-     * generate an Consortium encoding file and let fontforge handle it.
+     * - map charcode (or GID for CID truetype)
      *
-     * - Always map to Unicode for 8bit TrueType fonts and CID fonts
+     * -> Always map to Unicode for 8bit TrueType fonts and CID fonts
      *
-     * - For 8bit nonTruetype fonts:
-     *   Try to calculate the correct Unicode value from the glyph names, unless param->always_apply_tounicode is set
+     * -> For 8bit nonTruetype fonts:
+     *   Try to calculate the correct Unicode value from the glyph names, when collision is detected in ToUnicode Map
      * 
-     *
-     * Also fill in the width_list, and set widths accordingly
+     * - Fill in the width_list, and set widths accordingly
+     * - Remove unused glyphs
      */
 
 

@@ -4,10 +4,6 @@ Integrate splash/cairo
 native support for image
 native support for draw
 
-about glyph width:
- - IE
- - stretching ratio might not be correct.. letter 'f'
-
 draw non-orthogonal lines with CSS
 
 create a glyph for ' ', if there is not in a font
@@ -20,7 +16,6 @@ try harder finding glyph names (using fontforge) for CID Type 0
 rename single-html -> embed-font/image/css ...
 
 merge sub/sup into one line
-bug found in baidu(ubuntu...)
 precise link dest: zoom
 
 
