@@ -48,13 +48,9 @@ static char * strcopy(const char * str)
     return _;
 }
 
-static void dumb_logwarning(const char * format, ...)
-{
-}
+static void dumb_logwarning(const char * format, ...) { }
 
-static void dumb_post_error(const char * title, const char * error, ...)
-{
-}
+static void dumb_post_error(const char * title, const char * error, ...) { }
 
 void ffw_init(int debug)
 {
@@ -116,6 +112,41 @@ void ffw_load_font(const char * filename)
     assert(font->fv);
 
     cur_fv = font->fv;
+}
+
+/*
+ * Fight again dirty stuffs
+ */
+void ffw_prepare_font(void)
+{
+    /*
+     * Disabled, because it causes crashing
+     
+    memset(cur_fv->selected, 1, cur_fv->map->enccount);
+    // remove kern
+    FVRemoveKerns(cur_fv);
+    FVRemoveVKerns(cur_fv);
+    */
+
+    /*
+     * Remove Alternate Unicodes
+     * We never use them because we will do a force encoding
+     */
+    int i;
+    SplineFont * sf = cur_fv->sf;
+    for(i = 0; i < sf->glyphcnt; ++i)
+    {
+        SplineChar * sc = sf->glyphs[i];
+        if(sc)
+        {
+            struct altuni * p = sc->altuni;
+            if(p)
+            {
+                AltUniFree(p);
+                sc->altuni = NULL;
+            }
+        }
+    }
 }
 
 static void ffw_do_reencode(Encoding * encoding, int force)
@@ -295,20 +326,12 @@ void ffw_metric(double * ascent, double * descent)
 
 /*
  * TODO:bitmap, reference have not been considered in this function
+ * TODO:remove_unused may not be suitable to be done here
  */
 void ffw_set_widths(int * width_list, int mapping_len, 
         int stretch_narrow, int squeeze_wide,
         int remove_unused)
 {
-    /*
-     * Disabled, because it causes crashing
-     
-    memset(cur_fv->selected, 1, cur_fv->map->enccount);
-    // remove kern
-    FVRemoveKerns(cur_fv);
-    FVRemoveVKerns(cur_fv);
-    */
-
     SplineFont * sf = cur_fv->sf;
 
     if(sf->onlybitmaps 

@@ -23,6 +23,7 @@ extern "C" {
 void ffw_init(int debug);
 void ffw_fin(void);
 void ffw_load_font(const char * filename);
+void ffw_prepare_font(void);
 void ffw_reencode_glyph_order(void);
 void ffw_reencode_raw(int32_t * mapping, int mapping_len, int force);
 void ffw_reencode_raw2(char ** mapping, int mapping_len, int force);

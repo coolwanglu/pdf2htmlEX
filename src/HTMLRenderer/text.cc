@@ -166,12 +166,13 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
     }
 
     ffw_load_font(filepath.c_str());
+    ffw_prepare_font();
 
     if(param->debug)
     {
-        auto fn = str_fmt("%s/__raw_font_%lld%s", param->tmp_dir.c_str(), info.id, param->font_suffix.c_str());
+        auto fn = str_fmt("%s/__raw_font_%lld", param->tmp_dir.c_str(), info.id, param->font_suffix.c_str());
         add_tmp_file((char*)fn);
-        ffw_save((char*)fn);
+        ofstream((char*)fn, ofstream::binary) << ifstream(filepath).rdbuf();
     }
 
     int * code2GID = nullptr;
@@ -406,6 +407,7 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
         }
 
         ffw_set_widths(width_list, max_key + 1, param->stretch_narrow_glyph, param->squeeze_wide_glyph, param->remove_unused_glyph);
+        
         ffw_reencode_raw(cur_mapping, max_key + 1, 1);
 
         if(ctu)
