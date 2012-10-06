@@ -81,7 +81,7 @@ void parse_options (int argc, char **argv)
         .add("auto-hint", &param.auto_hint, 0, "Whether to generate hints for fonts")
         .add("tounicode", &param.tounicode, 0, "Specify how to deal with ToUnicode map, 0 for auto, 1 for forced, -1 for disabled")
         .add("space-as-offset", &param.space_as_offset, 0, "treat space characters as offsets")
-        .add("stretch_narrow_glyph", &param.stretch_narrow_glyph, 0, "stretch narrow glyphs instead of padding space")
+        .add("stretch-narrow-glyph", &param.stretch_narrow_glyph, 0, "stretch narrow glyphs instead of padding space")
         .add("squeeze-wide-glyph", &param.squeeze_wide_glyph, 0, "squeeze wide glyphs instead of truncating")
         .add("remove-unused-glyph", &param.remove_unused_glyph, 1, "remove unused glyphs in embedded fonts")
 
