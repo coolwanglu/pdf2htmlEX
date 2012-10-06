@@ -1,4 +1,7 @@
-Latest v0.5
+Latest v0.6
+
+v0.5
+2012.10.06
 
 * New option: --remove-unused-glyph
 * New options: --stretch-narrow-glyph, --squeeze-wide-glyph
