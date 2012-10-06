@@ -1,6 +1,12 @@
 Latest v0.5
 
+* New option: --remove-unused-glyph
 * New options: --stretch-narrow-glyph, --squeeze-wide-glyph
+* Fixed glyph width adjusting 
+* Fixed a memory issue
+* Working on css-draw
+* Working on integrating background-renderer, preparing for svg renderer in
+the future
 
 v0.4
 2012.09.26

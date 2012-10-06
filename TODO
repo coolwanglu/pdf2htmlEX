@@ -1,5 +1,3 @@
-remove unused glyphs
-
 don't dump image when there is nothing
 
 Integrate splash/cairo
