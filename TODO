@@ -1,3 +1,5 @@
+word space/offset before the first letter
+
 don't dump image when there is nothing
 
 Integrate splash/cairo
@@ -9,13 +11,10 @@ draw non-orthogonal lines with CSS
 position history stack (popstate)
 
 ==Wait until someone asks==
-
 try harder finding glyph names (using fontforge) for CID Type 0
 rename single-html -> embed-font/image/css ...
-
 merge sub/sup into one line
 precise link dest: zoom
-
 
 ==Future==
 argument auto-completion
