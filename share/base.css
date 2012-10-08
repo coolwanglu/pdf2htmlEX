@@ -66,6 +66,7 @@ span {
 }
 ._ {
   color:transparent;
+  z-index:-1;
 }
 ::selection{
   background: rgba(127,255,255,1);
