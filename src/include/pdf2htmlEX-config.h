@@ -15,7 +15,7 @@
 
 namespace pdf2htmlEX {
 
-static const std::string PDF2HTMLEX_VERSION = "0.5";
+static const std::string PDF2HTMLEX_VERSION = "0.6";
 static const std::string PDF2HTMLEX_PREFIX = "/usr/local";
 static const std::string PDF2HTMLEX_DATA_PATH = "/usr/local""/share/pdf2htmlEX";
 
