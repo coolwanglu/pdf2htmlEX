@@ -35,7 +35,19 @@ void HTMLRenderer::export_remote_font(const FontInfo & info, const string & suff
         }
     }
 
-    css_fout << ")format(\"" << fontfileformat << "\");}.f" << info.id << "{font-family:f" << info.id << ";line-height:" << _round(info.ascent - info.descent) << ";}" << endl;
+    css_fout << ")format(\"" << fontfileformat 
+        << "\");}.f" << info.id 
+        << "{font-family:f" << info.id 
+        << ";line-height:" << _round(info.ascent - info.descent) 
+        << ";font-style:normal;font-weight:normal;}";
+
+    // when ' ' is not vaild in the font, when we use ' ' in padding
+    // the browser will use the fallback font, whose metrics could be (very) different, then the layout will be affected
+    // so set the font-zie to avoid being affected
+    if(!(info.has_space))
+        css_fout << ".f" << info.id << ">._{font-size:1px;}";
+
+    css_fout << endl;
 }
 
 static string general_font_family(GfxFont * font)
@@ -65,11 +77,15 @@ void HTMLRenderer::export_local_font(const FontInfo & info, GfxFont * font, cons
 
     if(font->isBold() || (fn.find("bold") != string::npos))
         css_fout << "font-weight:bold;";
+    else
+        css_fout << "font-weight:normal;";
 
     if(fn.find("oblique") != string::npos)
         css_fout << "font-style:oblique;";
     else if(font->isItalic() || (fn.find("italic") != string::npos))
         css_fout << "font-style:italic;";
+    else
+        css_fout << "font-style:normal;";
 
     css_fout << "line-height:" << _round(info.ascent - info.descent) << ";";
 
@@ -89,18 +105,26 @@ void HTMLRenderer::export_transform_matrix (long long tm_id, const double * tm)
     // we have already shifted the origin
     
     // TODO: recognize common matices
-    auto prefixes = {"", "-ms-", "-moz-", "-webkit-", "-o-"};
-    for(auto iter = prefixes.begin(); iter != prefixes.end(); ++iter)
+    if(_tm_equal(tm, id_matrix, 4))
     {
-        const auto & prefix = *iter;
-        // PDF use a different coordinate system from Web
-        css_fout << prefix << "transform:matrix("
-            << _round(tm[0]) << ','
-            << _round(-tm[1]) << ','
-            << _round(-tm[2]) << ','
-            << _round(tm[3]) << ',';
+        auto prefixes = {"", "-ms-", "-moz-", "-webkit-", "-o-"};
+        for(auto iter = prefixes.begin(); iter != prefixes.end(); ++iter)
+            css_fout << *iter << "transform:none;";
+    }
+    else
+    {
+        auto prefixes = {"", "-ms-", "-moz-", "-webkit-", "-o-"};
+        for(auto iter = prefixes.begin(); iter != prefixes.end(); ++iter)
+        {
+            // PDF use a different coordinate system from Web
+            css_fout << *iter << "transform:matrix("
+                << _round(tm[0]) << ','
+                << _round(-tm[1]) << ','
+                << _round(-tm[2]) << ','
+                << _round(tm[3]) << ',';
 
-        css_fout << "0,0);";
+            css_fout << "0,0);";
+        }
     }
     css_fout << "}" << endl;
 }
@@ -117,9 +141,7 @@ void HTMLRenderer::export_word_space (long long ws_id, double word_space)
 
 void HTMLRenderer::export_color (long long color_id, const GfxRGB * rgb) 
 {
-    css_fout << ".c" << color_id << "{color:rgb("
-        << dec << (int)colToByte(rgb->r) << "," << (int)colToByte(rgb->g) << "," << (int)colToByte(rgb->b) << ");}" << hex
-        << endl;
+    css_fout << ".c" << color_id << "{color:" << (*rgb) << ";}" << endl;
 }
 
 void HTMLRenderer::export_whitespace (long long ws_id, double ws_width) 

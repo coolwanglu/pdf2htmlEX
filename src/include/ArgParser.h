@@ -55,7 +55,7 @@ class ArgParser
         ArgParser & add(const char * optname, const char * description, ArgParserCallBack callback = nullptr);
 
         template <class T, class Tv>
-            ArgParser & add(const char * optname, T * location, const Tv & default_value, const char * description, ArgParserCallBack callback = nullptr);
+            ArgParser & add(const char * optname, T * location, const Tv & default_value, const char * description, ArgParserCallBack callback = nullptr, bool dont_show_default = false);
 
         void parse(int argc, char ** argv) const;
         void show_usage(std::ostream & out) const;
@@ -78,7 +78,11 @@ class ArgParser
         class ArgEntry : public ArgEntryBase
         {
             public:
-                ArgEntry(const char * name, T * location, const Tv & deafult_value, ArgParserCallBack callback, const char * description);
+                ArgEntry(const char * name, 
+                        T * location, const Tv & deafult_value, 
+                        ArgParserCallBack callback, 
+                        const char * description, bool dont_show_default);
+                
 
                 virtual void parse (const char * arg) const;
                 virtual void show_usage (std::ostream & out) const;
@@ -87,6 +91,7 @@ class ArgParser
                 T * location;
                 T default_value;
                 ArgParserCallBack callback;
+                bool dont_show_default;
         };
 
         std::vector<ArgEntryBase *> arg_entries, optional_arg_entries;
@@ -94,23 +99,24 @@ class ArgParser
 };
 
 template<class T, class Tv>
-ArgParser & ArgParser::add(const char * optname, T * location, const Tv & default_value, const char * description, ArgParserCallBack callback)
+ArgParser & ArgParser::add(const char * optname, T * location, const Tv & default_value, const char * description, ArgParserCallBack callback, bool dont_show_default)
 {
     // use "" in case nullptr is provided
     if((!optname) || (!optname[0]))
-        optional_arg_entries.push_back(new ArgEntry<T, Tv>("", location, default_value, callback, ""));
+        optional_arg_entries.push_back(new ArgEntry<T, Tv>("", location, default_value, callback, "", dont_show_default));
     else
-        arg_entries.push_back(new ArgEntry<T, Tv>(optname, location, default_value, callback, description));
+        arg_entries.push_back(new ArgEntry<T, Tv>(optname, location, default_value, callback, description, dont_show_default));
 
     return *this;
 }
 
 template<class T, class Tv>
-ArgParser::ArgEntry<T, Tv>::ArgEntry(const char * name, T * location, const Tv & default_value,  ArgParserCallBack callback, const char * description)
+ArgParser::ArgEntry<T, Tv>::ArgEntry(const char * name, T * location, const Tv & default_value,  ArgParserCallBack callback, const char * description, bool dont_show_default)
     : ArgEntryBase(name, description, (location != nullptr))
       , location(location)
       , default_value(default_value)
       , callback(callback)
+      , dont_show_default(dont_show_default)
 { 
     if(need_arg)
         *location = T(default_value);
@@ -155,9 +161,13 @@ void ArgParser::ArgEntry<T, Tv>::show_usage(std::ostream & out) const
 
     if(need_arg)
     {
-        sout << " <arg> (=";
-        dump_value(sout, default_value);
-        sout << ")";
+        sout << " <arg>";
+        if(!dont_show_default)
+        {
+            sout << " (=";
+            dump_value(sout, default_value);
+            sout << ")";
+        }
     }
 
     std::string s = sout.str();

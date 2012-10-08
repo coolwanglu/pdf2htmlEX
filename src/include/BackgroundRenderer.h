@@ -2,37 +2,31 @@
  * Background renderer
  * Render all those things not supported as Image
  *
- * by WangLu
- * 2012.08.06
+ * Copyright (C) 2012 Lu Wang <coolwanglu@gmail.com>
  */
 
 
 #ifndef BACKGROUND_RENDERER_H__
 #define BACKGROUND_RENDERER_H__
 
-#include <SplashOutputDev.h>
+#include "pdf2htmlEX-config.h"
+
+#if HAVE_CAIRO
+
+#include "CairoBackgroundRenderer.h"
 
 namespace pdf2htmlEX {
-
-// Based on BackgroundRenderer from poppler
-class BackgroundRenderer : public SplashOutputDev {
-public:
-  BackgroundRenderer(SplashColorMode colorModeA, int bitmapRowPadA,
-        GBool reverseVideoA, SplashColorPtr paperColorA,
-        GBool bitmapTopDownA = gTrue,
-        GBool allowAntialiasA = gTrue)
-      : SplashOutputDev(colorModeA,
-        bitmapRowPadA, reverseVideoA, paperColorA, bitmapTopDownA,
-        allowAntialiasA) 
-  { }
-  virtual ~BackgroundRenderer() { }
-  
-  virtual void drawChar(GfxState *state, double x, double y,
-      double dx, double dy,
-      double originX, double originY,
-      CharCode code, int nBytes, Unicode *u, int uLen);
-};
-
+    typedef CairoBackgroundRenderer BackgroundRenderer;
 }
+
+#else
+
+#include "SplashBackgroundRenderer.h" 
+
+namespace pdf2htmlEX {
+    typedef SplashBackgroundRenderer BackgroundRenderer;
+}
+
+#endif // HAVE_CAIRO
 
 #endif //BACKGROUND_RENDERER_H__

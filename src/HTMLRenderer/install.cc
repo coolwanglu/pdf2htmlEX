@@ -11,8 +11,9 @@
 #include <cmath>
 #include <algorithm>
 
-#include "Param.h"
+#include <GlobalParams.h>
 
+#include "Param.h"
 #include "HTMLRenderer.h"
 #include "namespace.h"
 #include "util.h"
@@ -114,7 +115,7 @@ void HTMLRenderer::install_base_font(GfxFont * font, GfxFontLoc * font_loc, Font
     {
         if(localfontloc != nullptr)
         {
-            embed_font(string(localfontloc->path->getCString()), font, info);
+            embed_font(localfontloc->path->getCString(), font, info);
             export_remote_font(info, param->font_suffix, param->font_format, font);
             delete localfontloc;
             return;
@@ -214,9 +215,11 @@ long long HTMLRenderer::install_font_size(double font_size)
 
 long long HTMLRenderer::install_transform_matrix(const double * tm)
 {
-    TM m(tm);
+    Matrix m;
+    memcpy(m.m, tm, sizeof(m.m));
+
     auto iter = transform_matrix_map.lower_bound(m);
-    if((iter != transform_matrix_map.end()) && (m == (iter->first)))
+    if((iter != transform_matrix_map.end()) && (_tm_equal(m.m, iter->first.m, 4)))
         return iter->second;
 
     long long new_tm_id = transform_matrix_map.size();

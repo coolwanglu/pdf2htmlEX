@@ -51,7 +51,7 @@ ArgParser::~ArgParser(void)
 
 ArgParser & ArgParser::add(const char * optname, const char * description, ArgParserCallBack callback)
 {
-    return add<char>(optname, nullptr, 0, description, callback);
+    return add<char>(optname, nullptr, 0, description, callback, true);
 }
 
 void ArgParser::parse(int argc, char ** argv) const

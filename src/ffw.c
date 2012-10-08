@@ -12,11 +12,19 @@
 #include <string.h>
 #include <stdarg.h>
 #include <assert.h>
+#include <math.h>
 
 #include <fontforge.h>
 #include <baseviews.h>
 
 #include "ffw.h"
+
+static real EPS=1e-6;
+
+static inline int min(int a, int b)
+{
+    return (a<b)?a:b;
+}
 
 static FontViewBase * cur_fv = NULL;
 static Encoding * original_enc = NULL;
@@ -40,18 +48,9 @@ static char * strcopy(const char * str)
     return _;
 }
 
-static int max(int a, int b)
-{
-    return (a>b) ? a : b;
-}
+static void dumb_logwarning(const char * format, ...) { }
 
-static void dumb_logwarning(const char * format, ...)
-{
-}
-
-static void dumb_post_error(const char * title, const char * error, ...)
-{
-}
+static void dumb_post_error(const char * title, const char * error, ...) { }
 
 void ffw_init(int debug)
 {
@@ -69,6 +68,13 @@ void ffw_init(int debug)
     }
 
     original_enc = FindOrMakeEncoding("original");
+
+    {
+        Val v;
+        v.type = v_int;
+        v.u.ival = 1;
+        SetPrefs("DetectDiagonalStems", &v, NULL);
+    }
 }
 
 void ffw_fin(void)
@@ -92,6 +98,8 @@ void ffw_fin(void)
 
 void ffw_load_font(const char * filename)
 {
+    assert((cur_fv == NULL) && "Previous font is not destroyed");
+
     char * _filename = strcopy(filename);
     SplineFont * font = LoadSplineFont(_filename, 1);
 
@@ -106,6 +114,37 @@ void ffw_load_font(const char * filename)
     assert(font->fv);
 
     cur_fv = font->fv;
+}
+
+/*
+ * Fight again dirty stuffs
+ */
+void ffw_prepare_font(void)
+{
+    memset(cur_fv->selected, 1, cur_fv->map->enccount);
+    // remove kern
+    FVRemoveKerns(cur_fv);
+    FVRemoveVKerns(cur_fv);
+
+    /*
+     * Remove Alternate Unicodes
+     * We never use them because we will do a force encoding
+     */
+    int i;
+    SplineFont * sf = cur_fv->sf;
+    for(i = 0; i < sf->glyphcnt; ++i)
+    {
+        SplineChar * sc = sf->glyphs[i];
+        if(sc)
+        {
+            struct altuni * p = sc->altuni;
+            if(p)
+            {
+                AltUniFree(p);
+                sc->altuni = NULL;
+            }
+        }
+    }
 }
 
 static void ffw_do_reencode(Encoding * encoding, int force)
@@ -128,6 +167,9 @@ static void ffw_do_reencode(Encoding * encoding, int force)
     }
 
     SFReplaceEncodingBDFProps(cur_fv->sf, cur_fv->map);
+
+    free(cur_fv->selected);
+    cur_fv->selected = gcalloc(cur_fv->map->enccount, sizeof(char));
 }
 
 void ffw_reencode_glyph_order(void)
@@ -214,56 +256,143 @@ void ffw_close(void)
     cur_fv = NULL;
 }
 
-void ffw_metric(int * ascent, int * descent)
-{
-    *ascent = cur_fv->sf->ascent;
-    *descent = cur_fv->sf->descent;
-
-    cur_fv->sf->pfminfo.os2_winascent = 0;
-    cur_fv->sf->pfminfo.os2_typoascent = 0;
-    cur_fv->sf->pfminfo.hhead_ascent = 0;
-    cur_fv->sf->pfminfo.winascent_add = 0;
-    cur_fv->sf->pfminfo.typoascent_add = 0;
-    cur_fv->sf->pfminfo.hheadascent_add = 0;
-
-    cur_fv->sf->pfminfo.os2_windescent = 0;
-    cur_fv->sf->pfminfo.os2_typodescent = 0;
-    cur_fv->sf->pfminfo.hhead_descent = 0;
-    cur_fv->sf->pfminfo.windescent_add = 0;
-    cur_fv->sf->pfminfo.typodescent_add = 0;
-    cur_fv->sf->pfminfo.hheaddescent_add = 0;
-}
-
 int ffw_get_em_size(void)
 {
-    return (cur_fv->sf->pfminfo.os2_typoascent - cur_fv->sf->pfminfo.os2_typodescent);
+    return cur_fv->sf->ascent + cur_fv->sf->descent;
 }
 
-int ffw_get_max_ascent(void)
+void ffw_metric(double * ascent, double * descent)
 {
-    return max(cur_fv->sf->pfminfo.os2_winascent,
-            max(cur_fv->sf->pfminfo.os2_typoascent,
-                cur_fv->sf->pfminfo.hhead_ascent));
+    SplineFont * sf = cur_fv->sf;
+    struct pfminfo * info = &sf->pfminfo;
+
+    SFDefaultOS2Info(info, sf, sf->fontname);
+    info->pfmset = 1;
+    sf->changed = 1;
+
+    DBounds bb;
+    SplineFontFindBounds(sf, &bb);
+
+    /*
+    printf("bb %lf %lf\n", bb.maxy, bb.miny);
+    printf("_ %d %d\n", sf->ascent, sf->descent);
+    printf("win %d %d\n", info->os2_winascent, info->os2_windescent);
+    printf("%d %d\n", info->winascent_add, info->windescent_add);
+    printf("typo %d %d\n", info->os2_typoascent, info->os2_typodescent);
+    printf("%d %d\n", info->typoascent_add, info->typodescent_add);
+    printf("hhead %d %d\n", info->hhead_ascent, info->hhead_descent);
+    printf("%d %d\n", info->hheadascent_add, info->hheaddescent_add);
+    */
+
+    int em = sf->ascent + sf->descent;
+
+    if (em > 0)
+    {
+        *ascent = ((double)bb.maxy) / em;
+        *descent = ((double)bb.miny) / em;
+    }
+    else
+    {
+        *ascent = *descent = 0;
+    }
+
+    int a = floor(bb.maxy + 0.5);
+    int d = floor(bb.miny + 0.5);
+    
+    if(a < 0) a = 0;
+    if(d > 0) d = 0;
+
+    /*
+    sf->ascent = min(a, em);
+    sf->descent = em - bb.maxy;
+    */
+
+    info->os2_winascent = a;
+    info->os2_typoascent = a;
+    info->hhead_ascent = a;
+    info->winascent_add = 0;
+    info->typoascent_add = 0;
+    info->hheadascent_add = 0;
+
+    info->os2_windescent = -d;
+    info->os2_typodescent = d;
+    info->hhead_descent = d;
+    info->windescent_add = 0;
+    info->typodescent_add = 0;
+    info->hheaddescent_add = 0;
+
+    info->os2_typolinegap = 0;
+    info->linegap = 0;
 }
 
-int ffw_get_max_descent(void)
+/*
+ * TODO:bitmap, reference have not been considered in this function
+ * TODO:remove_unused may not be suitable to be done here
+ */
+void ffw_set_widths(int * width_list, int mapping_len, 
+        int stretch_narrow, int squeeze_wide,
+        int remove_unused)
 {
-    return max(cur_fv->sf->pfminfo.os2_windescent,
-            max(-cur_fv->sf->pfminfo.os2_typodescent,
-                -cur_fv->sf->pfminfo.hhead_descent));
+    SplineFont * sf = cur_fv->sf;
+
+    if(sf->onlybitmaps 
+            && cur_fv->active_bitmap != NULL 
+            && sf->bitmaps != NULL)
+    {
+        printf("TODO: width vs bitmap\n");
+    }
+    
+    memset(cur_fv->selected, 0, cur_fv->map->enccount);
+
+    EncMap * map = cur_fv->map;
+    int i;
+    int imax = min(mapping_len, map->enccount);
+    for(i = 0; i < imax; ++i)
+    {
+        /*
+         * Do mess with it if the glyphs is not used.
+         */
+        if(width_list[i] == -1) 
+        {
+            cur_fv->selected[i] = 1;
+            continue;
+        }
+
+        int j = map->map[i];
+        if(j == -1) continue;
+
+        SplineChar * sc = sf->glyphs[j];
+        if(sc == NULL) continue;
+
+        if(((sc->width > EPS)
+                && (((sc->width > width_list[i] + EPS) && (squeeze_wide))
+                    || ((sc->width < width_list[i] - EPS) && (stretch_narrow))))) 
+        {
+            real transform[6]; transform[0] = ((double)width_list[i]) / (sc->width);
+            transform[3] = 1.0;
+            transform[1] = transform[2] = transform[4] = transform[5] = 0;
+            FVTrans(cur_fv, sc, transform, NULL, fvt_alllayers | fvt_dontmovewidth);
+        }
+
+        sc->width = width_list[i];
+    }
+
+    for(; i < map->enccount; ++i)
+        cur_fv->selected[i] = 1;
+
+    if(remove_unused)
+        FVDetachAndRemoveGlyphs(cur_fv);
 }
 
-void ffw_set_ascent(int a)
+void ffw_auto_hint(void)
 {
-    cur_fv->sf->pfminfo.os2_winascent = a;
-    cur_fv->sf->pfminfo.os2_typoascent = a;
-    cur_fv->sf->pfminfo.hhead_ascent = a;
+    // convert to quadratic
+    if(!(cur_fv->sf->layers[ly_fore].order2))
+    {
+        SFCloseAllInstrs(cur_fv->sf);
+        SFConvertToOrder2(cur_fv->sf);
+    }
+    memset(cur_fv->selected, 1, cur_fv->map->enccount);
+    FVAutoHint(cur_fv);
+    FVAutoInstr(cur_fv);
 }
-
-void ffw_set_descent(int d)
-{
-    cur_fv->sf->pfminfo.os2_windescent = d;
-    cur_fv->sf->pfminfo.os2_typodescent = -d;
-    cur_fv->sf->pfminfo.hhead_descent = -d;
-}
-

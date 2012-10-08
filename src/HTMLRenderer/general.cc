@@ -1,17 +1,17 @@
 /*
  * general.cc
  *
- * Hanlding general stuffs
+ * Handling general stuffs
  *
- * by WangLu
+ * Copyright (C) 2012 Lu Wang <coolwanglu@gmail.com>
  * 2012.08.14
  */
 
 #include <cstdio>
 #include <ostream>
-
-#include <splash/SplashBitmap.h>
-#include <Link.h>
+#include <cmath>
+#include <algorithm>
+#include <vector>
 
 #include "HTMLRenderer.h"
 #include "BackgroundRenderer.h"
@@ -24,6 +24,10 @@ namespace pdf2htmlEX {
 using std::fixed;
 using std::flush;
 using std::ostream;
+using std::max;
+using std::min_element;
+using std::vector;
+using std::abs;
 
 static void dummy(void *, enum ErrorCategory, int pos, char *)
 {
@@ -33,6 +37,7 @@ HTMLRenderer::HTMLRenderer(const Param * param)
     :OutputDev()
     ,line_opened(false)
     ,line_buf(this)
+    ,preprocessor(param)
     ,image_count(0)
     ,param(param)
 {
@@ -45,6 +50,7 @@ HTMLRenderer::HTMLRenderer(const Param * param)
     ffw_init(param->debug);
     cur_mapping = new int32_t [0x10000];
     cur_mapping2 = new char* [0x100];
+    width_list = new int [0x10000];
 }
 
 HTMLRenderer::~HTMLRenderer()
@@ -53,11 +59,8 @@ HTMLRenderer::~HTMLRenderer()
     clean_tmp_files();
     delete [] cur_mapping;
     delete [] cur_mapping2;
+    delete [] width_list;
 }
-
-static GBool annot_cb(Annot *, void *) {
-    return false;
-};
 
 void HTMLRenderer::process(PDFDoc *doc)
 {
@@ -65,25 +68,50 @@ void HTMLRenderer::process(PDFDoc *doc)
     xref = doc->getXRef();
 
     cerr << "Preprocessing: ";
-    for(int i = param->first_page; i <= param->last_page ; ++i) 
+    preprocessor.process(doc);
+
+    /*
+     * determine scale factors
+     */
     {
-        doc->displayPage(&font_preprocessor, i, param->h_dpi, param->v_dpi,
-                0, true, false, false,
-                nullptr, nullptr, nullptr, nullptr);
-        cerr << "." << flush;
+        double zoom = 1.0;
+
+        vector<double> zoom_factors;
+        
+        if(_is_positive(param->zoom))
+        {
+            zoom_factors.push_back(param->zoom);
+        }
+
+        if(_is_positive(param->fit_width))
+        {
+            zoom_factors.push_back((param->fit_width) / preprocessor.get_max_width());
+        }
+
+        if(_is_positive(param->fit_height))
+        {
+            zoom_factors.push_back((param->fit_height) / preprocessor.get_max_height());
+        }
+
+        if(zoom_factors.empty())
+        {
+            zoom = 1.0;
+        }
+        else
+        {
+            zoom = *min_element(zoom_factors.begin(), zoom_factors.end());
+        }
+        
+        text_scale_factor1 = max<double>(zoom, param->font_size_multiplier);  
+        text_scale_factor2 = zoom / text_scale_factor1;
     }
-    cerr << endl;
+
 
     cerr << "Working: ";
     BackgroundRenderer * bg_renderer = nullptr;
     if(param->process_nontext)
     {
-        // Render non-text objects as image
-        // copied from poppler
-        SplashColor color;
-        color[0] = color[1] = color[2] = 255;
-
-        bg_renderer = new BackgroundRenderer(splashModeRGB8, 4, gFalse, color);
+        bg_renderer = new BackgroundRenderer(this, param);
         bg_renderer->startDoc(doc);
     }
 
@@ -102,22 +130,15 @@ void HTMLRenderer::process(PDFDoc *doc)
 
         if(param->process_nontext)
         {
-            doc->displayPage(bg_renderer, i, param->h_dpi, param->v_dpi,
-                    0, true, false, false,
-                    nullptr, nullptr, &annot_cb, nullptr);
+            auto fn = str_fmt("%s/p%x.png", (param->single_html ? param->tmp_dir : param->dest_dir).c_str(), i);
+            if(param->single_html)
+                add_tmp_file((char*)fn);
 
-            {
-                auto fn = str_fmt("%s/p%x.png", (param->single_html ? param->tmp_dir : param->dest_dir).c_str(), i);
-                if(param->single_html)
-                    add_tmp_file((char*)fn);
-
-                bg_renderer->getBitmap()->writeImgFile(splashFormatPng, 
-                        (char*)fn,
-                        param->h_dpi, param->v_dpi);
-            }
+            bg_renderer->render_page(doc, i, (char*)fn);
         }
 
-        doc->displayPage(this, i, param->zoom * DEFAULT_DPI, param->zoom * DEFAULT_DPI,
+        doc->displayPage(this, i, 
+                text_zoom_factor() * DEFAULT_DPI, text_zoom_factor() * DEFAULT_DPI,
                 0, true, false, false,
                 nullptr, nullptr, nullptr, nullptr);
 
@@ -142,18 +163,6 @@ void HTMLRenderer::setDefaultCTM(double *ctm)
     memcpy(default_ctm, ctm, sizeof(default_ctm));
 }
 
-GBool HTMLRenderer::checkPageSlice(Page *page, double hDPI, double vDPI,
-    int rotate, GBool useMediaBox, GBool crop,
-    int sliceX, int sliceY, int sliceW, int sliceH,
-    GBool printing,
-    GBool (* abortCheckCbk)(void *data),
-    void * abortCheckCbkData,
-    GBool (*annotDisplayDecideCbk)(Annot *annot, void *user_data),
-    void *annotDisplayDecideCbkData)
-{
-    return gTrue;
-}
-
 void HTMLRenderer::startPage(int pageNum, GfxState *state) 
 {
     this->pageNum = pageNum;
@@ -163,9 +172,11 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
     assert((!line_opened) && "Open line in startPage detected!");
 
     html_fout 
-        << "<a name=\"a" << pageNum << "\">"
-        << "<div class=\"b\" style=\"width:" << pageWidth << "px;height:" << pageHeight << "px;\">"
-        << "<div id=\"p" << pageNum << "\" class=\"p\" style=\"width:" << pageWidth << "px;height:" << pageHeight << "px;";
+        << "<div class=\"d\" style=\"width:" 
+            << (pageWidth) << "px;height:" 
+            << (pageHeight) << "px;\">"
+        << "<div id=\"p" << pageNum << "\" data-page-no=\"" << pageNum << "\" class=\"p\">"
+        << "<div class=\"b\" style=\"";
 
     if(param->process_nontext)
     {
@@ -190,15 +201,15 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
     }
 
     html_fout << "\">";
-    draw_scale = 1.0;
+    draw_text_scale = 1.0;
 
     cur_font_info = install_font(nullptr);
     cur_font_size = draw_font_size = 0;
     cur_fs_id = install_font_size(cur_font_size);
     
-    memcpy(cur_ctm, id_matrix, sizeof(cur_ctm));
-    memcpy(draw_ctm, id_matrix, sizeof(draw_ctm));
-    cur_tm_id = install_transform_matrix(draw_ctm);
+    memcpy(cur_text_tm, id_matrix, sizeof(cur_text_tm));
+    memcpy(draw_text_tm, id_matrix, sizeof(draw_text_tm));
+    cur_ttm_id = install_transform_matrix(draw_text_tm);
 
     cur_letter_space = cur_word_space = 0;
     cur_ls_id = install_letter_space(cur_letter_space);
@@ -218,169 +229,33 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
 }
 
 void HTMLRenderer::endPage() {
-    close_line();
+    close_text_line();
 
     // process links before the page is closed
     cur_doc->processLinks(this, pageNum);
 
+    // close box
+    html_fout << "</div>";
+
+    // dump info for js
+    // TODO: create a function for this
+    // BE CAREFUL WITH ESCAPES
+    html_fout << "<div class=\"j\" data-data='{";
+    
+    //default CTM
+    html_fout << "\"ctm\":[";
+    for(int i = 0; i < 6; ++i)
+    {
+        if(i > 0) html_fout << ",";
+        html_fout << _round(default_ctm[i]);
+    }
+    html_fout << "]";
+
+    html_fout << "}'></div>";
+    
     // close page
-    html_fout << "</div></div></a>" << endl;
+    html_fout << "</div></div>" << endl;
 }
-
-/*
- * Based on pdftohtml from poppler
- */
-void HTMLRenderer::processLink(AnnotLink * al)
-{
-    std::string dest_str;
-    auto action = al->getAction();
-    if(action)
-    {
-        auto kind = action->getKind();
-        switch(kind)
-        {
-            case actionGoTo:
-                {
-                    auto catalog = cur_doc->getCatalog();
-                    auto * real_action = dynamic_cast<LinkGoTo*>(action);
-                    LinkDest * dest = nullptr;
-                    if(auto _ = real_action->getDest())
-                        dest = _->copy();
-                    else if (auto _ = real_action->getNamedDest())
-                        dest = catalog->findDest(_);
-                    if(dest)
-                    {
-                        int pageno = 0;
-                        if(dest->isPageRef())
-                        {
-                            auto pageref = dest->getPageRef();
-                            pageno = catalog->findPage(pageref.num, pageref.gen);
-                        }
-                        else
-                        {
-                            pageno = dest->getPageNum();
-                        }
-
-                        delete dest;
-
-                        if(pageno > 0)
-                            dest_str = (char*)str_fmt("#a%x", pageno);
-                    }
-                }
-                break;
-            case actionGoToR:
-                {
-                    cerr << "TODO: actionGoToR is not implemented." << endl;
-                }
-                break;
-            case actionURI:
-                {
-                    auto * real_action = dynamic_cast<LinkURI*>(action);
-                    dest_str = real_action->getURI()->getCString();
-                }
-                break;
-            case actionLaunch:
-                {
-                    cerr << "TODO: actionLaunch is not implemented." << endl;
-                }
-                break;
-            default:
-                cerr << "Warning: unknown annotation type: " << kind << endl;
-                break;
-        }
-    }
-
-    if(dest_str != "")
-    {
-        html_fout << "<a href=\"" << dest_str << "\">";
-    }
-
-    html_fout << "<div style=\"";
-
-    double width = 0;
-    auto * border = al->getBorder();
-    if(border)
-    {
-        width = border->getWidth() * (param->zoom);
-        if(width > 0)
-        {
-            html_fout << "border-width:" << _round(width) << "px;";
-            auto style = border->getStyle();
-            switch(style)
-            {
-                case AnnotBorder::borderSolid:
-                    html_fout << "border-style:solid;";
-                    break;
-                case AnnotBorder::borderDashed:
-                    html_fout << "border-style:dashed;";
-                    break;
-                case AnnotBorder::borderBeveled:
-                    html_fout << "border-style:outset;";
-                    break;
-                case AnnotBorder::borderInset:
-                    html_fout << "border-style:inset;";
-                    break;
-                case AnnotBorder::borderUnderlined:
-                    html_fout << "border-style:none;border-bottom-style:solid;";
-                    break;
-                default:
-                    cerr << "Warning:Unknown annotation border style: " << style << endl;
-                    html_fout << "border-style:solid;";
-            }
-
-
-            auto color = al->getColor();
-            double r,g,b;
-            if(color && (color->getSpace() == AnnotColor::colorRGB))
-            {
-                const double * v = color->getValues();
-                r = v[0];
-                g = v[1];
-                b = v[2];
-            }
-            else
-            {
-                r = g = b = 0;
-            }
-
-            html_fout << "border-color:rgb("
-                << dec << (int)dblToByte(r) << "," << (int)dblToByte(g) << "," << (int)dblToByte(b) << hex
-                << ");";
-        }
-        else
-        {
-            html_fout << "border-style:none;";
-        }
-    }
-    else
-    {
-        html_fout << "border-style:none;";
-    }
-
-    double x1,x2,y1,y2;
-    al->getRect(&x1, &y1, &x2, &y2);
-
-    x1 = default_ctm[0] * x1 + default_ctm[2] * y1 + default_ctm[4];
-    y1 = default_ctm[1] * x1 + default_ctm[3] * y1 + default_ctm[5];
-    x2 = default_ctm[0] * x2 + default_ctm[2] * y2 + default_ctm[4];
-    y2 = default_ctm[1] * x2 + default_ctm[3] * y2 + default_ctm[5];
-
-    // TODO: check overlap when x2-x1-width<0 or y2-y1-width<0
-    html_fout << "position:absolute;"
-        << "left:" << _round(x1 - width/2) << "px;"
-        << "bottom:" << _round(y1 - width/2) << "px;"
-        << "width:" << _round(x2-x1-width) << "px;"
-        << "height:" << _round(y2-y1-width) << "px;";
-
-
-    html_fout << "\"></div>";
-
-    if(dest_str != "")
-    {
-        html_fout << "</a>";
-    }
-}
-
 
 void HTMLRenderer::pre_process()
 {
@@ -511,7 +386,9 @@ void HTMLRenderer::post_process()
 
 void HTMLRenderer::fix_stream (std::ostream & out)
 {
-    out << hex;
+    // we output all ID's in hex
+    // browsers are not happy with scientific notations
+    out << hex << fixed;
 }
 
 void HTMLRenderer::add_tmp_file(const string & fn)

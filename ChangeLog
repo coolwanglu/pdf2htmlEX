@@ -1,4 +1,28 @@
-Latest v0.4
+Latest v0.6
+
+v0.5
+2012.10.06
+
+* New option: --remove-unused-glyph
+* New options: --stretch-narrow-glyph, --squeeze-wide-glyph
+* Fixed glyph width adjusting 
+* Fixed a memory issue
+* Working on css-draw
+* Working on integrating background-renderer, preparing for svg renderer in
+the future
+
+v0.4
+2012.09.26
+
+* Precise link destination within the document
+* Better appearance
+* UI events/actions with Javascript
+* external hint tool
+* (should) do not freeze Firefox
+* --auto-hint, good for Chrome
+* many fixes for IE
+* adjust widths of fonts according to PDF
+
 
 v0.3
 2012.09.16

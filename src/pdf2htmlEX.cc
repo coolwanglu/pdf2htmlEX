@@ -1,6 +1,6 @@
 // pdftohtmlEX.cc
 //
-// Copyright (C) 2012 Lu Wang coolwanglu<at>gmail.com
+// Copyright (C) 2012 Lu Wang <coolwanglu@gmail.com>
 
 #include <cstdio>
 #include <cstdlib>
@@ -35,12 +35,14 @@ void show_usage_and_exit(const char * dummy = nullptr)
 {
     cerr << "pdftohtmlEX version " << PDF2HTMLEX_VERSION << endl;
     cerr << endl;
-    cerr << "Copyright 2012 Lu Wang (coolwanglu<at>gmail.com)" << endl;
+    cerr << "Copyright 2012 Lu Wang <coolwanglu@gmail.com>" << endl;
     cerr << endl;
     cerr << "Usage: pdf2htmlEX [Options] <input.pdf> [<output.html>]" << endl;
     cerr << endl;
     cerr << "Options:" << endl;
     argparser.show_usage(cerr);
+    cerr << endl;
+    cerr << "Run 'man pdf2htmlEX' for detailed information" << endl;
     cerr << endl;
     exit(EXIT_FAILURE);
 }
@@ -51,8 +53,8 @@ void parse_options (int argc, char **argv)
         .add("help,h", "show all options", &show_usage_and_exit)
         .add("version,v", "show copyright and version info", &show_usage_and_exit)
 
-        .add("owner-password,o", &param.owner_password, "", "owner password (for encrypted files)")
-        .add("user-password,u", &param.user_password, "", "user password (for encrypted files)")
+        .add("owner-password,o", &param.owner_password, "", "owner password (for encrypted files)", nullptr, true)
+        .add("user-password,u", &param.user_password, "", "user password (for encrypted files)", nullptr, true)
 
         .add("dest-dir", &param.dest_dir, ".", "specify destination directory")
         .add("data-dir", &param.data_dir, PDF2HTMLEX_DATA_PATH, "specify data directory")
@@ -60,7 +62,9 @@ void parse_options (int argc, char **argv)
         .add("first-page,f", &param.first_page, 1, "first page to process")
         .add("last-page,l", &param.last_page, numeric_limits<int>::max(), "last page to process")
 
-        .add("zoom", &param.zoom, 1.0, "zoom ratio")
+        .add("zoom", &param.zoom, 0, "zoom ratio", nullptr, true)
+        .add("fit-width", &param.fit_width, 0, "fit width", nullptr, true) 
+        .add("fit-height", &param.fit_height, 0, "fit height", nullptr, true)
         .add("hdpi", &param.h_dpi, 144.0, "horizontal DPI for non-text")
         .add("vdpi", &param.v_dpi, 144.0, "vertical DPI for non-text")
 
@@ -74,17 +78,23 @@ void parse_options (int argc, char **argv)
         .add("heps", &param.h_eps, 1.0, "max tolerated horizontal offset (in pixels)")
         .add("veps", &param.v_eps, 1.0, "max tolerated vertical offset (in pixels)")
         .add("space-threshold", &param.space_threshold, (1.0/8), "distance no thiner than (threshold * em) will be considered as a space character")
-        .add("font-size-multiplier", &param.font_size_multiplier, 10.0, "setting a value greater than 1 would increase the rendering accuracy")
+        .add("font-size-multiplier", &param.font_size_multiplier, 4.0, "setting a value greater than 1 would increase the rendering accuracy")
+        .add("auto-hint", &param.auto_hint, 0, "Whether to generate hints for fonts")
         .add("tounicode", &param.tounicode, 0, "Specify how to deal with ToUnicode map, 0 for auto, 1 for forced, -1 for disabled")
         .add("space-as-offset", &param.space_as_offset, 0, "treat space characters as offsets")
+        .add("stretch-narrow-glyph", &param.stretch_narrow_glyph, 0, "stretch narrow glyphs instead of padding space")
+        .add("squeeze-wide-glyph", &param.squeeze_wide_glyph, 0, "squeeze wide glyphs instead of truncating")
+        .add("remove-unused-glyph", &param.remove_unused_glyph, 1, "remove unused glyphs in embedded fonts")
 
-        .add("css-filename", &param.css_filename, "", "Specify the file name of the generated css file")
         .add("font-suffix", &param.font_suffix, ".ttf", "suffix for extracted font files")
         .add("font-format", &param.font_format, "opentype", "format for extracted font files")
+        .add("external-hint-tool", &param.external_hint_tool, "", "external tool for hintting fonts.(overrides --auto-hint)")
+        .add("css-filename", &param.css_filename, "", "Specify the file name of the generated css file")
 
         .add("debug", &param.debug, 0, "output debug information")
         .add("only-metadata", &param.only_metadata, 0, "only output metadata including title")
         .add("clean-tmp", &param.clean_tmp, 1, "clean temporary files after processing")
+        .add("css-draw", &param.css_draw, 0, "[Experimental and Unsupported] CSS Drawing")
         .add("", &param.input_filename, "", "")
         .add("", &param.output_filename, "", "")
         ;
@@ -176,8 +186,8 @@ int main(int argc, char **argv)
             throw "Copying of text from this document is not allowed.";
         }
 
-        param.first_page = min(max(param.first_page, 1), doc->getNumPages());
-        param.last_page = min(max(param.last_page, param.first_page), doc->getNumPages());
+        param.first_page = min<int>(max<int>(param.first_page, 1), doc->getNumPages());
+        param.last_page = min<int>(max<int>(param.last_page, param.first_page), doc->getNumPages());
 
         if(param.output_filename == "")
         {

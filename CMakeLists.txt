@@ -1,9 +1,13 @@
-project(pdftohtmlEX)
+# leave this above project(pdf2htmlEX)
+# set default build type to Release
+set(CMAKE_BUILD_TYPE Release CACHE STRING "Build configuration (Debug, Release, RelWithDebInfo, MinSizeRel)")
+
+project(pdf2htmlEX)
 cmake_minimum_required(VERSION 2.6.0 FATAL_ERROR)
 
 include_directories(${CMAKE_SOURCE_DIR}/src/include)
 
-set(PDF2HTMLEX_VERSION "0.4")
+set(PDF2HTMLEX_VERSION "0.6")
 set(ARCHIVE_NAME pdf2htmlex-${PDF2HTMLEX_VERSION})
 add_custom_target(dist
     COMMAND git archive --prefix=${ARCHIVE_NAME}/ HEAD
@@ -15,6 +19,22 @@ pkg_check_modules(POPPLER REQUIRED poppler>=0.20.0)
 include_directories(${POPPLER_INCLUDE_DIRS})
 link_directories(${POPPLER_LIBRARY_DIRS})
 set(PDF2HTMLEX_LIBS ${PDF2HTMLEX_LIBS} ${POPPLER_LIBRARIES})
+
+# disable CAIRO for now
+if(0)
+pkg_check_modules(POPPLER_CAIRO poppler-cairo>=0.20.0)
+if(POPPLER_CAIRO_FOUND)
+    set(HAVE_CAIRO 1)
+    include_directories(${POPPLER_CAIRO_INCLUDE_DIRS})
+    link_directories(${POPPLER_CAIRO_LIBRARY_DIRS})
+    set(PDF2HTMLEX_LIBS ${PDF2HTMLEX_LIBS} ${POPPLER_CAIRO_LIBRARIES})
+else()
+    set(HAVE_CAIRO 0)
+endif()
+else()
+set(HAVE_CAIRO 0)
+endif()
+    
 
 # fontforge starts using pkg-config 'correctly' since 2.0.0
 pkg_check_modules(FONTFORGE libfontforge>=2.0.0)
@@ -87,18 +107,22 @@ else()
 message("Cannot locate config.h for fontforge")
 endif()
 
+# debug build flags (overwrite default cmake debug flags)
+set(CMAKE_C_FLAGS_DEBUG "-ggdb")
+set(CMAKE_CXX_FLAGS_DEBUG "-ggdb")
 
+# release build flags (overwrite default cmake release flags)
+set(CMAKE_C_FLAGS_RELEASE "-O2 -DNDEBUG")
+set(CMAKE_CXX_FLAGS_RELEASE "-O2 -DNDEBUG")
+
+# generic flags
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
-#set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ggdb")
-
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+
 # clang compiler need c++11 flag
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
 endif()
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ggdb")
 
 # CYGWIN or GCC 4.5.x bug
 if(CYGWIN)
@@ -119,14 +143,19 @@ add_executable(pdf2htmlEX
     src/HTMLRenderer/export.cc
     src/HTMLRenderer/text.cc
     src/HTMLRenderer/image.cc
+    src/HTMLRenderer/draw.cc
+    src/HTMLRenderer/link.cc
     src/include/namespace.h
     src/HTMLRenderer/LineBuffer.cc
     src/include/ffw.h
     src/ffw.c
     src/include/BackgroundRenderer.h 
-    src/BackgroundRenderer.cc 
-    src/include/FontPreprocessor.h
-    src/FontPreprocessor.cc
+    src/include/SplashBackgroundRenderer.h 
+    src/SplashBackgroundRenderer.cc 
+    src/include/CairoBackgroundRenderer.h 
+    src/CairoBackgroundRenderer.cc 
+    src/include/Preprocessor.h
+    src/Preprocessor.cc
     src/include/util.h
     src/util.cc
     src/include/ArgParser.h
@@ -136,6 +165,11 @@ add_executable(pdf2htmlEX
 target_link_libraries(pdf2htmlEX ${PDF2HTMLEX_LIBS})
 
 install (TARGETS pdf2htmlEX DESTINATION bin)
-file (GLOB datafiles share/*)
+file (GLOB datafiles 
+    share/base.css
+    share/jquery.js
+    share/pdf2htmlEX.js
+    share/manifest
+    )
 install (FILES ${datafiles} DESTINATION share/pdf2htmlEX)
 install (FILES pdf2htmlEX.1 DESTINATION share/man/man1)

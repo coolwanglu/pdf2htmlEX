@@ -19,14 +19,19 @@
 <html>
 <head>
 <meta charset="utf-8">
+<meta name="generator" content="pdf2htmlEX"/>
 """
 
 @base.css
 $css
 @jquery.js
-@hide_pages.js
+@pdf2htmlEX.js
 
 """
+<script type="text/javascript">
+new pdf2htmlEX.Viewer('pdf-main');
+</script>
+
 <title></title>
 </head>
 <body>
@@ -37,11 +42,6 @@ $pages
 
 """
 </div>
-"""
-
-@scroll.js
-
-"""
 </body>
 </html>
 """

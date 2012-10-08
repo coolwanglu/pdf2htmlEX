@@ -225,7 +225,7 @@ class PC_HTMLRenderer : public HTMLRenderer
             if(font == nullptr) return;
 
             double fs = state->getTransformedFontSize();
-            if((std::abs(fs - font_size) > EPS) || (cur_tm_id != tm_id) || (cur_font_info->id != fn_id))
+            if((std::abs(fs - font_size) > EPS) || (cur_ttm_id != tm_id) || (cur_font_info->id != fn_id))
             {
                 SizedString ss;
                 ss.tm_like_id = tm_map[tm_id];
@@ -240,7 +240,7 @@ class PC_HTMLRenderer : public HTMLRenderer
                 }
 
                 font_size = fs;
-                tm_id = cur_tm_id;
+                tm_id = cur_ttm_id;
                 fn_id = cur_font_info->id;
                 cur_title.str("");
             }

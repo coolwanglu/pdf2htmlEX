@@ -18,8 +18,6 @@
 #include <string>
 #include <map>
 
-#include <UTF8.h>
-
 #ifndef nullptr
 #define nullptr (NULL)
 #endif
@@ -38,16 +36,6 @@ extern const std::map<std::string, std::string> GB_ENCODED_FONT_NAME_MAP;
 // value: (prefix string, suffix string)
 extern const std::map<std::pair<std::string, bool>, std::pair<std::string, std::string> > EMBED_STRING_MAP;
 
-// mute gcc warning of unused function
-namespace
-{
-    template <class T>
-    void _(){ 
-        auto _1 = &mapUCS2; 
-        auto _2 = &mapUTF8;
-    }
-}
-
 static inline double _round(double x) { return (std::abs(x) > EPS) ? x : 0.0; }
 static inline bool _equal(double x, double y) { return std::abs(x-y) < EPS; }
 static inline bool _is_positive(double x) { return x > EPS; }
@@ -58,6 +46,10 @@ static inline bool _tm_equal(const double * tm1, const double * tm2, int size = 
             return false;
     return true;
 }
+static inline double _hypot(double x, double y) { return std::sqrt(x*x+y*y); }
+
+void _tm_transform(const double * tm, double & x, double & y, bool is_delta = false);
+void _tm_multiply(double * tm_left, const double * tm_right);
 
 static inline long long hash_ref(const Ref * id)
 {
@@ -86,27 +78,7 @@ Unicode check_unicode(Unicode * u, int len, CharCode code, GfxFont * font);
 void outputUnicodes(std::ostream & out, const Unicode * u, int uLen);
 
 /* Escape as a safe Javascript string */
-static inline void outputUnicodes2(std::ostream & out, const Unicode * u, int uLen)
-{
-    for(int i = 0; i < uLen; ++i)
-    {
-        switch(u[i])
-        {
-            case '\"':
-                out << "\\\"";
-                break;
-            case '\\':
-                out << "\\\\";
-                break;
-            default:
-                {
-                    char buf[4];
-                    auto n = mapUTF8(u[i], buf, 4);
-                    out.write(buf, n);
-                }
-        }
-    }
-}
+void outputUnicodes2(std::ostream & out, const Unicode * u, int uLen);
 
 class GfxRGB_hash 
 {
@@ -132,31 +104,26 @@ class FontInfo
 public:
     long long id;
     bool use_tounicode;
+    int em_size;
     double ascent, descent;
+    bool has_space; // whether space is included in the font
 };
 
-// wrapper of the transform matrix double[6]
-// Transform Matrix
-class TM
+class Matrix_less
 {
 public:
-    TM() {}
-    TM(const double * m) {memcpy(_, m, sizeof(_));}
-    bool operator < (const TM & m) const {
+    bool operator () (const Matrix & m1, const Matrix & m2) const
+    {
         // Note that we only care about the first 4 elements
         for(int i = 0; i < 4; ++i)
         {
-            if(_[i] < m._[i] - EPS)
+            if(m1.m[i] < m2.m[i] - EPS)
                 return true;
-            if(_[i] > m._[i] + EPS)
+            if(m1.m[i] > m2.m[i] + EPS)
                 return false;
         }
         return false;
     }
-    bool operator == (const TM & m) const {
-        return _tm_equal(_, m._, 4);
-    }
-    double _[6];
 };
 
 class base64stream
@@ -234,7 +201,7 @@ public:
         va_end(vlist);
         if(l >= (int)buf.capacity()) 
         {
-            buf.reserve(std::max((long)(l+1), (long)buf.capacity() * 2));
+            buf.reserve(std::max<long>((long)(l+1), (long)buf.capacity() * 2));
             va_start(vlist, format);
             l = vsnprintf(&buf.front(), buf.capacity(), format, vlist);
             va_end(vlist);
@@ -255,6 +222,18 @@ bool is_truetype_suffix(const std::string & suffix);
 
 std::string get_filename(const std::string & path);
 std::string get_suffix(const std::string & path);
+
+/*
+ * In PDF, edges of the rectangle are in the middle of the borders
+ * In HTML, edges are completely outside the rectangle
+ */
+void css_fix_rectangle_border_width(double x1, double y1, double x2, double y2, 
+        double border_width, 
+        double & x, double & y, double & w, double & h,
+        double & border_top_bottom_width, 
+        double & border_left_right_width);
+
+std::ostream & operator << (std::ostream & out, const GfxRGB & rgb);
 
 } // namespace util
 #endif //UTIL_H__
