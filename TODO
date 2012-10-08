@@ -14,10 +14,9 @@ position history stack (popstate)
 
 try harder finding glyph names (using fontforge) for CID Type 0
 rename single-html -> embed-font/image/css ...
-
 merge sub/sup into one line
 precise link dest: zoom
-
+multiple charcode mapped to a same glyph
 
 ==Future==
 argument auto-completion
@@ -27,5 +26,4 @@ detect duplicate base fonts when embedding
 disable selection if we know unicode is wrong
 combine lines (unwarp)
 Printing
-multiple charcode mapped to a same glyph
 check if we can add information to the font, and let browsers show ligatures automatically
