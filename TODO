@@ -6,8 +6,6 @@ native support for draw
 
 draw non-orthogonal lines with CSS
 
-create a glyph for ' ', if there is not in a font
-
 position history stack (popstate)
 
 ==Wait until someone asks==
