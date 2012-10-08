@@ -1,9 +1,5 @@
 # pdf2html**EX** 
 
-### [**Donate Now**](http://coolwanglu.github.com/pdf2htmlEX/donate.html)
-
-### [**Feature Commission**](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ#wiki-feature_commission) are now accepted.
-
 A beautiful demo is worth a thousand words:
 
 [**Typography**](http://coolwanglu.github.com/pdf2htmlEX/demo/geneve.html) [Original](https://github.com/raphink/geneve_1564/raw/master/geneve_1564.pdf)
@@ -15,11 +11,6 @@ A beautiful demo is worth a thousand words:
 [**Scientific Paper**](http://coolwanglu.github.com/pdf2htmlEX/demo/demo.html) [Original](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.148.349&rep=rep1&type=pdf)
 
 [**Chinese**](http://coolwanglu.github.com/pdf2htmlEX/demo/chn.html) [Original](http://files.cnblogs.com/phphuaibei/git%E6%90%AD%E5%BB%BA.pdf)
-
-
-**WINDOWS XP USERS: Please make sure ClearType is turned on** 
-
-(Control Panel -> Display -> Appearance -> Effects -> "Use the following method to smooth edges of screen fonts" -> ClearType)
 
 ## Introduction
 
@@ -111,9 +102,15 @@ More info can be found on [the pdf2htmlEX page in TeX Wiki](http://oku.edu.mie-u
 ## FAQ
 
 * [Troubleshooting compilation errors](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ#wiki-compile)
+* [The demo pages are ugly](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ#wiki-ugly)
 * [How can I help](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ#wiki-help)
 * [I want more features](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ#wiki-feature_commission)
 * [More](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ)
+
+
+**WINDOWS XP USERS: Please make sure ClearType is turned on** 
+
+(Control Panel -> Display -> Appearance -> Effects -> "Use the following method to smooth edges of screen fonts" -> ClearType)
 
 ## LICENSE
 
@@ -124,6 +121,8 @@ GPLv2 & GPLv3 Dual licensed
 **Please consider sponsoring it if you use it for commercial purpose**
 
 **Font extraction, conversion or redistribution may be illegal, please check your local laws**
+
+### [**Donate Now**](http://coolwanglu.github.com/pdf2htmlEX/donate.html)
 
 ## Acknowledge
 
