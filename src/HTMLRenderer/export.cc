@@ -41,12 +41,6 @@ void HTMLRenderer::export_remote_font(const FontInfo & info, const string & suff
         << ";line-height:" << _round(info.ascent - info.descent) 
         << ";font-style:normal;font-weight:normal;}";
 
-    // when ' ' is not vaild in the font, when we use ' ' in padding
-    // the browser will use the fallback font, whose metrics could be (very) different, then the layout will be affected
-    // so set the font-zie to avoid being affected
-    if(!(info.has_space))
-        css_fout << ".f" << info.id << ">._{font-size:1px;}";
-
     css_fout << endl;
 }
 

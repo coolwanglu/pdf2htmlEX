@@ -55,7 +55,7 @@ HTMLRenderer::HTMLRenderer(const Param * param)
 
 HTMLRenderer::~HTMLRenderer()
 { 
-    ffw_fin();
+    ffw_finalize();
     clean_tmp_files();
     delete [] cur_mapping;
     delete [] cur_mapping2;

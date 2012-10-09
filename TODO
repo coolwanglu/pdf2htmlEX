@@ -1,3 +1,5 @@
+word space/offset before the first letter (calendar pdf)
+
 don't dump image when there is nothing
 
 Integrate splash/cairo
@@ -6,12 +8,9 @@ native support for draw
 
 draw non-orthogonal lines with CSS
 
-create a glyph for ' ', if there is not in a font
-
 position history stack (popstate)
 
 ==Wait until someone asks==
-
 try harder finding glyph names (using fontforge) for CID Type 0
 rename single-html -> embed-font/image/css ...
 merge sub/sup into one line
