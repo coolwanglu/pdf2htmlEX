@@ -64,6 +64,7 @@
 }
 ._ {
   color:transparent;
+  z-index:-1;
 }
 .p span {
   position:relative;

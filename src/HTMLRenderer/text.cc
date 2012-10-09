@@ -190,7 +190,7 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
      * if parm->tounicode is 0, try the provided tounicode map first
      */
     info.use_tounicode = (is_truetype_suffix(suffix) || (param->tounicode >= 0));
-    info.has_space = false;
+    bool has_space = false;
 
     const char * used_map = nullptr;
 
@@ -360,7 +360,7 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
             }
 
             if(u == ' ')
-                info.has_space = true;
+                has_space = true;
 
             if(codeset.insert(u).second)
             {
@@ -409,6 +409,22 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
         ffw_set_widths(width_list, max_key + 1, param->stretch_narrow_glyph, param->squeeze_wide_glyph, param->remove_unused_glyph);
         
         ffw_reencode_raw(cur_mapping, max_key + 1, 1);
+
+        // we need the space chracter for offsets
+        if(!has_space)
+        {
+            int space_width;
+            if(font_8bit)
+            {
+                space_width = (int)floor(font_8bit->getWidth(' ') * info.em_size + 0.5);
+            }
+            else
+            {
+                char buf[2] = {0, ' '};
+                space_width = (int)floor(font_cid->getWidth(buf, 2) * info.em_size + 0.5);
+            }
+            ffw_make_char((int)' ', space_width);
+        }
 
         if(ctu)
             ctu->decRefCnt();

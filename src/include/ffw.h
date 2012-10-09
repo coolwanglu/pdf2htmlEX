@@ -19,18 +19,31 @@ extern "C" {
 #include <stdint.h>
 #endif
 
-
+////////////////////////
+// global
 void ffw_init(int debug);
-void ffw_fin(void);
+void ffw_finalize(void);
+
+////////////////////////
+// load & save
 void ffw_load_font(const char * filename);
 void ffw_prepare_font(void);
-void ffw_reencode_glyph_order(void);
-void ffw_reencode_raw(int32_t * mapping, int mapping_len, int force);
-void ffw_reencode_raw2(char ** mapping, int mapping_len, int force);
-void ffw_cidflatten(void);
+
 void ffw_save(const char * filename);
 void ffw_close(void);
 
+////////////////////////
+// encoding
+void ffw_reencode_glyph_order(void);
+void ffw_reencode_raw(int32_t * mapping, int mapping_len, int force);
+void ffw_reencode_raw2(char ** mapping, int mapping_len, int force);
+
+void ffw_cidflatten(void);
+// get or create the char, and set the width
+void ffw_make_char(int enc, int width); 
+
+////////////////////////
+// metrics
 int ffw_get_em_size(void);
 // fix metrics and get them
 void ffw_metric(double * ascent, double * descent);
@@ -39,6 +52,8 @@ void ffw_set_widths(int * width_list, int mapping_len,
         int stretch_narrow, int squeeze_wide, 
         int remove_unused);
 
+////////////////////////
+// others
 void ffw_auto_hint(void);
 
 #ifdef __cplusplus

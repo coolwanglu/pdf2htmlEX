@@ -47,29 +47,6 @@ HTMLRenderer::HTMLRenderer(const Param * param)
         setErrorCallback(&dummy, nullptr);
     }
 
-    ffw_init(param->debug);
-    cur_mapping = new int32_t [0x10000];
-    cur_mapping2 = new char* [0x100];
-    width_list = new int [0x10000];
-}
-
-HTMLRenderer::~HTMLRenderer()
-{ 
-    ffw_fin();
-    clean_tmp_files();
-    delete [] cur_mapping;
-    delete [] cur_mapping2;
-    delete [] width_list;
-}
-
-void HTMLRenderer::process(PDFDoc *doc)
-{
-    cur_doc = doc;
-    xref = doc->getXRef();
-
-    cerr << "Preprocessing: ";
-    preprocessor.process(doc);
-
     /*
      * determine scale factors
      */
@@ -105,6 +82,30 @@ void HTMLRenderer::process(PDFDoc *doc)
         text_scale_factor1 = max<double>(zoom, param->font_size_multiplier);  
         text_scale_factor2 = zoom / text_scale_factor1;
     }
+
+    ffw_init(param->debug);
+    cur_mapping = new int32_t [0x10000];
+    cur_mapping2 = new char* [0x100];
+    width_list = new int [0x10000];
+}
+
+HTMLRenderer::~HTMLRenderer()
+{ 
+    ffw_finalize();
+    clean_tmp_files();
+    delete [] cur_mapping;
+    delete [] cur_mapping2;
+    delete [] width_list;
+}
+
+void HTMLRenderer::process(PDFDoc *doc)
+{
+    cur_doc = doc;
+    xref = doc->getXRef();
+
+    cerr << "Preprocessing: ";
+    preprocessor.process(doc);
+
 
 
     cerr << "Working: ";

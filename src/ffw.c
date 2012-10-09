@@ -77,7 +77,7 @@ void ffw_init(int debug)
     }
 }
 
-void ffw_fin(void)
+void ffw_finalize(void)
 {
     while(enc_head)
     {
@@ -145,6 +145,26 @@ void ffw_prepare_font(void)
             }
         }
     }
+}
+
+void ffw_save(const char * filename)
+{
+    char * _filename = strcopy(filename);
+    char * _ = strcopy("");
+
+    int r = GenerateScript(cur_fv->sf, _filename
+            , _, -1, -1, NULL, NULL, cur_fv->map, NULL, ly_fore);
+    
+    free(_);
+    free(_filename);
+
+    if(!r)
+        err("Cannot save font to %s\n", filename);
+} 
+void ffw_close(void)
+{
+    FontViewClose(cur_fv);
+    cur_fv = NULL;
 }
 
 static void ffw_do_reencode(Encoding * encoding, int force)
@@ -235,25 +255,9 @@ void ffw_cidflatten(void)
     SFFlatten(cur_fv->sf->cidmaster);
 }
 
-void ffw_save(const char * filename)
+void ffw_make_char(int enc, int width)
 {
-    char * _filename = strcopy(filename);
-    char * _ = strcopy("");
-
-    int r = GenerateScript(cur_fv->sf, _filename
-            , _, -1, -1, NULL, NULL, cur_fv->map, NULL, ly_fore);
-    
-    free(_);
-    free(_filename);
-
-    if(!r)
-        err("Cannot save font to %s\n", filename);
-}
-
-void ffw_close(void)
-{
-    FontViewClose(cur_fv);
-    cur_fv = NULL;
+    SFMakeChar(cur_fv->sf, cur_fv->map, enc)->width = width;
 }
 
 int ffw_get_em_size(void)

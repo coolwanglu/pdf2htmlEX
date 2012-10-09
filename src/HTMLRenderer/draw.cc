@@ -101,6 +101,7 @@ static void get_shading_bbox(GfxState * state, GfxShading * shading,
 
 /*
  * Note that the coordinate system in HTML and PDF are different
+ * This functions returns the angle of vector (dx,dy) in the PDF coordinate system, in rad
  */
 static double get_angle(double dx, double dy)
 {
