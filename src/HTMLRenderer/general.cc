@@ -171,12 +171,10 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
 
     assert((!line_opened) && "Open line in startPage detected!");
 
-    html_fout 
-        << "<div class=\"d\" style=\"width:" 
-            << (pageWidth) << "px;height:" 
-            << (pageHeight) << "px;\">"
-        << "<div id=\"p" << pageNum << "\" data-page-no=\"" << pageNum << "\" class=\"p\">"
-        << "<div class=\"b\" style=\"";
+    html_fout << "<div id=\"b" << pageNum << "\" class=\"b\" " 
+                  << "style=\"width:"  
+                  << (pageWidth) << "px;height:" 
+                  << (pageHeight) << "px;";
 
     if(param->process_nontext)
     {

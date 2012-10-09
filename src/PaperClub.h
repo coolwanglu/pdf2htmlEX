@@ -199,7 +199,7 @@ class PC_HTMLRenderer : public HTMLRenderer
         {
             HTMLRenderer::endPage();
             if(!param->only_metadata) {
-                css_fout << "#p" << hex << (this->pageNum) << "{visibility: visible;}" << endl;
+                css_fout << "#b" << hex << (this->pageNum) << "{visibility: visible;}" << endl;
             }
         }
 
