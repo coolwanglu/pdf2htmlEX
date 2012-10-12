@@ -166,7 +166,6 @@ void HTMLRenderer::install_external_font(GfxFont * font, FontInfo & info)
         cerr << "Warning: workaround for font names in bad encodings." << endl;
     }
 
-    GooString gfn(fontname.c_str());
     GfxFontLoc * localfontloc = font->locateFont(xref, gFalse);
 
     if(param->embed_external_font)
