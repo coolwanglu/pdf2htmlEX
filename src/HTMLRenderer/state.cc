@@ -271,7 +271,16 @@ void HTMLRenderer::check_state_change(GfxState * state)
     if(all_changed || color_changed)
     {
         GfxRGB new_color;
-        state->getFillRGB(&new_color);
+        /*
+         * Render modes 0 2 4 6 fill text (stroke or not)
+         * Render modes 1 5 stroke only
+         * Render modes 3 7 hidden (but ok, we won't even draw text)
+         */
+        if(state->getRender() % 2 == 0)
+            state->getFillRGB(&new_color);
+        else
+            state->getStrokeRGB(&new_color);
+
         if(!((new_color.r == cur_color.r) && (new_color.g == cur_color.g) && (new_color.b == cur_color.b)))
         {
             new_line_state = max<NewLineState>(new_line_state, NLS_SPAN);

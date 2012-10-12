@@ -309,7 +309,7 @@ class HTMLRenderer : public OutputDev
         double cur_word_space;
         bool word_space_changed;
 
-        // color
+        // text color
         long long cur_color_id;
         GfxRGB cur_color;
         bool color_changed;

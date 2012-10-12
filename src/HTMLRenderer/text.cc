@@ -517,6 +517,14 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
     char *p = s->getCString();
     int len = s->getLength();
 
+    //debug
+    {
+        if(strcmp(p, "ORTUG") == 0)
+        {
+            cerr << "DEBUG: " << (int)(state->getRender()) << endl;
+        }
+    }
+
     double dx = 0;
     double dy = 0;
     double dxerr = 0;

@@ -131,6 +131,13 @@ else()
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --std=c++0x")
 endif()
 
+include(CheckCXXCompilerFlag)
+check_cxx_compiler_flag("${CMAKE_CXX_FLAGS}" CXX0X_SUPPORT)
+if(NOT CXX0X_SUPPORT)
+    message(FATAL_ERROR "Error: you compiler does not support C++0x, please update it.")
+endif()
+
+
 configure_file (${CMAKE_SOURCE_DIR}/src/include/pdf2htmlEX-config.h.in ${CMAKE_SOURCE_DIR}/src/include/pdf2htmlEX-config.h)
 configure_file (${CMAKE_SOURCE_DIR}/pdf2htmlEX.1.in ${CMAKE_SOURCE_DIR}/pdf2htmlEX.1)
 
