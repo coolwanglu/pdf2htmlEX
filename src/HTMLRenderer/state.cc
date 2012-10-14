@@ -26,52 +26,63 @@ using std::abs;
 
 void HTMLRenderer::updateAll(GfxState * state) 
 { 
+    BackgroundRenderer::updateAll(state);
     all_changed = true; 
     updateTextPos(state);
 }
 void HTMLRenderer::updateRise(GfxState * state)
 {
+    BackgroundRenderer::updateRise(state);
     rise_changed = true;
 }
 void HTMLRenderer::updateTextPos(GfxState * state) 
 {
+    BackgroundRenderer::updateTextPos(state);
     text_pos_changed = true;
     cur_tx = state->getLineX(); 
     cur_ty = state->getLineY(); 
 }
 void HTMLRenderer::updateTextShift(GfxState * state, double shift) 
 {
+    BackgroundRenderer::updateTextShift(state, shift);
     text_pos_changed = true;
     cur_tx -= shift * 0.001 * state->getFontSize() * state->getHorizScaling(); 
 }
 void HTMLRenderer::updateFont(GfxState * state) 
 {
+    BackgroundRenderer::updateFont(state);
     font_changed = true; 
 }
 void HTMLRenderer::updateCTM(GfxState * state, double m11, double m12, double m21, double m22, double m31, double m32) 
 {
+    BackgroundRenderer::updateCTM(state, m11, m12, m21, m22, m31, m32);
     ctm_changed = true; 
 }
 void HTMLRenderer::updateTextMat(GfxState * state) 
 {
+    BackgroundRenderer::updateTextMat(state);
     text_mat_changed = true; 
 }
 void HTMLRenderer::updateHorizScaling(GfxState * state)
 {
+    BackgroundRenderer::updateHorizScaling(state);
     hori_scale_changed = true;
 }
 void HTMLRenderer::updateCharSpace(GfxState * state)
 {
+    BackgroundRenderer::updateCharSpace(state);
     letter_space_changed = true;
 }
 
 void HTMLRenderer::updateWordSpace(GfxState * state)
 {
+    BackgroundRenderer::updateWordSpace(state);
     word_space_changed = true;
 }
 
 void HTMLRenderer::updateFillColor(GfxState * state) 
 {
+    BackgroundRenderer::updateFillColor(state);
     color_changed = true; 
 }
 void HTMLRenderer::check_state_change(GfxState * state)

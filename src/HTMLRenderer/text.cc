@@ -491,6 +491,7 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
     ffw_close();
 }
 
+// TODO: call drawString/drawChar of BackgroundRenderer
 void HTMLRenderer::drawString(GfxState * state, GooString * s)
 {
     if(s->getLength() == 0)

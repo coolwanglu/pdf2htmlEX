@@ -36,7 +36,8 @@
  *
  * _ - white space
  * a - Annot link
- * b - page Box
+ * b - Background image
+ * c - page Content
  * d - page Decoration
  * l - Line
  * i - Image
@@ -83,12 +84,12 @@ class HTMLRenderer : public BackgroundRenderer
         // Does this device use functionShadedFill(), axialShadedFill(), and
         // radialShadedFill()?  If this returns false, these shaded fills
         // will be reduced to a series of other drawing operations.
-        virtual GBool useShadedFills(int type) { return (type == 2) ? gTrue: gFalse; }
-
+        virtual GBool useShadedFills(int type) 
+            { return (type == 2) ? gTrue : BackgroundRenderer::useShadedFills(type); }
 
         // Does this device use beginType3Char/endType3Char?  Otherwise,
         // text in Type 3 fonts will be drawn with drawChar/drawString.
-        virtual GBool interpretType3Chars() { return gFalse; }
+        virtual GBool interpretType3Chars() { return gTrue; }
 
         // Does this device need non-text content?
         virtual GBool needNonText() { return (param->process_nontext) ? gTrue: gFalse; }
@@ -137,21 +138,18 @@ class HTMLRenderer : public BackgroundRenderer
 
         virtual void drawImage(GfxState * state, Object * ref, Stream * str, int width, int height, GfxImageColorMap * colorMap, GBool interpolate, int *maskColors, GBool inlineImg);
 
-        virtual void stroke(GfxState *state) { css_do_path(state, false); }
-        virtual void fill(GfxState *state) { css_do_path(state, true); }
+        virtual void stroke(GfxState *state);
+        virtual void fill(GfxState *state);
+
         virtual GBool axialShadedFill(GfxState *state, GfxAxialShading *shading, double tMin, double tMax);
 
         virtual void processLink(AnnotLink * al);
-
-        /* capacity test */
-        bool can_stroke(GfxState *state) { return css_do_path(state, false, true); }
-        bool can_fill(GfxState *state) { return css_do_path(state, true, true); }
 
     protected:
         ////////////////////////////////////////////////////
         // misc
         ////////////////////////////////////////////////////
-        void pre_process();
+        void pre_process(PDFDoc *);
         void post_process();
 
         // set flags 
@@ -220,10 +218,7 @@ class HTMLRenderer : public BackgroundRenderer
         ////////////////////////////////////////////////////
         // CSS drawing
         ////////////////////////////////////////////////////
-        /*
-         * test_only is for capacity check
-         */
-        bool css_do_path(GfxState *state, bool fill, bool test_only = false);
+        bool css_do_path(GfxState *state, bool fill);
         /*
          * coordinates are to transformed by state->getCTM()
          * (x,y) should be the bottom-left corner INCLUDING border

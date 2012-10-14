@@ -31,20 +31,19 @@ public:
       : SplashOutputDev(splashModeRGB8, 4, gFalse, (SplashColorPtr)&white, gTrue, gTrue)
       , html_renderer(html_renderer)
       , param(param)
-  { }
+  { 
+  }
 
   virtual ~SplashBackgroundRenderer() { }
+
+  virtual void pre_process(PDFDoc * doc) { SplashOutputDev::startDoc(doc); }
   
   virtual void drawChar(GfxState *state, double x, double y,
       double dx, double dy,
       double originX, double originY,
       CharCode code, int nBytes, Unicode *u, int uLen);
 
-  virtual void stroke(GfxState *state);
-
-  virtual void fill(GfxState *state);
-
-  void render_page(PDFDoc * doc, int pageno, const std::string & filename);
+  void dump_to(char * filename);
 
 protected:
   HTMLRenderer * html_renderer;

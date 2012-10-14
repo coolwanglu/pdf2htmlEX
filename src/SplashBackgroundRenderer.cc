@@ -26,31 +26,10 @@ void SplashBackgroundRenderer::drawChar(GfxState *state, double x, double y,
     }
 }
 
-void SplashBackgroundRenderer::stroke(GfxState *state) 
+void SplashBackgroundRenderer::dump_to(char * filename)
 {
-  if(!html_renderer->can_stroke(state))
-      SplashOutputDev::stroke(state);
-}
-
-void SplashBackgroundRenderer::fill(GfxState *state) 
-{ 
-  if(!html_renderer->can_fill(state))
-      SplashOutputDev::fill(state);
-}
-
-static GBool annot_cb(Annot *, void *) {
-    return false;
-};
-
-void SplashBackgroundRenderer::render_page(PDFDoc * doc, int pageno, const string & filename)
-{
-    doc->displayPage(this, pageno, param->h_dpi, param->v_dpi,
-            0, true, false, false,
-            nullptr, nullptr, &annot_cb, nullptr);
-
     getBitmap()->writeImgFile(splashFormatPng, 
-            (char*)filename.c_str(),
-            param->h_dpi, param->v_dpi);
+            filename, param->h_dpi, param->v_dpi);
 }
 
 } // namespace pdf2htmlEX

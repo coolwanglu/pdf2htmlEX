@@ -106,17 +106,9 @@ void HTMLRenderer::process(PDFDoc *doc)
     cerr << "Preprocessing: ";
     preprocessor.process(doc);
 
-
-
     cerr << "Working: ";
-    BackgroundRenderer * bg_renderer = nullptr;
-    if(param->process_nontext)
-    {
-        bg_renderer = new BackgroundRenderer(this, param);
-        bg_renderer->startDoc(doc);
-    }
 
-    pre_process();
+    pre_process(doc);
 
     for(int i = param->first_page; i <= param->last_page ; ++i) 
     {
@@ -127,15 +119,6 @@ void HTMLRenderer::process(PDFDoc *doc)
             if(!html_fout)
                 throw string("Cannot open ") + (char*)page_fn + " for writing";
             fix_stream(html_fout);
-        }
-
-        if(param->process_nontext)
-        {
-            auto fn = str_fmt("%s/p%x.png", (param->single_html ? param->tmp_dir : param->dest_dir).c_str(), i);
-            if(param->single_html)
-                add_tmp_file((char*)fn);
-
-            bg_renderer->render_page(doc, i, (char*)fn);
         }
 
         doc->displayPage(this, i, 
@@ -153,19 +136,19 @@ void HTMLRenderer::process(PDFDoc *doc)
 
     post_process();
 
-    if(bg_renderer)
-        delete bg_renderer;
-
     cerr << endl;
 }
 
 void HTMLRenderer::setDefaultCTM(double *ctm)
 {
+    BackgroundRenderer::setDefaultCTM(ctm);
     memcpy(default_ctm, ctm, sizeof(default_ctm));
 }
 
 void HTMLRenderer::startPage(int pageNum, GfxState *state) 
 {
+    BackgroundRenderer::startPage(pageNum, state);
+
     this->pageNum = pageNum;
     this->pageWidth = state->getPageWidth();
     this->pageHeight = state->getPageHeight();
@@ -177,31 +160,8 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
             << (pageWidth) << "px;height:" 
             << (pageHeight) << "px;\">"
         << "<div id=\"p" << pageNum << "\" data-page-no=\"" << pageNum << "\" class=\"p\">"
-        << "<div class=\"b\" style=\"";
+        << "<div class=\"c\">";
 
-    if(param->process_nontext)
-    {
-        html_fout << "background-image:url(";
-
-        {
-            if(param->single_html)
-            {
-                auto path = str_fmt("%s/p%x.png", param->tmp_dir.c_str(), pageNum);
-                ifstream fin((char*)path, ifstream::binary);
-                if(!fin)
-                    throw string("Cannot read background image ") + (char*)path;
-                html_fout << "'data:image/png;base64," << base64stream(fin) << "'";
-            }
-            else
-            {
-                html_fout << str_fmt("p%x.png", pageNum);
-            }
-        }
-
-        html_fout << ");background-position:0 0;background-size:" << pageWidth << "px " << pageHeight << "px;background-repeat:no-repeat;";
-    }
-
-    html_fout << "\">";
     draw_text_scale = 1.0;
 
     cur_font_info = install_font(nullptr);
@@ -230,10 +190,39 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
 }
 
 void HTMLRenderer::endPage() {
+    BackgroundRenderer::endPage();
+
     close_text_line();
 
     // process links before the page is closed
     cur_doc->processLinks(this, pageNum);
+
+    // handle background
+    if(param->process_nontext)
+    {
+        auto fn = str_fmt("%s/p%x.png", (param->single_html ? param->tmp_dir : param->dest_dir).c_str(), pageNum);
+        if(param->single_html)
+            add_tmp_file((char*)fn);
+
+        BackgroundRenderer::dump_to((char*)fn);
+
+        html_fout << "<img class=\"b\" src=\"";
+
+        if(param->single_html)
+        {
+            ifstream fin((char*)fn, ifstream::binary);
+            if(!fin)
+                throw string("Cannot read background image ") + (char*)fn;
+
+            html_fout << "data:image/png;base64," << base64stream(fin) << "'";
+        }
+        else
+        {
+            html_fout << str_fmt("p%x.png", pageNum);
+        }
+
+        html_fout << "\">";
+    }
 
     // close box
     html_fout << "</div>";
@@ -258,8 +247,10 @@ void HTMLRenderer::endPage() {
     html_fout << "</div></div>" << endl;
 }
 
-void HTMLRenderer::pre_process()
+void HTMLRenderer::pre_process(PDFDoc * doc)
 {
+    BackgroundRenderer::pre_process(doc);
+
     // we may output utf8 characters, so always use binary
     {
         /*

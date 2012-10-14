@@ -29,6 +29,18 @@ using std::sqrt;
 using std::vector;
 using std::ostream;
 
+void HTMLRenderer::stroke(GfxState * state)
+{
+    if(!css_do_path(state, false))
+        BackgroundRenderer::stroke(state);
+}
+
+void HTMLRenderer::fill(GfxState * state)
+{
+    if(!css_do_path(state, true)) 
+        BackgroundRenderer::fill(state);
+}
+
 static bool is_horizontal_line(GfxSubpath * path)
 {
     return ((path->getNumPoints() == 2)
@@ -219,7 +231,8 @@ void LinearGradient::dumpto (ostream & out)
 
 GBool HTMLRenderer::axialShadedFill(GfxState *state, GfxAxialShading *shading, double tMin, double tMax)
 {
-    if(!(param->css_draw)) return gFalse;
+    if(!(param->css_draw)) 
+        return BackgroundRenderer::axialShadedFill(state, shading, tMin, tMax);
 
     double x1, y1, x2, y2;
     get_shading_bbox(state, shading, x1, y1, x2, y2);
@@ -237,7 +250,7 @@ GBool HTMLRenderer::axialShadedFill(GfxState *state, GfxAxialShading *shading, d
 
 //TODO track state
 //TODO connection style
-bool HTMLRenderer::css_do_path(GfxState *state, bool fill, bool test_only)
+bool HTMLRenderer::css_do_path(GfxState *state, bool fill)
 {
     if(!(param->css_draw)) return false;
 
@@ -253,9 +266,6 @@ bool HTMLRenderer::css_do_path(GfxState *state, bool fill, bool test_only)
              || is_rectangle(subpath)))
             return false;
     }
-
-    if(test_only) 
-        return true;
 
     for(int i = 0; i < path->getNumSubpaths(); ++i)
     {
