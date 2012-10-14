@@ -27,6 +27,7 @@
 #include "Param.h"
 #include "util.h"
 #include "Preprocessor.h"
+#include "BackgroundRenderer.h"
 
 /*
  * Naming Convention
@@ -60,7 +61,7 @@
 
 namespace pdf2htmlEX {
 
-class HTMLRenderer : public OutputDev
+class HTMLRenderer : public BackgroundRenderer
 {
     public:
         HTMLRenderer(const Param * param);

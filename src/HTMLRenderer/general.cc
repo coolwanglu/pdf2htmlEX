@@ -34,7 +34,7 @@ static void dummy(void *, enum ErrorCategory, int pos, char *)
 }
 
 HTMLRenderer::HTMLRenderer(const Param * param)
-    :OutputDev()
+    :BackgroundRenderer(this, param)
     ,line_opened(false)
     ,line_buf(this)
     ,preprocessor(param)

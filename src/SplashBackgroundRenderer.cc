@@ -7,6 +7,7 @@
 #include <PDFDoc.h>
 
 #include "SplashBackgroundRenderer.h"
+#include "HTMLRenderer.h"
 
 namespace pdf2htmlEX {
 
@@ -23,6 +24,18 @@ void SplashBackgroundRenderer::drawChar(GfxState *state, double x, double y,
     {
         SplashOutputDev::drawChar(state,x,y,dx,dy,originX,originY,code, nBytes, u, uLen);
     }
+}
+
+void SplashBackgroundRenderer::stroke(GfxState *state) 
+{
+  if(!html_renderer->can_stroke(state))
+      SplashOutputDev::stroke(state);
+}
+
+void SplashBackgroundRenderer::fill(GfxState *state) 
+{ 
+  if(!html_renderer->can_fill(state))
+      SplashOutputDev::fill(state);
 }
 
 static GBool annot_cb(Annot *, void *) {

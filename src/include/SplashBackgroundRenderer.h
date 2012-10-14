@@ -15,10 +15,11 @@
 #include <splash/SplashBitmap.h>
 #include <SplashOutputDev.h>
 
-#include "HTMLRenderer.h"
 #include "Param.h"
 
 namespace pdf2htmlEX {
+
+class HTMLRenderer;
 
 // Based on BackgroundRenderer from poppler
 class SplashBackgroundRenderer : public SplashOutputDev 
@@ -39,15 +40,9 @@ public:
       double originX, double originY,
       CharCode code, int nBytes, Unicode *u, int uLen);
 
-  virtual void stroke(GfxState *state) {
-      if(!html_renderer->can_stroke(state))
-          SplashOutputDev::stroke(state);
-  }
+  virtual void stroke(GfxState *state);
 
-  virtual void fill(GfxState *state) { 
-      if(!html_renderer->can_fill(state))
-          SplashOutputDev::fill(state);
-  }
+  virtual void fill(GfxState *state);
 
   void render_page(PDFDoc * doc, int pageno, const std::string & filename);
 
