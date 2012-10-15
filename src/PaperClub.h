@@ -164,7 +164,7 @@ class PC_HTMLRenderer : public HTMLRenderer
                  
                 pre_process();
 
-                doc->displayPage(this, 1, param->zoom * DEFAULT_DPI, param->zoom * DEFAULT_DPI,
+                doc->displayPage(this, 1, text_zoom_factor() * DEFAULT_DPI, text_zoom_factor() * DEFAULT_DPI,
                 0, true, false, false,
                 nullptr, nullptr, nullptr, nullptr);
 

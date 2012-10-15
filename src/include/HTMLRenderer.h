@@ -150,8 +150,8 @@ class HTMLRenderer : public OutputDev
         ////////////////////////////////////////////////////
         // misc
         ////////////////////////////////////////////////////
-        void pre_process();
-        void post_process();
+        virtual void pre_process();
+        virtual void post_process();
 
         // set flags 
         void fix_stream (std::ostream & out);
