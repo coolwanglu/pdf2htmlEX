@@ -49,6 +49,10 @@ This program is designed for scientific papers with complicate formulas and figu
 
 [AUR Package](https://aur.archlinux.org/packages.php?ID=62426), special thanks to Arthur Titeica <arthur.titeica@gmail.com>
 
+### Gentoo
+
+Install through Overlay gentoo-zh, mrueg or sunrise, thanks to the packagers.
+
 ### Mac
 
 [Homebrew Formula](https://github.com/jamiely/homebrew/blob/pdf2htmlex/Library/Formula/pdf2htmlex.rb), special thanks to Jamie Ly <me@jamie.ly>
