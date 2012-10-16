@@ -91,7 +91,7 @@ void HTMLRenderer::export_font_size (long long fs_id, double font_size)
     css_fout << ".s" << fs_id << "{font-size:" << _round(font_size) << "px;}" << endl;
 }
 
-void HTMLRenderer::export_transform_matrix (long long tm_id, const double * tm) 
+void HTMLRenderer::export_transform_matrix (long long tm_id, const double * tm)
 {
     css_fout << ".t" << tm_id << "{";
 
@@ -114,8 +114,8 @@ void HTMLRenderer::export_transform_matrix (long long tm_id, const double * tm)
             css_fout << *iter << "transform:matrix("
                 << _round(tm[0]) << ','
                 << _round(tm[1]) << ','
-                << _round(-tm[2]) << ','
-                << _round(-tm[3]) << ',';
+                << _round(tm[2]) << ','
+                << _round(tm[3]) << ',';
 
             css_fout << "0,0);";
         }

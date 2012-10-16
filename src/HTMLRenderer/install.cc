@@ -212,10 +212,16 @@ long long HTMLRenderer::install_font_size(double font_size)
     return new_fs_id;
 }
 
-long long HTMLRenderer::install_transform_matrix(const double * tm)
+long long HTMLRenderer::install_transform_matrix(const double * tm, bool flip)
 {
     Matrix m;
     memcpy(m.m, tm, sizeof(m.m));
+
+    if(flip)
+    {
+        m.m[2] = -m.m[2];
+        m.m[3] = -m.m[3];
+    }
 
     auto iter = transform_matrix_map.lower_bound(m);
     if((iter != transform_matrix_map.end()) && (_tm_equal(m.m, iter->first.m, 4)))
@@ -223,7 +229,7 @@ long long HTMLRenderer::install_transform_matrix(const double * tm)
 
     long long new_tm_id = transform_matrix_map.size();
     transform_matrix_map.insert(make_pair(m, new_tm_id));
-    export_transform_matrix(new_tm_id, tm);
+    export_transform_matrix(new_tm_id, m.m);
     return new_tm_id;
 }
 

@@ -29,7 +29,7 @@ using std::ostream;
 
 namespace pdf2htmlEX {
 
-const double id_matrix[6] = {1.0, 0.0, 0.0, -1.0, 0.0, 0.0};
+const double id_matrix[6] = {1.0, 0.0, 0.0, 1.0, 0.0, 0.0};
 
 const map<string, string> BASE_14_FONT_CSS_FONT_MAP({
    { "Courier", "Courier,monospace" },

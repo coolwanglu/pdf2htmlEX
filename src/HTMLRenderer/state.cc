@@ -188,7 +188,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
         {
             new_line_state = max<NewLineState>(new_line_state, NLS_DIV);
             memcpy(draw_text_tm, new_draw_text_tm, sizeof(draw_text_tm));
-            cur_ttm_id = install_transform_matrix(draw_text_tm);
+            cur_ttm_id = install_transform_matrix(draw_text_tm, true);
         }
     }
 

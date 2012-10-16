@@ -165,7 +165,7 @@ LinearGradient::LinearGradient (GfxAxialShading * shading,
     double t0x, t0y, t1x, t1y;
     shading->getCoords(&t0x, &t0y, &t1x, &t1y);
 
-    angle = get_angle(t1x - t0x, t1y - t0y);
+    angle = -get_angle(t1x - t0x, t1y - t0y);
 
     // get the range of t in the box
     // from GfxState.cc in poppler
