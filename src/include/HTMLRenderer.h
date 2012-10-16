@@ -110,8 +110,8 @@ class HTMLRenderer : public BackgroundRenderer
         /*
          * Ugly implementation of save/restore
          */
-        virtual void saveState(GfxState * state) {updateAll(state);}
-        virtual void restoreState(GfxState * state) {updateAll(state);}
+        virtual void saveState(GfxState * state);
+        virtual void restoreState(GfxState * state);
 
         virtual void updateAll(GfxState * state);
 
@@ -205,6 +205,8 @@ class HTMLRenderer : public BackgroundRenderer
         ////////////////////////////////////////////////////
         // state tracking 
         ////////////////////////////////////////////////////
+        // similar to updateAll, but for internal use only
+        void update_all(GfxState * state);
         // check updated states, and determine new_line_stauts
         // make sure this function can be called several times consecutively without problem
         void check_state_change(GfxState * state);

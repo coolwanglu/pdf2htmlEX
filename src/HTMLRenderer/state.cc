@@ -24,11 +24,20 @@ namespace pdf2htmlEX {
 using std::max;
 using std::abs;
 
+void HTMLRenderer::saveState(GfxState * state)
+{
+    BackgroundRenderer::saveState(state);
+    update_all(state);
+}
+void HTMLRenderer::restoreState(GfxState * state) 
+{
+    BackgroundRenderer::restoreState(state);
+    update_all(state);
+}
 void HTMLRenderer::updateAll(GfxState * state) 
 { 
     BackgroundRenderer::updateAll(state);
-    all_changed = true; 
-    updateTextPos(state);
+    update_all(state);
 }
 void HTMLRenderer::updateRise(GfxState * state)
 {
@@ -85,6 +94,13 @@ void HTMLRenderer::updateFillColor(GfxState * state)
     BackgroundRenderer::updateFillColor(state);
     color_changed = true; 
 }
+void HTMLRenderer::update_all(GfxState * state)
+{
+    all_changed = true; 
+    cur_tx = state->getLineX(); 
+    cur_ty = state->getLineY(); 
+}
+
 void HTMLRenderer::check_state_change(GfxState * state)
 {
     // DEPENDENCY WARNING
