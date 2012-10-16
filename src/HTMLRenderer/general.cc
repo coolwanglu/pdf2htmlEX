@@ -149,7 +149,12 @@ void HTMLRenderer::setDefaultCTM(double *ctm)
 
 void HTMLRenderer::startPage(int pageNum, GfxState *state) 
 {
-    BackgroundRenderer::startPage(pageNum, state);
+    {
+        auto fn = str_fmt("%s/p%x.png", (param->single_html ? param->tmp_dir : param->dest_dir).c_str(), pageNum);
+        if(param->single_html)
+            add_tmp_file((char*)fn);
+        BackgroundRenderer::start_page(pageNum, state, (char*)fn);
+    }
 
     this->pageNum = pageNum;
     this->pageWidth = state->getPageWidth();
@@ -202,19 +207,16 @@ void HTMLRenderer::endPage() {
     // handle background
     if(param->process_nontext)
     {
-        auto fn = str_fmt("%s/p%x.png", (param->single_html ? param->tmp_dir : param->dest_dir).c_str(), pageNum);
-        if(param->single_html)
-            add_tmp_file((char*)fn);
-
-        BackgroundRenderer::dump_to((char*)fn);
+        BackgroundRenderer::dump();
 
         html_fout << "<img class=\"b\" src=\"";
 
         if(param->single_html)
         {
-            ifstream fin((char*)fn, ifstream::binary);
+            auto fn = BackgroundRenderer::get_cur_page_filename();
+            ifstream fin(fn, ifstream::binary);
             if(!fin)
-                throw string("Cannot read background image ") + (char*)fn;
+                throw string("Cannot read background image ") + fn;
 
             html_fout << "data:image/png;base64," << base64stream(fin);
         }

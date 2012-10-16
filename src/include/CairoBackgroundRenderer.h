@@ -11,6 +11,8 @@
 
 #include <ostream>
 
+#include <cairo.h>
+
 #include <CairoOutputDev.h>
 
 #include "Param.h"
@@ -27,29 +29,35 @@ public:
       :CairoOutputDev()
       , html_renderer(html_renderer)
       , param(param)
+      , context(nullptr)
       , surface(nullptr)
       , out(nullptr)
   { }
 
-  virtual ~CairoBackgroundRenderer() { }
+  virtual ~CairoBackgroundRenderer(void);
 
   virtual void pre_process(PDFDoc * doc);
   
+  void start_page(int pageNum, GfxState * state, const std::string & page_filename);
+  virtual void endPage(void);
+
   virtual void drawChar(GfxState *state, double x, double y,
       double dx, double dy,
       double originX, double originY,
       CharCode code, int nBytes, Unicode *u, int uLen);
 
-  void render_page(PDFDoc * doc, int pageno, const std::string & filename);
-
-  void dump_to(const char * filename) { }
+  std::string get_cur_page_filename(void) const { return cur_page_filename; }
+  void dump(void);
 
 protected:
   HTMLRenderer * html_renderer;
   const Param * param;
 
-  cairo_suface_t * surface;
+  cairo_t * context;
+  cairo_surface_t * surface;
   std::ostream * out;
+
+  std::string cur_page_filename;
 };
 
 }

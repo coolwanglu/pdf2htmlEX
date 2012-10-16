@@ -11,6 +11,8 @@
 
 #include <string>
 
+#include "pdf2htmlEX-config.h"
+
 namespace pdf2htmlEX {
 
 struct Param
@@ -70,6 +72,9 @@ struct Param
 
     // experimental
     int css_draw;
+#if HAVE_CAIRO
+    int svg_draw;
+#endif
 };
 
 } // namespace pdf2htmlEX
