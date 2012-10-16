@@ -11,7 +11,7 @@
 
 #include <string>
 
-#define HAVE_CAIRO 0
+#define HAVE_CAIRO 1
 
 namespace pdf2htmlEX {
 
