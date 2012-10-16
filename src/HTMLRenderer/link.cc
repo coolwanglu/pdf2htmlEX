@@ -271,7 +271,7 @@ void HTMLRenderer::processLink(AnnotLink * al)
 
     html_fout << "position:absolute;"
         << "left:" << _round(x) << "px;"
-        << "bottom:" << _round(y) << "px;"
+        << "top:" << _round(y) << "px;"
         << "width:" << _round(w) << "px;"
         << "height:" << _round(h) << "px;";
 

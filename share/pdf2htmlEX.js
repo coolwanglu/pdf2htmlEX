@@ -239,7 +239,7 @@ var pdf2htmlEX = (function(){
 
       var cur_pos = cur_page.position();
       //get the coordinates in default user system
-      cur_pos = transform(cur_page.ictm, [cur_pos[0], cur_page.height()-cur_pos[1]]);
+      cur_pos = transform(cur_page.ictm, [cur_pos[0], cur_pos[1]]);
 
       var detail_str = t.attr('data-dest-detail');
       if(detail_str == undefined) return;
@@ -251,7 +251,6 @@ var pdf2htmlEX = (function(){
       if(target_page == undefined) return;
 
       var pos = [0,0];
-      var upside_down = true;
       // TODO: zoom
       // TODO: BBox
       switch(detail[1]) {
@@ -278,7 +277,6 @@ var pdf2htmlEX = (function(){
         case 'FitR':
           /* locate the top-left corner of the rectangle */
           pos = [detail[2], detail[5]];
-          upside_down = false;
           ok = true;
           break;
           pos = [0,0];
@@ -291,9 +289,6 @@ var pdf2htmlEX = (function(){
 
       if(ok) {
         pos = transform(target_page.ctm, pos);
-        if(upside_down) {
-          pos[1] = target_page.height() - pos[1];
-        }
         _.scroll_to(detail[0], pos);
         e.preventDefault();
       }
