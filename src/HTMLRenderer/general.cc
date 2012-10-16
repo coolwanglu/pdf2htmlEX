@@ -153,8 +153,9 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
         auto fn = str_fmt("%s/p%x.png", (param->single_html ? param->tmp_dir : param->dest_dir).c_str(), pageNum);
         if(param->single_html)
             add_tmp_file((char*)fn);
-        BackgroundRenderer::start_page(pageNum, state, (char*)fn);
+        BackgroundRenderer::set_cur_page_filename((char*)fn);
     }
+    BackgroundRenderer::startPage(pageNum, state);
 
     this->pageNum = pageNum;
     this->pageWidth = state->getPageWidth();

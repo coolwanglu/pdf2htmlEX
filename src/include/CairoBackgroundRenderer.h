@@ -38,7 +38,7 @@ public:
 
   virtual void pre_process(PDFDoc * doc);
   
-  void start_page(int pageNum, GfxState * state, const std::string & page_filename);
+  void startPage(int pageNum, GfxState * state);
   virtual void endPage(void);
 
   virtual void drawChar(GfxState *state, double x, double y,
@@ -47,6 +47,7 @@ public:
       CharCode code, int nBytes, Unicode *u, int uLen);
 
   std::string get_cur_page_filename(void) const { return cur_page_filename; }
+  void set_cur_page_filename(const std::string & fn) { cur_page_filename = fn; }
   void dump(void);
 
 protected:

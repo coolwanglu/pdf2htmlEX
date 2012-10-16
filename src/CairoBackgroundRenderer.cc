@@ -61,9 +61,8 @@ void CairoBackgroundRenderer::pre_process(PDFDoc * doc)
     CairoOutputDev::startDoc(doc);
 }
 
-void CairoBackgroundRenderer::start_page(int pageNum, GfxState * state, const string & page_filename)
+void CairoBackgroundRenderer::startPage(int pageNum, GfxState * state)
 {
-    cur_page_filename = page_filename;
     close_surface(surface);
     if(param->svg_draw)
     {
@@ -72,7 +71,7 @@ void CairoBackgroundRenderer::start_page(int pageNum, GfxState * state, const st
             delete out;
             out = nullptr;
         }
-        out = new ofstream(page_filename, ofstream::binary);
+        out = new ofstream(cur_page_filename, ofstream::binary);
         surface = cairo_svg_surface_create_for_stream(write_to_file, out,
                 state->getPageWidth(), state->getPageHeight());
         cairo_svg_surface_restrict_to_version (surface, CAIRO_SVG_VERSION_1_2); 
