@@ -124,7 +124,9 @@ void HTMLRenderer::process(PDFDoc *doc)
         doc->displayPage(this, i, 
                 text_zoom_factor() * DEFAULT_DPI, text_zoom_factor() * DEFAULT_DPI,
                 0, true, false, false,
-                nullptr, nullptr, nullptr, nullptr);
+                nullptr, nullptr,
+                [](Annot *, void *)->GBool{ return gFalse; }, nullptr
+                );
 
         if(param->split_pages)
         {
