@@ -214,7 +214,7 @@ void HTMLRenderer::endPage() {
             if(!fin)
                 throw string("Cannot read background image ") + (char*)fn;
 
-            html_fout << "data:image/png;base64," << base64stream(fin) << "'";
+            html_fout << "data:image/png;base64," << base64stream(fin);
         }
         else
         {

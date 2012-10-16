@@ -113,9 +113,9 @@ void HTMLRenderer::export_transform_matrix (long long tm_id, const double * tm)
             // PDF use a different coordinate system from Web
             css_fout << *iter << "transform:matrix("
                 << _round(tm[0]) << ','
-                << _round(-tm[1]) << ','
+                << _round(tm[1]) << ','
                 << _round(-tm[2]) << ','
-                << _round(tm[3]) << ',';
+                << _round(-tm[3]) << ',';
 
             css_fout << "0,0);";
         }

@@ -43,7 +43,7 @@ public:
       double originX, double originY,
       CharCode code, int nBytes, Unicode *u, int uLen);
 
-  void dump_to(char * filename);
+  void dump_to(const char * filename);
 
 protected:
   HTMLRenderer * html_renderer;

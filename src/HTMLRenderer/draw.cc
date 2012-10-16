@@ -417,7 +417,7 @@ void HTMLRenderer::css_draw_rectangle(double x, double y, double w, double h, co
         style_function(style_function_data, html_fout);
     }
 
-    html_fout << "bottom:" << _round(y) << "px;"
+    html_fout << "top:" << _round(y) << "px;"
         << "left:" << _round(x) << "px;"
         << "width:" << _round(w * scale) << "px;"
         << "height:" << _round(h * scale) << "px;";

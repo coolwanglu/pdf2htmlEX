@@ -76,7 +76,7 @@ class HTMLRenderer : public BackgroundRenderer
         
         // Does this device use upside-down coordinates?
         // (Upside-down means (0,0) is the top left corner of the page.)
-        virtual GBool upsideDown() { return gFalse; }
+        virtual GBool upsideDown() { return gTrue; }
 
         // Does this device use drawChar() or drawString()?
         virtual GBool useDrawChar() { return gFalse; }
