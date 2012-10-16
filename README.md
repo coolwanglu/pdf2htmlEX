@@ -49,6 +49,10 @@ This program is designed for scientific papers with complicate formulas and figu
 
 [AUR Package](https://aur.archlinux.org/packages.php?ID=62426), special thanks to Arthur Titeica <arthur.titeica@gmail.com>
 
+### Gentoo
+
+Install through Overlay gentoo-zh, mrueg or sunrise, thanks to the packagers.
+
 ### Mac
 
 [Homebrew Formula](https://github.com/jamiely/homebrew/blob/pdf2htmlex/Library/Formula/pdf2htmlex.rb), special thanks to Jamie Ly <me@jamie.ly>
@@ -73,17 +77,17 @@ More info can be found on [the pdf2htmlEX page in TeX Wiki](http://oku.edu.mie-u
 * compilers support C++11, for example
  * GCC >= 4.4.6
  * I heard about successful build with Clang 
-* poppler with xpdf header >= 0.20.0 (compile with --enable-xpdf-headers)
- * Install libpng (and headers) BEFORE you compile poppler if you want background images generated
- * Install poppler-data if your want CJK support
-* fontforge (with header files)
+* **poppler** with xpdf header >= 0.20.0 (compile with **--enable-xpdf-headers**)
+ * Install **libpng** (and headers) BEFORE you compile poppler if you want background images generated
+ * Install **poppler-data** if your want CJK support
+* **fontforge** (with header files)
  * git version is recommended to avoid annoying compilation issues
-* [Optional] ttfautohint
- * run pdf2htmlEX with --external-hint-tool=ttfautohint to enable it
+* [Optional] **ttfautohint**
+ * run pdf2htmlEX with **--external-hint-tool=ttfautohint** to enable it
 
 #### Compiling
 
-    git clone --depth 1 git://github.com/coolwanglu/pdf2htmlEX.git
+    git clone --depth 1 igt://github.com/coolwanglu/pdf2htmlEX.git
     cd pdf2htmlEX
     cmake . && make && sudo make install
 
