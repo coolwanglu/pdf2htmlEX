@@ -10,8 +10,10 @@
 
 #if HAVE_CAIRO
 
+#include <iostream>
 #include <fstream>
 #include <vector>
+#include <cmath>
 
 #include <cairo.h>
 #include <cairo-svg.h>
@@ -25,6 +27,7 @@ namespace pdf2htmlEX {
 using std::ofstream;
 using std::string;
 using std::vector;
+using std::ceil;
 
 void close_surface(cairo_surface_t *& surface)
 {
@@ -79,12 +82,12 @@ void CairoBackgroundRenderer::startPage(int pageNum, GfxState * state)
     }
     else
     {
-        surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, state->getPageWidth(), state->getPageHeight());
+        surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, ceil(state->getPageWidth()), ceil(state->getPageHeight()));
     }
 
     context = cairo_create(surface);
     CairoOutputDev::setCairo(context);
-    CairoOutputDev::setPrinting(param->svg_draw);
+    CairoOutputDev::setPrinting((param->svg_draw) ? gTrue : gFalse);
 
     CairoOutputDev::startPage(pageNum, state);
 }
@@ -126,19 +129,19 @@ void CairoBackgroundRenderer::dump(void)
         if(!f)
             throw string("Cannot open file for writing: ") + cur_page_filename;
 
-        auto height = cairo_image_surface_get_height(surface);
-        auto width = cairo_image_surface_get_width(surface);
-        auto stride = cairo_image_surface_get_stride(surface);
-        auto data = cairo_image_surface_get_data(surface);
-
+        int height = cairo_image_surface_get_height(surface);
+        int width = cairo_image_surface_get_width(surface);
+        int stride = cairo_image_surface_get_stride(surface);
+        unsigned char * data = cairo_image_surface_get_data(surface);
+        
         if(!writer->init(f, width, height, param->h_dpi, param->v_dpi))
             throw string("Cannot initialize PNGWriter");
 
         vector<unsigned char> row(width * 4);
         for (int y = 0; y < height; y++ ) {
-            uint32_t *pixel = (uint32_t *) (data + y*stride);
+            uint32_t * pixel = (uint32_t *) (data + y*stride);
             unsigned char *rowp = &row.front();
-            for (int x = 0; x < width; x++, pixel++) {
+            for (int x = 0; x < width; ++x, ++pixel) {
                 // unpremultiply into RGBA format
                 uint8_t a;
                 a = (*pixel & 0xff000000) >> 24;
@@ -153,10 +156,10 @@ void CairoBackgroundRenderer::dump(void)
                 }
                 *rowp++ = a;
             }
-        }
-        {
-            auto p = &row.front();
-            writer->writeRow(&p);
+            {
+                auto p = &row.front();
+                writer->writeRow(&p);
+            }
         }
         writer->close();
         delete writer;
