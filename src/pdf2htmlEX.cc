@@ -181,11 +181,6 @@ int main(int argc, char **argv)
             throw "Cannot read the file";
         }
 
-        // check for copy permission
-        if (!doc->okToCopy()) {
-            throw "Copying of text from this document is not allowed.";
-        }
-
         param.first_page = min<int>(max<int>(param.first_page, 1), doc->getNumPages());
         param.last_page = min<int>(max<int>(param.last_page, param.first_page), doc->getNumPages());
 
