@@ -150,7 +150,7 @@ class HTMLRenderer : public OutputDev
         ////////////////////////////////////////////////////
         // misc
         ////////////////////////////////////////////////////
-        void pre_process();
+        void pre_process(PDFDoc * doc);
         void post_process();
 
         // set flags 

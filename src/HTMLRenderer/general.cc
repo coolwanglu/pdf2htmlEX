@@ -47,42 +47,6 @@ HTMLRenderer::HTMLRenderer(const Param * param)
         setErrorCallback(&dummy, nullptr);
     }
 
-    /*
-     * determine scale factors
-     */
-    {
-        double zoom = 1.0;
-
-        vector<double> zoom_factors;
-        
-        if(_is_positive(param->zoom))
-        {
-            zoom_factors.push_back(param->zoom);
-        }
-
-        if(_is_positive(param->fit_width))
-        {
-            zoom_factors.push_back((param->fit_width) / preprocessor.get_max_width());
-        }
-
-        if(_is_positive(param->fit_height))
-        {
-            zoom_factors.push_back((param->fit_height) / preprocessor.get_max_height());
-        }
-
-        if(zoom_factors.empty())
-        {
-            zoom = 1.0;
-        }
-        else
-        {
-            zoom = *min_element(zoom_factors.begin(), zoom_factors.end());
-        }
-        
-        text_scale_factor1 = max<double>(zoom, param->font_size_multiplier);  
-        text_scale_factor2 = zoom / text_scale_factor1;
-    }
-
     ffw_init(param->debug);
     cur_mapping = new int32_t [0x10000];
     cur_mapping2 = new char* [0x100];
@@ -103,10 +67,7 @@ void HTMLRenderer::process(PDFDoc *doc)
     cur_doc = doc;
     xref = doc->getXRef();
 
-    cerr << "Preprocessing: ";
-    preprocessor.process(doc);
-
-
+    pre_process(doc);
 
     cerr << "Working: ";
     BackgroundRenderer * bg_renderer = nullptr;
@@ -115,8 +76,6 @@ void HTMLRenderer::process(PDFDoc *doc)
         bg_renderer = new BackgroundRenderer(this, param);
         bg_renderer->startDoc(doc);
     }
-
-    pre_process();
 
     for(int i = param->first_page; i <= param->last_page ; ++i) 
     {
@@ -258,8 +217,47 @@ void HTMLRenderer::endPage() {
     html_fout << "</div></div>" << endl;
 }
 
-void HTMLRenderer::pre_process()
+void HTMLRenderer::pre_process(PDFDoc * doc)
 {
+    cerr << "Preprocessing: ";
+    preprocessor.process(doc);
+
+    /*
+     * determine scale factors
+     */
+    {
+        double zoom = 1.0;
+
+        vector<double> zoom_factors;
+        
+        if(_is_positive(param->zoom))
+        {
+            zoom_factors.push_back(param->zoom);
+        }
+
+        if(_is_positive(param->fit_width))
+        {
+            zoom_factors.push_back((param->fit_width) / preprocessor.get_max_width());
+        }
+
+        if(_is_positive(param->fit_height))
+        {
+            zoom_factors.push_back((param->fit_height) / preprocessor.get_max_height());
+        }
+
+        if(zoom_factors.empty())
+        {
+            zoom = 1.0;
+        }
+        else
+        {
+            zoom = *min_element(zoom_factors.begin(), zoom_factors.end());
+        }
+        
+        text_scale_factor1 = max<double>(zoom, param->font_size_multiplier);  
+        text_scale_factor2 = zoom / text_scale_factor1;
+    }
+
     // we may output utf8 characters, so always use binary
     {
         /*
