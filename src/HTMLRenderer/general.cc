@@ -69,7 +69,6 @@ void HTMLRenderer::process(PDFDoc *doc)
 
     pre_process(doc);
 
-    cerr << "Working: ";
     BackgroundRenderer * bg_renderer = nullptr;
     if(param->process_nontext)
     {
@@ -77,8 +76,11 @@ void HTMLRenderer::process(PDFDoc *doc)
         bg_renderer->startDoc(doc);
     }
 
+    int page_count = (param->last_page - param->first_page);
     for(int i = param->first_page; i <= param->last_page ; ++i) 
     {
+        cerr << "Working: " << (i-param->first_page) << "/" << page_count << '\r' << flush;
+
         if(param->split_pages)
         {
             auto page_fn = str_fmt("%s/%s%d.page", param->dest_dir.c_str(), param->output_filename.c_str(), i);
@@ -106,9 +108,10 @@ void HTMLRenderer::process(PDFDoc *doc)
         {
             html_fout.close();
         }
-
-        cerr << "." << flush;
     }
+    if(page_count >= 0)
+        cerr << "Working: " << page_count << "/" << page_count;
+    cerr << endl;
 
     post_process();
 
@@ -219,7 +222,6 @@ void HTMLRenderer::endPage() {
 
 void HTMLRenderer::pre_process(PDFDoc * doc)
 {
-    cerr << "Preprocessing: ";
     preprocessor.process(doc);
 
     /*
