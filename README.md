@@ -1,4 +1,4 @@
-# pdf2html**EX** 
+# pdf2htmlEX
 
 A beautiful demo is worth a thousand words:
 
