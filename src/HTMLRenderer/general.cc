@@ -150,7 +150,8 @@ void HTMLRenderer::setDefaultCTM(double *ctm)
 void HTMLRenderer::startPage(int pageNum, GfxState *state) 
 {
     {
-        auto fn = str_fmt("%s/p%x.png", (param->single_html ? param->tmp_dir : param->dest_dir).c_str(), pageNum);
+        string suffix = (param->svg_draw ? "svg" : "png");
+        auto fn = str_fmt("%s/p%x.%s", (param->single_html ? param->tmp_dir : param->dest_dir).c_str(), pageNum, suffix.c_str());
         if(param->single_html)
             add_tmp_file((char*)fn);
         BackgroundRenderer::set_cur_page_filename((char*)fn);
@@ -219,7 +220,10 @@ void HTMLRenderer::endPage() {
             if(!fin)
                 throw string("Cannot read background image ") + fn;
 
-            html_fout << "data:image/png;base64," << base64stream(fin);
+            {
+                string mime = (param->svg_draw ? "image/svg+xml" : "image/png");
+                html_fout << "data:" << mime << ";base64," << base64stream(fin);
+            }
         }
         else
         {
