@@ -76,7 +76,7 @@ void HTMLRenderer::process(PDFDoc *doc)
         bg_renderer->startDoc(doc);
     }
 
-    int page_count = (param->last_page - param->first_page);
+    int page_count = (param->last_page - param->first_page + 1);
     for(int i = param->first_page; i <= param->last_page ; ++i) 
     {
         cerr << "Working: " << (i-param->first_page) << "/" << page_count << '\r' << flush;

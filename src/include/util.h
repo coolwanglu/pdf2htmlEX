@@ -57,15 +57,14 @@ static inline long long hash_ref(const Ref * id)
 }
 
 /*
+ * Check if the unicode is valid for HTML
  * http://en.wikipedia.org/wiki/HTML_decimal_character_rendering
  */
 bool isLegalUnicode(Unicode u);
 
 Unicode map_to_private(CharCode code);
 
-/*
- * Try to determine the Unicode value directly from the information in the font
- */
+/* * Try to determine the Unicode value directly from the information in the font */
 Unicode unicode_from_font (CharCode code, GfxFont * font);
 
 /*
