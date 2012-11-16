@@ -19,7 +19,8 @@ void SplashBackgroundRenderer::drawChar(GfxState *state, double x, double y,
   double originX, double originY,
   CharCode code, int nBytes, Unicode *u, int uLen)
 {
-    if((state->getRender() & 3) == 3)
+    if(((state->getRender() & 3) == 3)
+            || ((state->getFont()) && (state->getFont()->getWMode())))
     {
         SplashOutputDev::drawChar(state,x,y,dx,dy,originX,originY,code, nBytes, u, uLen);
     }
