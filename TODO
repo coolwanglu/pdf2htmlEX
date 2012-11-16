@@ -1,3 +1,7 @@
+combine lines (unwarp)
+
+type 3 fonts
+
 word space/offset before the first letter (calendar pdf)
 
 don't dump image when there is nothing
@@ -6,11 +10,10 @@ Integrate splash/cairo
 native support for image
 native support for draw
 
-draw non-orthogonal lines with CSS
-
-position history stack (popstate)
 
 ==Wait until someone asks==
+position history stack (popstate)
+draw non-orthogonal lines with CSS
 try harder finding glyph names (using fontforge) for CID Type 0
 rename single-html -> embed-font/image/css ...
 merge sub/sup into one line
@@ -23,6 +26,5 @@ use absolute positioning for long whitespace
 color invert
 detect duplicate base fonts when embedding
 disable selection if we know unicode is wrong
-combine lines (unwarp)
-Printing
 check if we can add information to the font, and let browsers show ligatures automatically
+Printing
