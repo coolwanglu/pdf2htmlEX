@@ -1,4 +1,4 @@
-# pdf2html**EX** 
+# pdf2htmlEX
 
 A beautiful demo is worth a thousand words:
 
@@ -149,11 +149,12 @@ pdf2htmlEX is inspired by the following projects:
 
 ## Contact
 
-* Lu Wang <coolwanglu@gmail.com>
-  * Suggestions and questions are **welcome**. 
-  * Please read [**FAQ**](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ) before sending an email to me. Or your message might be ignored.
+* Mailing list <pdf2htmlex@googlegroups.com>
+  * Please read [**FAQ**](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ) before sending emails. Or your message might be ignored.
   * Please use the **latest master branch**.
-  * Expect me to be much more user-friendly than pdf2htmlEX.
+
+* Lu Wang <coolwanglu@gmail.com>
+  * Please use the mailing list above unless for personal enquiries.
   * Accepting messages in **Chinese**, **English** or **Japanese**.
 
 
