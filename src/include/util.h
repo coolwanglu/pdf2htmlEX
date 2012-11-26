@@ -107,6 +107,14 @@ public:
     double ascent, descent;
 };
 
+struct FontAttrs
+{
+	bool fixed;
+	bool serif;
+	bool italic;
+	bool bold;
+};
+
 class Matrix_less
 {
 public:
