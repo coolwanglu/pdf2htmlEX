@@ -38,6 +38,7 @@ HTMLRenderer::HTMLRenderer(const Param * param)
     ,line_opened(false)
     ,line_buf(this)
     ,preprocessor(param)
+	,tmp_files(*param)
     ,image_count(0)
     ,param(param)
 {
@@ -56,7 +57,6 @@ HTMLRenderer::HTMLRenderer(const Param * param)
 HTMLRenderer::~HTMLRenderer()
 { 
     ffw_finalize();
-    clean_tmp_files();
     delete [] cur_mapping;
     delete [] cur_mapping2;
     delete [] width_list;
@@ -94,7 +94,7 @@ void HTMLRenderer::process(PDFDoc *doc)
         {
             auto fn = str_fmt("%s/p%x.png", (param->single_html ? param->tmp_dir : param->dest_dir).c_str(), i);
             if(param->single_html)
-                add_tmp_file((char*)fn);
+                tmp_files.add((char*)fn);
 
             bg_renderer->render_page(doc, i, (char*)fn);
         }
@@ -280,7 +280,7 @@ void HTMLRenderer::pre_process(PDFDoc * doc)
             : str_fmt("%s/%s", param->dest_dir.c_str(), param->css_filename.c_str());
 
         if(param->single_html && (!param->split_pages))
-            add_tmp_file((char*)fn);
+            tmp_files.add((char*)fn);
 
         css_path = (char*)fn,
         css_fout.open(css_path, ofstream::binary);
@@ -301,7 +301,7 @@ void HTMLRenderer::pre_process(PDFDoc * doc)
          * Otherwise just generate it 
          */
         auto fn = str_fmt("%s/__pages", param->tmp_dir.c_str());
-        add_tmp_file((char*)fn);
+        tmp_files.add((char*)fn);
 
         html_path = (char*)fn;
         html_fout.open(html_path, ofstream::binary); 
@@ -390,33 +390,6 @@ void HTMLRenderer::fix_stream (std::ostream & out)
     // we output all ID's in hex
     // browsers are not happy with scientific notations
     out << hex << fixed;
-}
-
-void HTMLRenderer::add_tmp_file(const string & fn)
-{
-    if(!param->clean_tmp)
-        return;
-
-    if(tmp_files.insert(fn).second && param->debug)
-        cerr << "Add new temporary file: " << fn << endl;
-}
-
-void HTMLRenderer::clean_tmp_files()
-{
-    if(!param->clean_tmp)
-        return;
-
-    for(auto iter = tmp_files.begin(); iter != tmp_files.end(); ++iter)
-    {
-        const string & fn = *iter;
-        remove(fn.c_str());
-        if(param->debug)
-            cerr << "Remove temporary file: " << fn << endl;
-    }
-
-    remove(param->tmp_dir.c_str());
-    if(param->debug)
-        cerr << "Remove temporary directory: " << param->tmp_dir << endl;
 }
 
 void HTMLRenderer::embed_file(ostream & out, const string & path, const string & type, bool copy)

@@ -127,7 +127,7 @@ string HTMLRenderer::dump_embedded_font (GfxFont * font, long long fn_id)
         obj.streamReset();
 
         filepath = (char*)str_fmt("%s/f%llx%s", param->tmp_dir.c_str(), fn_id, suffix.c_str());
-        add_tmp_file(filepath);
+        tmp_files.add(filepath);
 
         ofstream outf(filepath, ofstream::binary);
         if(!outf)
@@ -171,7 +171,7 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
     if(param->debug)
     {
         auto fn = str_fmt("%s/__raw_font_%lld", param->tmp_dir.c_str(), info.id, param->font_suffix.c_str());
-        add_tmp_file((char*)fn);
+        tmp_files.add((char*)fn);
         ofstream((char*)fn, ofstream::binary) << ifstream(filepath).rdbuf();
     }
 
@@ -437,9 +437,9 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
      *
      */
     string cur_tmp_fn = (char*)str_fmt("%s/__tmp_font1%s", param->tmp_dir.c_str(), param->font_suffix.c_str());
-    add_tmp_file(cur_tmp_fn);
+    tmp_files.add(cur_tmp_fn);
     string other_tmp_fn = (char*)str_fmt("%s/__tmp_font2%s", param->tmp_dir.c_str(), param->font_suffix.c_str());
-    add_tmp_file(other_tmp_fn);
+    tmp_files.add(other_tmp_fn);
 
     ffw_save(cur_tmp_fn.c_str());
 
@@ -482,7 +482,7 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
         info.id, param->font_suffix.c_str());
 
     if(param->single_html)
-        add_tmp_file(fn);
+        tmp_files.add(fn);
 
     ffw_load_font(cur_tmp_fn.c_str());
     ffw_metric(&info.ascent, &info.descent);
