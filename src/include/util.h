@@ -18,6 +18,9 @@
 #include <string>
 #include <map>
 
+#include <GfxState.h>
+#include <CharTypes.h>
+
 #ifndef nullptr
 #define nullptr (NULL)
 #endif
