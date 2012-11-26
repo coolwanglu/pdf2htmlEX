@@ -27,6 +27,7 @@
 #include "Param.h"
 #include "util.h"
 #include "Preprocessor.h"
+#include "TmpFiles.h"
 
 /*
  * Naming Convention
@@ -156,8 +157,6 @@ class HTMLRenderer : public OutputDev
         // set flags 
         void fix_stream (std::ostream & out);
 
-        void add_tmp_file (const std::string & fn);
-        void clean_tmp_files ();
         std::string dump_embedded_font (GfxFont * font, long long fn_id);
         void embed_font(const std::string & filepath, GfxFont * font, FontInfo & info, bool get_metric_only = false);
 
@@ -408,6 +407,7 @@ class HTMLRenderer : public OutputDev
         char ** cur_mapping2;
         int * width_list;
         Preprocessor preprocessor;
+        TmpFiles tmp_files;
 
         // for string formatting
         string_formatter str_fmt;
@@ -431,7 +431,6 @@ class HTMLRenderer : public OutputDev
         const Param * param;
         std::ofstream html_fout, css_fout;
         std::string html_path, css_path;
-        std::set<std::string> tmp_files;
 
         static const std::string MANIFEST_FILENAME;
 };
