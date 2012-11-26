@@ -106,7 +106,7 @@ void HTMLRenderer::LineBuffer::flush(void)
         if(cur_text_idx >= cur_state_iter->start_idx)
         {
             // greedy
-            int best_cost = State::ID_COUNT;
+            int best_cost = TextState::ID_COUNT;
             
             // we have a nullptr at the beginning, so no need to check for rend
             for(auto iter = stack.rbegin(); *iter; ++iter)
@@ -177,14 +177,14 @@ void HTMLRenderer::LineBuffer::flush(void)
 
 }
 
-void HTMLRenderer::LineBuffer::set_state (State & state)
+void HTMLRenderer::LineBuffer::set_state (TextState & state)
 {
-    state.ids[State::FONT_ID] = renderer->cur_font_info->id;
-    state.ids[State::FONT_SIZE_ID] = renderer->cur_fs_id;
-    state.ids[State::COLOR_ID] = renderer->cur_color_id;
-    state.ids[State::LETTER_SPACE_ID] = renderer->cur_ls_id;
-    state.ids[State::WORD_SPACE_ID] = renderer->cur_ws_id;
-    state.ids[State::RISE_ID] = renderer->cur_rise_id;
+    state.ids[TextState::FONT_ID] = renderer->cur_font_info->id;
+    state.ids[TextState::FONT_SIZE_ID] = renderer->cur_fs_id;
+    state.ids[TextState::COLOR_ID] = renderer->cur_color_id;
+    state.ids[TextState::LETTER_SPACE_ID] = renderer->cur_ls_id;
+    state.ids[TextState::WORD_SPACE_ID] = renderer->cur_ws_id;
+    state.ids[TextState::RISE_ID] = renderer->cur_rise_id;
 
     const FontInfo * info = renderer->cur_font_info;
     state.ascent = info->ascent;
@@ -192,69 +192,5 @@ void HTMLRenderer::LineBuffer::set_state (State & state)
     state.draw_font_size = renderer->draw_font_size;
 }
 
-void HTMLRenderer::LineBuffer::State::begin (ostream & out, const State * prev_state)
-{
-    bool first = true;
-    for(int i = 0; i < ID_COUNT; ++i)
-    {
-        if(prev_state && (prev_state->ids[i] == ids[i]))
-            continue;
 
-        if(first)
-        { 
-            out << "<span class=\"";
-            first = false;
-        }
-        else
-        {
-            out << ' ';
-        }
-
-        // out should has set hex
-        out << format_str[i] << ids[i];
-    }
-
-    if(first)
-    {
-        need_close = false;
-    }
-    else
-    {
-        out << "\">";
-        need_close = true;
-    }
-}
-
-void HTMLRenderer::LineBuffer::State::end(ostream & out) const
-{
-    if(need_close)
-        out << "</span>";
-}
-
-void HTMLRenderer::LineBuffer::State::hash(void)
-{
-    hash_value = 0;
-    for(int i = 0; i < ID_COUNT; ++i)
-    {
-        hash_value = (hash_value << 8) | (ids[i] & 0xff);
-    }
-}
-
-int HTMLRenderer::LineBuffer::State::diff(const State & s) const
-{
-    /*
-     * A quick check based on hash_value
-     * it could be wrong when there are more then 256 classes, 
-     * in which case the output may not be optimal, but still 'correct' in terms of HTML
-     */
-    if(hash_value == s.hash_value) return 0;
-
-    int d = 0;
-    for(int i = 0; i < ID_COUNT; ++i)
-        if(ids[i] != s.ids[i])
-            ++ d;
-    return d;
-}
-
-const char * HTMLRenderer::LineBuffer::State::format_str = "fsclwr";
 } //namespace pdf2htmlEX
