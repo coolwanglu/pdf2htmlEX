@@ -22,6 +22,16 @@ namespace pdf2htmlEX {
 
 using std::abs;
 
+static FontAttrs font_attrs( GfxFont& font )
+{
+	FontAttrs attrs;
+	attrs.fixed = font.isFixedWidth();
+	attrs.serif = font.isSerif();
+	attrs.italic = font.isItalic();
+	attrs.bold = font.isBold();
+	return attrs;
+}
+
 const FontInfo * HTMLRenderer::install_font(GfxFont * font)
 {
     assert(sizeof(long long) == 2*sizeof(int));
@@ -38,7 +48,7 @@ const FontInfo * HTMLRenderer::install_font(GfxFont * font)
 
     if(font == nullptr)
     {
-        export_remote_default_font(new_fn_id);
+        device.export_remote_default_font(new_fn_id);
         return &(cur_info_iter->second);
     }
 
@@ -52,12 +62,12 @@ const FontInfo * HTMLRenderer::install_font(GfxFont * font)
 
     if(font->getType() == fontType3) {
         cerr << "Type 3 fonts are unsupported and will be rendered as Image" << endl;
-        export_remote_default_font(new_fn_id);
+        device.export_remote_default_font(new_fn_id);
         return &(cur_info_iter->second);
     }
     if(font->getWMode()) {
         cerr << "Writing mode is unsupported and will be rendered as Image" << endl;
-        export_remote_default_font(new_fn_id);
+        device.export_remote_default_font(new_fn_id);
         return &(cur_info_iter->second);
     }
 
@@ -77,14 +87,14 @@ const FontInfo * HTMLRenderer::install_font(GfxFont * font)
                 break;
             default:
                 cerr << "TODO: other font loc" << endl;
-                export_remote_default_font(new_fn_id);
+                device.export_remote_default_font(new_fn_id);
                 break;
         }      
         delete font_loc;
     }
     else
     {
-        export_remote_default_font(new_fn_id);
+        device.export_remote_default_font(new_fn_id);
     }
       
     return &(cur_info_iter->second);
@@ -97,11 +107,11 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, FontInfo & info)
     if(path != "")
     {
         embed_font(path, font, info);
-        export_remote_font(info, param->font_suffix, param->font_format, font);
+        device.export_remote_font(info, param->font_suffix, param->font_format);
     }
     else
     {
-        export_remote_default_font(info.id);
+        device.export_remote_default_font(info.id);
     }
 }
 
@@ -116,7 +126,7 @@ void HTMLRenderer::install_base_font(GfxFont * font, GfxFontLoc * font_loc, Font
         if(localfontloc != nullptr)
         {
             embed_font(localfontloc->path->getCString(), font, info);
-            export_remote_font(info, param->font_suffix, param->font_format, font);
+            device.export_remote_font(info, param->font_suffix, param->font_format);
             delete localfontloc;
             return;
         }
@@ -151,7 +161,7 @@ void HTMLRenderer::install_base_font(GfxFont * font, GfxFontLoc * font_loc, Font
         info.descent = font->getDescent();
     }
 
-    export_local_font(info, font, psname, cssfont);
+    device.export_local_font(info, psname, cssfont, font_attrs( *font ) );
 }
 
 void HTMLRenderer::install_external_font(GfxFont * font, FontInfo & info)
@@ -174,7 +184,7 @@ void HTMLRenderer::install_external_font(GfxFont * font, FontInfo & info)
         if(localfontloc != nullptr)
         {
             embed_font(string(localfontloc->path->getCString()), font, info);
-            export_remote_font(info, param->font_suffix, param->font_format, font);
+            device.export_remote_font(info, param->font_suffix, param->font_format);
             delete localfontloc;
             return;
         }
@@ -198,7 +208,7 @@ void HTMLRenderer::install_external_font(GfxFont * font, FontInfo & info)
         info.descent = font->getDescent();
     }
 
-    export_local_font(info, font, fontname, "");
+    device.export_local_font(info, fontname, "", font_attrs( *font ) );
 }
     
 long long HTMLRenderer::install_font_size(double font_size)
@@ -209,7 +219,7 @@ long long HTMLRenderer::install_font_size(double font_size)
 
     long long new_fs_id = font_size_map.size();
     font_size_map.insert(make_pair(font_size, new_fs_id));
-    export_font_size(new_fs_id, font_size);
+    device.export_font_size(new_fs_id, font_size);
     return new_fs_id;
 }
 
@@ -224,7 +234,7 @@ long long HTMLRenderer::install_transform_matrix(const double * tm)
 
     long long new_tm_id = transform_matrix_map.size();
     transform_matrix_map.insert(make_pair(m, new_tm_id));
-    export_transform_matrix(new_tm_id, tm);
+    device.export_transform_matrix(new_tm_id, tm);
     return new_tm_id;
 }
 
@@ -236,7 +246,7 @@ long long HTMLRenderer::install_letter_space(double letter_space)
 
     long long new_ls_id = letter_space_map.size();
     letter_space_map.insert(make_pair(letter_space, new_ls_id));
-    export_letter_space(new_ls_id, letter_space);
+    device.export_letter_space(new_ls_id, letter_space);
     return new_ls_id;
 }
 
@@ -248,7 +258,7 @@ long long HTMLRenderer::install_word_space(double word_space)
 
     long long new_ws_id = word_space_map.size();
     word_space_map.insert(make_pair(word_space, new_ws_id));
-    export_word_space(new_ws_id, word_space);
+    device.export_word_space(new_ws_id, word_space);
     return new_ws_id;
 }
 
@@ -261,7 +271,7 @@ long long HTMLRenderer::install_color(const GfxRGB * rgb)
 
     long long new_color_id = color_map.size();
     color_map.insert(make_pair(c, new_color_id));
-    export_color(new_color_id, rgb);
+    device.export_color(new_color_id, rgb);
     return new_color_id;
 }
 
@@ -278,7 +288,7 @@ long long HTMLRenderer::install_whitespace(double ws_width, double & actual_widt
     actual_width = ws_width;
     long long new_ws_id = whitespace_map.size();
     whitespace_map.insert(make_pair(ws_width, new_ws_id));
-    export_whitespace(new_ws_id, ws_width);
+    device.export_whitespace(new_ws_id, ws_width);
     return new_ws_id;
 }
 
@@ -292,7 +302,7 @@ long long HTMLRenderer::install_rise(double rise)
 
     long long new_rise_id = rise_map.size();
     rise_map.insert(make_pair(rise, new_rise_id));
-    export_rise(new_rise_id, rise);
+    device.export_rise(new_rise_id, rise);
     return new_rise_id;
 }
 
@@ -306,7 +316,7 @@ long long HTMLRenderer::install_height(double height)
 
     long long new_height_id = height_map.size();
     height_map.insert(make_pair(height, new_height_id));
-    export_height(new_height_id, height);
+    device.export_height(new_height_id, height);
     return new_height_id;
 }
 

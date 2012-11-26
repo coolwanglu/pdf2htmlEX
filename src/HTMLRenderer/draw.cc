@@ -371,48 +371,11 @@ void HTMLRenderer::css_draw_rectangle(double x, double y, double w, double h, co
         }
     }
 
-    html_fout << "<div class=\"Cd t" << install_transform_matrix(new_tm) << "\" style=\"";
 
-    if(line_color)
-    {
-        html_fout << "border-color:" << *line_color << ";";
-
-        html_fout << "border-width:";
-        for(int i = 0; i < line_width_count; ++i)
-        {
-            if(i > 0) html_fout << ' ';
-
-            double lw = line_width_array[i] * scale;
-            html_fout << _round(lw);
-            if(_is_positive(lw)) html_fout << "px";
-        }
-        html_fout << ";";
-    }
-    else
-    {
-        html_fout << "border:none;";
-    }
-
-    if(fill_color)
-    {
-        html_fout << "background-color:" << (*fill_color) << ";";
-    }
-    else
-    {
-        html_fout << "background-color:transparent;";
-    }
-
-    if(style_function)
-    { 
-        style_function(style_function_data, html_fout);
-    }
-
-    html_fout << "bottom:" << _round(y) << "px;"
-        << "left:" << _round(x) << "px;"
-        << "width:" << _round(w * scale) << "px;"
-        << "height:" << _round(h * scale) << "px;";
-
-    html_fout << "\"></div>";
+	device.css_draw_rectangle( x, y, w, h, scale, install_transform_matrix(new_tm),
+							   line_width_array, line_width_count,
+							   line_color, fill_color, 
+							   style_function, style_function_data);
 }
 
 

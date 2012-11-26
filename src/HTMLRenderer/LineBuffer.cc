@@ -78,14 +78,8 @@ void HTMLRenderer::LineBuffer::flush(void)
         max_ascent = max<double>(max_ascent, s.ascent * s.draw_font_size);
     }
 
-    ostream & out = renderer->html_fout;
-    out << "<div style=\"left:" 
-        << _round(x) << "px;bottom:" 
-        << _round(y) << "px;"
-        << "\""
-        << " class=\"l t" << tm_id 
-        << " h" << renderer->install_height(max_ascent)
-        << "\">";
+    HTMLDevice& device = renderer->device;
+	device.text_start( x, y, tm_id, renderer->install_height(max_ascent) );
 
     auto cur_state_iter = states.begin();
     auto cur_offset_iter = offsets.begin();
@@ -116,7 +110,8 @@ void HTMLRenderer::LineBuffer::flush(void)
                 {
                     while(stack.back() != *iter)
                     {
-                        stack.back()->end(out);
+                        if ( stack.back()->need_close )
+							device.span_end();
                         stack.pop_back();
                     }
                     best_cost = cost;
@@ -129,7 +124,7 @@ void HTMLRenderer::LineBuffer::flush(void)
                 if((*iter)->start_idx <= last_text_pos_with_negative_offset)
                     break;
             }
-            cur_state_iter->begin(out, stack.back());
+			cur_state_iter->need_close = device.span_start( *cur_state_iter, stack.back() ); 
             stack.push_back(&*cur_state_iter);
 
             ++ cur_state_iter;
@@ -145,10 +140,7 @@ void HTMLRenderer::LineBuffer::flush(void)
             if(w < 0)
                 last_text_pos_with_negative_offset = cur_text_idx;
 
-            auto * p = stack.back();
-            double threshold = p->draw_font_size * (p->ascent - p->descent) * (renderer->param->space_threshold);
-
-            out << "<span class=\"_ _" << wid << "\">" << (target > (threshold - EPS) ? " " : "") << "</span>";
+			device.span_whitespace( *stack.back(), target, wid );
 
             dx = target - w;
 
@@ -157,18 +149,19 @@ void HTMLRenderer::LineBuffer::flush(void)
 
         size_t next_text_idx = min<size_t>(cur_state_iter->start_idx, cur_offset_iter->start_idx);
 
-        outputUnicodes(out, (&text.front()) + cur_text_idx, next_text_idx - cur_text_idx);
+        device.text_data( (&text.front()) + cur_text_idx, next_text_idx - cur_text_idx);
         cur_text_idx = next_text_idx;
     }
 
     // we have a nullptr in the bottom
     while(stack.back())
     {
-        stack.back()->end(out);
+		if ( stack.back()->need_close )
+			device.span_end();
         stack.pop_back();
     }
 
-    out << "</div>";
+    device.text_end();
 
 
     states.clear();
