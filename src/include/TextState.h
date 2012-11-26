@@ -8,8 +8,6 @@ namespace pdf2htmlEX {
 
 class TextState {
 public:
-	void begin(std::ostream & out, const TextState * prev_state);
-	void end(std::ostream & out) const;
 	void hash(void);
 	int diff(const TextState & s) const;
 
@@ -35,7 +33,6 @@ public:
 	long long hash_value;
 	bool need_close;
 
-	static const char * format_str; // class names for each id
 };
 
 
