@@ -5,6 +5,45 @@ using namespace std;
 
 namespace pdf2htmlEX {
 
+const char * TextState::format_str = "fsclwr";
+
+void TextState::begin( ostream & out, const TextState * prev_state )
+{
+    bool first = true;
+    for(int i = 0; i < ID_COUNT; ++i)
+    {
+        if(prev_state && (prev_state->ids[i] == ids[i]))
+            continue;
+
+        if(first)
+		{ 
+            out << "<span class=\"";
+            first = false;
+        }
+        else
+        {
+            out << ' ';
+        }
+        // out should has set hex
+        out << format_str[i] << ids[i];
+	}
+    if(first)
+    {
+        need_close = false;
+    }
+    else
+    {
+        out << "\">";
+        need_close = true;
+    }
+}
+
+void TextState::end(ostream & out) const
+{
+	if(need_close)
+		out << "</span>";
+}
+
 void TextState::hash(void)
 {
     hash_value = 0;
