@@ -27,7 +27,6 @@
 #include "Param.h"
 #include "util.h"
 #include "Preprocessor.h"
-#include "HTMLDevice.h"
 #include "TmpFiles.h"
 #include "TextState.h"
 
@@ -159,6 +158,8 @@ class HTMLRenderer : public OutputDev
         void post_process();
 
         // set flags 
+        void fix_stream (std::ostream & out);
+
         std::string dump_embedded_font (GfxFont * font, long long fn_id);
         void embed_font(const std::string & filepath, GfxFont * font, FontInfo & info, bool get_metric_only = false);
 
@@ -178,6 +179,31 @@ class HTMLRenderer : public OutputDev
         long long install_whitespace(double ws_width, double & actual_width);
         long long install_rise(double rise);
         long long install_height(double height);
+
+        ////////////////////////////////////////////////////
+        // export css styles
+        ////////////////////////////////////////////////////
+        /*
+         * remote font: to be retrieved from the web server
+         * local font: to be substituted with a local (client side) font
+         */
+        void export_remote_font(const FontInfo & info, const std::string & suffix, const std::string & fontfileformat, GfxFont * font);
+        void export_remote_default_font(long long fn_id);
+        void export_local_font(const FontInfo & info, GfxFont * font, const std::string & original_font_name, const std::string & cssfont);
+
+        void export_font_size(long long fs_id, double font_size);
+        void export_transform_matrix(long long tm_id, const double * tm);
+        void export_letter_space(long long ls_id, double letter_space);
+        void export_word_space(long long ws_id, double word_space);
+        void export_color(long long color_id, const GfxRGB * rgb);
+        void export_whitespace(long long ws_id, double ws_width);
+        void export_rise(long long rise_id, double rise);
+        void export_height(long long height_id, double height);
+
+        // depending on single-html, to embed the content or add a link to it
+        // "type": specify the file type, usually it's the suffix, in which case this parameter could be ""
+        // "copy": indicates whether to copy the file into dest_dir, if not embedded
+        void embed_file(std::ostream & out, const std::string & path, const std::string & type, bool copy);
 
         ////////////////////////////////////////////////////
         // state tracking 
@@ -352,7 +378,6 @@ class HTMLRenderer : public OutputDev
         int * width_list;
         Preprocessor preprocessor;
         TmpFiles tmp_files;
-        HTMLDevice device;	
 
         // for string formatting
         string_formatter str_fmt;
@@ -374,6 +399,10 @@ class HTMLRenderer : public OutputDev
         int image_count;
 
         const Param * param;
+        std::ofstream html_fout, css_fout;
+        std::string html_path, css_path;
+
+        static const std::string MANIFEST_FILENAME;
 };
 
 } //namespace pdf2htmlEX
