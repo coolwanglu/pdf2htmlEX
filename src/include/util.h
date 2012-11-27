@@ -40,7 +40,7 @@ extern const std::map<std::string, std::string> GB_ENCODED_FONT_NAME_MAP;
 extern const std::map<std::pair<std::string, bool>, std::pair<std::string, std::string> > EMBED_STRING_MAP;
 
 static inline double _round(double x) { return (std::abs(x) > EPS) ? x : 0.0; }
-static inline bool _equal(double x, double y) { return std::abs(x-y) < EPS; }
+static inline bool _equal(double x, double y, double eps = EPS ) { return std::abs(x-y) < eps; }
 static inline bool _is_positive(double x) { return x > EPS; }
 static inline bool _tm_equal(const double * tm1, const double * tm2, int size = 6)
 {
