@@ -1,13 +1,22 @@
+/*
+ * TmpFiles.cc
+ *
+ * Collect and clean-up temporary files
+ *
+ * implemented by WangLu
+ * split off by Filodej <philodej@gmail.com>
+ */
+
+#include <iostream>
 #include "TmpFiles.h"
 #include "Param.h"
-#include <iostream>
 
 using namespace std;
 
 namespace pdf2htmlEX {
 
 
-TmpFiles::TmpFiles( Param const& param_ )
+TmpFiles::TmpFiles( const Param& param_ )
 	: param( param_ )
 {
 }
@@ -17,7 +26,7 @@ TmpFiles::~TmpFiles()
     clean();
 }
 
-void TmpFiles::add(const string & fn)
+void TmpFiles::add( const string & fn)
 {
     if(!param.clean_tmp)
         return;

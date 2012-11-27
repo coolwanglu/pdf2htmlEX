@@ -10,16 +10,16 @@ namespace pdf2htmlEX {
 class TmpFiles 
 {
 public:
-    explicit TmpFiles( Param const& param );
-    virtual ~TmpFiles();
+    explicit TmpFiles( const Param& param );
+    ~TmpFiles();
 
-	void add(std::string const& fn);
+	void add( const std::string& fn);
 
 private:
 	void clean();
 		
 private:
-    Param const& param;
+    const Param& param;
 	std::set<std::string> tmp_files;
 
 };
