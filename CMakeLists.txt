@@ -143,7 +143,6 @@ configure_file (${CMAKE_SOURCE_DIR}/pdf2htmlEX.1.in ${CMAKE_SOURCE_DIR}/pdf2html
 
 add_executable(pdf2htmlEX 
     src/Param.h
-    src/config.h
     src/pdf2htmlEX-config.h
     src/pdf2htmlEX.cc 
     src/HTMLRenderer/HTMLRenderer.h 
@@ -178,7 +177,7 @@ add_executable(pdf2htmlEX
     src/util/namespace.h
     src/util/path.h
     src/util/path.cc
-    src/util/string_formatter.h
+    src/util/StringFormatter.h
     src/util/TmpFiles.h
     src/util/TmpFiles.cc
     src/util/unicode.h
