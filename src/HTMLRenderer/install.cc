@@ -17,10 +17,13 @@
 #include "HTMLRenderer.h"
 #include "util/namespace.h"
 #include "util/math.h"
+#include "util/misc.h"
 
 namespace pdf2htmlEX {
 
 using std::abs;
+using std::cerr;
+using std::endl;
 
 const FontInfo * HTMLRenderer::install_font(GfxFont * font)
 {

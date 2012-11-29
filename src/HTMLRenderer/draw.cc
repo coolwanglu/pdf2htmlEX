@@ -14,6 +14,7 @@
 #include <iostream>
 
 #include "HTMLRenderer.h"
+#include "util/misc.h"
 #include "util/math.h"
 #include "util/namespace.h"
 

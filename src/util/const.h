@@ -13,6 +13,10 @@
 
 namespace pdf2htmlEX {
 
+#ifndef nullptr
+#define nullptr (NULL)
+#endif
+
 static const double EPS = 1e-6;
 static const double DEFAULT_DPI = 72.0;
 extern const double ID_MATRIX[6];

@@ -14,6 +14,7 @@
 #include "util/namespace.h"
 #include "util/base64.h"
 #include "util/math.h"
+#include "util/misc.h"
 
 namespace pdf2htmlEX {
 

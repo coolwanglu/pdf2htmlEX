@@ -16,12 +16,15 @@
 #include "HTMLRenderer.h"
 #include "util/namespace.h"
 #include "util/math.h"
+#include "util/misc.h"
 
 namespace pdf2htmlEX {
    
 using std::ostringstream;
 using std::min;
 using std::max;
+using std::cerr;
+using std::endl;
 
 /*
  * The detailed rectangle area of the link destination

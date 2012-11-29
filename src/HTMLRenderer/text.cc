@@ -21,6 +21,7 @@
 #include "util/unicode.h"
 #include "util/path.h"
 #include "util/math.h"
+#include "util/misc.h"
 
 namespace pdf2htmlEX {
 
@@ -29,6 +30,8 @@ using std::min;
 using std::all_of;
 using std::floor;
 using std::swap;
+using std::cerr;
+using std::endl;
 
 string HTMLRenderer::dump_embedded_font (GfxFont * font, long long fn_id)
 {

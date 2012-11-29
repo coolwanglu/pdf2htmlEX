@@ -12,6 +12,7 @@
 #include "HTMLRenderer.h"
 #include "util/namespace.h"
 #include "util/unicode.h"
+#include "util/math.h"
 
 namespace pdf2htmlEX {
 
@@ -19,6 +20,8 @@ using std::min;
 using std::max;
 using std::vector;
 using std::ostream;
+using std::cerr;
+using std::endl;
 
 void HTMLRenderer::LineBuffer::reset(GfxState * state)
 {

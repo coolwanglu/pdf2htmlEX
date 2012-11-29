@@ -15,7 +15,8 @@
 #include <GfxFont.h>
 
 #include "Preprocessor.h"
-#include "util/util.h"
+#include "util/misc.h"
+#include "util/const.h"
 
 namespace pdf2htmlEX {
 

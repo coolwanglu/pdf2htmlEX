@@ -6,16 +6,9 @@
  * 2012.08.10
  */
 
-#include <errno.h>
-#include <cctype>
+#include <map>
 
-#include <GfxState.h>
-#include <GfxFont.h>
-#include <CharTypes.h>
-#include <GlobalParams.h>
-#include <Object.h>
-
-#include "util.h"
+#include "misc.h"
 
 using std::cerr;
 using std::endl;

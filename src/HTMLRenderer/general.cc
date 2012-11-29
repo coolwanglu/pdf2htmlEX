@@ -31,6 +31,8 @@ using std::max;
 using std::min_element;
 using std::vector;
 using std::abs;
+using std::cerr;
+using std::endl;
 
 static void dummy(void *, enum ErrorCategory, int pos, char *)
 {

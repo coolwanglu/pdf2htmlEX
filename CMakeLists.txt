@@ -173,6 +173,8 @@ add_executable(pdf2htmlEX
     src/util/ffw.c
     src/util/math.h
     src/util/math.cc
+    src/util/misc.h
+    src/util/misc.cc
     src/util/namespace.h
     src/util/path.h
     src/util/path.cc
@@ -181,8 +183,6 @@ add_executable(pdf2htmlEX
     src/util/TmpFiles.cc
     src/util/unicode.h
     src/util/unicode.cc
-    src/util/util.h
-    src/util/util.cc
     )
 target_link_libraries(pdf2htmlEX ${PDF2HTMLEX_LIBS})
 

@@ -12,8 +12,6 @@
 using std::hex;
 using std::dec;
 using std::string;
-using std::cout;
-using std::cerr;
 using std::endl;
 using std::make_pair;
 using std::ifstream;

@@ -9,19 +9,9 @@
 #ifndef UTIL_H__
 #define UTIL_H__
 
-#include <cstdio>
 #include <iostream>
-#include <algorithm>
-#include <cmath>
-#include <vector>
-#include <string>
-#include <map>
 
-#include "const.h"
-
-#ifndef nullptr
-#define nullptr (NULL)
-#endif
+#include <GfxState.h>
 
 namespace pdf2htmlEX {
 
@@ -29,7 +19,6 @@ static inline long long hash_ref(const Ref * id)
 {
     return (((long long)(id->num)) << (sizeof(id->gen)*8)) | (id->gen);
 }
-
 
 /*
  * In PDF, edges of the rectangle are in the middle of the borders
