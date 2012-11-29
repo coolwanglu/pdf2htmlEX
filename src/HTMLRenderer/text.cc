@@ -18,6 +18,7 @@
 #include "HTMLRenderer.h"
 #include "util/ffw.h"
 #include "util/namespace.h"
+#include "util/unicode.h"
 
 namespace pdf2htmlEX {
 

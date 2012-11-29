@@ -99,7 +99,7 @@ void HTMLRenderer::export_transform_matrix (long long tm_id, const double * tm)
     // we have already shifted the origin
     
     // TODO: recognize common matices
-    if(_tm_equal(tm, id_matrix, 4))
+    if(_tm_equal(tm, ID_MATRIX, 4))
     {
         auto prefixes = {"", "-ms-", "-moz-", "-webkit-", "-o-"};
         for(auto iter = prefixes.begin(); iter != prefixes.end(); ++iter)

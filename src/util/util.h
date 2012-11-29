@@ -1,6 +1,5 @@
 /*
- * Constants & Misc functions
- *
+ * Help classes and Functions
  *
  * by WangLu
  * 2012.08.10
@@ -19,25 +18,14 @@
 #include <map>
 
 #include <GfxState.h>
-#include <CharTypes.h>
+
+#include "const.h"
 
 #ifndef nullptr
 #define nullptr (NULL)
 #endif
 
 namespace pdf2htmlEX {
-
-static const double EPS = 1e-6;
-extern const double id_matrix[6];
-
-static const double DEFAULT_DPI = 72.0;
-
-extern const std::map<std::string, std::string> BASE_14_FONT_CSS_FONT_MAP;
-extern const std::map<std::string, std::string> GB_ENCODED_FONT_NAME_MAP;
-// map to embed files into html
-// key: (suffix, if_embed_content)
-// value: (prefix string, suffix string)
-extern const std::map<std::pair<std::string, bool>, std::pair<std::string, std::string> > EMBED_STRING_MAP;
 
 static inline double _round(double x) { return (std::abs(x) > EPS) ? x : 0.0; }
 static inline bool _equal(double x, double y) { return std::abs(x-y) < EPS; }
@@ -58,26 +46,6 @@ static inline long long hash_ref(const Ref * id)
 {
     return (((long long)(id->num)) << (sizeof(id->gen)*8)) | (id->gen);
 }
-
-/*
- * Check if the unicode is valid for HTML
- * http://en.wikipedia.org/wiki/HTML_decimal_character_rendering
- */
-bool isLegalUnicode(Unicode u);
-
-Unicode map_to_private(CharCode code);
-
-/* * Try to determine the Unicode value directly from the information in the font */
-Unicode unicode_from_font (CharCode code, GfxFont * font);
-
-/*
- * We have to use a single Unicode value to reencode fonts
- * if we got multi-unicode values, it might be expanded ligature, try to restore it
- * if we cannot figure it out at the end, use a private mapping
- */
-Unicode check_unicode(Unicode * u, int len, CharCode code, GfxFont * font);
-
-void outputUnicodes(std::ostream & out, const Unicode * u, int uLen);
 
 class GfxRGB_hash 
 {
@@ -233,5 +201,6 @@ void css_fix_rectangle_border_width(double x1, double y1, double x2, double y2,
 
 std::ostream & operator << (std::ostream & out, const GfxRGB & rgb);
 
-} // namespace util
+} // namespace pdf2htmlEX
+
 #endif //UTIL_H__

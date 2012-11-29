@@ -170,8 +170,8 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
     cur_font_size = draw_font_size = 0;
     cur_fs_id = install_font_size(cur_font_size);
     
-    memcpy(cur_text_tm, id_matrix, sizeof(cur_text_tm));
-    memcpy(draw_text_tm, id_matrix, sizeof(draw_text_tm));
+    memcpy(cur_text_tm, ID_MATRIX, sizeof(cur_text_tm));
+    memcpy(draw_text_tm, ID_MATRIX, sizeof(draw_text_tm));
     cur_ttm_id = install_transform_matrix(draw_text_tm);
 
     cur_letter_space = cur_word_space = 0;
