@@ -185,17 +185,6 @@ class HTMLRenderer : public OutputDev
          * local font: to be substituted with a local (client side) font
          */
         void export_remote_font(const FontInfo & info, const std::string & suffix, const std::string & fontfileformat, GfxFont * font);
-        void export_remote_default_font(long long fn_id);
-        void export_local_font(const FontInfo & info, GfxFont * font, const std::string & original_font_name, const std::string & cssfont);
-
-        void export_font_size(long long fs_id, double font_size);
-        void export_transform_matrix(long long tm_id, const double * tm);
-        void export_letter_space(long long ls_id, double letter_space);
-        void export_word_space(long long ws_id, double word_space);
-        void export_color(long long color_id, const GfxRGB * rgb);
-        void export_whitespace(long long ws_id, double ws_width);
-        void export_rise(long long rise_id, double rise);
-        void export_height(long long height_id, double height);
 
         // depending on single-html, to embed the content or add a link to it
         // "type": specify the file type, usually it's the suffix, in which case this parameter could be ""

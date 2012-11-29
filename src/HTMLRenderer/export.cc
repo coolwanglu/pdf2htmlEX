@@ -55,12 +55,12 @@ static string general_font_family(GfxFont * font)
 }
 
 // TODO: this function is called when some font is unable to process, may use the name there as a hint
-void HTMLRenderer::export_remote_default_font(long long fn_id) 
+void export_remote_default_font(std::ostream& css_fout, long long fn_id) 
 {
     css_fout << ".f" << fn_id << "{font-family:sans-serif;color:transparent;visibility:hidden;}" << endl;
 }
 
-void HTMLRenderer::export_local_font(const FontInfo & info, GfxFont * font, const string & original_font_name, const string & cssfont) 
+void export_local_font(std::ostream& css_fout, const FontInfo & info, GfxFont * font, const string & original_font_name, const string & cssfont) 
 {
     css_fout << ".f" << info.id << "{";
     css_fout << "font-family:" << ((cssfont == "") ? (original_font_name + "," + general_font_family(font)) : cssfont) << ";";
@@ -86,12 +86,12 @@ void HTMLRenderer::export_local_font(const FontInfo & info, GfxFont * font, cons
     css_fout << "}" << endl;
 }
 
-void HTMLRenderer::export_font_size (long long fs_id, double font_size) 
+void export_font_size(std::ostream& css_fout, long long fs_id, double font_size)
 {
     css_fout << ".s" << fs_id << "{font-size:" << _round(font_size) << "px;}" << endl;
 }
 
-void HTMLRenderer::export_transform_matrix (long long tm_id, const double * tm) 
+void export_transform_matrix (std::ostream& css_fout, long long tm_id, const double * tm) 
 {
     css_fout << ".t" << tm_id << "{";
 
@@ -123,22 +123,22 @@ void HTMLRenderer::export_transform_matrix (long long tm_id, const double * tm)
     css_fout << "}" << endl;
 }
 
-void HTMLRenderer::export_letter_space (long long ls_id, double letter_space) 
+void export_letter_space(std::ostream& css_fout, long long ls_id, double letter_space)
 {
     css_fout << ".l" << ls_id << "{letter-spacing:" << _round(letter_space) << "px;}" << endl;
 }
 
-void HTMLRenderer::export_word_space (long long ws_id, double word_space) 
+void export_word_space(std::ostream& css_fout, long long ws_id, double word_space)
 {
     css_fout << ".w" << ws_id << "{word-spacing:" << _round(word_space) << "px;}" << endl;
 }
 
-void HTMLRenderer::export_color (long long color_id, const GfxRGB * rgb) 
+void export_color (std::ostream& css_fout, long long color_id, const GfxRGB * rgb) 
 {
     css_fout << ".c" << color_id << "{color:" << (*rgb) << ";}" << endl;
 }
 
-void HTMLRenderer::export_whitespace (long long ws_id, double ws_width) 
+void export_whitespace(std::ostream& css_fout, long long ws_id, double ws_width) 
 {
     if(ws_width > 0)
         css_fout << "._" << ws_id << "{display:inline-block;width:" << _round(ws_width) << "px;}" << endl;
@@ -146,12 +146,12 @@ void HTMLRenderer::export_whitespace (long long ws_id, double ws_width)
         css_fout << "._" << ws_id << "{display:inline;margin-left:" << _round(ws_width) << "px;}" << endl;
 }
 
-void HTMLRenderer::export_rise (long long rise_id, double rise) 
+void export_rise(std::ostream& css_fout, long long rise_id, double rise) 
 {
     css_fout << ".r" << rise_id << "{top:" << _round(-rise) << "px;}" << endl;
 }
 
-void HTMLRenderer::export_height (long long height_id, double height) 
+void export_height(std::ostream& css_fout, long long height_id, double height)
 {
     css_fout << ".h" << height_id << "{height:" << _round(height) << "px;}" << endl;
 }
