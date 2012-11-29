@@ -14,10 +14,10 @@
 #include <vector>
 
 #include "HTMLRenderer.h"
-#include "BackgroundRenderer.h"
-#include "namespace.h"
-#include "ffw.h"
 #include "pdf2htmlEX-config.h"
+#include "BackgroundRenderer/BackgroundRenderer.h"
+#include "util/namespace.h"
+#include "util/ffw.h"
 
 namespace pdf2htmlEX {
 

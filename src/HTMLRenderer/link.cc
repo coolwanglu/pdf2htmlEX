@@ -11,10 +11,10 @@
 #include <sstream>
 #include <algorithm>
 
-#include <HTMLRenderer.h>
 #include <Link.h>
 
-#include "namespace.h"
+#include "HTMLRenderer.h"
+#include "util/namespace.h"
 
 namespace pdf2htmlEX {
    

@@ -19,10 +19,10 @@
 #include <PDFDocFactory.h>
 #include <GlobalParams.h>
 
-#include "HTMLRenderer.h"
 #include "Param.h"
 #include "pdf2htmlEX-config.h"
-#include "ArgParser.h"
+#include "HTMLRenderer/HTMLRenderer.h"
+#include "util/ArgParser.h"
 
 using namespace std;
 using namespace pdf2htmlEX;

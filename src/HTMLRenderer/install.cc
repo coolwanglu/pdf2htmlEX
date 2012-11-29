@@ -15,8 +15,8 @@
 
 #include "Param.h"
 #include "HTMLRenderer.h"
-#include "namespace.h"
-#include "util.h"
+#include "util/namespace.h"
+#include "util/util.h"
 
 namespace pdf2htmlEX {
 

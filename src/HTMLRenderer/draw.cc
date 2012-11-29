@@ -14,8 +14,8 @@
 #include <iostream>
 
 #include "HTMLRenderer.h"
-#include "util.h"
-#include "namespace.h"
+#include "util/util.h"
+#include "util/namespace.h"
 
 namespace pdf2htmlEX {
 

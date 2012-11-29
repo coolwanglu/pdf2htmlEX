@@ -8,7 +8,7 @@
  */
 
 #include "HTMLRenderer.h"
-#include "namespace.h"
+#include "util/namespace.h"
 
 namespace pdf2htmlEX {
 

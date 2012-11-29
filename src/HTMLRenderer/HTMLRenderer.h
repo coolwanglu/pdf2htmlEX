@@ -25,9 +25,9 @@
 #include <Annot.h>
 
 #include "Param.h"
-#include "util.h"
 #include "Preprocessor.h"
-#include "TmpFiles.h"
+#include "util/util.h"
+#include "util/TmpFiles.h"
 
 /*
  * Naming Convention

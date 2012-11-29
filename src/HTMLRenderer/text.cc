@@ -15,9 +15,9 @@
 #include <CharCodeToUnicode.h>
 #include <fofi/FoFiTrueType.h>
 
-#include "ffw.h"
 #include "HTMLRenderer.h"
-#include "namespace.h"
+#include "util/ffw.h"
+#include "util/namespace.h"
 
 namespace pdf2htmlEX {
 

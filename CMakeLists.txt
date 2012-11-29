@@ -5,7 +5,7 @@ set(CMAKE_BUILD_TYPE Release CACHE STRING "Build configuration (Debug, Release, 
 project(pdf2htmlEX)
 cmake_minimum_required(VERSION 2.6.0 FATAL_ERROR)
 
-include_directories(${CMAKE_SOURCE_DIR}/src/include)
+include_directories(${CMAKE_SOURCE_DIR}/src)
 
 set(PDF2HTMLEX_VERSION "0.6")
 set(ARCHIVE_NAME pdf2htmlex-${PDF2HTMLEX_VERSION})
@@ -138,37 +138,40 @@ if(NOT CXX0X_SUPPORT)
 endif()
 
 
-configure_file (${CMAKE_SOURCE_DIR}/src/include/pdf2htmlEX-config.h.in ${CMAKE_SOURCE_DIR}/src/include/pdf2htmlEX-config.h)
+configure_file (${CMAKE_SOURCE_DIR}/src/pdf2htmlEX-config.h.in ${CMAKE_SOURCE_DIR}/src/pdf2htmlEX-config.h)
 configure_file (${CMAKE_SOURCE_DIR}/pdf2htmlEX.1.in ${CMAKE_SOURCE_DIR}/pdf2htmlEX.1)
 
 add_executable(pdf2htmlEX 
+    src/Param.h
+    src/config.h
+    src/pdf2htmlEX-config.h
     src/pdf2htmlEX.cc 
-    src/include/HTMLRenderer.h 
-    src/HTMLRenderer/general.cc
-    src/HTMLRenderer/state.cc
-    src/HTMLRenderer/install.cc
-    src/HTMLRenderer/export.cc
-    src/HTMLRenderer/text.cc
-    src/HTMLRenderer/image.cc
+    src/HTMLRenderer/HTMLRenderer.h 
     src/HTMLRenderer/draw.cc
-    src/HTMLRenderer/link.cc
-    src/include/namespace.h
+    src/HTMLRenderer/export.cc
+    src/HTMLRenderer/general.cc
+    src/HTMLRenderer/image.cc
+    src/HTMLRenderer/install.cc
     src/HTMLRenderer/LineBuffer.cc
-    src/HTMLRenderer/TmpFiles.cc
-    src/include/ffw.h
-    src/ffw.c
-    src/include/BackgroundRenderer.h 
-    src/include/SplashBackgroundRenderer.h 
-    src/SplashBackgroundRenderer.cc 
-    src/include/CairoBackgroundRenderer.h 
-    src/CairoBackgroundRenderer.cc 
-    src/include/Preprocessor.h
-    src/Preprocessor.cc
-    src/include/util.h
-    src/util.cc
-    src/include/ArgParser.h
-    src/ArgParser.cc
-    src/include/pdf2htmlEX-config.h
+    src/HTMLRenderer/link.cc
+    src/HTMLRenderer/state.cc
+    src/HTMLRenderer/text.cc
+    src/HTMLRenderer/Preprocessor.h
+    src/HTMLRenderer/Preprocessor.cc
+    src/BackgroundRenderer/BackgroundRenderer.h 
+    src/BackgroundRenderer/SplashBackgroundRenderer.h 
+    src/BackgroundRenderer/SplashBackgroundRenderer.cc 
+    src/BackgroundRenderer/CairoBackgroundRenderer.h 
+    src/BackgroundRenderer/CairoBackgroundRenderer.cc 
+    src/util/namespace.h
+    src/util/ffw.h
+    src/util/ffw.c
+    src/util/util.h
+    src/util/util.cc
+    src/util/TmpFiles.h
+    src/util/TmpFiles.cc
+    src/util/ArgParser.h
+    src/util/ArgParser.cc
     )
 target_link_libraries(pdf2htmlEX ${PDF2HTMLEX_LIBS})
 
