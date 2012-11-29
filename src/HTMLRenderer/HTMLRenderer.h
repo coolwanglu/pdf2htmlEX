@@ -27,7 +27,7 @@
 #include "Param.h"
 #include "Preprocessor.h"
 #include "util/const.h"
-#include "util/string_formatter.h"
+#include "util/StringFormatter.h"
 #include "util/TmpFiles.h"
 
 /*
@@ -106,6 +106,7 @@ public:
         return false;
     }
 };
+
 class HTMLRenderer : public OutputDev
 {
     public:
@@ -200,7 +201,7 @@ class HTMLRenderer : public OutputDev
         void post_process();
 
         // set flags 
-        void fix_stream (std::ostream & out);
+        void set_stream_flags (std::ostream & out);
 
         std::string dump_embedded_font (GfxFont * font, long long fn_id);
         void embed_font(const std::string & filepath, GfxFont * font, FontInfo & info, bool get_metric_only = false);
@@ -451,11 +452,12 @@ class HTMLRenderer : public OutputDev
         int32_t * cur_mapping;
         char ** cur_mapping2;
         int * width_list;
+
         Preprocessor preprocessor;
         TmpFiles tmp_files;
 
         // for string formatting
-        string_formatter str_fmt;
+        StringFormatter str_fmt;
 
         ////////////////////////////////////////////////////
         // styles & resources
@@ -470,8 +472,6 @@ class HTMLRenderer : public OutputDev
         std::map<double, long long> whitespace_map;
         std::map<double, long long> rise_map;
         std::map<double, long long> height_map;
-
-        int image_count;
 
         const Param * param;
         std::ofstream html_fout, css_fout;

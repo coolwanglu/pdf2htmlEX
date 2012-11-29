@@ -44,7 +44,6 @@ HTMLRenderer::HTMLRenderer(const Param * param)
     ,line_buf(this)
     ,preprocessor(param)
 	,tmp_files(*param)
-    ,image_count(0)
     ,param(param)
 {
     if(!(param->debug))
@@ -92,7 +91,7 @@ void HTMLRenderer::process(PDFDoc *doc)
             html_fout.open((char*)page_fn, ofstream::binary); 
             if(!html_fout)
                 throw string("Cannot open ") + (char*)page_fn + " for writing";
-            fix_stream(html_fout);
+            set_stream_flags(html_fout);
         }
 
         if(param->process_nontext)
@@ -291,7 +290,7 @@ void HTMLRenderer::pre_process(PDFDoc * doc)
         css_fout.open(css_path, ofstream::binary);
         if(!css_fout)
             throw string("Cannot open ") + (char*)fn + " for writing";
-        fix_stream(css_fout);
+        set_stream_flags(css_fout);
     }
 
     // if split-pages is specified, open & close the file in the process loop
@@ -312,7 +311,7 @@ void HTMLRenderer::pre_process(PDFDoc * doc)
         html_fout.open(html_path, ofstream::binary); 
         if(!html_fout)
             throw string("Cannot open ") + (char*)fn + " for writing";
-        fix_stream(html_fout);
+        set_stream_flags(html_fout);
     }
 }
 
@@ -332,7 +331,7 @@ void HTMLRenderer::post_process()
         output.open((char*)fn, ofstream::binary);
         if(!output)
             throw string("Cannot open ") + (char*)fn + " for writing";
-        fix_stream(output);
+        set_stream_flags(output);
     }
 
     // apply manifest
@@ -390,7 +389,7 @@ void HTMLRenderer::post_process()
     }
 }
 
-void HTMLRenderer::fix_stream (std::ostream & out)
+void HTMLRenderer::set_stream_flags(std::ostream & out)
 {
     // we output all ID's in hex
     // browsers are not happy with scientific notations

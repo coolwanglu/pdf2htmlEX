@@ -5,32 +5,32 @@
  * 2012.11.29
  */
 
-#ifndef STRING_FORMATTER_H__
-#define STRING_FORMATTER_H__
+#ifndef STRINGFORMATTER_H__
+#define STRINGFORMATTER_H__
 
 namespace pdf2htmlEX {
 
-class string_formatter
+class StringFormatter
 {
 public:
-    class guarded_pointer
+    class GuardedPointer
     {
     public:
-        guarded_pointer(string_formatter * sf) : sf(sf) { ++(sf->buf_cnt); }
-        guarded_pointer(const guarded_pointer & gp) : sf(gp.sf) { ++(sf->buf_cnt); }
-        ~guarded_pointer(void) { --(sf->buf_cnt); }
+        GuardedPointer(StringFormatter * sf) : sf(sf) { ++(sf->buf_cnt); }
+        GuardedPointer(const GuardedPointer & gp) : sf(gp.sf) { ++(sf->buf_cnt); }
+        ~GuardedPointer(void) { --(sf->buf_cnt); }
         operator char* () const { return &(sf->buf.front()); }
     private:
-        string_formatter * sf;
+        StringFormatter * sf;
     };
 
-    string_formatter() : buf_cnt(0) { buf.reserve(L_tmpnam); }
+    StringFormatter() : buf_cnt(0) { buf.reserve(L_tmpnam); }
     /*
      * Important:
      * there is only one buffer, so new strings will replace old ones
      */
-    guarded_pointer operator () (const char * format, ...) {
-        assert((buf_cnt == 0) && "string_formatter: buffer is reused!");
+    GuardedPointer operator () (const char * format, ...) {
+        assert((buf_cnt == 0) && "StringFormatter: buffer is reused!");
 
         va_list vlist;
         va_start(vlist, format);
@@ -45,13 +45,13 @@ public:
         }
         assert(l >= 0); // we should fail when vsnprintf fail
         assert(l < (int)buf.capacity());
-        return guarded_pointer(this);
+        return GuardedPointer(this);
     }
 private:
-    friend class guarded_pointer;
+    friend class GuardedPointer;
     std::vector<char> buf;
     int buf_cnt;
 };
 
 } //namespace pdf2htmlEX
-#endif //STRING_FORMATTER_H__
+#endif //STRINGFORMATTER_H__
