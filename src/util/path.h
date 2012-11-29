@@ -12,7 +12,7 @@
 
 namespace pdf2htmlEX {
 
-void create_directories(std::string path);
+void create_directories(const std::string & path);
 
 bool is_truetype_suffix(const std::string & suffix);
 

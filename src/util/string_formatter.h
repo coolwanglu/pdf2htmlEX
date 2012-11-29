@@ -17,8 +17,9 @@ public:
     {
     public:
         guarded_pointer(string_formatter * sf) : sf(sf) { ++(sf->buf_cnt); }
+        guarded_pointer(const guarded_pointer & gp) : sf(gp.sf) { ++(sf->buf_cnt); }
         ~guarded_pointer(void) { --(sf->buf_cnt); }
-        operator char* () { return &(sf->buf.front()); }
+        operator char* () const { return &(sf->buf.front()); }
     private:
         string_formatter * sf;
     };

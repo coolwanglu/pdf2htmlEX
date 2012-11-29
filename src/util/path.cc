@@ -7,7 +7,7 @@ using std::string;
 
 namespace pdf2htmlEX {
 
-void create_directories(string path)
+void create_directories(const string & path)
 {
     if(path.empty()) return;
 
