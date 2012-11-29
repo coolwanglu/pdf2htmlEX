@@ -165,11 +165,14 @@ add_executable(pdf2htmlEX
     src/BackgroundRenderer/CairoBackgroundRenderer.cc 
     src/util/ArgParser.h
     src/util/ArgParser.cc
+    src/util/base64.h
+    src/util/base64.cc
     src/util/const.h
     src/util/const.cc
     src/util/ffw.h
     src/util/ffw.c
     src/util/namespace.h
+    src/util/string_formatter.h
     src/util/TmpFiles.h
     src/util/TmpFiles.cc
     src/util/unicode.h

@@ -27,6 +27,7 @@
 #include "Param.h"
 #include "Preprocessor.h"
 #include "util/util.h"
+#include "util/string_formatter.h"
 #include "util/TmpFiles.h"
 
 /*

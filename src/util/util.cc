@@ -54,9 +54,6 @@ void _tm_multiply(double * tm_left, const double * tm_right)
     tm_left[5] += old[1] * tm_right[4] + old[3] * tm_right[5];
 }
 
-
-const char * base64stream::base64_encoding = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-
 void create_directories(string path)
 {
     if(path.empty()) return;

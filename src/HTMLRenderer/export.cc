@@ -12,6 +12,7 @@
 
 #include "HTMLRenderer.h"
 #include "util/namespace.h"
+#include "util/base64.h"
 
 namespace pdf2htmlEX {
 

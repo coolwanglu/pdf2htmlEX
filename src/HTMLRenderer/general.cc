@@ -18,6 +18,7 @@
 #include "BackgroundRenderer/BackgroundRenderer.h"
 #include "util/namespace.h"
 #include "util/ffw.h"
+#include "util/base64.h"
 
 namespace pdf2htmlEX {
 
