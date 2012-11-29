@@ -8,6 +8,8 @@
 #ifndef STRING_FORMATTER_H__
 #define STRING_FORMATTER_H__
 
+namespace pdf2htmlEX {
+
 class string_formatter
 {
 public:
@@ -50,4 +52,5 @@ private:
     int buf_cnt;
 };
 
+} //namespace pdf2htmlEX
 #endif //STRING_FORMATTER_H__

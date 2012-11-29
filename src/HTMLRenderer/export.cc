@@ -13,6 +13,7 @@
 #include "HTMLRenderer.h"
 #include "util/namespace.h"
 #include "util/base64.h"
+#include "util/math.h"
 
 namespace pdf2htmlEX {
 
@@ -39,7 +40,7 @@ void HTMLRenderer::export_remote_font(const FontInfo & info, const string & suff
     css_fout << ")format(\"" << fontfileformat 
         << "\");}.f" << info.id 
         << "{font-family:f" << info.id 
-        << ";line-height:" << _round(info.ascent - info.descent) 
+        << ";line-height:" << round(info.ascent - info.descent) 
         << ";font-style:normal;font-weight:normal;}";
 
     css_fout << endl;
@@ -82,14 +83,14 @@ void HTMLRenderer::export_local_font(const FontInfo & info, GfxFont * font, cons
     else
         css_fout << "font-style:normal;";
 
-    css_fout << "line-height:" << _round(info.ascent - info.descent) << ";";
+    css_fout << "line-height:" << round(info.ascent - info.descent) << ";";
 
     css_fout << "}" << endl;
 }
 
 void HTMLRenderer::export_font_size (long long fs_id, double font_size) 
 {
-    css_fout << ".s" << fs_id << "{font-size:" << _round(font_size) << "px;}" << endl;
+    css_fout << ".s" << fs_id << "{font-size:" << round(font_size) << "px;}" << endl;
 }
 
 void HTMLRenderer::export_transform_matrix (long long tm_id, const double * tm) 
@@ -100,7 +101,7 @@ void HTMLRenderer::export_transform_matrix (long long tm_id, const double * tm)
     // we have already shifted the origin
     
     // TODO: recognize common matices
-    if(_tm_equal(tm, ID_MATRIX, 4))
+    if(tm_equal(tm, ID_MATRIX, 4))
     {
         auto prefixes = {"", "-ms-", "-moz-", "-webkit-", "-o-"};
         for(auto iter = prefixes.begin(); iter != prefixes.end(); ++iter)
@@ -113,10 +114,10 @@ void HTMLRenderer::export_transform_matrix (long long tm_id, const double * tm)
         {
             // PDF use a different coordinate system from Web
             css_fout << *iter << "transform:matrix("
-                << _round(tm[0]) << ','
-                << _round(-tm[1]) << ','
-                << _round(-tm[2]) << ','
-                << _round(tm[3]) << ',';
+                << round(tm[0]) << ','
+                << round(-tm[1]) << ','
+                << round(-tm[2]) << ','
+                << round(tm[3]) << ',';
 
             css_fout << "0,0);";
         }
@@ -126,12 +127,12 @@ void HTMLRenderer::export_transform_matrix (long long tm_id, const double * tm)
 
 void HTMLRenderer::export_letter_space (long long ls_id, double letter_space) 
 {
-    css_fout << ".l" << ls_id << "{letter-spacing:" << _round(letter_space) << "px;}" << endl;
+    css_fout << ".l" << ls_id << "{letter-spacing:" << round(letter_space) << "px;}" << endl;
 }
 
 void HTMLRenderer::export_word_space (long long ws_id, double word_space) 
 {
-    css_fout << ".w" << ws_id << "{word-spacing:" << _round(word_space) << "px;}" << endl;
+    css_fout << ".w" << ws_id << "{word-spacing:" << round(word_space) << "px;}" << endl;
 }
 
 void HTMLRenderer::export_color (long long color_id, const GfxRGB * rgb) 
@@ -142,19 +143,19 @@ void HTMLRenderer::export_color (long long color_id, const GfxRGB * rgb)
 void HTMLRenderer::export_whitespace (long long ws_id, double ws_width) 
 {
     if(ws_width > 0)
-        css_fout << "._" << ws_id << "{display:inline-block;width:" << _round(ws_width) << "px;}" << endl;
+        css_fout << "._" << ws_id << "{display:inline-block;width:" << round(ws_width) << "px;}" << endl;
     else
-        css_fout << "._" << ws_id << "{display:inline;margin-left:" << _round(ws_width) << "px;}" << endl;
+        css_fout << "._" << ws_id << "{display:inline;margin-left:" << round(ws_width) << "px;}" << endl;
 }
 
 void HTMLRenderer::export_rise (long long rise_id, double rise) 
 {
-    css_fout << ".r" << rise_id << "{top:" << _round(-rise) << "px;}" << endl;
+    css_fout << ".r" << rise_id << "{top:" << round(-rise) << "px;}" << endl;
 }
 
 void HTMLRenderer::export_height (long long height_id, double height) 
 {
-    css_fout << ".h" << height_id << "{height:" << _round(height) << "px;}" << endl;
+    css_fout << ".h" << height_id << "{height:" << round(height) << "px;}" << endl;
 }
 
 }

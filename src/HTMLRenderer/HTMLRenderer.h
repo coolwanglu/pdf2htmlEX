@@ -62,6 +62,50 @@
 
 namespace pdf2htmlEX {
 
+// we may need more info of a font in the future
+class FontInfo
+{
+public:
+    long long id;
+    bool use_tounicode;
+    int em_size;
+    double ascent, descent;
+};
+
+class GfxRGB_hash 
+{
+public:
+    size_t operator () (const GfxRGB & rgb) const
+    {
+        return (colToByte(rgb.r) << 16) | (colToByte(rgb.g) << 8) | (colToByte(rgb.b));
+    }
+};
+
+class GfxRGB_equal
+{ 
+public:
+    bool operator ()(const GfxRGB & rgb1, const GfxRGB & rgb2) const
+    {
+        return ((rgb1.r == rgb2.r) && (rgb1.g == rgb2.g) && (rgb1.b == rgb1.b));
+    }
+};
+
+class Matrix_less
+{
+public:
+    bool operator () (const Matrix & m1, const Matrix & m2) const
+    {
+        // Note that we only care about the first 4 elements
+        for(int i = 0; i < 4; ++i)
+        {
+            if(m1.m[i] < m2.m[i] - EPS)
+                return true;
+            if(m1.m[i] > m2.m[i] + EPS)
+                return false;
+        }
+        return false;
+    }
+};
 class HTMLRenderer : public OutputDev
 {
     public:

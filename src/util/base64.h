@@ -10,6 +10,8 @@
 
 #include <iostream>
 
+namespace pdf2htmlEX {
+
 class base64stream
 {
 public:
@@ -58,5 +60,5 @@ private:
 static inline std::ostream & operator << (std::ostream & out, base64stream & bf) { return bf.dumpto(out); }
 static inline std::ostream & operator << (std::ostream & out, base64stream && bf) { return bf.dumpto(out); }
 
-
+} //namespace pdf2htmlEX
 #endif //BASE64_H__

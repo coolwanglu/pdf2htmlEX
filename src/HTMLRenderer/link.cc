@@ -15,6 +15,7 @@
 
 #include "HTMLRenderer.h"
 #include "util/namespace.h"
+#include "util/math.h"
 
 namespace pdf2htmlEX {
    
@@ -211,9 +212,9 @@ void HTMLRenderer::processLink(AnnotLink * al)
                         border_top_bottom_width, border_left_right_width);
 
                 if(abs(border_top_bottom_width - border_left_right_width) < EPS)
-                    html_fout << "border-width:" << _round(border_top_bottom_width) << "px;";
+                    html_fout << "border-width:" << round(border_top_bottom_width) << "px;";
                 else
-                    html_fout << "border-width:" << _round(border_top_bottom_width) << "px " << _round(border_left_right_width) << "px;";
+                    html_fout << "border-width:" << round(border_top_bottom_width) << "px " << round(border_left_right_width) << "px;";
             }
             auto style = border->getStyle();
             switch(style)
@@ -267,13 +268,13 @@ void HTMLRenderer::processLink(AnnotLink * al)
         html_fout << "border-style:none;";
     }
 
-    _tm_transform(default_ctm, x, y);
+    tm_transform(default_ctm, x, y);
 
     html_fout << "position:absolute;"
-        << "left:" << _round(x) << "px;"
-        << "bottom:" << _round(y) << "px;"
-        << "width:" << _round(w) << "px;"
-        << "height:" << _round(h) << "px;";
+        << "left:" << round(x) << "px;"
+        << "bottom:" << round(y) << "px;"
+        << "width:" << round(w) << "px;"
+        << "height:" << round(h) << "px;";
 
     // fix for IE
     html_fout << "background-color:rgba(255,255,255,0.000001);";

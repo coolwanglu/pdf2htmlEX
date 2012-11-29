@@ -19,6 +19,8 @@
 #include "util/ffw.h"
 #include "util/namespace.h"
 #include "util/unicode.h"
+#include "util/path.h"
+#include "util/math.h"
 
 namespace pdf2htmlEX {
 
@@ -542,7 +544,7 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
     while (len > 0) {
         auto n = font->getNextChar(p, len, &code, &u, &uLen, &dx1, &dy1, &ox, &oy);
 
-        if(!(_equal(ox, 0) && _equal(oy, 0)))
+        if(!(equal(ox, 0) && equal(oy, 0)))
         {
             cerr << "TODO: non-zero origins" << endl;
         }

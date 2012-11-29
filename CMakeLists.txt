@@ -171,7 +171,11 @@ add_executable(pdf2htmlEX
     src/util/const.cc
     src/util/ffw.h
     src/util/ffw.c
+    src/util/math.h
+    src/util/math.cc
     src/util/namespace.h
+    src/util/path.h
+    src/util/path.cc
     src/util/string_formatter.h
     src/util/TmpFiles.h
     src/util/TmpFiles.cc

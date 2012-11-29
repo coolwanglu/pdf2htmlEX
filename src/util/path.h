@@ -1,0 +1,23 @@
+/*
+ * Function handling filenames and paths
+ *
+ * by WangLu
+ * 2012.11.29
+ */
+
+#ifndef PATH_H__
+#define PATH_H__
+
+#include <string>
+
+namespace pdf2htmlEX {
+
+void create_directories(std::string path);
+
+bool is_truetype_suffix(const std::string & suffix);
+
+std::string get_filename(const std::string & path);
+std::string get_suffix(const std::string & path);
+
+} //namespace pdf2htmlEX 
+#endif //PATH_H__

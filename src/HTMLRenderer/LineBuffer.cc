@@ -81,8 +81,8 @@ void HTMLRenderer::LineBuffer::flush(void)
 
     ostream & out = renderer->html_fout;
     out << "<div style=\"left:" 
-        << _round(x) << "px;bottom:" 
-        << _round(y) << "px;"
+        << round(x) << "px;bottom:" 
+        << round(y) << "px;"
         << "\""
         << " class=\"l t" << tm_id 
         << " h" << renderer->install_height(max_ascent)

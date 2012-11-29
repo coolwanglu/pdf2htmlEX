@@ -23,6 +23,7 @@
 #include "pdf2htmlEX-config.h"
 #include "HTMLRenderer/HTMLRenderer.h"
 #include "util/ArgParser.h"
+#include "util/path.h"
 
 using namespace std;
 using namespace pdf2htmlEX;
