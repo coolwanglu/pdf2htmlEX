@@ -16,10 +16,9 @@ using namespace std;
 namespace pdf2htmlEX {
 
 
-TmpFiles::TmpFiles( const Param& param_ )
-	: param( param_ )
-{
-}
+TmpFiles::TmpFiles( const Param& param )
+	: param( param )
+{ }
 
 TmpFiles::~TmpFiles()
 { 
