@@ -380,7 +380,7 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
                     // in auto mode, just drop the tounicode map
                     if(!retried)
                     {
-                        cerr << "ToUnicode CMap is not valid and got dropped" << endl;
+                        cerr << "ToUnicode CMap is not valid and got dropped for font: " << hex << info.id << dec << endl;
                         retried = true;
                         codeset.clear();
                         info.use_tounicode = false;
@@ -416,7 +416,7 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
         
         ffw_reencode_raw(cur_mapping, max_key + 1, 1);
 
-        // we need the space chracter for offsets
+        // we need the space character for offsets
         if(!has_space)
         {
             int space_width;
@@ -523,14 +523,6 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
     char *p = s->getCString();
     int len = s->getLength();
 
-    //debug
-    {
-        if(strcmp(p, "ORTUG") == 0)
-        {
-            cerr << "DEBUG: " << (int)(state->getRender()) << endl;
-        }
-    }
-
     double dx = 0;
     double dy = 0;
     double dxerr = 0;
@@ -544,7 +536,8 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
     CharCode code;
     Unicode *u = nullptr;
 
-    while (len > 0) {
+    while (len > 0) 
+    {
         auto n = font->getNextChar(p, len, &code, &u, &uLen, &dx1, &dy1, &ox, &oy);
 
         if(!(equal(ox, 0) && equal(oy, 0)))
