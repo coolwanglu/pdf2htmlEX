@@ -40,7 +40,6 @@
  * b - page Box
  * d - page Decoration
  * l - Line
- * i - Image
  * j - Js data
  * p - Page
  *

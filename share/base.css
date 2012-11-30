@@ -63,6 +63,8 @@
 span {
   position:relative;
   vertical-align: baseline;
+  /* _<id> for spaces may need display:inline, which will override this */ 
+  display:inline-block;
 }
 ._ {
   color:transparent;
@@ -73,9 +75,6 @@ span {
 }
 ::-moz-selection{
   background: rgba(127,255,255,1);
-}
-.i {
-  position:absolute;
 }
 .j {
   display:none;
