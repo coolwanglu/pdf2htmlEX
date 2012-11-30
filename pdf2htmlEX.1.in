@@ -124,7 +124,7 @@ If set to 1, glyphs narrower than described in PDF will be stretched; otherwise 
 If set to 1, glyphs wider than described in PDF will be squeezed; otherwise it will be truncated.
 .TP
 .B --remove-unused-glyph <0|1> (Default: 1)
-[Experimental] If set to 1, remove unused glyphs in embedded fonts in order to reduce the file size.
+If set to 1, remove unused glyphs in embedded fonts in order to reduce the file size.
 .TP
 .B --font-suffix <suffix> (Default: .ttf), --font-format <format> (Default: truetype)
 Specify the suffix and format of fonts extracted from the PDF file. They should be consistent.
