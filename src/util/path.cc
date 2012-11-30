@@ -1,3 +1,11 @@
+/*
+ * Functions manipulating filenames and paths
+ *
+ * by WangLu
+ * 2012.11.29
+ */
+
+#include <errno.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 
