@@ -28,6 +28,7 @@ struct Param
     double zoom;
     double fit_width, fit_height;
     double h_dpi, v_dpi;
+    int use_cropbox;
 
     int process_nontext;
     int single_html;

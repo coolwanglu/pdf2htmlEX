@@ -33,7 +33,9 @@ static GBool annot_cb(Annot *, void *) {
 void SplashBackgroundRenderer::render_page(PDFDoc * doc, int pageno, const string & filename)
 {
     doc->displayPage(this, pageno, param->h_dpi, param->v_dpi,
-            0, true, false, false,
+            0, 
+            (param->use_cropbox == 0), 
+            false, false,
             nullptr, nullptr, &annot_cb, nullptr);
 
     getBitmap()->writeImgFile(splashFormatPng, 

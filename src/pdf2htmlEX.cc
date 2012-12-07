@@ -67,6 +67,7 @@ void parse_options (int argc, char **argv)
         .add("fit-height", &param.fit_height, 0, "fit height", nullptr, true)
         .add("hdpi", &param.h_dpi, 144.0, "horizontal DPI for non-text")
         .add("vdpi", &param.v_dpi, 144.0, "vertical DPI for non-text")
+        .add("use-cropbox", &param.use_cropbox, 0, "use CropBox instead of MediaBox")
 
         .add("process-nontext", &param.process_nontext, 1, "process nontext objects")
         .add("single-html", &param.single_html, 1, "combine everything into one single HTML file")

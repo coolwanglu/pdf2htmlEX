@@ -54,8 +54,11 @@ If multiple values are specified, the minimum one will be used.
 
 If none is specified, pages will be rendered as 72DPI.
 .TP
-.B --hpdi <dpi>, --vpdi <dpi> (Default: 144)
+.B --hdpi <dpi>, --vdpi <dpi> (Default: 144)
 Specify the horizontal and vertical DPI for images
+.TP
+.B --use-cropbox <0|1> (Default: 0)
+Use CropBox instead of MediaBox for output.
 .TP
 .B --process-nontext <0|1> (Default: 1)
 Whether to process non-text objects (as images)
