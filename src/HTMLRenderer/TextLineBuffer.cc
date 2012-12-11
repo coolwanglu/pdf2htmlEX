@@ -57,7 +57,7 @@ void HTMLRenderer::TextLineBuffer::append_state(void)
 void HTMLRenderer::TextLineBuffer::flush(void)
 {
     /*
-     * Each Line is an independent absolute positioined block
+     * Each Line is an independent absolute positioned block
      * so even we have a few states or offsets, we may omit them
      */
     if(text.empty()) return;

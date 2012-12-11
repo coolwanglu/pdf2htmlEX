@@ -6,6 +6,7 @@
 
 namespace pdf2htmlEX {
 
+class HTMLRenderer;
 class HTMLRenderer::TextLineBuffer
 {
 public:
