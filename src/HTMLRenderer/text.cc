@@ -16,6 +16,7 @@
 #include <fofi/FoFiTrueType.h>
 
 #include "HTMLRenderer.h"
+#include "TextLineBuffer.h"
 #include "util/ffw.h"
 #include "util/namespace.h"
 #include "util/unicode.h"
@@ -555,25 +556,25 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
         if(is_space && (param->space_as_offset))
         {
             // ignore horiz_scaling, as it's merged in CTM
-            line_buf.append_offset((dx1 * cur_font_size + cur_letter_space + cur_word_space) * draw_text_scale); 
+            text_line_buf->append_offset((dx1 * cur_font_size + cur_letter_space + cur_word_space) * draw_text_scale); 
         }
         else
         {
             if((param->decompose_ligature) && (uLen > 1) && all_of(u, u+uLen, isLegalUnicode))
             {
-                line_buf.append_unicodes(u, uLen);
+                text_line_buf->append_unicodes(u, uLen);
             }
             else
             {
                 if(cur_font_info->use_tounicode)
                 {
                     Unicode uu = check_unicode(u, uLen, code, font);
-                    line_buf.append_unicodes(&uu, 1);
+                    text_line_buf->append_unicodes(&uu, 1);
                 }
                 else
                 {
                     Unicode uu = unicode_from_font(code, font);
-                    line_buf.append_unicodes(&uu, 1);
+                    text_line_buf->append_unicodes(&uu, 1);
                 }
             }
         }

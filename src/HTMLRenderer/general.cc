@@ -14,6 +14,7 @@
 #include <vector>
 
 #include "HTMLRenderer.h"
+#include "TextLineBuffer.h"
 #include "pdf2htmlEX-config.h"
 #include "BackgroundRenderer/BackgroundRenderer.h"
 #include "util/namespace.h"
@@ -41,7 +42,7 @@ static void dummy(void *, enum ErrorCategory, int pos, char *)
 HTMLRenderer::HTMLRenderer(const Param * param)
     :OutputDev()
     ,line_opened(false)
-    ,line_buf(this)
+    ,text_line_buf(new TextLineBuffer(this))
     ,preprocessor(param)
 	,tmp_files(*param)
     ,param(param)
@@ -60,6 +61,7 @@ HTMLRenderer::HTMLRenderer(const Param * param)
 
 HTMLRenderer::~HTMLRenderer()
 { 
+    delete text_line_buf;
     ffw_finalize();
     delete [] cur_mapping;
     delete [] cur_mapping2;

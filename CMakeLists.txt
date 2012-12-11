@@ -151,7 +151,8 @@ add_executable(pdf2htmlEX
     src/HTMLRenderer/general.cc
     src/HTMLRenderer/image.cc
     src/HTMLRenderer/install.cc
-    src/HTMLRenderer/LineBuffer.cc
+    src/HTMLRenderer/TextLineBuffer.h
+    src/HTMLRenderer/TextLineBuffer.cc
     src/HTMLRenderer/link.cc
     src/HTMLRenderer/state.cc
     src/HTMLRenderer/text.cc

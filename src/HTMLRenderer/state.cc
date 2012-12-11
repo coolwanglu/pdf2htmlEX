@@ -16,6 +16,7 @@
 #include <algorithm>
 
 #include "HTMLRenderer.h"
+#include "TextLineBuffer.h"
 #include "util/namespace.h"
 #include "util/math.h"
 
@@ -342,7 +343,7 @@ void HTMLRenderer::prepare_text_line(GfxState * state)
     {
         close_text_line();
 
-        line_buf.reset(state);
+        text_line_buf->reset(state);
 
         //resync position
         draw_ty = cur_ty;
@@ -359,14 +360,14 @@ void HTMLRenderer::prepare_text_line(GfxState * state)
         }
         else
         {
-            line_buf.append_offset(target);
+            text_line_buf->append_offset(target);
             draw_tx += target / draw_text_scale;
         }
     }
 
     if(new_line_state != NLS_NONE)
     {
-        line_buf.append_state();
+        text_line_buf->append_state();
     }
 
     line_opened = true;
@@ -377,7 +378,7 @@ void HTMLRenderer::close_text_line()
     if(line_opened)
     {
         line_opened = false;
-        line_buf.flush();
+        text_line_buf->flush();
     }
 }
 
