@@ -1,4 +1,6 @@
 #include <cstdarg>
+#include <algorithm>
+#include <cassert>
 
 #include "StringFormatter.h"
 

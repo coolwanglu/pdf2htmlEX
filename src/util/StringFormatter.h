@@ -8,6 +8,9 @@
 #ifndef STRINGFORMATTER_H__
 #define STRINGFORMATTER_H__
 
+#include <vector>
+#include <cstdio>
+
 namespace pdf2htmlEX {
 
 class StringFormatter
