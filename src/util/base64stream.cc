@@ -1,4 +1,4 @@
-#include "base64.h"
+#include "base64stream.h"
 
 namespace pdf2htmlEX {
 

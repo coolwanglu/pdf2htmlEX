@@ -155,8 +155,6 @@ add_executable(pdf2htmlEX
     src/HTMLRenderer/link.cc
     src/HTMLRenderer/state.cc
     src/HTMLRenderer/text.cc
-    src/HTMLRenderer/Preprocessor.h
-    src/HTMLRenderer/Preprocessor.cc
     src/BackgroundRenderer/BackgroundRenderer.h 
     src/BackgroundRenderer/SplashBackgroundRenderer.h 
     src/BackgroundRenderer/SplashBackgroundRenderer.cc 
@@ -164,8 +162,8 @@ add_executable(pdf2htmlEX
     src/BackgroundRenderer/CairoBackgroundRenderer.cc 
     src/util/ArgParser.h
     src/util/ArgParser.cc
-    src/util/base64.h
-    src/util/base64.cc
+    src/util/base64stream.h
+    src/util/base64stream.cc
     src/util/const.h
     src/util/const.cc
     src/util/ffw.h
@@ -177,7 +175,10 @@ add_executable(pdf2htmlEX
     src/util/namespace.h
     src/util/path.h
     src/util/path.cc
+    src/util/Preprocessor.h
+    src/util/Preprocessor.cc
     src/util/StringFormatter.h
+    src/util/StringFormatter.cc
     src/util/TmpFiles.h
     src/util/TmpFiles.cc
     src/util/unicode.h

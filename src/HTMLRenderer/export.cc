@@ -12,7 +12,7 @@
 
 #include "HTMLRenderer.h"
 #include "util/namespace.h"
-#include "util/base64.h"
+#include "util/base64stream.h"
 #include "util/math.h"
 #include "util/misc.h"
 

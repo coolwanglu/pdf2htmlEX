@@ -5,8 +5,8 @@
  * 2012.11.29
  */
 
-#ifndef BASE64_H__
-#define BASE64_H__
+#ifndef BASE64STREAM_H__
+#define BASE64STREAM_H__
 
 #include <iostream>
 
@@ -30,4 +30,4 @@ std::ostream & operator << (std::ostream & out, base64stream & bf);
 std::ostream & operator << (std::ostream & out, base64stream && bf);
 
 } //namespace pdf2htmlEX
-#endif //BASE64_H__
+#endif //BASE64STREAM_H__
