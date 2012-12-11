@@ -1,14 +1,7 @@
-combine lines (unwarp)
-
-type 3 fonts
 
 word space/offset before the first letter (calendar pdf)
 
-don't dump image when there is nothing
-
-Integrate splash/cairo
-native support for image
-native support for draw
+minimum line width of css drawing
 
 
 ==Wait until someone asks==
@@ -19,8 +12,14 @@ rename single-html -> embed-font/image/css ...
 merge sub/sup into one line
 precise link dest: zoom
 multiple charcode mapped to a same glyph
+don't dump image when there is nothing
 
 ==Future==
+Integrate splash/cairo
+native support for image
+native support for draw
+type 3 fonts
+combine lines (unwarp)
 argument auto-completion
 use absolute positioning for long whitespace
 color invert
