@@ -113,11 +113,6 @@ More info can be found on [the pdf2htmlEX page in TeX Wiki](http://oku.edu.mie-u
 * [I want more features](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ#wiki-feature_commission)
 * [More](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ)
 
-
-**WINDOWS XP USERS: Please make sure ClearType is turned on** 
-
-(Control Panel -> Display -> Appearance -> Effects -> "Use the following method to smooth edges of screen fonts" -> ClearType)
-
 ## LICENSE
 
 GPLv2 & GPLv3 Dual licensed
