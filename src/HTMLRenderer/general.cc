@@ -106,7 +106,7 @@ void HTMLRenderer::process(PDFDoc *doc)
         }
 
         doc->displayPage(this, i, 
-                text_zoom_factor() * DEFAULT_DPI, text_zoom_factor() * DEFAULT_DPI,
+                text_zoom_factor(i) * DEFAULT_DPI, text_zoom_factor(i) * DEFAULT_DPI,
                 0, 
                 (param->use_cropbox == 0), 
                 false, false,
@@ -235,38 +235,7 @@ void HTMLRenderer::pre_process(PDFDoc * doc)
     /*
      * determine scale factors
      */
-    {
-        double zoom = 1.0;
-
-        vector<double> zoom_factors;
-        
-        if(is_positive(param->zoom))
-        {
-            zoom_factors.push_back(param->zoom);
-        }
-
-        if(is_positive(param->fit_width))
-        {
-            zoom_factors.push_back((param->fit_width) / preprocessor.get_max_width());
-        }
-
-        if(is_positive(param->fit_height))
-        {
-            zoom_factors.push_back((param->fit_height) / preprocessor.get_max_height());
-        }
-
-        if(zoom_factors.empty())
-        {
-            zoom = 1.0;
-        }
-        else
-        {
-            zoom = *min_element(zoom_factors.begin(), zoom_factors.end());
-        }
-        
-        text_scale_factor1 = max<double>(zoom, param->font_size_multiplier);  
-        text_scale_factor2 = zoom / text_scale_factor1;
-    }
+    determine_scale_factors(preprocessor.get_max_width(),preprocessor.get_max_height());
 
     // we may output utf8 characters, so always use binary
     {
@@ -392,6 +361,49 @@ void HTMLRenderer::post_process()
         cerr << "Warning: unknown line in manifest: " << line << endl;
     }
 }
+
+void HTMLRenderer::determine_scale_factors(int width, int height)
+{
+    double zoom = 1.0;
+
+    vector<double> zoom_factors;
+
+    if(is_positive(param->zoom))
+    {
+        zoom_factors.push_back(param->zoom);
+    }
+
+    if(is_positive(param->fit_width))
+    {
+        zoom_factors.push_back((param->fit_width) / width);
+    }
+
+    if(is_positive(param->fit_height))
+    {
+        zoom_factors.push_back((param->fit_height) / height);
+    }
+
+    if(zoom_factors.empty())
+    {
+        zoom = 1.0;
+    }
+    else
+    {
+        zoom = *min_element(zoom_factors.begin(), zoom_factors.end());
+    }
+
+    text_scale_factor1 = max<double>(zoom, param->font_size_multiplier);
+    text_scale_factor2 = zoom / text_scale_factor1;
+}
+
+double HTMLRenderer::text_zoom_factor (int page_number){
+
+	if(is_positive(param->fit_every) && !is_positive(param->zoom)){
+		determine_scale_factors(preprocessor.get_page_width(page_number),preprocessor.get_page_height(page_number));
+	}
+	return text_scale_factor1 * text_scale_factor2;
+}
+
 
 void HTMLRenderer::set_stream_flags(std::ostream & out)
 {

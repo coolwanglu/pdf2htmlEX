@@ -303,7 +303,8 @@ class HTMLRenderer : public OutputDev
          * factor1 & factor 2 are determined according to zoom and font-size-multiplier
          *
          */
-        double text_zoom_factor (void) const { return text_scale_factor1 * text_scale_factor2; }
+        void determine_scale_factors(int width, int height);
+        double text_zoom_factor (int page_number);
         double text_scale_factor1;
         double text_scale_factor2;
 
