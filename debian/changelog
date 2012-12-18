@@ -1,3 +1,10 @@
+pdf2htmlex (0.6-1~git201212182148rd76af-0ubuntu1) quantal; urgency=low
+
+  * fix dependency of poppler for quantal 
+  * 
+
+ -- WANG Lu <coolwanglu@gmail.com>  Tue, 18 Dec 2012 21:48:35 +0800
+
 pdf2htmlex (0.6-1~git201212111844rd76af-0ubuntu1) quantal; urgency=low
 
   * Package for quantal
