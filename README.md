@@ -16,28 +16,38 @@ A beautiful demo is worth a thousand words:
 
 pdf2htmlEX renders PDF files in HTML, utilizing modern Web technologies, aims to provide an accuracy rendering, while keeping optimized for Web display.
 
-It is optimized for modern web browsers.On Linux/Mac, the generated HTML pages could be as beautiful as PDF files.
+It is optimized for modern web browsers. On Linux/Mac, the generated HTML pages could be as beautiful as PDF files.
 
 This program is designed for scientific papers with complicate formulas and figures, therefore precise rendering is the #1 concern. But of course general PDF files are also supported.
 
+### Why HTML ?
+
+HTML, together with CSS and Javascript, is much more open and flexible than PDF. Almost everything can be customized.
+ - Embedding documents to web pages with consistent theme and behavior
+ - Cross references to other documents are much easier and intuitive
+ - More functions to the document with Javascript, e.g. access control, animation, statistics
+
+Readers can also be benefitted
+ - Read while downloading
+ - Plugin-free
+
 ## Features
 
-* Single HTML file output 
+* Optional single HTML file output
 * Precise rendering 
-* Text Selection
-* Font embedding & reencoding for Web
-* Proper styling (Color, Transformation...)
+* Text perserved - you can select & copy & paste
+* Proper styling 
+  - Font - extracted and reencoded
+  - Color
+  - Transformation
 * Links
-* Optimization for Web 
 * [EXPERIMENTAL] Path drawing with CSS
- * Orthogonal lines
- * Rectangles
- * Linear gradients 
-
-### Objects rendered as images
-
-* Type 3 fonts
-* Non-text object
+  - Orthogonal lines
+  - Rectangles
+  - Linear gradients 
+* Not fully supported, and rendered as images
+  - Type 3 fonts
+  - Non-text object
 
 ## Get started
 
@@ -99,12 +109,6 @@ More info can be found on [the pdf2htmlEX page in TeX Wiki](http://oku.edu.mie-u
     
     man pdf2htmlEX
 
-### For Geeks
-
-* Experimental and unsupported
-
-    pdf2htmlEX --process-nontext 0 --css-draw 1 /path/to/foobar.pdf
-
 ## FAQ
 
 * [Troubleshooting compilation errors](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ#wiki-compile)
@@ -112,11 +116,6 @@ More info can be found on [the pdf2htmlEX page in TeX Wiki](http://oku.edu.mie-u
 * [How can I help](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ#wiki-help)
 * [I want more features](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ#wiki-feature_commission)
 * [More](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ)
-
-
-**WINDOWS XP USERS: Please make sure ClearType is turned on** 
-
-(Control Panel -> Display -> Appearance -> Effects -> "Use the following method to smooth edges of screen fonts" -> ClearType)
 
 ## LICENSE
 
