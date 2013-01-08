@@ -24,6 +24,7 @@ using std::cerr;
 using std::endl;
 using std::flush;
 using std::max;
+using std::vector;
 
 Preprocessor::Preprocessor(const Param * param)
     : OutputDev()
@@ -87,7 +88,9 @@ void Preprocessor::drawChar(GfxState *state, double x, double y,
 void Preprocessor::startPage(int pageNum, GfxState *state)
 {
     max_width = max<double>(max_width, state->getPageWidth());
-    max_height = max<double>(max_height, state->getPageHeight());
+    max_height = max<double>(max_height, state->getPageHeight());    
+    page_widths[pageNum] = state->getPageWidth();
+    page_heights[pageNum] = state->getPageHeight();
 }
 
 const char * Preprocessor::get_code_map (long long font_id) const

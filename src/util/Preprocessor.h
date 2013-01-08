@@ -20,8 +20,11 @@
 #include <PDFDoc.h>
 #include <Annot.h>
 #include "Param.h"
+#include <map>
 
 namespace pdf2htmlEX {
+
+using std::map;
 
 class Preprocessor : public OutputDev {
 public:
@@ -45,11 +48,14 @@ public:
     const char * get_code_map (long long font_id) const;
     double get_max_width (void) const { return max_width; }
     double get_max_height (void) const { return max_height; }
+    double get_page_width (int page_number) { return page_widths[page_number-1]; }
+    double get_page_height (int page_number) { return page_heights[page_number-1]; }
 
 protected:
     const Param * param;
 
     double max_width, max_height;
+    map<int,int> page_widths, page_heights;    
 
     long long cur_font_id;
     char * cur_code_map;

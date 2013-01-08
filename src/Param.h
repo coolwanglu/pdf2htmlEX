@@ -27,6 +27,7 @@ struct Param
 
     double zoom;
     double fit_width, fit_height;
+    int fit_every;
     double h_dpi, v_dpi;
     int use_cropbox;
 
