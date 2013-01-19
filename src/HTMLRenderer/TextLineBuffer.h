@@ -21,9 +21,13 @@ public:
 
     class State {
         public:
+            // before output
             void begin(std::ostream & out, const State * prev_state);
+            // after output
             void end(std::ostream & out) const;
+            // calculate the hash code
             void hash(void);
+            // calculate the difference between another State
             int diff(const State & s) const;
 
             enum {
