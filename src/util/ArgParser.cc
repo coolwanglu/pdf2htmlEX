@@ -101,11 +101,11 @@ void ArgParser::parse(int argc, char ** argv) const
     optstring.push_back(0);
     longopts.resize(longopts.size() + 1);
     {
-	auto & cur = longopts.back();
-	cur.name = 0;
-	cur.has_arg = 0;
-	cur.flag = 0;
-	cur.val = 0;
+        auto & cur = longopts.back();
+        cur.name = 0;
+        cur.has_arg = 0;
+        cur.flag = 0;
+        cur.val = 0;
     }
 
     {

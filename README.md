@@ -97,7 +97,7 @@ More info can be found on [the pdf2htmlEX page in TeX Wiki](http://oku.edu.mie-u
 
 #### Compiling
 
-    git clone --depth 1 igt://github.com/coolwanglu/pdf2htmlEX.git
+    git clone --depth 1 git://github.com/coolwanglu/pdf2htmlEX.git
     cd pdf2htmlEX
     cmake . && make && sudo make install
 
