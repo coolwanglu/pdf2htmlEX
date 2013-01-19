@@ -19,8 +19,17 @@ void SplashBackgroundRenderer::drawChar(GfxState *state, double x, double y,
   double originX, double originY,
   CharCode code, int nBytes, Unicode *u, int uLen)
 {
-    if(((state->getRender() & 3) == 3)
-            || ((state->getFont()) && (state->getFont()->getWMode())))
+    // draw characters as image when
+    // - there is special filling method
+    // - OR using a writing mode font
+    // - OR using a Type 3 font
+    if( ((state->getRender() & 3) == 3)
+        || ( (state->getFont()) 
+             && ( (state->getFont()->getWMode())
+                  || (state->getFont()->getType() == fontType3)
+                )
+           )
+      )
     {
         SplashOutputDev::drawChar(state,x,y,dx,dy,originX,originY,code, nBytes, u, uLen);
     }
