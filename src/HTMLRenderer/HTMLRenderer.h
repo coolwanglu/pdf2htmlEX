@@ -69,6 +69,7 @@ public:
     bool use_tounicode;
     int em_size;
     double ascent, descent;
+    bool is_type3;
 };
 
 class GfxRGB_hash 

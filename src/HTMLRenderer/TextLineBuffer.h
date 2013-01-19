@@ -58,7 +58,7 @@ public:
 
     class Offset {
         public:
-            size_t start_idx; // should put this idx before text[start_idx];
+            size_t start_idx; // should put this Offset right before text[start_idx];
             double width;
     };
 

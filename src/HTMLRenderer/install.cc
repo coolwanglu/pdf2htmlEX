@@ -37,16 +37,26 @@ const FontInfo * HTMLRenderer::install_font(GfxFont * font)
 
     long long new_fn_id = font_name_map.size(); 
 
-    auto cur_info_iter = font_name_map.insert(make_pair(fn_id, FontInfo({new_fn_id, true}))).first;
+    auto cur_info_iter = font_name_map.insert(make_pair(fn_id, FontInfo())).first;
+
+    FontInfo & new_font_info = cur_info_iter->second;
+    new_font_info.id = new_fn_id;
+    new_font_info.use_tounicode = true;
 
     if(font == nullptr)
     {
+        new_font_info.ascent = 0;
+        new_font_info.descent = 0;
+        new_font_info.is_type3 = false;
+
         export_remote_default_font(new_fn_id);
-        return &(cur_info_iter->second);
+
+        return &(new_font_info);
     }
 
-    cur_info_iter->second.ascent = font->getAscent();
-    cur_info_iter->second.descent = font->getDescent();
+    new_font_info.ascent = font->getAscent();
+    new_font_info.descent = font->getDescent();
+    new_font_info.is_type3 = (font->getType() == fontType3);
 
     if(param->debug)
     {

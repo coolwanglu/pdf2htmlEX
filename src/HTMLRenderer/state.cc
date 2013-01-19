@@ -100,7 +100,17 @@ void HTMLRenderer::check_state_change(GfxState * state)
 
         if(!(new_font_info->id == cur_font_info->id))
         {
-            new_line_state = max<NewLineState>(new_line_state, NLS_SPAN);
+            // Currently Type 3 font are shown hidden in HTML, with default fonts (at viewers' machine)
+            // The width of the text displayed is likely to be wrong
+            // So we will create separate (absolute positioned) blocks for them, such that it won't affect other text
+            if(new_font_info->is_type3 || cur_font_info->is_type3)
+            {
+                new_line_state = max<NewLineState>(new_line_state, NLS_DIV);
+            }
+            else
+            {
+                new_line_state = max<NewLineState>(new_line_state, NLS_SPAN);
+            }
             cur_font_info = new_font_info;
         }
 
