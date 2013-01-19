@@ -20,7 +20,9 @@ namespace pdf2htmlEX {
 
 void HTMLRenderer::export_remote_font(const FontInfo & info, const string & suffix, const string & fontfileformat, GfxFont * font) 
 {
-    css_fout << "@font-face{font-family:f" << info.id << ";src:url(";
+    css_fout << "@font-face{"
+        << "font-family:f" << info.id << ";"
+        << "src:url(";
 
     {
         auto fn = str_fmt("f%llx%s", info.id, suffix.c_str());
@@ -38,13 +40,17 @@ void HTMLRenderer::export_remote_font(const FontInfo & info, const string & suff
         }
     }
 
-    css_fout << ")format(\"" << fontfileformat 
-        << "\");}.f" << info.id 
-        << "{font-family:f" << info.id 
-        << ";line-height:" << round(info.ascent - info.descent) 
-        << ";font-style:normal;font-weight:normal;}";
-
-    css_fout << endl;
+    css_fout << ")"
+        << "format(\"" << fontfileformat << "\");"
+        << "}" // end of @font-face
+        << ".f" << info.id << "{"
+        << "font-family:f" << info.id << ";"
+        << "line-height:" << round(info.ascent - info.descent) << ";"
+        << "font-style:normal;"
+        << "font-weight:normal;"
+        << "visibility:visible;"
+        << "}" // end of .f
+        << endl;
 }
 
 static string general_font_family(GfxFont * font)
@@ -60,7 +66,7 @@ static string general_font_family(GfxFont * font)
 // TODO: this function is called when some font is unable to process, may use the name there as a hint
 void HTMLRenderer::export_remote_default_font(long long fn_id) 
 {
-    css_fout << ".f" << fn_id << "{font-family:sans-serif;color:transparent;visibility:hidden;}" << endl;
+    css_fout << ".f" << fn_id << "{font-family:sans-serif;visibility:hidden;}" << endl;
 }
 
 void HTMLRenderer::export_local_font(const FontInfo & info, GfxFont * font, const string & original_font_name, const string & cssfont) 
@@ -85,6 +91,8 @@ void HTMLRenderer::export_local_font(const FontInfo & info, GfxFont * font, cons
         css_fout << "font-style:normal;";
 
     css_fout << "line-height:" << round(info.ascent - info.descent) << ";";
+
+    css_fout << "visibility:visible;";
 
     css_fout << "}" << endl;
 }
