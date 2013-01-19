@@ -1,6 +1,6 @@
 /* Base CSS */
 /* Copyright 2012 Lu Wang <coolwanglu@gmail.com> */
-#pdf-main {
+#pdf-main { /* PDF container */
   position:absolute;
   top:0;
   left:0;
@@ -14,14 +14,14 @@
   margin:0;
   border-width:0;
 }
-.d {
+.d { /* page decoration */
   position:relative;
   margin: 13px auto;
   border-width: 0;
   box-shadow: 1px 1px 3px 1px #333;
   overflow: hidden;
 }
-.p {
+.p { /* page */
   position:absolute;
   top:0;
   left:0;
@@ -35,7 +35,7 @@
   margin:0;
   border-width:0;
 }
-.b {
+.b { /* content of a page */
   position:absolute;
   border-width:0;
   top:0;
@@ -50,7 +50,7 @@
   -webkit-transform-origin:0% 0%;
   -o-transform-origin:0% 0%;
 }
-.l {
+.l { /* text line */
   position:absolute;
   white-space:pre;
   font-size:1px;
@@ -66,7 +66,7 @@ span {
   /* _<id> for spaces may need display:inline, which will override this */ 
   display:inline-block;
 }
-._ {
+._ { /* text shift */
   color:transparent;
   z-index:-1;
 }
@@ -76,12 +76,12 @@ span {
 ::-moz-selection{
   background: rgba(127,255,255,1);
 }
-.j {
+.j { /* info for Javascript */
   display:none;
 }
 .a {
 }
-.Cd {
+.Cd { /* css drawing */
   position:absolute;
   transform-origin:0% 100%;
   -ms-transform-origin:0% 100%;
