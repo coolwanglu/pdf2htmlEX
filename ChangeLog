@@ -1,5 +1,6 @@
 Latest v0.6
 
+* Render Type 3 fonts as image
 * New parameter: --use-cropbox
 * Progress indicator
 * Create a glyph for ' ' when missing
