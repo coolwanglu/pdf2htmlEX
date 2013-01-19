@@ -14,8 +14,9 @@
 #include <iostream>
 
 #include "HTMLRenderer.h"
-#include "util.h"
-#include "namespace.h"
+#include "util/misc.h"
+#include "util/math.h"
+#include "util/namespace.h"
 
 namespace pdf2htmlEX {
 
@@ -33,36 +34,36 @@ static bool is_horizontal_line(GfxSubpath * path)
 {
     return ((path->getNumPoints() == 2)
             && (!path->getCurve(1))
-            && (_equal(path->getY(0), path->getY(1))));
+            && (equal(path->getY(0), path->getY(1))));
 }
 
 static bool is_vertical_line(GfxSubpath * path)
 {
     return ((path->getNumPoints() == 2)
             && (!path->getCurve(1))
-            && (_equal(path->getX(0), path->getX(1))));
+            && (equal(path->getX(0), path->getX(1))));
 }
 
 static bool is_rectangle(GfxSubpath * path)
 {
     if (!(((path->getNumPoints() != 4) && (path->isClosed()))
           || ((path->getNumPoints() == 5) 
-              && _equal(path->getX(0), path->getX(4))
-              && _equal(path->getY(0), path->getY(4)))))
+              && equal(path->getX(0), path->getX(4))
+              && equal(path->getY(0), path->getY(4)))))
             return false;
 
     for(int i = 1; i < path->getNumPoints(); ++i)
         if(path->getCurve(i))
             return false;
 
-    return (_equal(path->getY(0), path->getY(1))
-            && _equal(path->getX(1), path->getX(2))
-            && _equal(path->getY(2), path->getY(3))
-            && _equal(path->getX(3), path->getX(0)))
-        || (_equal(path->getX(0), path->getX(1))
-            && _equal(path->getY(1), path->getY(2))
-            && _equal(path->getX(2), path->getX(3))
-            && _equal(path->getY(3), path->getY(0)));
+    return (equal(path->getY(0), path->getY(1))
+            && equal(path->getX(1), path->getX(2))
+            && equal(path->getY(2), path->getY(3))
+            && equal(path->getX(3), path->getX(0)))
+        || (equal(path->getX(0), path->getX(1))
+            && equal(path->getY(1), path->getY(2))
+            && equal(path->getX(2), path->getX(3))
+            && equal(path->getY(3), path->getY(0)));
 }
 
 static void get_shading_bbox(GfxState * state, GfxShading * shading,
@@ -105,7 +106,7 @@ static void get_shading_bbox(GfxState * state, GfxShading * shading,
  */
 static double get_angle(double dx, double dy)
 {
-    double r = _hypot(dx, dy);
+    double r = hypot(dx, dy);
 
     /*
      * acos always returns [0, pi]
@@ -208,10 +209,10 @@ void LinearGradient::dumpto (ostream & out)
     auto prefixes = {"", "-ms-", "-moz-", "-webkit-", "-o-"};
     for(auto iter = prefixes.begin(); iter != prefixes.end(); ++iter)
     {
-        out << "background-image:" << (*iter) << "linear-gradient(" << _round(angle) << "rad";
+        out << "background-image:" << (*iter) << "linear-gradient(" << round(angle) << "rad";
         for(auto iter2 = stops.begin(); iter2 != stops.end(); ++iter2)
         {
-            out << "," << (iter2->rgb) << " " << _round((iter2->pos) * 100) << "%";
+            out << "," << (iter2->rgb) << " " << round((iter2->pos) * 100) << "%";
         }
         out << ");";
     }
@@ -318,7 +319,7 @@ bool HTMLRenderer::css_do_path(GfxState *state, bool fill, bool test_only)
             GfxRGB * ps = fill ? nullptr : (&stroke_color);
             GfxRGB * pf = fill ? (&fill_color) : nullptr;
 
-            if(_equal(h, 0) || _equal(w, 0))
+            if(equal(h, 0) || equal(w, 0))
             {
                 // orthogonal line
 
@@ -351,7 +352,7 @@ void HTMLRenderer::css_draw_rectangle(double x, double y, double w, double h, co
     double new_tm[6];
     memcpy(new_tm, tm, sizeof(new_tm));
 
-    _tm_transform(new_tm, x, y);
+    tm_transform(new_tm, x, y);
 
     double scale = 1.0;
     {
@@ -359,8 +360,8 @@ void HTMLRenderer::css_draw_rectangle(double x, double y, double w, double h, co
 
         double i1 = (new_tm[0] + new_tm[2]) / sqrt2;
         double i2 = (new_tm[1] + new_tm[3]) / sqrt2;
-        scale = _hypot(i1, i2);
-        if(_is_positive(scale))
+        scale = hypot(i1, i2);
+        if(is_positive(scale))
         {
             for(int i = 0; i < 4; ++i)
                 new_tm[i] /= scale;
@@ -383,8 +384,8 @@ void HTMLRenderer::css_draw_rectangle(double x, double y, double w, double h, co
             if(i > 0) html_fout << ' ';
 
             double lw = line_width_array[i] * scale;
-            html_fout << _round(lw);
-            if(_is_positive(lw)) html_fout << "px";
+            html_fout << round(lw);
+            if(is_positive(lw)) html_fout << "px";
         }
         html_fout << ";";
     }
@@ -407,10 +408,10 @@ void HTMLRenderer::css_draw_rectangle(double x, double y, double w, double h, co
         style_function(style_function_data, html_fout);
     }
 
-    html_fout << "bottom:" << _round(y) << "px;"
-        << "left:" << _round(x) << "px;"
-        << "width:" << _round(w * scale) << "px;"
-        << "height:" << _round(h * scale) << "px;";
+    html_fout << "bottom:" << round(y) << "px;"
+        << "left:" << round(x) << "px;"
+        << "width:" << round(w * scale) << "px;"
+        << "height:" << round(h * scale) << "px;";
 
     html_fout << "\"></div>";
 }

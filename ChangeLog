@@ -1,5 +1,10 @@
 Latest v0.6
 
+* New parameter: --use-cropbox
+* Progress indicator
+* Create a glyph for ' ' when missing
+* Code refining
+
 v0.5
 2012.10.06
 

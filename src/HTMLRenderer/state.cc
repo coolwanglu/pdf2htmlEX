@@ -16,8 +16,9 @@
 #include <algorithm>
 
 #include "HTMLRenderer.h"
-#include "namespace.h"
-#include "util.h"
+#include "TextLineBuffer.h"
+#include "util/namespace.h"
+#include "util/math.h"
 
 namespace pdf2htmlEX {
 
@@ -104,7 +105,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
         }
 
         double new_font_size = state->getFontSize();
-        if(!_equal(cur_font_size, new_font_size))
+        if(!equal(cur_font_size, new_font_size))
         {
             need_rescale_font = true;
             cur_font_size = new_font_size;
@@ -132,7 +133,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
         new_ctm[5] = m1[1] * m2[4] + m1[3] * m2[5] + m1[5];
         //new_ctm[4] = new_ctm[5] = 0;
 
-        if(!_tm_equal(new_ctm, cur_text_tm))
+        if(!tm_equal(new_ctm, cur_text_tm))
         {
             need_recheck_position = true;
             need_rescale_font = true;
@@ -147,10 +148,10 @@ void HTMLRenderer::check_state_change(GfxState * state)
         double new_draw_text_tm[6];
         memcpy(new_draw_text_tm, cur_text_tm, sizeof(new_draw_text_tm));
 
-        double new_draw_text_scale = 1.0/text_scale_factor2 * _hypot(new_draw_text_tm[2], new_draw_text_tm[3]);
+        double new_draw_text_scale = 1.0/text_scale_factor2 * hypot(new_draw_text_tm[2], new_draw_text_tm[3]);
 
         double new_draw_font_size = cur_font_size;
-        if(_is_positive(new_draw_text_scale))
+        if(is_positive(new_draw_text_scale))
         {
             new_draw_font_size *= new_draw_text_scale;
             for(int i = 0; i < 4; ++i)
@@ -161,19 +162,28 @@ void HTMLRenderer::check_state_change(GfxState * state)
             new_draw_text_scale = 1.0;
         }
 
-        if(!(_equal(new_draw_text_scale, draw_text_scale)))
+        if(!is_positive(new_draw_font_size))
+        {
+            // Page is flipped and css can't handle it.
+            new_draw_font_size = -new_draw_font_size;
+
+            for(int i = 0; i < 4; ++i)
+                new_draw_text_tm[i] *= -1;
+        }
+
+        if(!(equal(new_draw_text_scale, draw_text_scale)))
         {
             draw_text_scale_changed = true;
             draw_text_scale = new_draw_text_scale;
         }
 
-        if(!(_equal(new_draw_font_size, draw_font_size)))
+        if(!(equal(new_draw_font_size, draw_font_size)))
         {
             new_line_state = max<NewLineState>(new_line_state, NLS_SPAN);
             draw_font_size = new_draw_font_size;
             cur_fs_id = install_font_size(draw_font_size);
         }
-        if(!(_tm_equal(new_draw_text_tm, draw_text_tm, 4)))
+        if(!(tm_equal(new_draw_text_tm, draw_text_tm, 4)))
         {
             new_line_state = max<NewLineState>(new_line_state, NLS_DIV);
             memcpy(draw_text_tm, new_draw_text_tm, sizeof(draw_text_tm));
@@ -199,21 +209,21 @@ void HTMLRenderer::check_state_change(GfxState * state)
          */
 
         bool merged = false;
-        if(_tm_equal(old_ctm, cur_text_tm, 4))
+        if(tm_equal(old_ctm, cur_text_tm, 4))
         {
             double dy = cur_ty - draw_ty;
             double tdx = old_ctm[4] - cur_text_tm[4] - cur_text_tm[2] * dy;
             double tdy = old_ctm[5] - cur_text_tm[5] - cur_text_tm[3] * dy;
 
-            if(_equal(cur_text_tm[0] * tdy, cur_text_tm[1] * tdx))
+            if(equal(cur_text_tm[0] * tdy, cur_text_tm[1] * tdx))
             {
-                if(_is_positive(cur_text_tm[0]))
+                if(is_positive(cur_text_tm[0]))
                 {
                     draw_tx += tdx / cur_text_tm[0];
                     draw_ty += dy;
                     merged = true;
                 }
-                else if (_is_positive(cur_text_tm[1]))
+                else if (is_positive(cur_text_tm[1]))
                 {
                     draw_tx += tdy / cur_text_tm[1];
                     draw_ty += dy;
@@ -221,7 +231,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
                 }
                 else
                 {
-                    if((_equal(tdx,0)) && (_equal(tdy,0)))
+                    if((equal(tdx,0)) && (equal(tdy,0)))
                     {
                         // free
                         draw_tx = cur_tx;
@@ -246,7 +256,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
     if(all_changed || letter_space_changed || draw_text_scale_changed)
     {
         double new_letter_space = state->getCharSpace();
-        if(!_equal(cur_letter_space, new_letter_space))
+        if(!equal(cur_letter_space, new_letter_space))
         {
             new_line_state = max<NewLineState>(new_line_state, NLS_SPAN);
             cur_letter_space = new_letter_space;
@@ -259,7 +269,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
     if(all_changed || word_space_changed || draw_text_scale_changed)
     {
         double new_word_space = state->getWordSpace();
-        if(!_equal(cur_word_space, new_word_space))
+        if(!equal(cur_word_space, new_word_space))
         {
             new_line_state = max<NewLineState>(new_line_state, NLS_SPAN);
             cur_word_space = new_word_space;
@@ -294,7 +304,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
     if(all_changed || rise_changed || draw_text_scale_changed)
     {
         double new_rise = state->getRise();
-        if(!_equal(cur_rise, new_rise))
+        if(!equal(cur_rise, new_rise))
         {
             new_line_state = max<NewLineState>(new_line_state, NLS_SPAN);
             cur_rise = new_rise;
@@ -333,7 +343,7 @@ void HTMLRenderer::prepare_text_line(GfxState * state)
     {
         close_text_line();
 
-        line_buf.reset(state);
+        text_line_buf->reset(state);
 
         //resync position
         draw_ty = cur_ty;
@@ -350,14 +360,14 @@ void HTMLRenderer::prepare_text_line(GfxState * state)
         }
         else
         {
-            line_buf.append_offset(target);
+            text_line_buf->append_offset(target);
             draw_tx += target / draw_text_scale;
         }
     }
 
     if(new_line_state != NLS_NONE)
     {
-        line_buf.append_state();
+        text_line_buf->append_state();
     }
 
     line_opened = true;
@@ -368,7 +378,7 @@ void HTMLRenderer::close_text_line()
     if(line_opened)
     {
         line_opened = false;
-        line_buf.flush();
+        text_line_buf->flush();
     }
 }
 

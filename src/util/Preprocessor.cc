@@ -15,7 +15,8 @@
 #include <GfxFont.h>
 
 #include "Preprocessor.h"
-#include "util.h"
+#include "util/misc.h"
+#include "util/const.h"
 
 namespace pdf2htmlEX {
 
@@ -41,7 +42,7 @@ Preprocessor::~Preprocessor(void)
 
 void Preprocessor::process(PDFDoc * doc)
 {
-    int page_count = (param->last_page - param->first_page);
+    int page_count = (param->last_page - param->first_page + 1);
     for(int i = param->first_page; i <= param->last_page ; ++i) 
     {
         cerr << "Preprocessing: " << (i-param->first_page) << "/" << page_count << '\r' << flush;

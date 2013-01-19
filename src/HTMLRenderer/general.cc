@@ -14,10 +14,14 @@
 #include <vector>
 
 #include "HTMLRenderer.h"
-#include "BackgroundRenderer.h"
-#include "namespace.h"
-#include "ffw.h"
+#include "TextLineBuffer.h"
 #include "pdf2htmlEX-config.h"
+#include "BackgroundRenderer/BackgroundRenderer.h"
+#include "util/namespace.h"
+#include "util/ffw.h"
+#include "util/base64stream.h"
+#include "util/math.h"
+#include "util/path.h"
 
 namespace pdf2htmlEX {
 
@@ -28,6 +32,8 @@ using std::max;
 using std::min_element;
 using std::vector;
 using std::abs;
+using std::cerr;
+using std::endl;
 
 static void dummy(void *, enum ErrorCategory, int pos, char *)
 {
@@ -36,9 +42,9 @@ static void dummy(void *, enum ErrorCategory, int pos, char *)
 HTMLRenderer::HTMLRenderer(const Param * param)
     :OutputDev()
     ,line_opened(false)
-    ,line_buf(this)
+    ,text_line_buf(new TextLineBuffer(this))
     ,preprocessor(param)
-    ,image_count(0)
+	,tmp_files(*param)
     ,param(param)
 {
     if(!(param->debug))
@@ -55,8 +61,8 @@ HTMLRenderer::HTMLRenderer(const Param * param)
 
 HTMLRenderer::~HTMLRenderer()
 { 
+    delete text_line_buf;
     ffw_finalize();
-    clean_tmp_files();
     delete [] cur_mapping;
     delete [] cur_mapping2;
     delete [] width_list;
@@ -76,7 +82,7 @@ void HTMLRenderer::process(PDFDoc *doc)
         bg_renderer->startDoc(doc);
     }
 
-    int page_count = (param->last_page - param->first_page);
+    int page_count = (param->last_page - param->first_page + 1);
     for(int i = param->first_page; i <= param->last_page ; ++i) 
     {
         cerr << "Working: " << (i-param->first_page) << "/" << page_count << '\r' << flush;
@@ -87,21 +93,23 @@ void HTMLRenderer::process(PDFDoc *doc)
             html_fout.open((char*)page_fn, ofstream::binary); 
             if(!html_fout)
                 throw string("Cannot open ") + (char*)page_fn + " for writing";
-            fix_stream(html_fout);
+            set_stream_flags(html_fout);
         }
 
         if(param->process_nontext)
         {
             auto fn = str_fmt("%s/p%x.png", (param->single_html ? param->tmp_dir : param->dest_dir).c_str(), i);
             if(param->single_html)
-                add_tmp_file((char*)fn);
+                tmp_files.add((char*)fn);
 
             bg_renderer->render_page(doc, i, (char*)fn);
         }
 
         doc->displayPage(this, i, 
                 text_zoom_factor() * DEFAULT_DPI, text_zoom_factor() * DEFAULT_DPI,
-                0, true, false, false,
+                0, 
+                (param->use_cropbox == 0), 
+                false, false,
                 nullptr, nullptr, nullptr, nullptr);
 
         if(param->split_pages)
@@ -170,8 +178,8 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
     cur_font_size = draw_font_size = 0;
     cur_fs_id = install_font_size(cur_font_size);
     
-    memcpy(cur_text_tm, id_matrix, sizeof(cur_text_tm));
-    memcpy(draw_text_tm, id_matrix, sizeof(draw_text_tm));
+    memcpy(cur_text_tm, ID_MATRIX, sizeof(cur_text_tm));
+    memcpy(draw_text_tm, ID_MATRIX, sizeof(draw_text_tm));
     cur_ttm_id = install_transform_matrix(draw_text_tm);
 
     cur_letter_space = cur_word_space = 0;
@@ -210,7 +218,7 @@ void HTMLRenderer::endPage() {
     for(int i = 0; i < 6; ++i)
     {
         if(i > 0) html_fout << ",";
-        html_fout << _round(default_ctm[i]);
+        html_fout << round(default_ctm[i]);
     }
     html_fout << "]";
 
@@ -232,17 +240,17 @@ void HTMLRenderer::pre_process(PDFDoc * doc)
 
         vector<double> zoom_factors;
         
-        if(_is_positive(param->zoom))
+        if(is_positive(param->zoom))
         {
             zoom_factors.push_back(param->zoom);
         }
 
-        if(_is_positive(param->fit_width))
+        if(is_positive(param->fit_width))
         {
             zoom_factors.push_back((param->fit_width) / preprocessor.get_max_width());
         }
 
-        if(_is_positive(param->fit_height))
+        if(is_positive(param->fit_height))
         {
             zoom_factors.push_back((param->fit_height) / preprocessor.get_max_height());
         }
@@ -280,13 +288,13 @@ void HTMLRenderer::pre_process(PDFDoc * doc)
             : str_fmt("%s/%s", param->dest_dir.c_str(), param->css_filename.c_str());
 
         if(param->single_html && (!param->split_pages))
-            add_tmp_file((char*)fn);
+            tmp_files.add((char*)fn);
 
         css_path = (char*)fn,
         css_fout.open(css_path, ofstream::binary);
         if(!css_fout)
             throw string("Cannot open ") + (char*)fn + " for writing";
-        fix_stream(css_fout);
+        set_stream_flags(css_fout);
     }
 
     // if split-pages is specified, open & close the file in the process loop
@@ -301,13 +309,13 @@ void HTMLRenderer::pre_process(PDFDoc * doc)
          * Otherwise just generate it 
          */
         auto fn = str_fmt("%s/__pages", param->tmp_dir.c_str());
-        add_tmp_file((char*)fn);
+        tmp_files.add((char*)fn);
 
         html_path = (char*)fn;
         html_fout.open(html_path, ofstream::binary); 
         if(!html_fout)
             throw string("Cannot open ") + (char*)fn + " for writing";
-        fix_stream(html_fout);
+        set_stream_flags(html_fout);
     }
 }
 
@@ -327,7 +335,7 @@ void HTMLRenderer::post_process()
         output.open((char*)fn, ofstream::binary);
         if(!output)
             throw string("Cannot open ") + (char*)fn + " for writing";
-        fix_stream(output);
+        set_stream_flags(output);
     }
 
     // apply manifest
@@ -385,38 +393,11 @@ void HTMLRenderer::post_process()
     }
 }
 
-void HTMLRenderer::fix_stream (std::ostream & out)
+void HTMLRenderer::set_stream_flags(std::ostream & out)
 {
     // we output all ID's in hex
     // browsers are not happy with scientific notations
     out << hex << fixed;
-}
-
-void HTMLRenderer::add_tmp_file(const string & fn)
-{
-    if(!param->clean_tmp)
-        return;
-
-    if(tmp_files.insert(fn).second && param->debug)
-        cerr << "Add new temporary file: " << fn << endl;
-}
-
-void HTMLRenderer::clean_tmp_files()
-{
-    if(!param->clean_tmp)
-        return;
-
-    for(auto iter = tmp_files.begin(); iter != tmp_files.end(); ++iter)
-    {
-        const string & fn = *iter;
-        remove(fn.c_str());
-        if(param->debug)
-            cerr << "Remove temporary file: " << fn << endl;
-    }
-
-    remove(param->tmp_dir.c_str());
-    if(param->debug)
-        cerr << "Remove temporary directory: " << param->tmp_dir << endl;
 }
 
 void HTMLRenderer::embed_file(ostream & out, const string & path, const string & type, bool copy)

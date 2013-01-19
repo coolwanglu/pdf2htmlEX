@@ -25,8 +25,10 @@
 #include <Annot.h>
 
 #include "Param.h"
-#include "util.h"
-#include "Preprocessor.h"
+#include "util/Preprocessor.h"
+#include "util/const.h"
+#include "util/StringFormatter.h"
+#include "util/TmpFiles.h"
 
 /*
  * Naming Convention
@@ -38,7 +40,6 @@
  * b - page Box
  * d - page Decoration
  * l - Line
- * i - Image
  * j - Js data
  * p - Page
  *
@@ -59,6 +60,51 @@
  */
 
 namespace pdf2htmlEX {
+
+// we may need more info of a font in the future
+class FontInfo
+{
+public:
+    long long id;
+    bool use_tounicode;
+    int em_size;
+    double ascent, descent;
+};
+
+class GfxRGB_hash 
+{
+public:
+    size_t operator () (const GfxRGB & rgb) const
+    {
+        return (colToByte(rgb.r) << 16) | (colToByte(rgb.g) << 8) | (colToByte(rgb.b));
+    }
+};
+
+class GfxRGB_equal
+{ 
+public:
+    bool operator ()(const GfxRGB & rgb1, const GfxRGB & rgb2) const
+    {
+        return ((rgb1.r == rgb2.r) && (rgb1.g == rgb2.g) && (rgb1.b == rgb1.b));
+    }
+};
+
+class Matrix_less
+{
+public:
+    bool operator () (const Matrix & m1, const Matrix & m2) const
+    {
+        // Note that we only care about the first 4 elements
+        for(int i = 0; i < 4; ++i)
+        {
+            if(m1.m[i] < m2.m[i] - EPS)
+                return true;
+            if(m1.m[i] > m2.m[i] + EPS)
+                return false;
+        }
+        return false;
+    }
+};
 
 class HTMLRenderer : public OutputDev
 {
@@ -154,10 +200,8 @@ class HTMLRenderer : public OutputDev
         void post_process();
 
         // set flags 
-        void fix_stream (std::ostream & out);
+        void set_stream_flags (std::ostream & out);
 
-        void add_tmp_file (const std::string & fn);
-        void clean_tmp_files ();
         std::string dump_embedded_font (GfxFont * font, long long fn_id);
         void embed_font(const std::string & filepath, GfxFont * font, FontInfo & info, bool get_metric_only = false);
 
@@ -335,82 +379,20 @@ class HTMLRenderer : public OutputDev
         double draw_tx, draw_ty; 
 
         // some metrics have to be determined after all elements in the lines have been seen
-        class LineBuffer {
-        public:
-            LineBuffer (HTMLRenderer * renderer) : renderer(renderer) { }
-
-            class State {
-            public:
-                void begin(std::ostream & out, const State * prev_state);
-                void end(std::ostream & out) const;
-                void hash(void);
-                int diff(const State & s) const;
-
-                enum {
-                    FONT_ID,
-                    FONT_SIZE_ID,
-                    COLOR_ID,
-                    LETTER_SPACE_ID,
-                    WORD_SPACE_ID,
-                    RISE_ID,
-
-                    ID_COUNT
-                };
-
-                long long ids[ID_COUNT];
-
-                double ascent;
-                double descent;
-                double draw_font_size;
-
-                size_t start_idx; // index of the first Text using this state
-                // for optimzation
-                long long hash_value;
-                bool need_close;
-
-                static const char * format_str; // class names for each id
-            };
-
-
-            class Offset {
-            public:
-                size_t start_idx; // should put this idx before text[start_idx];
-                double width;
-            };
-
-            void reset(GfxState * state);
-            void append_unicodes(const Unicode * u, int l);
-            void append_offset(double width);
-            void append_state(void);
-            void flush(void);
-
-        private:
-            // retrieve state from renderer
-            void set_state(State & state);
-
-            HTMLRenderer * renderer;
-
-            double x, y;
-            long long tm_id;
-
-            std::vector<State> states;
-            std::vector<Offset> offsets;
-            std::vector<Unicode> text;
-
-            // for flush
-            std::vector<State*> stack;
-
-        } line_buf;
-        friend class LineBuffer;
+        class TextLineBuffer;
+        friend class TextLineBuffer;
+        TextLineBuffer * text_line_buf;
 
         // for font reencoding
         int32_t * cur_mapping;
         char ** cur_mapping2;
         int * width_list;
+
         Preprocessor preprocessor;
+        TmpFiles tmp_files;
 
         // for string formatting
-        string_formatter str_fmt;
+        StringFormatter str_fmt;
 
         ////////////////////////////////////////////////////
         // styles & resources
@@ -426,12 +408,9 @@ class HTMLRenderer : public OutputDev
         std::map<double, long long> rise_map;
         std::map<double, long long> height_map;
 
-        int image_count;
-
         const Param * param;
         std::ofstream html_fout, css_fout;
         std::string html_path, css_path;
-        std::set<std::string> tmp_files;
 
         static const std::string MANIFEST_FILENAME;
 };

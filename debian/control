@@ -8,6 +8,6 @@ Homepage: http://github.com/coolwanglu/pdf2htmlEX
 
 Package: pdf2htmlex
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, libpoppler27 (>= 0.20.3), libboost-filesystem-dev, libboost-program-options-dev, libpng12-0, libfontforge1
+Depends: ${shlibs:Depends}, ${misc:Depends}, libpoppler27 (>= 0.20.3) | libpoppler28, libboost-filesystem-dev, libboost-program-options-dev, libpng12-0, libfontforge1
 Description: Converts PDF to HTML without losing format
  pdf2htmlEX converts PDF to HTML while retaining text, format & style as much as possible

@@ -15,9 +15,14 @@
 #include <CharCodeToUnicode.h>
 #include <fofi/FoFiTrueType.h>
 
-#include "ffw.h"
 #include "HTMLRenderer.h"
-#include "namespace.h"
+#include "TextLineBuffer.h"
+#include "util/ffw.h"
+#include "util/namespace.h"
+#include "util/unicode.h"
+#include "util/path.h"
+#include "util/math.h"
+#include "util/misc.h"
 
 namespace pdf2htmlEX {
 
@@ -26,6 +31,8 @@ using std::min;
 using std::all_of;
 using std::floor;
 using std::swap;
+using std::cerr;
+using std::endl;
 
 string HTMLRenderer::dump_embedded_font (GfxFont * font, long long fn_id)
 {
@@ -127,7 +134,7 @@ string HTMLRenderer::dump_embedded_font (GfxFont * font, long long fn_id)
         obj.streamReset();
 
         filepath = (char*)str_fmt("%s/f%llx%s", param->tmp_dir.c_str(), fn_id, suffix.c_str());
-        add_tmp_file(filepath);
+        tmp_files.add(filepath);
 
         ofstream outf(filepath, ofstream::binary);
         if(!outf)
@@ -171,7 +178,7 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
     if(param->debug)
     {
         auto fn = str_fmt("%s/__raw_font_%lld", param->tmp_dir.c_str(), info.id, param->font_suffix.c_str());
-        add_tmp_file((char*)fn);
+        tmp_files.add((char*)fn);
         ofstream((char*)fn, ofstream::binary) << ifstream(filepath).rdbuf();
     }
 
@@ -374,7 +381,7 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
                     // in auto mode, just drop the tounicode map
                     if(!retried)
                     {
-                        cerr << "ToUnicode CMap is not valid and got dropped" << endl;
+                        cerr << "ToUnicode CMap is not valid and got dropped for font: " << hex << info.id << dec << endl;
                         retried = true;
                         codeset.clear();
                         info.use_tounicode = false;
@@ -410,7 +417,7 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
         
         ffw_reencode_raw(cur_mapping, max_key + 1, 1);
 
-        // we need the space chracter for offsets
+        // we need the space character for offsets
         if(!has_space)
         {
             int space_width;
@@ -437,9 +444,9 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
      *
      */
     string cur_tmp_fn = (char*)str_fmt("%s/__tmp_font1%s", param->tmp_dir.c_str(), param->font_suffix.c_str());
-    add_tmp_file(cur_tmp_fn);
+    tmp_files.add(cur_tmp_fn);
     string other_tmp_fn = (char*)str_fmt("%s/__tmp_font2%s", param->tmp_dir.c_str(), param->font_suffix.c_str());
-    add_tmp_file(other_tmp_fn);
+    tmp_files.add(other_tmp_fn);
 
     ffw_save(cur_tmp_fn.c_str());
 
@@ -482,7 +489,7 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
         info.id, param->font_suffix.c_str());
 
     if(param->single_html)
-        add_tmp_file(fn);
+        tmp_files.add(fn);
 
     ffw_load_font(cur_tmp_fn.c_str());
     ffw_metric(&info.ascent, &info.descent);
@@ -517,14 +524,6 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
     char *p = s->getCString();
     int len = s->getLength();
 
-    //debug
-    {
-        if(strcmp(p, "ORTUG") == 0)
-        {
-            cerr << "DEBUG: " << (int)(state->getRender()) << endl;
-        }
-    }
-
     double dx = 0;
     double dy = 0;
     double dxerr = 0;
@@ -538,10 +537,11 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
     CharCode code;
     Unicode *u = nullptr;
 
-    while (len > 0) {
+    while (len > 0) 
+    {
         auto n = font->getNextChar(p, len, &code, &u, &uLen, &dx1, &dy1, &ox, &oy);
 
-        if(!(_equal(ox, 0) && _equal(oy, 0)))
+        if(!(equal(ox, 0) && equal(oy, 0)))
         {
             cerr << "TODO: non-zero origins" << endl;
         }
@@ -556,25 +556,25 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
         if(is_space && (param->space_as_offset))
         {
             // ignore horiz_scaling, as it's merged in CTM
-            line_buf.append_offset((dx1 * cur_font_size + cur_letter_space + cur_word_space) * draw_text_scale); 
+            text_line_buf->append_offset((dx1 * cur_font_size + cur_letter_space + cur_word_space) * draw_text_scale); 
         }
         else
         {
             if((param->decompose_ligature) && (uLen > 1) && all_of(u, u+uLen, isLegalUnicode))
             {
-                line_buf.append_unicodes(u, uLen);
+                text_line_buf->append_unicodes(u, uLen);
             }
             else
             {
                 if(cur_font_info->use_tounicode)
                 {
                     Unicode uu = check_unicode(u, uLen, code, font);
-                    line_buf.append_unicodes(&uu, 1);
+                    text_line_buf->append_unicodes(&uu, 1);
                 }
                 else
                 {
                     Unicode uu = unicode_from_font(code, font);
-                    line_buf.append_unicodes(&uu, 1);
+                    text_line_buf->append_unicodes(&uu, 1);
                 }
             }
         }

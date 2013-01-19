@@ -1,5 +1,5 @@
 /*
- * LineBuffer.cc
+ * TextLineBuffer.cc
  *
  * Generate and optimized HTML for one line
  *
@@ -10,7 +10,10 @@
 #include <vector>
 
 #include "HTMLRenderer.h"
-#include "namespace.h"
+#include "TextLineBuffer.h"
+#include "util/namespace.h"
+#include "util/unicode.h"
+#include "util/math.h"
 
 namespace pdf2htmlEX {
 
@@ -18,19 +21,21 @@ using std::min;
 using std::max;
 using std::vector;
 using std::ostream;
+using std::cerr;
+using std::endl;
 
-void HTMLRenderer::LineBuffer::reset(GfxState * state)
+void HTMLRenderer::TextLineBuffer::reset(GfxState * state)
 {
     state->transform(state->getCurX(), state->getCurY(), &x, &y);
     tm_id = renderer->cur_ttm_id;
 }
 
-void HTMLRenderer::LineBuffer::append_unicodes(const Unicode * u, int l)
+void HTMLRenderer::TextLineBuffer::append_unicodes(const Unicode * u, int l)
 {
     text.insert(text.end(), u, u+l);
 }
 
-void HTMLRenderer::LineBuffer::append_offset(double width)
+void HTMLRenderer::TextLineBuffer::append_offset(double width)
 {
     if((!offsets.empty()) && (offsets.back().start_idx == text.size()))
         offsets.back().width += width;
@@ -38,7 +43,7 @@ void HTMLRenderer::LineBuffer::append_offset(double width)
         offsets.push_back(Offset({text.size(), width}));
 }
 
-void HTMLRenderer::LineBuffer::append_state(void)
+void HTMLRenderer::TextLineBuffer::append_state(void)
 {
     if(states.empty() || (states.back().start_idx != text.size()))
     {
@@ -49,10 +54,10 @@ void HTMLRenderer::LineBuffer::append_state(void)
     set_state(states.back());
 }
 
-void HTMLRenderer::LineBuffer::flush(void)
+void HTMLRenderer::TextLineBuffer::flush(void)
 {
     /*
-     * Each Line is an independent absolute positioined block
+     * Each Line is an independent absolute positioned block
      * so even we have a few states or offsets, we may omit them
      */
     if(text.empty()) return;
@@ -80,8 +85,8 @@ void HTMLRenderer::LineBuffer::flush(void)
 
     ostream & out = renderer->html_fout;
     out << "<div style=\"left:" 
-        << _round(x) << "px;bottom:" 
-        << _round(y) << "px;"
+        << round(x) << "px;bottom:" 
+        << round(y) << "px;"
         << "\""
         << " class=\"l t" << tm_id 
         << " h" << renderer->install_height(max_ascent)
@@ -177,7 +182,7 @@ void HTMLRenderer::LineBuffer::flush(void)
 
 }
 
-void HTMLRenderer::LineBuffer::set_state (State & state)
+void HTMLRenderer::TextLineBuffer::set_state (State & state)
 {
     state.ids[State::FONT_ID] = renderer->cur_font_info->id;
     state.ids[State::FONT_SIZE_ID] = renderer->cur_fs_id;
@@ -192,7 +197,7 @@ void HTMLRenderer::LineBuffer::set_state (State & state)
     state.draw_font_size = renderer->draw_font_size;
 }
 
-void HTMLRenderer::LineBuffer::State::begin (ostream & out, const State * prev_state)
+void HTMLRenderer::TextLineBuffer::State::begin (ostream & out, const State * prev_state)
 {
     bool first = true;
     for(int i = 0; i < ID_COUNT; ++i)
@@ -225,13 +230,13 @@ void HTMLRenderer::LineBuffer::State::begin (ostream & out, const State * prev_s
     }
 }
 
-void HTMLRenderer::LineBuffer::State::end(ostream & out) const
+void HTMLRenderer::TextLineBuffer::State::end(ostream & out) const
 {
     if(need_close)
         out << "</span>";
 }
 
-void HTMLRenderer::LineBuffer::State::hash(void)
+void HTMLRenderer::TextLineBuffer::State::hash(void)
 {
     hash_value = 0;
     for(int i = 0; i < ID_COUNT; ++i)
@@ -240,7 +245,7 @@ void HTMLRenderer::LineBuffer::State::hash(void)
     }
 }
 
-int HTMLRenderer::LineBuffer::State::diff(const State & s) const
+int HTMLRenderer::TextLineBuffer::State::diff(const State & s) const
 {
     /*
      * A quick check based on hash_value
@@ -256,5 +261,5 @@ int HTMLRenderer::LineBuffer::State::diff(const State & s) const
     return d;
 }
 
-const char * HTMLRenderer::LineBuffer::State::format_str = "fsclwr";
+const char * HTMLRenderer::TextLineBuffer::State::format_str = "fsclwr";
 } //namespace pdf2htmlEX

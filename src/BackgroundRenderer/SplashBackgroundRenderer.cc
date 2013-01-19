@@ -19,7 +19,8 @@ void SplashBackgroundRenderer::drawChar(GfxState *state, double x, double y,
   double originX, double originY,
   CharCode code, int nBytes, Unicode *u, int uLen)
 {
-    if((state->getRender() & 3) == 3)
+    if(((state->getRender() & 3) == 3)
+            || ((state->getFont()) && (state->getFont()->getWMode())))
     {
         SplashOutputDev::drawChar(state,x,y,dx,dy,originX,originY,code, nBytes, u, uLen);
     }
@@ -32,7 +33,9 @@ static GBool annot_cb(Annot *, void *) {
 void SplashBackgroundRenderer::render_page(PDFDoc * doc, int pageno, const string & filename)
 {
     doc->displayPage(this, pageno, param->h_dpi, param->v_dpi,
-            0, true, false, false,
+            0, 
+            (param->use_cropbox == 0), 
+            false, false,
             nullptr, nullptr, &annot_cb, nullptr);
 
     getBitmap()->writeImgFile(splashFormatPng, 

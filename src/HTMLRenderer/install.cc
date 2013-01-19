@@ -15,12 +15,15 @@
 
 #include "Param.h"
 #include "HTMLRenderer.h"
-#include "namespace.h"
-#include "util.h"
+#include "util/namespace.h"
+#include "util/math.h"
+#include "util/misc.h"
 
 namespace pdf2htmlEX {
 
 using std::abs;
+using std::cerr;
+using std::endl;
 
 const FontInfo * HTMLRenderer::install_font(GfxFont * font)
 {
@@ -203,7 +206,7 @@ void HTMLRenderer::install_external_font(GfxFont * font, FontInfo & info)
 long long HTMLRenderer::install_font_size(double font_size)
 {
     auto iter = font_size_map.lower_bound(font_size - EPS);
-    if((iter != font_size_map.end()) && (_equal(iter->first, font_size)))
+    if((iter != font_size_map.end()) && (equal(iter->first, font_size)))
         return iter->second;
 
     long long new_fs_id = font_size_map.size();
@@ -218,7 +221,7 @@ long long HTMLRenderer::install_transform_matrix(const double * tm)
     memcpy(m.m, tm, sizeof(m.m));
 
     auto iter = transform_matrix_map.lower_bound(m);
-    if((iter != transform_matrix_map.end()) && (_tm_equal(m.m, iter->first.m, 4)))
+    if((iter != transform_matrix_map.end()) && (tm_equal(m.m, iter->first.m, 4)))
         return iter->second;
 
     long long new_tm_id = transform_matrix_map.size();
@@ -230,7 +233,7 @@ long long HTMLRenderer::install_transform_matrix(const double * tm)
 long long HTMLRenderer::install_letter_space(double letter_space)
 {
     auto iter = letter_space_map.lower_bound(letter_space - EPS);
-    if((iter != letter_space_map.end()) && (_equal(iter->first, letter_space)))
+    if((iter != letter_space_map.end()) && (equal(iter->first, letter_space)))
         return iter->second;
 
     long long new_ls_id = letter_space_map.size();
@@ -242,7 +245,7 @@ long long HTMLRenderer::install_letter_space(double letter_space)
 long long HTMLRenderer::install_word_space(double word_space)
 {
     auto iter = word_space_map.lower_bound(word_space - EPS);
-    if((iter != word_space_map.end()) && (_equal(iter->first, word_space)))
+    if((iter != word_space_map.end()) && (equal(iter->first, word_space)))
         return iter->second;
 
     long long new_ws_id = word_space_map.size();

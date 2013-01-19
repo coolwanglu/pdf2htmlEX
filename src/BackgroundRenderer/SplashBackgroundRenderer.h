@@ -15,8 +15,8 @@
 #include <splash/SplashBitmap.h>
 #include <SplashOutputDev.h>
 
-#include "HTMLRenderer.h"
 #include "Param.h"
+#include "HTMLRenderer/HTMLRenderer.h"
 
 namespace pdf2htmlEX {
 
