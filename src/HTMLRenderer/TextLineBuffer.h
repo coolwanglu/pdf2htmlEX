@@ -6,6 +6,13 @@
 
 namespace pdf2htmlEX {
 
+/*
+ * Store a series of 
+ *  - Text
+ *  - Shift
+ *  - State change
+ * within a line
+ */
 class HTMLRenderer;
 class HTMLRenderer::TextLineBuffer
 {

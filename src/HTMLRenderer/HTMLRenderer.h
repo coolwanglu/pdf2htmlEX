@@ -379,6 +379,7 @@ class HTMLRenderer : public OutputDev
         double draw_tx, draw_ty; 
 
         // some metrics have to be determined after all elements in the lines have been seen
+        // see TextLineBuffer.h
         class TextLineBuffer;
         friend class TextLineBuffer;
         TextLineBuffer * text_line_buf;
