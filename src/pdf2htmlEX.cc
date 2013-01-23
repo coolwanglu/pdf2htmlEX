@@ -34,18 +34,8 @@ using namespace pdf2htmlEX;
 Param param;
 ArgParser argparser;
 
-void show_version()
+void show_usage_and_exit(const char * dummy = nullptr)
 {
-    cerr << "pdftohtmlEX version " << PDF2HTMLEX_VERSION;
-    cerr << " (poppler " << POPPLER_VERSION;
-    cerr << ", libfontforge " << ffw_get_version() << ")";
-    cerr << endl;
-    cerr << "Copyright 2012 Lu Wang <coolwanglu@gmail.com>" << endl;
-}
-
-void show_usage()
-{
-    cerr << endl;
     cerr << "Usage: pdf2htmlEX [Options] <input.pdf> [<output.html>]" << endl;
     cerr << endl;
     cerr << "Options:" << endl;
@@ -56,16 +46,13 @@ void show_usage()
     exit(EXIT_FAILURE);
 }
 
-void show_usage_and_exit(const char * dummy = nullptr)
-{
-    show_version();
-    show_usage();
-    exit(EXIT_FAILURE);
-}
-
 void show_version_and_exit(const char * dummy = nullptr)
 {
-    show_version();
+    cerr << "pdftohtmlEX version " << PDF2HTMLEX_VERSION << endl;
+    cerr << "Copyright 2012 Lu Wang <coolwanglu@gmail.com>" << endl;
+    cerr << "Libraries: ";
+    cerr << "poppler " << POPPLER_VERSION << ", ";
+    cerr << "libfontforge " << ffw_get_version() << endl;
     exit(EXIT_FAILURE);
 }
 
