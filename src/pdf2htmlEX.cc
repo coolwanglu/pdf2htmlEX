@@ -12,6 +12,8 @@
 #include <iostream>
 #include <getopt.h>
 
+#include <poppler-config.h>
+
 #include <goo/GooString.h>
 
 #include <Object.h>
@@ -24,6 +26,7 @@
 #include "HTMLRenderer/HTMLRenderer.h"
 #include "util/ArgParser.h"
 #include "util/path.h"
+#include "util/ffw.h"
 
 using namespace std;
 using namespace pdf2htmlEX;
@@ -33,10 +36,6 @@ ArgParser argparser;
 
 void show_usage_and_exit(const char * dummy = nullptr)
 {
-    cerr << "pdftohtmlEX version " << PDF2HTMLEX_VERSION << endl;
-    cerr << endl;
-    cerr << "Copyright 2012 Lu Wang <coolwanglu@gmail.com>" << endl;
-    cerr << endl;
     cerr << "Usage: pdf2htmlEX [Options] <input.pdf> [<output.html>]" << endl;
     cerr << endl;
     cerr << "Options:" << endl;
@@ -47,11 +46,21 @@ void show_usage_and_exit(const char * dummy = nullptr)
     exit(EXIT_FAILURE);
 }
 
+void show_version_and_exit(const char * dummy = nullptr)
+{
+    cerr << "pdftohtmlEX version " << PDF2HTMLEX_VERSION << endl;
+    cerr << "Copyright 2012 Lu Wang <coolwanglu@gmail.com>" << endl;
+    cerr << "Libraries: ";
+    cerr << "poppler " << POPPLER_VERSION << ", ";
+    cerr << "libfontforge " << ffw_get_version() << endl;
+    exit(EXIT_FAILURE);
+}
+
 void parse_options (int argc, char **argv)
 {
     argparser
         .add("help,h", "show all options", &show_usage_and_exit)
-        .add("version,v", "show copyright and version info", &show_usage_and_exit)
+        .add("version,v", "show copyright and version info", &show_version_and_exit)
 
         .add("owner-password,o", &param.owner_password, "", "owner password (for encrypted files)", nullptr, true)
         .add("user-password,u", &param.user_password, "", "user password (for encrypted files)", nullptr, true)

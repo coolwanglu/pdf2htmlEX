@@ -400,3 +400,8 @@ void ffw_auto_hint(void)
     FVAutoHint(cur_fv);
     FVAutoInstr(cur_fv);
 }
+
+long ffw_get_version(void)
+{
+    return library_version_configuration.library_source_versiondate;
+}
