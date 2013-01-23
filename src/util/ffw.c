@@ -400,3 +400,10 @@ void ffw_auto_hint(void)
     FVAutoHint(cur_fv);
     FVAutoInstr(cur_fv);
 }
+
+char* ffw_get_version(void)
+{
+    char* str = (char*)malloc(sizeof(char) * 20);
+    printf("%d", library_version_configuration.library_source_versiondate);
+    return str;
+}

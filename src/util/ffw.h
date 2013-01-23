@@ -23,6 +23,7 @@ extern "C" {
 // global
 void ffw_init(int debug);
 void ffw_finalize(void);
+char* ffw_get_version(void);
 
 ////////////////////////
 // load & save
