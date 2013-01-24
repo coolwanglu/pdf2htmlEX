@@ -77,7 +77,10 @@ class GfxRGB_hash
 public:
     size_t operator () (const GfxRGB & rgb) const
     {
-        return (colToByte(rgb.r) << 16) | (colToByte(rgb.g) << 8) | (colToByte(rgb.b));
+        return ( (((size_t)colToByte(rgb.r)) << 16) 
+               | (((size_t)colToByte(rgb.g)) << 8) 
+               | ((size_t)colToByte(rgb.b))
+               );
     }
 };
 
