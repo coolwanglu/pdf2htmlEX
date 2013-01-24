@@ -155,8 +155,8 @@ class HTMLRenderer : public OutputDev
         /*
          * Ugly implementation of save/restore
          */
-        virtual void saveState(GfxState * state) {updateAll(state);}
-        virtual void restoreState(GfxState * state) {updateAll(state);}
+        virtual void saveState(GfxState * state) { updateAll(state); }
+        virtual void restoreState(GfxState * state) { updateAll(state); }
 
         virtual void updateAll(GfxState * state);
 
@@ -172,7 +172,12 @@ class HTMLRenderer : public OutputDev
         virtual void updateCharSpace(GfxState * state);
         virtual void updateWordSpace(GfxState * state);
 
+        virtual void updateRender(GfxState * state);
+
+        virtual void updateFillColorSpace(GfxState * state);
+        virtual void updateStrokeColorSpace(GfxState * state);
         virtual void updateFillColor(GfxState * state);
+        virtual void updateStrokeColor(GfxState * state);
 
 
         /*
