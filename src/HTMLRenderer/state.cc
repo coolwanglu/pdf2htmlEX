@@ -70,8 +70,25 @@ void HTMLRenderer::updateWordSpace(GfxState * state)
 {
     word_space_changed = true;
 }
-
+void HTMLRenderer::updateRender(GfxState * state) 
+{
+    // currently Render is traced for color only
+    // might need something like render_changed later
+    color_changed = true; 
+}
+void HTMLRenderer::updateFillColorSpace(GfxState * state) 
+{
+    color_changed = true; 
+}
+void HTMLRenderer::updateStrokeColorSpace(GfxState * state) 
+{
+    color_changed = true; 
+}
 void HTMLRenderer::updateFillColor(GfxState * state) 
+{
+    color_changed = true; 
+}
+void HTMLRenderer::updateStrokeColor(GfxState * state) 
 {
     color_changed = true; 
 }
