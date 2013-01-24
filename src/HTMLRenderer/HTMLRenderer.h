@@ -86,7 +86,7 @@ class GfxRGB_equal
 public:
     bool operator ()(const GfxRGB & rgb1, const GfxRGB & rgb2) const
     {
-        return ((rgb1.r == rgb2.r) && (rgb1.g == rgb2.g) && (rgb1.b == rgb1.b));
+        return ((rgb1.r == rgb2.r) && (rgb1.g == rgb2.g) && (rgb1.b == rgb2.b));
     }
 };
 
