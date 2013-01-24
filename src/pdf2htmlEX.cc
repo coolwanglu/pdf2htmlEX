@@ -1,6 +1,6 @@
 // pdftohtmlEX.cc
 //
-// Copyright (C) 2012 Lu Wang <coolwanglu@gmail.com>
+// Copyright (C) 2012,2013 Lu Wang <coolwanglu@gmail.com>
 
 #include <cstdio>
 #include <cstdlib>
@@ -49,7 +49,7 @@ void show_usage_and_exit(const char * dummy = nullptr)
 void show_version_and_exit(const char * dummy = nullptr)
 {
     cerr << "pdftohtmlEX version " << PDF2HTMLEX_VERSION << endl;
-    cerr << "Copyright 2012 Lu Wang <coolwanglu@gmail.com>" << endl;
+    cerr << "Copyright 2012,2013 Lu Wang <coolwanglu@gmail.com>" << endl;
     cerr << "Libraries: ";
     cerr << "poppler " << POPPLER_VERSION << ", ";
     cerr << "libfontforge " << ffw_get_version() << endl;
