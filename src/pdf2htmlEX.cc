@@ -53,7 +53,7 @@ void show_version_and_exit(const char * dummy = nullptr)
     cerr << "Libraries: ";
     cerr << "poppler " << POPPLER_VERSION << ", ";
     cerr << "libfontforge " << ffw_get_version() << endl;
-    exit(EXIT_FAILURE);
+    exit(EXIT_SUCCESS);
 }
 
 void parse_options (int argc, char **argv)
