@@ -1,18 +1,15 @@
 language: cpp
 compiler: gcc
 before_install:
+  - sudo add-apt-repository ppa:coolwanglu/pdf2htmlex
   - sudo apt-get update -qq
-  - sudo apt-get install -qq libfontforge-dev libopenjpeg-dev libspiro-dev
-  - wget http://poppler.freedesktop.org/poppler-0.22.0.tar.gz
-  - tar -xf poppler-0.22.0.tar.gz
-  - cd poppler-0.22.0
-  - ./configure --enable-xpdf-headers
+  - sudo apt-get install -qq libpoppler-dev libfontforge-dev libspiro-dev
+before_script: 
+  - cmake .
+script:
   - make
   - sudo make install
-  - cd ..
-before_script:
-  - cmake .
-script: make
+  - pdf2htmlex -v
 branches:
   only:
     - master
