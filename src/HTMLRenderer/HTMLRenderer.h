@@ -45,7 +45,8 @@
  *
  * Cd - CSS Draw
  *
- * Reusable CSS classes
+ * Numbered CSS classes
+ * See also: HTMLRenderer::TextLineBuffer::format_str
  *
  * t<hex> - Transform matrix
  * f<hex> - Font (also for font names)
@@ -56,6 +57,7 @@
  * _<hex> - white space
  * r<hex> - Rise
  * h<hex> - Height
+ * L<hex> - Left
  *
  */
 
@@ -230,6 +232,7 @@ class HTMLRenderer : public OutputDev
         long long install_whitespace(double ws_width, double & actual_width);
         long long install_rise(double rise);
         long long install_height(double height);
+        long long install_left(double left);
 
         ////////////////////////////////////////////////////
         // export css styles
@@ -250,6 +253,7 @@ class HTMLRenderer : public OutputDev
         void export_whitespace(long long ws_id, double ws_width);
         void export_rise(long long rise_id, double rise);
         void export_height(long long height_id, double height);
+        void export_left(long long left_id, double left);
 
         // depending on single-html, to embed the content or add a link to it
         // "type": specify the file type, usually it's the suffix, in which case this parameter could be ""
@@ -417,6 +421,7 @@ class HTMLRenderer : public OutputDev
         std::map<double, long long> whitespace_map;
         std::map<double, long long> rise_map;
         std::map<double, long long> height_map;
+        std::map<double, long long> left_map;
 
         const Param * param;
         std::ofstream html_fout, css_fout;

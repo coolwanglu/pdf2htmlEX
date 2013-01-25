@@ -166,5 +166,9 @@ void HTMLRenderer::export_height (long long height_id, double height)
 {
     css_fout << ".h" << height_id << "{height:" << round(height) << "px;}" << endl;
 }
+void HTMLRenderer::export_left (long long left_id, double left) 
+{
+    css_fout << ".L" << left_id << "{left:" << round(left) << "px;}" << endl;
+}
 
 }
