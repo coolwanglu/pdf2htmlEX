@@ -5,3 +5,4 @@ cmake_install.cmake
 install_manifest.txt
 pdf2htmlEX
 pdf2htmlEX.1
+src/pdf2htmlEX-config.h
