@@ -18,7 +18,7 @@ struct Param
     // PDF stuff
     std::string owner_password, user_password;
     std::string input_filename, output_filename;
-    bool no_drm;
+    int no_drm;
 
     // path
     std::string dest_dir, tmp_dir, data_dir;

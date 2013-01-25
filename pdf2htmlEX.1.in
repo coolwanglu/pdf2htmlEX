@@ -35,6 +35,9 @@ Specify owner password
 .B -u, --user-password <password>
 Specify user password
 .TP
+.B --no-drm <0|1> (Default: 0)
+Override document DRM settings
+.TP
 .B --dest-dir <dir> (Default: .)
 Specify destination folder
 .TP
