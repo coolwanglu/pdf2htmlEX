@@ -64,6 +64,7 @@ void parse_options (int argc, char **argv)
 
         .add("owner-password,o", &param.owner_password, "", "owner password (for encrypted files)", nullptr, true)
         .add("user-password,u", &param.user_password, "", "user password (for encrypted files)", nullptr, true)
+        .add("no-drm", &param.no_drm, false, "override document DRM settings")
 
         .add("dest-dir", &param.dest_dir, ".", "specify destination directory")
         .add("data-dir", &param.data_dir, PDF2HTMLEX_DATA_PATH, "specify data directory")
@@ -192,7 +193,10 @@ int main(int argc, char **argv)
 
         // check for copy permission
         if (!doc->okToCopy()) {
-            throw "Copying of text from this document is not allowed.";
+            if (!param.no_drm) {
+                throw "Copying of text from this document is not allowed.";
+            }
+            cerr << "Document has copy-protection bit set." << endl;
         }
 
         param.first_page = min<int>(max<int>(param.first_page, 1), doc->getNumPages());
