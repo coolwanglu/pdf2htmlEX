@@ -1,0 +1,18 @@
+language: cpp
+compiler: gcc
+before_install:
+  - sudo apt-get update -qq
+  - sudo apt-get install -qq libfontforge-dev libopenjpeg-dev libspiro-dev
+  - wget http://poppler.freedesktop.org/poppler-0.22.0.tar.gz
+  - tar -xf poppler-0.22.0.tar.gz
+  - cd poppler-0.22.0
+  - ./configure --enable-xpdf-headers
+  - make
+  - sudo make install
+  - cd ..
+before_script:
+  - cmake .
+script: make
+branches:
+  only:
+    - master
