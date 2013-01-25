@@ -96,6 +96,11 @@ void ffw_finalize(void)
     }
 }
 
+long ffw_get_version(void)
+{
+    return library_version_configuration.library_source_versiondate;
+}
+
 void ffw_load_font(const char * filename)
 {
     assert((cur_fv == NULL) && "Previous font is not destroyed");
@@ -399,9 +404,4 @@ void ffw_auto_hint(void)
     memset(cur_fv->selected, 1, cur_fv->map->enccount);
     FVAutoHint(cur_fv);
     FVAutoInstr(cur_fv);
-}
-
-long ffw_get_version(void)
-{
-    return library_version_configuration.library_source_versiondate;
 }
