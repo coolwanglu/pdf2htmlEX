@@ -1,6 +1,6 @@
 # pdf2htmlEX 
 
-[![Build Status](https://secure.travis-ci.org/coolwanglu/pdf2htmlEX.png)](http://travis-ci.org/coolwanglu/pdf2htmlEX)
+[![Build Status](https://travis-ci.org/coolwanglu/pdf2htmlEX.png?branch=master)](https://travis-ci.org/coolwanglu/pdf2htmlEX)
 
 A beautiful demo is worth a thousand words:
 
