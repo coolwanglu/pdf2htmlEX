@@ -1,5 +1,8 @@
 Latest v0.6
 
+* Add a class for 'left'
+* Fixed a bug of hashing/finding GfxRGB
+* new option -v, --version [Thanks to John Hewson]
 * Render Type 3 fonts as image
 * New parameter: --use-cropbox
 * Progress indicator
