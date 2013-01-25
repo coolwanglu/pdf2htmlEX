@@ -9,7 +9,7 @@ before_script:
 script:
   - make
   - sudo make install
-  - pdf2htmlex -v
+  - /usr/local/bin/pdf2htmlEX -v
 branches:
   only:
     - master
