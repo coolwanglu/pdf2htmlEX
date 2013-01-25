@@ -1,4 +1,6 @@
-# pdf2htmlEX
+# pdf2htmlEX 
+
+[![Build Status](https://secure.travis-ci.org/coolwanglu/pdf2htmlEX.png)](http://travis-ci.org/coolwanglu/pdf2htmlEX)
 
 A beautiful demo is worth a thousand words:
 

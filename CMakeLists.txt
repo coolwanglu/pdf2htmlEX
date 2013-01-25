@@ -51,7 +51,7 @@ else()
         include_directories(${FONTFORGE_INCLUDE_DIRS})
         # MacOSX gettext is in /opt/local/include - strange
         if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")  
-          find_path(GETTEXT_INCLUDE_PATH libintl.h)
+          find_path(GETTEXT_INCLUDE_PATH libintl.h HINTS "/usr/local/opt/gettext/include") # homebrew
           if(GETTEXT_INCLUDE_PATH)
             include_directories(${GETTEXT_INCLUDE_PATH})
           else()
