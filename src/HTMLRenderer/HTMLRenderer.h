@@ -153,7 +153,7 @@ class HTMLRenderer : public OutputDev
         virtual void endPage();
 
         /*
-         * To optmize false alarms
+         * To optimize false alarms
          * We just mark as changed, and recheck if they have been changed when we are about to output a new string
          */
 
@@ -380,7 +380,7 @@ class HTMLRenderer : public OutputDev
         // we try to render the final font size directly
         // to reduce the effect of ctm as much as possible
         
-        // draw_ctm is cur_ctm scaled by 1/draw_text_scale, 
+        // draw_text_tm is cur_text_tm scaled by 1/draw_text_scale, 
         // so everything redenered should be multiplied by draw_text_scale
         double draw_text_tm[6];
         double draw_font_size;
