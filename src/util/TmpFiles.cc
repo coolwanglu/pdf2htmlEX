@@ -27,7 +27,7 @@ TmpFiles::~TmpFiles()
 
 void TmpFiles::add( const string & fn)
 {
-    if(!param.clean_tmp)
+    if(param.keep_temp)
         return;
 
     if(tmp_files.insert(fn).second && param.debug)
@@ -36,7 +36,7 @@ void TmpFiles::add( const string & fn)
 
 void TmpFiles::clean()
 {
-    if(!param.clean_tmp)
+    if(param.keep_temp)
         return;
 
     for(auto iter = tmp_files.begin(); iter != tmp_files.end(); ++iter)

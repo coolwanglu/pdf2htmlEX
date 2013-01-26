@@ -31,8 +31,8 @@ struct Param
     double h_dpi, v_dpi;
     int use_cropbox;
 
-    int process_nontext;
-    int single_html;
+    int no_graphics;
+    int multiple_files;
     int split_pages;
     int embed_base_font;
     int embed_external_font;
@@ -53,10 +53,10 @@ struct Param
     int tounicode;
     int space_as_offset;
     int stretch_narrow_glyph;
-    int squeeze_wide_glyph;
-    int remove_unused_glyph;
+    int dont_shrink_wide_glyph;
+    int keep_unused_glyph;
 
-    std::string font_suffix, font_format;
+    std::string font_suffix;
     std::string external_hint_tool;
 
     /*
@@ -68,7 +68,7 @@ struct Param
      * Debug
      */
     int debug;
-    int clean_tmp;
+    int keep_temp;
 
     // experimental
     int css_draw;

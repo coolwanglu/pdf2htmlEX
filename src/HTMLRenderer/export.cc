@@ -18,21 +18,39 @@
 
 namespace pdf2htmlEX {
 
-void HTMLRenderer::export_remote_font(const FontInfo & info, const string & suffix, const string & fontfileformat, GfxFont * font) 
+void HTMLRenderer::export_remote_font(const FontInfo & info, const string & suffix, GfxFont * font) 
 {
+    string mime_type, format;
+    if (suffix == ".ttf") {
+        format = "truetype";
+        mime_type = "application/x-font-ttf";
+    }
+    else if (suffix == ".otf") {
+        format = "opentype";
+        mime_type = "application/x-font-otf";
+    }
+    else if (suffix == ".woff") {
+        format = "woff";
+        mime_type = "application/font-woff";
+    }
+    else if (suffix == ".svg") {
+        format = "svg";
+        mime_type = "image/svg+xml";
+    }
+    
     css_fout << "@font-face{"
         << "font-family:f" << info.id << ";"
         << "src:url(";
 
     {
         auto fn = str_fmt("f%llx%s", info.id, suffix.c_str());
-        if(param->single_html)
+        if(!param->multiple_files)
         {
             auto path = param->tmp_dir + "/" + (char*)fn;
             ifstream fin(path, ifstream::binary);
             if(!fin)
                 throw "Cannot locate font file: " + path;
-            css_fout << "'data:font/" + fontfileformat + ";base64," << base64stream(fin) << "'";
+            css_fout << "'data:font/" + mime_type + ";base64," << base64stream(fin) << "'";
         }
         else
         {
@@ -41,7 +59,7 @@ void HTMLRenderer::export_remote_font(const FontInfo & info, const string & suff
     }
 
     css_fout << ")"
-        << "format(\"" << fontfileformat << "\");"
+        << "format(\"" << format << "\");"
         << "}" // end of @font-face
         << ".f" << info.id << "{"
         << "font-family:f" << info.id << ";"

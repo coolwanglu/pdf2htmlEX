@@ -110,7 +110,7 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, FontInfo & info)
     if(path != "")
     {
         embed_font(path, font, info);
-        export_remote_font(info, param->font_suffix, param->font_format, font);
+        export_remote_font(info, param->font_suffix, font);
     }
     else
     {
@@ -129,7 +129,7 @@ void HTMLRenderer::install_base_font(GfxFont * font, GfxFontLoc * font_loc, Font
         if(localfontloc != nullptr)
         {
             embed_font(localfontloc->path->getCString(), font, info);
-            export_remote_font(info, param->font_suffix, param->font_format, font);
+            export_remote_font(info, param->font_suffix, font);
             delete localfontloc;
             return;
         }
@@ -186,7 +186,7 @@ void HTMLRenderer::install_external_font(GfxFont * font, FontInfo & info)
         if(localfontloc != nullptr)
         {
             embed_font(string(localfontloc->path->getCString()), font, info);
-            export_remote_font(info, param->font_suffix, param->font_format, font);
+            export_remote_font(info, param->font_suffix, font);
             delete localfontloc;
             return;
         }

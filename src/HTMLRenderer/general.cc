@@ -76,7 +76,7 @@ void HTMLRenderer::process(PDFDoc *doc)
     pre_process(doc);
 
     BackgroundRenderer * bg_renderer = nullptr;
-    if(param->process_nontext)
+    if(!param->no_graphics)
     {
         bg_renderer = new BackgroundRenderer(this, param);
         bg_renderer->startDoc(doc);
@@ -96,10 +96,10 @@ void HTMLRenderer::process(PDFDoc *doc)
             set_stream_flags(html_fout);
         }
 
-        if(param->process_nontext)
+        if(!param->no_graphics)
         {
-            auto fn = str_fmt("%s/p%x.png", (param->single_html ? param->tmp_dir : param->dest_dir).c_str(), i);
-            if(param->single_html)
+            auto fn = str_fmt("%s/p%x.png", (!param->multiple_files ? param->tmp_dir : param->dest_dir).c_str(), i);
+            if(!param->multiple_files)
                 tmp_files.add((char*)fn);
 
             bg_renderer->render_page(doc, i, (char*)fn);
@@ -149,12 +149,12 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
         << "<div id=\"p" << pageNum << "\" data-page-no=\"" << pageNum << "\" class=\"p\">"
         << "<div class=\"b\" style=\"";
 
-    if(param->process_nontext)
+    if(!param->no_graphics)
     {
         html_fout << "background-image:url(";
 
         {
-            if(param->single_html)
+            if(!param->multiple_files)
             {
                 auto path = str_fmt("%s/p%x.png", param->tmp_dir.c_str(), pageNum);
                 ifstream fin((char*)path, ifstream::binary);
@@ -283,11 +283,11 @@ void HTMLRenderer::pre_process(PDFDoc * doc)
          * leave it in param->dest_dir
          */
 
-        auto fn = (param->single_html && (!param->split_pages))
+        auto fn = (!param->multiple_files && (!param->split_pages))
             ? str_fmt("%s/__css", param->tmp_dir.c_str())
             : str_fmt("%s/%s", param->dest_dir.c_str(), param->css_filename.c_str());
 
-        if(param->single_html && (!param->split_pages))
+        if(!param->multiple_files && (!param->split_pages))
             tmp_files.add((char*)fn);
 
         css_path = (char*)fn,
@@ -405,14 +405,14 @@ void HTMLRenderer::embed_file(ostream & out, const string & path, const string &
     string fn = get_filename(path);
     string suffix = (type == "") ? get_suffix(fn) : type; 
     
-    auto iter = EMBED_STRING_MAP.find(make_pair(suffix, (bool)param->single_html));
+    auto iter = EMBED_STRING_MAP.find(make_pair(suffix, (bool)!param->multiple_files));
     if(iter == EMBED_STRING_MAP.end())
     {
         cerr << "Warning: unknown suffix: " << suffix << endl;
         return;
     }
     
-    if(param->single_html)
+    if(!param->multiple_files)
     {
         ifstream fin(path, ifstream::binary);
         if(!fin)
