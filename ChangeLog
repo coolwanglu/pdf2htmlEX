@@ -1,8 +1,13 @@
-Latest v0.6
+Latest v0.7
 
+v0.6
+2013.01.26
+
+* new option --no-drm [John Hewson]
+* Travis CI integration [John Hewson]
 * Add a class for 'left'
 * Fixed a bug of hashing/finding GfxRGB
-* new option -v, --version [Thanks to John Hewson]
+* new option -v, --version [John Hewson]
 * Render Type 3 fonts as image
 * New parameter: --use-cropbox
 * Progress indicator
