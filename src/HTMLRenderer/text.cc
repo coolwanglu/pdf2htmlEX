@@ -413,7 +413,7 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
             }
         }
 
-        ffw_set_widths(width_list, max_key + 1, param->stretch_narrow_glyph, param->squeeze_wide_glyph, param->remove_unused_glyph);
+        ffw_set_widths(width_list, max_key + 1, param->stretch_narrow_glyph, !param->dont_shrink_wide_glyph, !param->keep_unused_glyph);
         
         ffw_reencode_raw(cur_mapping, max_key + 1, 1);
 
@@ -485,10 +485,10 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
      * Reload to retrieve/fix accurate ascent/descent
      */
     string fn = (char*)str_fmt("%s/f%llx%s", 
-        (param->single_html ? param->tmp_dir : param->dest_dir).c_str(),
+        (!param->multiple_files ? param->tmp_dir : param->dest_dir).c_str(),
         info.id, param->font_suffix.c_str());
 
-    if(param->single_html)
+    if(!param->multiple_files)
         tmp_files.add(fn);
 
     ffw_load_font(cur_tmp_fn.c_str());
