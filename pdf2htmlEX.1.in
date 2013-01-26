@@ -1,4 +1,4 @@
-.TH pdf2htmlEX 1 "Aug 31, 2012" "pdf2htmlEX 0.1"
+.TH pdf2htmlEX 1 "Aug 31, 2012" "pdf2htmlEX @PDF2HTMLEX_VERSION@"
 .SH NAME
 .PP
 .nf
@@ -164,7 +164,7 @@ Convert file.pdf into out/file.html and leave font/image files separated.
 
 .SH COPYRIGHT
 .PP
-Copyright 2012 Lu Wang <coolwanglu@gmail.com>
+Copyright 2012,2013 Lu Wang <coolwanglu@gmail.com>
 
 pdf2htmlEX is GPLv2 & GPLv3 dual licensed
 
