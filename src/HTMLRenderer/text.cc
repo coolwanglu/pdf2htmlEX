@@ -533,7 +533,6 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
 
     double dx = 0;
     double dy = 0;
-    double dxerr = 0;
     double dx1,dy1;
     double ox, oy;
 
@@ -605,7 +604,7 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
     cur_tx += dx;
     cur_ty += dy;
         
-    draw_tx += dx + dxerr * cur_font_size * hs;
+    draw_tx += dx;
     draw_ty += dy;
 }
 
