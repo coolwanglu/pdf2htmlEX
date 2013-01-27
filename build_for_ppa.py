@@ -5,7 +5,7 @@ Dirty script for building package for PPA
 by WangLu
 2011.01.13
 
-modified by pdf2htmlEX
+modified for pdf2htmlEX
 2012.08.28
 """
 
