@@ -5,8 +5,33 @@
   top:0;
   left:0;
   bottom:0;
-  width:200px;
+  width:193px;
   overflow:auto;
+  margin:0px;
+  padding:0 0 0 7px;
+  background-color:#707070;
+}
+#pdf-outline ul {
+  margin-left:13px;
+  margin-right:3px;
+  padding-left:3px;
+}
+#pdf-outline li {
+  list-style-type:disc;
+  list-style-position:outside;
+}
+#pdf-outline a {
+  font-size:13px;
+  color:#e8e8e8;
+}
+#pdf-outline a:visited {
+  color:#e8e8e8;
+}
+#pdf-outline a:hover{
+  color:#e8e8e8;
+}
+#pdf-outline a:active{
+  color:#e8e8e8;
 }
 #pdf-main { /* PDF container */
   position:absolute;
@@ -15,21 +40,21 @@
   bottom:0;
   right:0;
   overflow:auto;
-  background-color:grey;
+  background-color:#808080;
   /* margin & border-width have to be 0, 
    * otherwise pdf2htmlEX may not calculate the coordinates correctly
    */
   margin:0;
   border-width:0;
 }
-.d { /* page decoration */
+#pdf-main .d { /* page decoration */
   position:relative;
   margin: 13px auto;
   border-width: 0;
   box-shadow: 1px 1px 3px 1px #333;
   overflow: hidden;
 }
-.p { /* page */
+#pdf-main .p { /* page */
   position:absolute;
   top:0;
   left:0;
@@ -43,7 +68,7 @@
   margin:0;
   border-width:0;
 }
-.b { /* content of a page */
+#pdf-main .b { /* content of a page */
   position:absolute;
   border-width:0;
   top:0;
@@ -58,7 +83,7 @@
   -webkit-transform-origin:0% 0%;
   -o-transform-origin:0% 0%;
 }
-.l { /* text line */
+#pdf-main .l { /* text line */
   position:absolute;
   white-space:pre;
   font-size:1px;
@@ -68,28 +93,28 @@
   -webkit-transform-origin:0% 100%;
   -o-transform-origin:0% 100%;
 }
-span {
+#pdf-main span {
   position:relative;
   vertical-align: baseline;
   /* _<id> for spaces may need display:inline, which will override this */ 
   display:inline-block;
 }
-._ { /* text shift */
+#pdf-main ._ { /* text shift */
   color:transparent;
   z-index:-1;
 }
-::selection{
+#pdf-main ::selection{
   background: rgba(127,255,255,1);
 }
-::-moz-selection{
+#pdf-main ::-moz-selection{
   background: rgba(127,255,255,1);
 }
-.j { /* info for Javascript */
+#pdf-main .j { /* info for Javascript */
   display:none;
 }
-.a {
+#pdf-main .a {
 }
-.Cd { /* css drawing */
+#pdf-main .Cd { /* css drawing */
   position:absolute;
   transform-origin:0% 100%;
   -ms-transform-origin:0% 100%;
