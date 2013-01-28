@@ -164,6 +164,6 @@ ArgParser::ArgEntryBase::ArgEntryBase(const char * name, const char * descriptio
     }
 }
 
-const int ArgParser::arg_col_width = 40;
+const int ArgParser::arg_col_width = 31;
 
 } // namespace pdf2htmlEX

@@ -162,12 +162,6 @@ void ArgParser::ArgEntry<T, Tv>::show_usage(std::ostream & out) const
     if(need_arg)
     {
         sout << " <arg>";
-        if(!dont_show_default)
-        {
-            sout << " (=";
-            dump_value(sout, default_value);
-            sout << ")";
-        }
     }
 
     std::string s = sout.str();
@@ -175,8 +169,17 @@ void ArgParser::ArgEntry<T, Tv>::show_usage(std::ostream & out) const
 
     for(int i = s.size(); i < arg_col_width; ++i)
         out << ' ';
-
-    out << " " << description << std::endl;
+    
+    out << " " << description;
+    
+    if(need_arg && !dont_show_default)
+    {
+        out << " (default is ";
+        dump_value(out, default_value);
+        out << ")";	
+    }
+    
+    out << std::endl;
 }
 
 } // namespace ArgParser
