@@ -434,7 +434,7 @@ class HTMLRenderer : public OutputDev
         struct {
             std::ofstream fs;
             std::string path;
-        } f_pages, f_css, f_outlines;
+        } f_outline, f_pages, f_css;
 
         static const std::string MANIFEST_FILENAME;
 };

@@ -63,6 +63,7 @@ struct Param
      * Output
      */
     std::string css_filename;
+    std::string outline_filename;
 
     /*
      * Debug

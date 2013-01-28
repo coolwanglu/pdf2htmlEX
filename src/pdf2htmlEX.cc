@@ -101,6 +101,7 @@ void parse_options (int argc, char **argv)
         .add("font-format", &param.font_format, "opentype", "format for extracted font files")
         .add("external-hint-tool", &param.external_hint_tool, "", "external tool for hintting fonts.(overrides --auto-hint)")
         .add("css-filename", &param.css_filename, "", "Specify the file name of the generated css file")
+        .add("outline-filename", &param.outline_filename, "", "Specify the file name of the generated outline file")
 
         .add("debug", &param.debug, 0, "output debug information")
         .add("clean-tmp", &param.clean_tmp, 1, "clean temporary files after processing")
@@ -202,7 +203,7 @@ int main(int argc, char **argv)
         param.first_page = min<int>(max<int>(param.first_page, 1), doc->getNumPages());
         param.last_page = min<int>(max<int>(param.last_page, param.first_page), doc->getNumPages());
 
-        if(param.output_filename == "")
+        if(param.output_filename.empty())
         {
             const string s = get_filename(param.input_filename);
 
@@ -223,7 +224,7 @@ int main(int argc, char **argv)
                 
             }
         }
-        if(param.css_filename == "")
+        if(param.css_filename.empty())
         {
             const string s = get_filename(param.input_filename);
 
@@ -236,6 +237,21 @@ int main(int argc, char **argv)
                 if(!param.split_pages)
                     param.css_filename = s + ".css";
             }
+        }
+        if(param.outline_filename.empty())
+        {
+            const string s = get_filename(param.input_filename);
+
+            if(get_suffix(param.input_filename) == ".pdf")
+            {
+                param.outline_filename = s.substr(0, s.size() - 4) + ".outline";
+            }
+            else
+            {
+                if(!param.split_pages)
+                    param.outline_filename = s + ".outline";
+            }
+
         }
 
         HTMLRenderer * htmlOut = new HTMLRenderer(&param);

@@ -42,7 +42,7 @@ new pdf2htmlEX.Viewer('pdf-main');
 <div id="pdf-outline">
 """
 
-$outlines
+$outline
 
 """
 </div>

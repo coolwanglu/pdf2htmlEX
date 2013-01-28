@@ -294,11 +294,32 @@ void HTMLRenderer::pre_process(PDFDoc * doc)
         if(param->single_html && (!param->split_pages))
             tmp_files.add((char*)fn);
 
-        f_css.path = (char*)fn,
+        f_css.path = (char*)fn;
         f_css.fs.open(f_css.path, ofstream::binary);
         if(!f_css.fs)
             throw string("Cannot open ") + (char*)fn + " for writing";
         set_stream_flags(f_css.fs);
+    }
+
+    {
+        /*
+         * The logic for outline is similar to css
+         */
+
+        auto fn = (param->single_html && (!param->split_pages))
+            ? str_fmt("%s/__outline", param->tmp_dir.c_str())
+            : str_fmt("%s/%s", param->dest_dir.c_str(), param->outline_filename.c_str());
+
+        if(param->single_html && (!param->split_pages))
+            tmp_files.add((char*)fn);
+
+        f_outline.path = (char*)fn;
+        f_outline.fs.open(f_outline.path, ofstream::binary);
+        if(!f_outline.fs)
+            throw string("Cannot open") + (char*)fn + " for writing";
+
+        // might not be necessary
+        set_stream_flags(f_outline.fs);
     }
 
     // if split-pages is specified, open & close the file in the process loop
@@ -307,7 +328,7 @@ void HTMLRenderer::pre_process(PDFDoc * doc)
     {
         /*
          * If single-html
-         * we have to keep the html file (for page) into a temporary place
+         * we have to keep the html file for pages into a temporary place
          * because we'll have to embed css before it
          *
          * Otherwise just generate it 
@@ -326,6 +347,7 @@ void HTMLRenderer::pre_process(PDFDoc * doc)
 void HTMLRenderer::post_process()
 {
     // close files
+    f_outline.fs.close();
     f_pages.fs.close(); 
     f_css.fs.close();
 
@@ -378,6 +400,13 @@ void HTMLRenderer::post_process()
             if(line == "$css")
             {
                 embed_file(output, f_css.path, ".css", false);
+            }
+            else if (line == "$outline")
+            {
+                ifstream fin(f_outline.path, ifstream::binary);
+                if(!fin)
+                    throw "Cannot open read the pages";
+                output << fin.rdbuf();
             }
             else if (line == "$pages")
             {
