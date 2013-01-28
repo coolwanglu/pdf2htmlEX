@@ -10,6 +10,10 @@
   margin:0px;
   padding:0 0 0 7px;
   background-color:#707070;
+  display:none;
+}
+#pdf-outline.opened {
+  display:block;
 }
 #pdf-outline ul {
   margin-left:13px;
@@ -36,7 +40,7 @@
 #pdf-main { /* PDF container */
   position:absolute;
   top:0;
-  left:200px;
+  left:0px;
   bottom:0;
   right:0;
   overflow:auto;
@@ -46,6 +50,9 @@
    */
   margin:0;
   border-width:0;
+}
+#pdf-outline.opened + #pdf-main {
+  left:200px;
 }
 #pdf-main .d { /* page decoration */
   position:relative;

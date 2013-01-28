@@ -114,17 +114,12 @@ var pdf2htmlEX = (function(){
     },
 
     init_after_loading_content : function() {
+      this.outline = $('#'+this.outline_id);
       this.container = $('#'+this.container_id);
 
-      // hide sidebar if there is no outline items
-      {
-        // need a better design
-        // e.g. class for sidebar on/off & selector rule for pdf-main
-        var sidebar = $('#'+this.outline_id);
-        if(sidebar.children().length == 0) { 
-          sidebar.hide();
-          this.container.offset({left:0});
-        }
+      // need a better design
+      if(this.outline.children().length == 0) { 
+        this.outline.toggleClass('opened');
       }
       
       var new_pages = new Array();
@@ -142,7 +137,9 @@ var pdf2htmlEX = (function(){
       //this.zoom_fixer();
       
       // used by outline/annot_link etc
+      // note that one is for the class 'a' and the other is for the tag 'a'
       this.container.on('click', '.a', this, this.link_handler);
+      this.outline.on('click', 'a', this, this.link_handler);
 
       this.render();
     },
@@ -242,7 +239,7 @@ var pdf2htmlEX = (function(){
     get_containing_page : function(obj) {
       /* get the page obj containing obj */
       var p = obj.closest('.p')[0];
-      return p && this.pages[(new Page(p).n];
+      return p && this.pages[(new Page(p)).n];
     },
 
     link_handler : function (e) {

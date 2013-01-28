@@ -39,7 +39,7 @@ new pdf2htmlEX.Viewer('pdf-main', 'pdf-outline');
 <title></title>
 </head>
 <body>
-<div id="pdf-outline">
+<div id="pdf-outline" class="opened">
 """
 
 $outline
