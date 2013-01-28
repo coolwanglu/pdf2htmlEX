@@ -38,9 +38,6 @@ void show_usage_and_exit(const char * dummy = nullptr)
 {
     cerr << "Usage: pdf2htmlEX [options] <input.pdf> [<output.html>]" << endl;
     argparser.show_usage(cerr);
-    cerr << endl;
-    cerr << "Run 'man pdf2htmlEX' for detailed information" << endl;
-    cerr << endl;
     exit(EXIT_FAILURE);
 }
 
