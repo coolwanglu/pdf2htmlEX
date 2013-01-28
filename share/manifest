@@ -21,9 +21,13 @@
 <meta charset="utf-8">
 <meta name="generator" content="pdf2htmlEX"/>
 """
-
+# base CSS styles
 @base.css
+
+# PDF specific CSS styles
 $css
+
+# necessary Javascript codes
 @jquery.js
 @pdf2htmlEX.js
 
@@ -38,6 +42,7 @@ new pdf2htmlEX.Viewer('pdf-main');
 <div id="pdf-main">
 """
 
+# PDF pages
 $pages
 
 """

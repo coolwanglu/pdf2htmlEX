@@ -13,6 +13,8 @@
 #include <algorithm>
 #include <vector>
 
+#include <GlobalParams.h>
+
 #include "HTMLRenderer.h"
 #include "TextLineBuffer.h"
 #include "pdf2htmlEX-config.h"
@@ -35,10 +37,6 @@ using std::abs;
 using std::cerr;
 using std::endl;
 
-static void dummy(void *, enum ErrorCategory, int pos, char *)
-{
-}
-
 HTMLRenderer::HTMLRenderer(const Param * param)
     :OutputDev()
     ,line_opened(false)
@@ -49,8 +47,8 @@ HTMLRenderer::HTMLRenderer(const Param * param)
 {
     if(!(param->debug))
     {
-        //disable error function of poppler
-        setErrorCallback(&dummy, nullptr);
+        //disable error messages of poppler
+        globalParams->setErrQuiet(gTrue);
     }
 
     ffw_init(param->debug);
