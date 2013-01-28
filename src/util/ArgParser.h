@@ -39,6 +39,23 @@ void dump_value(std::ostream & out, const T & v)
 
 extern void dump_value(std::ostream & out, const std::string & v);
 
+// type names helper
+template<typename> 
+struct type_name {
+    static char const* value() { return "unknown"; }
+};
+
+template<> struct type_name<int> {
+    static char const* value() { return "int"; }
+};
+
+template<> struct type_name<double> {
+    static char const* value() { return "fp"; }
+};
+
+template<> struct type_name<std::string> {
+    static char const* value() { return "string"; }
+};
 
 class ArgParser
 {
@@ -161,7 +178,7 @@ void ArgParser::ArgEntry<T, Tv>::show_usage(std::ostream & out) const
 
     if(need_arg)
     {
-        sout << " <arg>";
+        sout << " <" << type_name<T>::value() << ">";
     }
 
     std::string s = sout.str();
