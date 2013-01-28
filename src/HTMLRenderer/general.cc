@@ -414,6 +414,7 @@ void HTMLRenderer::post_process()
                 if(!fin)
                     throw "Cannot open read the pages";
                 output << fin.rdbuf();
+                output.clear(); // output will set fail big if fin is empty
             }
             else if (line == "$pages")
             {
@@ -421,6 +422,7 @@ void HTMLRenderer::post_process()
                 if(!fin)
                     throw "Cannot open read the pages";
                 output << fin.rdbuf();
+                output.clear(); // output will set fail big if fin is empty
             }
             else
             {
@@ -458,8 +460,9 @@ void HTMLRenderer::embed_file(ostream & out, const string & path, const string &
         if(!fin)
             throw string("Cannot open file ") + path + " for embedding";
         out << iter->second.first << endl
-            << fin.rdbuf()
-            << iter->second.second << endl;
+            << fin.rdbuf();
+        out.clear(); // out will set fail big if fin is empty
+        out << iter->second.second << endl;
     }
     else
     {
@@ -477,6 +480,7 @@ void HTMLRenderer::embed_file(ostream & out, const string & path, const string &
             if(!out)
                 throw string("Cannot open file ") + path + " for embedding";
             out << fin.rdbuf();
+            out.clear(); // out will set fail big if fin is empty
         }
     }
 }
