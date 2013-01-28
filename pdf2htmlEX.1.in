@@ -1,4 +1,4 @@
-.TH pdf2htmlEX 1 "Aug 31, 2012" "pdf2htmlEX @PDF2HTMLEX_VERSION@"
+.TH pdf2htmlEX 1 "pdf2htmlEX @PDF2HTMLEX_VERSION@"
 .SH NAME
 .PP
 .nf
@@ -70,6 +70,10 @@ Whether to process non-text objects (as images)
 Whether to embed everything into one HTML file.
 
 If switched off, there will be several files generated along with the HTML file including files for fonts, css, images.
+
+Note that the outline will always be embedded into the main HTML file no matter if this switch is on or not. 
+And only when this switch is off will there be a separate .outline file contains the outline. 
+You need to modify the manifest if you do not want outline embedded.
 .TP
 .B --split-pages <0|1> (Default: 0)
 If turned on, each page is saved in a separated files, also the generated css file will be store separatedly as if single-html=0
