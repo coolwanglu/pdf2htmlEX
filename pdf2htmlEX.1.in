@@ -76,9 +76,11 @@ And only when this switch is off will there be a separate .outline file contains
 You need to modify the manifest if you do not want outline embedded.
 .TP
 .B --split-pages <0|1> (Default: 0)
-If turned on, each page is saved in a separated files, also the generated css file will be store separatedly as if single-html=0
+If turned on, pages will be stored into separated files named as <output-filename>0.page, <output-filename>1.page, ...
 
-The output files will be named as <output-filename>0.page, <output-filename>1.page, ...
+Also the css and outline will be stored into separated files, and the will be no <output-filename>.html generated.
+
+This switch is useful if you want pages to be loaded separately & dynamically -- in which case you need to compose the page yourself, and a supporting backend might be necessary.
 .TP
 .B --embed-base-font <0|1> (Default: 1)
 Whether to embed base 14 fonts.
