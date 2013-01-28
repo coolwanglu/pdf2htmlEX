@@ -54,14 +54,14 @@
 #pdf-outline.opened + #pdf-main {
   left:200px;
 }
-#pdf-main .d { /* page decoration */
+.d { /* page decoration */
   position:relative;
   margin: 13px auto;
   border-width: 0;
   box-shadow: 1px 1px 3px 1px #333;
   overflow: hidden;
 }
-#pdf-main .p { /* page */
+.p { /* page */
   position:absolute;
   top:0;
   left:0;
@@ -75,7 +75,7 @@
   margin:0;
   border-width:0;
 }
-#pdf-main .b { /* content of a page */
+.b { /* content of a page */
   position:absolute;
   border-width:0;
   top:0;
@@ -90,7 +90,7 @@
   -webkit-transform-origin:0% 0%;
   -o-transform-origin:0% 0%;
 }
-#pdf-main .l { /* text line */
+.l { /* text line */
   position:absolute;
   white-space:pre;
   font-size:1px;
@@ -100,28 +100,28 @@
   -webkit-transform-origin:0% 100%;
   -o-transform-origin:0% 100%;
 }
-#pdf-main span {
+span {
   position:relative;
   vertical-align: baseline;
   /* _<id> for spaces may need display:inline, which will override this */ 
   display:inline-block;
 }
-#pdf-main ._ { /* text shift */
+._ { /* text shift */
   color:transparent;
   z-index:-1;
 }
-#pdf-main ::selection{
+::selection{
   background: rgba(127,255,255,1);
 }
-#pdf-main ::-moz-selection{
+::-moz-selection{
   background: rgba(127,255,255,1);
 }
-#pdf-main .j { /* info for Javascript */
+.j { /* info for Javascript */
   display:none;
 }
-#pdf-main .a {
+.a {
 }
-#pdf-main .Cd { /* css drawing */
+.Cd { /* css drawing */
   position:absolute;
   transform-origin:0% 100%;
   -ms-transform-origin:0% 100%;
