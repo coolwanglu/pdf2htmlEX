@@ -30,8 +30,24 @@ using std::endl;
  * The detailed rectangle area of the link destination
  * Will be parsed and performed by Javascript
  */
-static string get_dest_detail_str(int pageno, LinkDest * dest)
+string HTMLRenderer::get_linkdest_str(int & pageno, LinkDest * dest)
 {
+    pageno = 0;
+    if(dest->isPageRef())
+    {
+        auto pageref = dest->getPageRef();
+        pageno = cur_catalog->findPage(pageref.num, pageref.gen);
+    }
+    else
+    {
+        pageno = dest->getPageNum();
+    }
+
+    if(pageno <= 0)
+    {
+        return "";
+    }
+
     ostringstream sout;
     // dec
     sout << "[" << pageno;
@@ -125,34 +141,21 @@ void HTMLRenderer::processLink(AnnotLink * al)
         {
             case actionGoTo:
                 {
-                    auto catalog = cur_doc->getCatalog();
                     auto * real_action = dynamic_cast<LinkGoTo*>(action);
                     LinkDest * dest = nullptr;
                     if(auto _ = real_action->getDest())
                         dest = _->copy();
                     else if (auto _ = real_action->getNamedDest())
-                        dest = catalog->findDest(_);
+                        dest = cur_catalog->findDest(_);
                     if(dest)
                     {
                         int pageno = 0;
-                        if(dest->isPageRef())
-                        {
-                            auto pageref = dest->getPageRef();
-                            pageno = catalog->findPage(pageref.num, pageref.gen);
-                        }
-                        else
-                        {
-                            pageno = dest->getPageNum();
-                        }
-
+                        dest_detail_str = get_linkdest_str(pageno, dest);
                         if(pageno > 0)
                         {
                             dest_str = (char*)str_fmt("#p%x", pageno);
-                            dest_detail_str = get_dest_detail_str(pageno, dest);
                         }
-
                         delete dest;
-
                     }
                 }
                 break;
@@ -178,11 +181,11 @@ void HTMLRenderer::processLink(AnnotLink * al)
         }
     }
 
-    if(dest_str != "")
+    if(!dest_str.empty())
     {
         html_fout << "<a class=\"a\" href=\"" << dest_str << "\"";
 
-        if(dest_detail_str != "")
+        if(!dest_detail_str.empty())
             html_fout << " data-dest-detail='" << dest_detail_str << "'";
 
         html_fout << ">";

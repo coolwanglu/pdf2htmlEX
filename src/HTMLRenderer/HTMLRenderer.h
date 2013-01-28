@@ -210,11 +210,13 @@ class HTMLRenderer : public OutputDev
         void pre_process(PDFDoc * doc);
         void post_process();
 
-        // set flags 
         void set_stream_flags (std::ostream & out);
 
         std::string dump_embedded_font (GfxFont * font, long long fn_id);
         void embed_font(const std::string & filepath, GfxFont * font, FontInfo & info, bool get_metric_only = false);
+
+        // convert a LinkDest to a string that our Javascript code can understand
+        std::string get_linkdest_str(int & pageno, LinkDest * dest);
 
         ////////////////////////////////////////////////////
         // manage styles
@@ -300,6 +302,8 @@ class HTMLRenderer : public OutputDev
         
         XRef * xref;
         PDFDoc * cur_doc;
+        Catalog * cur_catalog;
+
         double default_ctm[6];
 
         // page info

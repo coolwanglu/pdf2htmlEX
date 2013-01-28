@@ -69,6 +69,7 @@ HTMLRenderer::~HTMLRenderer()
 void HTMLRenderer::process(PDFDoc *doc)
 {
     cur_doc = doc;
+    cur_catalog = doc->getCatalog();
     xref = doc->getXRef();
 
     pre_process(doc);
