@@ -94,8 +94,9 @@ var pdf2htmlEX = (function(){
     }
   });
 
-  pdf2htmlEX.Viewer = function(container_id) {
+  pdf2htmlEX.Viewer = function(container_id, outline_id) {
     this.container_id = container_id;
+    this.outline_id = outline_id;
     this.init_before_loading_content();
 
     var _ = this;
@@ -115,6 +116,17 @@ var pdf2htmlEX = (function(){
     init_after_loading_content : function() {
       this.container = $('#'+this.container_id);
 
+      // hide sidebar if there is no outline items
+      {
+        // need a better design
+        // e.g. class for sidebar on/off & selector rule for pdf-main
+        var sidebar = $('#'+this.outline_id);
+        if(sidebar.children().length == 0) { 
+          sidebar.hide();
+          this.container.offset({left:0});
+        }
+      }
+      
       var new_pages = new Array();
       var pl= $('.p', this.container);
       /* don't use for(..in..) */

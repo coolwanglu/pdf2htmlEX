@@ -33,7 +33,7 @@ $css
 
 """
 <script type="text/javascript">
-new pdf2htmlEX.Viewer('pdf-main');
+new pdf2htmlEX.Viewer('pdf-main', 'pdf-outline');
 </script>
 
 <title></title>
