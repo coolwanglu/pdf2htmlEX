@@ -54,6 +54,10 @@
 #pdf-outline.opened + #pdf-main {
   left:200px;
 }
+/*
+ * The followings are base classes, which are meant to be override by PDF specific classes
+ * So do not increase the specificity
+ */
 .d { /* page decoration */
   position:relative;
   margin: 13px auto;
