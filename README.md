@@ -43,11 +43,12 @@ Readers can also be benefitted
   - Color
   - Transformation
 * Links
+* Outline
 * [EXPERIMENTAL] Path drawing with CSS
   - Orthogonal lines
   - Rectangles
   - Linear gradients 
-* Not fully supported, and rendered as images
+* Not fully supported (Rendered as images)
   - Type 3 fonts
   - Non-text object
 
