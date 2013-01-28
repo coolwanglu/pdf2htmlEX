@@ -428,8 +428,11 @@ class HTMLRenderer : public OutputDev
         std::map<double, long long> left_map;
 
         const Param * param;
-        std::ofstream html_fout, css_fout;
-        std::string html_path, css_path;
+
+        struct {
+            std::ofstream fs;
+            std::string path;
+        } f_pages, f_css, f_outlines;
 
         static const std::string MANIFEST_FILENAME;
 };

@@ -39,6 +39,13 @@ new pdf2htmlEX.Viewer('pdf-main');
 <title></title>
 </head>
 <body>
+<div id="pdf-outline">
+"""
+
+$outlines
+
+"""
+</div>
 <div id="pdf-main">
 """
 

@@ -83,7 +83,7 @@ void HTMLRenderer::TextLineBuffer::flush(void)
         max_ascent = max<double>(max_ascent, s.ascent * s.draw_font_size);
     }
 
-    ostream & out = renderer->html_fout;
+    ostream & out = renderer->f_pages.fs;
     out << "<div style=\""
         << "bottom:" << round(y) << "px;"
         << "\""

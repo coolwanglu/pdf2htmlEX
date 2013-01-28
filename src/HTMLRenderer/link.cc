@@ -183,15 +183,15 @@ void HTMLRenderer::processLink(AnnotLink * al)
 
     if(!dest_str.empty())
     {
-        html_fout << "<a class=\"a\" href=\"" << dest_str << "\"";
+        f_pages.fs << "<a class=\"a\" href=\"" << dest_str << "\"";
 
         if(!dest_detail_str.empty())
-            html_fout << " data-dest-detail='" << dest_detail_str << "'";
+            f_pages.fs << " data-dest-detail='" << dest_detail_str << "'";
 
-        html_fout << ">";
+        f_pages.fs << ">";
     }
 
-    html_fout << "<div class=\"Cd t"
+    f_pages.fs << "<div class=\"Cd t"
         << install_transform_matrix(default_ctm)
         << "\" style=\"";
 
@@ -218,31 +218,31 @@ void HTMLRenderer::processLink(AnnotLink * al)
                         border_top_bottom_width, border_left_right_width);
 
                 if(abs(border_top_bottom_width - border_left_right_width) < EPS)
-                    html_fout << "border-width:" << round(border_top_bottom_width) << "px;";
+                    f_pages.fs << "border-width:" << round(border_top_bottom_width) << "px;";
                 else
-                    html_fout << "border-width:" << round(border_top_bottom_width) << "px " << round(border_left_right_width) << "px;";
+                    f_pages.fs << "border-width:" << round(border_top_bottom_width) << "px " << round(border_left_right_width) << "px;";
             }
             auto style = border->getStyle();
             switch(style)
             {
                 case AnnotBorder::borderSolid:
-                    html_fout << "border-style:solid;";
+                    f_pages.fs << "border-style:solid;";
                     break;
                 case AnnotBorder::borderDashed:
-                    html_fout << "border-style:dashed;";
+                    f_pages.fs << "border-style:dashed;";
                     break;
                 case AnnotBorder::borderBeveled:
-                    html_fout << "border-style:outset;";
+                    f_pages.fs << "border-style:outset;";
                     break;
                 case AnnotBorder::borderInset:
-                    html_fout << "border-style:inset;";
+                    f_pages.fs << "border-style:inset;";
                     break;
                 case AnnotBorder::borderUnderlined:
-                    html_fout << "border-style:none;border-bottom-style:solid;";
+                    f_pages.fs << "border-style:none;border-bottom-style:solid;";
                     break;
                 default:
                     cerr << "Warning:Unknown annotation border style: " << style << endl;
-                    html_fout << "border-style:solid;";
+                    f_pages.fs << "border-style:solid;";
             }
 
 
@@ -260,36 +260,36 @@ void HTMLRenderer::processLink(AnnotLink * al)
                 r = g = b = 0;
             }
 
-            html_fout << "border-color:rgb("
+            f_pages.fs << "border-color:rgb("
                 << dec << (int)dblToByte(r) << "," << (int)dblToByte(g) << "," << (int)dblToByte(b) << hex
                 << ");";
         }
         else
         {
-            html_fout << "border-style:none;";
+            f_pages.fs << "border-style:none;";
         }
     }
     else
     {
-        html_fout << "border-style:none;";
+        f_pages.fs << "border-style:none;";
     }
 
     tm_transform(default_ctm, x, y);
 
-    html_fout << "position:absolute;"
+    f_pages.fs << "position:absolute;"
         << "left:" << round(x) << "px;"
         << "bottom:" << round(y) << "px;"
         << "width:" << round(w) << "px;"
         << "height:" << round(h) << "px;";
 
     // fix for IE
-    html_fout << "background-color:rgba(255,255,255,0.000001);";
+    f_pages.fs << "background-color:rgba(255,255,255,0.000001);";
 
-    html_fout << "\"></div>";
+    f_pages.fs << "\"></div>";
 
     if(dest_str != "")
     {
-        html_fout << "</a>";
+        f_pages.fs << "</a>";
     }
 }
 

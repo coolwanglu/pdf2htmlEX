@@ -89,10 +89,10 @@ void HTMLRenderer::process(PDFDoc *doc)
         if(param->split_pages)
         {
             auto page_fn = str_fmt("%s/%s%d.page", param->dest_dir.c_str(), param->output_filename.c_str(), i);
-            html_fout.open((char*)page_fn, ofstream::binary); 
-            if(!html_fout)
+            f_pages.fs.open((char*)page_fn, ofstream::binary); 
+            if(!f_pages.fs)
                 throw string("Cannot open ") + (char*)page_fn + " for writing";
-            set_stream_flags(html_fout);
+            set_stream_flags(f_pages.fs);
         }
 
         if(param->process_nontext)
@@ -113,7 +113,7 @@ void HTMLRenderer::process(PDFDoc *doc)
 
         if(param->split_pages)
         {
-            html_fout.close();
+            f_pages.fs.close();
         }
     }
     if(page_count >= 0)
@@ -141,7 +141,7 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
 
     assert((!line_opened) && "Open line in startPage detected!");
 
-    html_fout 
+    f_pages.fs 
         << "<div class=\"d\" style=\"width:" 
             << (pageWidth) << "px;height:" 
             << (pageHeight) << "px;\">"
@@ -150,7 +150,7 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
 
     if(param->process_nontext)
     {
-        html_fout << "background-image:url(";
+        f_pages.fs << "background-image:url(";
 
         {
             if(param->single_html)
@@ -159,18 +159,18 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
                 ifstream fin((char*)path, ifstream::binary);
                 if(!fin)
                     throw string("Cannot read background image ") + (char*)path;
-                html_fout << "'data:image/png;base64," << base64stream(fin) << "'";
+                f_pages.fs << "'data:image/png;base64," << base64stream(fin) << "'";
             }
             else
             {
-                html_fout << str_fmt("p%x.png", pageNum);
+                f_pages.fs << str_fmt("p%x.png", pageNum);
             }
         }
 
-        html_fout << ");background-position:0 0;background-size:" << pageWidth << "px " << pageHeight << "px;background-repeat:no-repeat;";
+        f_pages.fs << ");background-position:0 0;background-size:" << pageWidth << "px " << pageHeight << "px;background-repeat:no-repeat;";
     }
 
-    html_fout << "\">";
+    f_pages.fs << "\">";
     draw_text_scale = 1.0;
 
     cur_font_info = install_font(nullptr);
@@ -205,26 +205,26 @@ void HTMLRenderer::endPage() {
     cur_doc->processLinks(this, pageNum);
 
     // close box
-    html_fout << "</div>";
+    f_pages.fs << "</div>";
 
     // dump info for js
     // TODO: create a function for this
     // BE CAREFUL WITH ESCAPES
-    html_fout << "<div class=\"j\" data-data='{";
+    f_pages.fs << "<div class=\"j\" data-data='{";
     
     //default CTM
-    html_fout << "\"ctm\":[";
+    f_pages.fs << "\"ctm\":[";
     for(int i = 0; i < 6; ++i)
     {
-        if(i > 0) html_fout << ",";
-        html_fout << round(default_ctm[i]);
+        if(i > 0) f_pages.fs << ",";
+        f_pages.fs << round(default_ctm[i]);
     }
-    html_fout << "]";
+    f_pages.fs << "]";
 
-    html_fout << "}'></div>";
+    f_pages.fs << "}'></div>";
     
     // close page
-    html_fout << "</div></div>" << endl;
+    f_pages.fs << "</div></div>" << endl;
 }
 
 void HTMLRenderer::pre_process(PDFDoc * doc)
@@ -289,11 +289,11 @@ void HTMLRenderer::pre_process(PDFDoc * doc)
         if(param->single_html && (!param->split_pages))
             tmp_files.add((char*)fn);
 
-        css_path = (char*)fn,
-        css_fout.open(css_path, ofstream::binary);
-        if(!css_fout)
+        f_css.path = (char*)fn,
+        f_css.fs.open(f_css.path, ofstream::binary);
+        if(!f_css.fs)
             throw string("Cannot open ") + (char*)fn + " for writing";
-        set_stream_flags(css_fout);
+        set_stream_flags(f_css.fs);
     }
 
     // if split-pages is specified, open & close the file in the process loop
@@ -310,21 +310,21 @@ void HTMLRenderer::pre_process(PDFDoc * doc)
         auto fn = str_fmt("%s/__pages", param->tmp_dir.c_str());
         tmp_files.add((char*)fn);
 
-        html_path = (char*)fn;
-        html_fout.open(html_path, ofstream::binary); 
-        if(!html_fout)
+        f_pages.path = (char*)fn;
+        f_pages.fs.open(f_pages.path, ofstream::binary); 
+        if(!f_pages.fs)
             throw string("Cannot open ") + (char*)fn + " for writing";
-        set_stream_flags(html_fout);
+        set_stream_flags(f_pages.fs);
     }
 }
 
 void HTMLRenderer::post_process()
 {
     // close files
-    html_fout.close(); 
-    css_fout.close();
+    f_pages.fs.close(); 
+    f_css.fs.close();
 
-    //only when split-page, do we have some work left to do
+    //only when split-page == 0, do we have some work left to do
     if(param->split_pages)
         return;
 
@@ -372,11 +372,11 @@ void HTMLRenderer::post_process()
         {
             if(line == "$css")
             {
-                embed_file(output, css_path, ".css", false);
+                embed_file(output, f_css.path, ".css", false);
             }
             else if (line == "$pages")
             {
-                ifstream fin(html_path, ifstream::binary);
+                ifstream fin(f_pages.path, ifstream::binary);
                 if(!fin)
                     throw "Cannot open read the pages";
                 output << fin.rdbuf();
