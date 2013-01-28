@@ -30,7 +30,7 @@ var pdf2htmlEX = (function(){
            ,ctm[1] * pos[0] + ctm[3] * pos[1] + ctm[5]];
   };
   var Page = function(page, container) {
-    if(page == undefined) return undefined;
+    if(page == undefined) return;
 
     this.p = $(page);
     this.n = parseInt(this.p.attr('data-page-no'), 16);
@@ -241,18 +241,24 @@ var pdf2htmlEX = (function(){
 
     get_containing_page : function(obj) {
       /* get the page obj containing obj */
-      return this.pages[(new Page(obj.closest('.p')[0])).n];
+      var p = obj.closest('.p')[0];
+      return p && this.pages[(new Page(p).n];
     },
 
     link_handler : function (e) {
       var _ = e.data;
       var t = $(e.currentTarget);
-      var cur_page = _.get_containing_page(t);
-      if(cur_page == undefined) return;
 
-      var cur_pos = cur_page.position();
-      //get the coordinates in default user system
-      cur_pos = transform(cur_page.ictm, [cur_pos[0], cur_page.height()-cur_pos[1]]);
+      var cur_pos = [0,0];
+
+      // cur_page might be undefined, e.g. from Outline
+      var cur_page = _.get_containing_page(t);
+      if(cur_page != undefined)
+      {
+        cur_pos = cur_page.position();
+        //get the coordinates in default user system
+        cur_pos = transform(cur_page.ictm, [cur_pos[0], cur_page.height()-cur_pos[1]]);
+      }
 
       var detail_str = t.attr('data-dest-detail');
       if(detail_str == undefined) return;
@@ -292,9 +298,6 @@ var pdf2htmlEX = (function(){
           /* locate the top-left corner of the rectangle */
           pos = [detail[2], detail[5]];
           upside_down = false;
-          ok = true;
-          break;
-          pos = [0,0];
           ok = true;
           break;
         default:
