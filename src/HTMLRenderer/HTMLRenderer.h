@@ -212,13 +212,16 @@ class HTMLRenderer : public OutputDev
         void pre_process(PDFDoc * doc);
         void post_process();
 
+        void process_outline();
+        void process_outline_items(GooList * items);
+
         void set_stream_flags (std::ostream & out);
 
         std::string dump_embedded_font (GfxFont * font, long long fn_id);
         void embed_font(const std::string & filepath, GfxFont * font, FontInfo & info, bool get_metric_only = false);
 
-        // convert a LinkDest to a string that our Javascript code can understand
-        std::string get_linkdest_str(int & pageno, LinkDest * dest);
+        // convert a LinkAction to a string that our Javascript code can understand
+        std::string get_linkaction_str(LinkAction *, std::string & detail);
 
         ////////////////////////////////////////////////////
         // manage styles

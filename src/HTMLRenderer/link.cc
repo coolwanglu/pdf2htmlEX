@@ -29,14 +29,16 @@ using std::endl;
 /*
  * The detailed rectangle area of the link destination
  * Will be parsed and performed by Javascript
+ * The string will be put into a HTML attribute, surrounded by single quotes
+ * So pay attention to the characters used here
  */
-string HTMLRenderer::get_linkdest_str(int & pageno, LinkDest * dest)
+static string get_linkdest_detail_str(LinkDest * dest, Catalog * catalog, int & pageno)
 {
     pageno = 0;
     if(dest->isPageRef())
     {
         auto pageref = dest->getPageRef();
-        pageno = cur_catalog->findPage(pageref.num, pageref.gen);
+        pageno = catalog->findPage(pageref.num, pageref.gen);
     }
     else
     {
@@ -124,16 +126,11 @@ string HTMLRenderer::get_linkdest_str(int & pageno, LinkDest * dest)
 
     return sout.str();
 }
-    
-/*
- * Based on pdftohtml from poppler
- * TODO: CSS for link rectangles
- * TODO: share rectangle draw with css-draw
- */
-void HTMLRenderer::processLink(AnnotLink * al)
+
+string HTMLRenderer::get_linkaction_str(LinkAction * action, string & detail)
 {
-    std::string dest_str, dest_detail_str;
-    auto action = al->getAction();
+    string dest_str;
+    detail = "";
     if(action)
     {
         auto kind = action->getKind();
@@ -150,7 +147,7 @@ void HTMLRenderer::processLink(AnnotLink * al)
                     if(dest)
                     {
                         int pageno = 0;
-                        dest_detail_str = get_linkdest_str(pageno, dest);
+                        detail = get_linkdest_detail_str(dest, cur_catalog, pageno);
                         if(pageno > 0)
                         {
                             dest_str = (char*)str_fmt("#p%x", pageno);
@@ -180,6 +177,19 @@ void HTMLRenderer::processLink(AnnotLink * al)
                 break;
         }
     }
+
+    return dest_str;
+}
+    
+/*
+ * Based on pdftohtml from poppler
+ * TODO: CSS for link rectangles
+ * TODO: share rectangle draw with css-draw
+ */
+void HTMLRenderer::processLink(AnnotLink * al)
+{
+    string dest_detail_str;
+    string dest_str = get_linkaction_str(al->getAction(), dest_detail_str);
 
     if(!dest_str.empty())
     {

@@ -129,7 +129,8 @@ var pdf2htmlEX = (function(){
 
       //this.zoom_fixer();
       
-      this.container.on('click', '.a', this, this.annot_link_handler);
+      // used by outline/annot_link etc
+      this.container.on('click', '.a', this, this.link_handler);
 
       this.render();
     },
@@ -231,7 +232,7 @@ var pdf2htmlEX = (function(){
       return this.pages[(new Page(obj.closest('.p')[0])).n];
     },
 
-    annot_link_handler : function (e) {
+    link_handler : function (e) {
       var _ = e.data;
       var t = $(e.currentTarget);
       var cur_page = _.get_containing_page(t);

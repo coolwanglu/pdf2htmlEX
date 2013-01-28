@@ -154,6 +154,7 @@ add_executable(pdf2htmlEX
     src/HTMLRenderer/TextLineBuffer.h
     src/HTMLRenderer/TextLineBuffer.cc
     src/HTMLRenderer/link.cc
+    src/HTMLRenderer/outline.cc
     src/HTMLRenderer/state.cc
     src/HTMLRenderer/text.cc
     src/BackgroundRenderer/BackgroundRenderer.h 

@@ -74,6 +74,9 @@ void HTMLRenderer::process(PDFDoc *doc)
 
     pre_process(doc);
 
+    ///////////////////
+    // Process pages
+    
     BackgroundRenderer * bg_renderer = nullptr;
     if(param->process_nontext)
     {
@@ -119,6 +122,10 @@ void HTMLRenderer::process(PDFDoc *doc)
     if(page_count >= 0)
         cerr << "Working: " << page_count << "/" << page_count;
     cerr << endl;
+
+    ////////////////////////
+    // Process Outline
+    process_outline(); 
 
     post_process();
 

@@ -1,9 +1,17 @@
 /* Base CSS */
 /* Copyright 2012 Lu Wang <coolwanglu@gmail.com> */
-#pdf-main { /* PDF container */
+#pdf-outline { /* PDF Outline */
   position:absolute;
   top:0;
   left:0;
+  bottom:0;
+  width:200px;
+  overflow:auto;
+}
+#pdf-main { /* PDF container */
+  position:absolute;
+  top:0;
+  left:200px;
   bottom:0;
   right:0;
   overflow:auto;
