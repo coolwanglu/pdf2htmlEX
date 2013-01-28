@@ -54,53 +54,61 @@ void show_version_and_exit(const char * dummy = nullptr)
 void parse_options (int argc, char **argv)
 {
     argparser
-        .add("help,h", "print usage information", &show_usage_and_exit)
-        .add("version,v", "print copyright and version info", &show_version_and_exit)
-
-        .add("owner-password,o", &param.owner_password, "", "owner password (for encrypted files)", nullptr, true)
-        .add("user-password,u", &param.user_password, "", "user password (for encrypted files)", nullptr, true)
-        .add("no-drm", &param.no_drm, 0, "override document DRM settings")
-
-        .add("dest-dir", &param.dest_dir, ".", "specify destination directory")
-        .add("data-dir", &param.data_dir, PDF2HTMLEX_DATA_PATH, "specify data directory")
-
+        // pages
         .add("first-page,f", &param.first_page, 1, "first page to convert")
         .add("last-page,l", &param.last_page, numeric_limits<int>::max(), "last page to convert")
-
+        
+        // dimensions
         .add("zoom", &param.zoom, 0, "zoom ratio", nullptr, true)
         .add("fit-width", &param.fit_width, 0, "fit width to <fp> pixels", nullptr, true) 
         .add("fit-height", &param.fit_height, 0, "fit height to <fp> pixels", nullptr, true)
+        .add("use-cropbox", &param.use_cropbox, 0, "use CropBox instead of MediaBox")
         .add("hdpi", &param.h_dpi, 144.0, "horizontal resolution for graphics in DPI")
         .add("vdpi", &param.v_dpi, 144.0, "vertical resolution for graphics in DPI")
-        .add("use-cropbox", &param.use_cropbox, 0, "use CropBox instead of MediaBox")
-
-        .add("process-nontext", &param.process_nontext, 1, "render graphics in addition to text")
+        
+        // output files
         .add("single-html", &param.single_html, 1, "generate a single HTML file")
         .add("split-pages", &param.split_pages, 0, "split pages into separate files")
+        .add("dest-dir", &param.dest_dir, ".", "specify destination directory")
+        .add("css-filename", &param.css_filename, "", "filename of the generated css file")
+        .add("outline-filename", &param.outline_filename, "", "filename of the generated outline file")
+        
+        // embedded fonts
         .add("embed-base-font", &param.embed_base_font, 0, "embed local match for standard 14 fonts")
         .add("embed-external-font", &param.embed_external_font, 0, "embed local match for external fonts")
+        .add("font-suffix", &param.font_suffix, ".ttf", "suffix for embedded font files (.ttf,.otf,.woff,.svg)")
+        .add("font-format", &param.font_format, "opentype", "CSS @font-face format for embedded fonts")
         .add("decompose-ligature", &param.decompose_ligature, 0, "decompose ligatures, such as \uFB01 -> fi")
-
+        .add("remove-unused-glyph", &param.remove_unused_glyph, 1, "remove unused glyphs in embedded fonts")
+        .add("auto-hint", &param.auto_hint, 0, "use fontforge autohint on fonts without hints")
+        .add("external-hint-tool", &param.external_hint_tool, "", "external tool for hinting fonts (overrides --auto-hint)")
+        .add("stretch-narrow-glyph", &param.stretch_narrow_glyph, 0, "stretch narrow glyphs instead of padding them")
+        .add("squeeze-wide-glyph", &param.squeeze_wide_glyph, 1, "shrink wide glyphs instead of truncating them")
+        
+        // text
         .add("heps", &param.h_eps, 1.0, "horizontal threshold for merging text, in pixels")
         .add("veps", &param.v_eps, 1.0, "vertical threshold for merging text, in pixels")
         .add("space-threshold", &param.space_threshold, (1.0/8), "word break threshold (threshold * em)")
         .add("font-size-multiplier", &param.font_size_multiplier, 4.0, "a value greater than 1 increases the rendering accuracy")
-        .add("auto-hint", &param.auto_hint, 0, "use fontforge autohint on fonts without hints")
-        .add("tounicode", &param.tounicode, 0, "how to handle ToUnicode CMaps (0=auto, 1=force, -1=ignore)")
         .add("space-as-offset", &param.space_as_offset, 0, "treat space characters as offsets")
-        .add("stretch-narrow-glyph", &param.stretch_narrow_glyph, 0, "stretch narrow glyphs instead of padding them")
-        .add("squeeze-wide-glyph", &param.squeeze_wide_glyph, 1, "shrink wide glyphs instead of truncating them")
-        .add("remove-unused-glyph", &param.remove_unused_glyph, 1, "remove unused glyphs in embedded fonts")
-
-        .add("font-suffix", &param.font_suffix, ".ttf", "suffix for embedded font files (.ttf,.otf,.woff,.svg)")
-        .add("font-format", &param.font_format, "opentype", "CSS @font-face format for embedded fonts")
-        .add("external-hint-tool", &param.external_hint_tool, "", "external tool for hinting fonts (overrides --auto-hint)")
-        .add("css-filename", &param.css_filename, "", "filename of the generated css file")
-        .add("outline-filename", &param.outline_filename, "", "filename of the generated outline file")
-
-        .add("debug", &param.debug, 0, "print debugging information")
+        .add("tounicode", &param.tounicode, 0, "how to handle ToUnicode CMaps (0=auto, 1=force, -1=ignore)")
+        
+        // encryption
+        .add("owner-password,o", &param.owner_password, "", "owner password (for encrypted files)", nullptr, true)
+        .add("user-password,u", &param.user_password, "", "user password (for encrypted files)", nullptr, true)
+        .add("no-drm", &param.no_drm, 0, "override document DRM settings")
+        
+        // misc.
         .add("clean-tmp", &param.clean_tmp, 1, "remove temporary files after conversion")
+        .add("process-nontext", &param.process_nontext, 1, "render graphics in addition to text")
+        .add("data-dir", &param.data_dir, PDF2HTMLEX_DATA_PATH, "specify data directory")
         .add("css-draw", &param.css_draw, 0, "[experimental and unsupported] CSS drawing")
+        .add("debug", &param.debug, 0, "print debugging information")
+        
+        // meta
+        .add("version,v", "print copyright and version info", &show_version_and_exit)
+        .add("help,h", "print usage information", &show_usage_and_exit)
+        
         .add("", &param.input_filename, "", "")
         .add("", &param.output_filename, "", "")
         ;
