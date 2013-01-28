@@ -36,9 +36,7 @@ ArgParser argparser;
 
 void show_usage_and_exit(const char * dummy = nullptr)
 {
-    cerr << "Usage: pdf2htmlEX [Options] <input.pdf> [<output.html>]" << endl;
-    cerr << endl;
-    cerr << "Options:" << endl;
+    cerr << "Usage: pdf2htmlEX [options] <input.pdf> [<output.html>]" << endl;
     argparser.show_usage(cerr);
     cerr << endl;
     cerr << "Run 'man pdf2htmlEX' for detailed information" << endl;
@@ -141,8 +139,7 @@ int main(int argc, char **argv)
     parse_options(argc, argv);
     if (param.input_filename == "")
     {
-        cerr << "Missing input filename" << endl;
-        exit(EXIT_FAILURE);
+        show_usage_and_exit();
     }
 
     //prepare the directories
