@@ -147,7 +147,9 @@ class HTMLRenderer : public OutputDev
         virtual void setDefaultCTM(double *ctm);
 
         // Start a page.
+        // UGLY: These 2 versions are for different versions of poppler
         virtual void startPage(int pageNum, GfxState *state);
+        virtual void startPage(int pageNum, GfxState *state, XRef * xref);
 
         // End a page.
         virtual void endPage();

@@ -135,6 +135,11 @@ void HTMLRenderer::setDefaultCTM(double *ctm)
 
 void HTMLRenderer::startPage(int pageNum, GfxState *state) 
 {
+    startPage(pageNum, state, nullptr);
+}
+
+void HTMLRenderer::startPage(int pageNum, GfxState *state, XRef * xref) 
+{
     this->pageNum = pageNum;
     this->pageWidth = state->getPageWidth();
     this->pageHeight = state->getPageHeight();
