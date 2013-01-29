@@ -146,6 +146,10 @@ void ArgParser::show_usage(ostream & out) const
     }
 }
 
+template<> const char * ArgParser::get_type_name<int>    (void) { return "int";    }
+template<> const char * ArgParser::get_type_name<double> (void) { return "fp";     }
+template<> const char * ArgParser::get_type_name<string> (void) { return "string"; }
+
 ArgParser::ArgEntryBase::ArgEntryBase(const char * name, const char * description, bool need_arg)
     : shortname(0), name(name), description(description), need_arg(need_arg)
 { 

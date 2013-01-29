@@ -39,24 +39,6 @@ void dump_value(std::ostream & out, const T & v)
 
 extern void dump_value(std::ostream & out, const std::string & v);
 
-// type names helper
-template<typename> 
-struct type_name {
-    static char const* value() { return "unknown"; }
-};
-
-template<> struct type_name<int> {
-    static char const* value() { return "int"; }
-};
-
-template<> struct type_name<double> {
-    static char const* value() { return "fp"; }
-};
-
-template<> struct type_name<std::string> {
-    static char const* value() { return "string"; }
-};
-
 class ArgParser
 {
     public:
@@ -71,13 +53,20 @@ class ArgParser
 
         ArgParser & add(const char * optname, const char * description, ArgParserCallBack callback = nullptr);
 
+        /*
+         * location == nullptr means no argument is needed
+         */
         template <class T, class Tv>
-            ArgParser & add(const char * optname, T * location, const Tv & default_value, const char * description, ArgParserCallBack callback = nullptr, bool dont_show_default = false);
+        ArgParser & add(const char * optname, T * location, const Tv & default_value, const char * description, ArgParserCallBack callback = nullptr, bool dont_show_default = false);
 
         void parse(int argc, char ** argv) const;
         void show_usage(std::ostream & out) const;
 
     private:
+        // type names helper
+        template<class> 
+        static const char * get_type_name(void) { return "unknown"; }
+
         class ArgEntryBase
         {
             public:
@@ -126,6 +115,11 @@ ArgParser & ArgParser::add(const char * optname, T * location, const Tv & defaul
 
     return *this;
 }
+
+// Known types
+template<> const char * ArgParser::get_type_name<int>         (void);
+template<> const char * ArgParser::get_type_name<double>      (void);
+template<> const char * ArgParser::get_type_name<std::string> (void);
 
 template<class T, class Tv>
 ArgParser::ArgEntry<T, Tv>::ArgEntry(const char * name, T * location, const Tv & default_value,  ArgParserCallBack callback, const char * description, bool dont_show_default)
@@ -178,7 +172,7 @@ void ArgParser::ArgEntry<T, Tv>::show_usage(std::ostream & out) const
 
     if(need_arg)
     {
-        sout << " <" << type_name<T>::value() << ">";
+        sout << " <" << get_type_name<T>() << ">";
     }
 
     std::string s = sout.str();
