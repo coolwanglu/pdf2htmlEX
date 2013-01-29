@@ -191,7 +191,7 @@ void ArgParser::ArgEntry<T, Tv>::show_usage(std::ostream & out) const
     
     if(need_arg && !dont_show_default)
     {
-        out << " (default is ";
+        out << " (default: ";
         dump_value(out, default_value);
         out << ")";	
     }
