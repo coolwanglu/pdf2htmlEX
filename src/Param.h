@@ -31,7 +31,7 @@ struct Param
     std::string css_filename;
     std::string outline_filename;
     
-    // embedded fonts
+    // fonts
     int embed_base_font;
     int embed_external_font;
     std::string font_suffix, font_format;

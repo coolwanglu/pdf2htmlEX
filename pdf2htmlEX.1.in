@@ -94,7 +94,7 @@ If it's empty, the file name will be determined automatically.
 
 
 .TP
-.B Embedded Fonts
+.B Fonts
 
 .TP
 .B --embed-base-font <0|1> (Default: 1)

@@ -73,7 +73,7 @@ void parse_options (int argc, char **argv)
         .add("css-filename", &param.css_filename, "", "filename of the generated css file")
         .add("outline-filename", &param.outline_filename, "", "filename of the generated outline file")
         
-        // embedded fonts
+        // fonts
         .add("embed-base-font", &param.embed_base_font, 0, "embed local match for standard 14 fonts")
         .add("embed-external-font", &param.embed_external_font, 0, "embed local match for external fonts")
         .add("font-suffix", &param.font_suffix, ".ttf", "suffix for embedded font files (.ttf,.otf,.woff,.svg)")
