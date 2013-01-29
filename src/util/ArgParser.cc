@@ -76,7 +76,7 @@ void ArgParser::parse(int argc, char ** argv) const
             int v = p->shortname;
             if(!(opt_map.insert(make_pair(v, p)).second))
             {
-                cerr << "Warning: duplicated shortname '" << v << "' used by -" << (char)(p->shortname) << " and -" << (char)(opt_map[p->shortname]->shortname) << endl;
+                cerr << "Warning: duplicated shortname: " << v << endl;
             }
         }
 
@@ -93,7 +93,7 @@ void ArgParser::parse(int argc, char ** argv) const
             }
             if(!(opt_map.insert(make_pair(v, p)).second))
             {
-                cerr << "Warning: duplicated shortname '" << v << "' used by --" << (p->name) << " and --" << (opt_map[p->shortname]->name) << endl;
+                cerr << "Warning: duplicated long name: " << (p->name) << endl;
             }
         }
     }
