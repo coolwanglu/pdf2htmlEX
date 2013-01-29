@@ -118,8 +118,8 @@ var pdf2htmlEX = (function(){
       this.container = $('#'+this.container_id);
 
       // need a better design
-      if(this.outline.children().length == 0) { 
-        this.outline.toggleClass('opened');
+      if(this.outline.children().length > 0) { 
+        this.outline.addClass('opened');
       }
       
       var new_pages = new Array();

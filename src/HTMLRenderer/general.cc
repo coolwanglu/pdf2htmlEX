@@ -392,7 +392,9 @@ void HTMLRenderer::post_process()
             continue;
         }
 
-        if(line.empty() || line[0] == '#')
+        if(line.empty() 
+           || (line.find_first_not_of(' ') == string::npos)
+           || line[0] == '#')
             continue;
 
 

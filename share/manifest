@@ -1,4 +1,4 @@
-# manifest
+# pdf2htmlEX manifest 
 # by WangLu
 # 2012.09.12
 #
@@ -21,39 +21,53 @@
 <meta charset="utf-8">
 <meta name="generator" content="pdf2htmlEX"/>
 """
+
 # base CSS styles
 @base.css
-
 # PDF specific CSS styles
 $css
-
 # necessary Javascript codes
 @jquery.js
 @pdf2htmlEX.js
 
+# entry point of pdf2htmlEX
 """
 <script type="text/javascript">
 new pdf2htmlEX.Viewer('pdf-main', 'pdf-outline');
 </script>
+"""
 
+"""
 <title></title>
 </head>
 <body>
-<div id="pdf-outline" class="opened">
 """
 
+# The container of outline
+# By default this is hidden, pdf2htmlEX.js will add the 'opened' class if it is not empty
+# You can add a class 'opened' here if you want it always opened or you don't use pdf2htmlEX.js
+# e.g. 
+# <div id="pdf-outline" class="opened">
+"""
+<div id="pdf-outline">
+"""
 $outline
-
 """
 </div>
+"""
+
+# The container of PDF pages
+# check base.css for an example and requirements of its CSS styles
+"""
 <div id="pdf-main">
 """
-
-# PDF pages
 $pages
-
 """
 </div>
+"""
+
+ 
+"""
 </body>
 </html>
 """
