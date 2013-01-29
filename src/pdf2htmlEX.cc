@@ -53,6 +53,8 @@ void show_version_and_exit(const char * dummy = nullptr)
 
 void parse_options (int argc, char **argv)
 {
+    string deprecated_string; 
+    
     argparser
         // pages
         .add("first-page,f", &param.first_page, 1, "first page to convert")
@@ -77,7 +79,6 @@ void parse_options (int argc, char **argv)
         .add("embed-base-font", &param.embed_base_font, 0, "embed local match for standard 14 fonts")
         .add("embed-external-font", &param.embed_external_font, 0, "embed local match for external fonts")
         .add("font-suffix", &param.font_suffix, ".ttf", "suffix for embedded font files (.ttf,.otf,.woff,.svg)")
-        .add("font-format", &param.font_format, "opentype", "CSS @font-face format for embedded fonts")
         .add("decompose-ligature", &param.decompose_ligature, 0, "decompose ligatures, such as \uFB01 -> fi")
         .add("remove-unused-glyph", &param.remove_unused_glyph, 1, "remove unused glyphs in embedded fonts")
         .add("auto-hint", &param.auto_hint, 0, "use fontforge autohint on fonts without hints")
@@ -111,6 +112,11 @@ void parse_options (int argc, char **argv)
         
         .add("", &param.input_filename, "", "")
         .add("", &param.output_filename, "", "")
+        
+        // deprecated
+        .add("font-format", &deprecated_string, "", "", [] (const char*) {
+            cerr << "warning: --font-format is deprecated, @font-face format is inferred from --font-suffix" << endl;
+        })
         ;
 
     try

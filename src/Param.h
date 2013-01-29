@@ -34,7 +34,7 @@ struct Param
     // fonts
     int embed_base_font;
     int embed_external_font;
-    std::string font_suffix, font_format;
+    std::string font_suffix;
     int decompose_ligature;
     int remove_unused_glyph;
     int auto_hint;
