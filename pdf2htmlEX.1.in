@@ -22,49 +22,42 @@ Fonts are extracted form PDF and then embedded into HTML (Type 3 fonts are not s
 Other objects are rendered as images and also embedded.
 
 .SH OPTIONS
+
+
 .TP
-.B --help
-Show all options
-.TP
-.B -v, --version
-Show copyright and version
-.TP
-.B -o, --owner-password <password>
-Specify owner password
-.TP
-.B -u, --user-password <password>
-Specify user password
-.TP
-.B --no-drm <0|1> (Default: 0)
-Override document DRM settings
-.TP
-.B --dest-dir <dir> (Default: .)
-Specify destination folder
-.TP
-.B --data-dir <dir> (Default: @CMAKE_INSTALL_PREFIX@/share/pdf2htmlEX)
-Specify the folder holding the manifest and other files
+.B Pages
+
 .TP
 .B -f, --first-page <num> (Default: 1)
 Specify the first page to process
+
 .TP
 .B -l, --last-page <num> (Default: last page)
 Specify the last page to process
+
+
 .TP
+.B Dimensions
+
 .B --zoom <ratio>, --fit-width <width>, --fit-height <height>
 --zoom specifies the zoom factor directly; --fit-width/height specifies the maximum width/height of a page, the values are in pixels.
 
 If multiple values are specified, the minimum one will be used.
 
 If none is specified, pages will be rendered as 72DPI.
-.TP
-.B --hdpi <dpi>, --vdpi <dpi> (Default: 144)
-Specify the horizontal and vertical DPI for images
+
 .TP
 .B --use-cropbox <0|1> (Default: 0)
 Use CropBox instead of MediaBox for output.
+
 .TP
-.B --process-nontext <0|1> (Default: 1)
-Whether to process non-text objects (as images)
+.B --hdpi <dpi>, --vdpi <dpi> (Default: 144)
+Specify the horizontal and vertical DPI for images
+
+
+.TP
+.B Output Files
+
 .TP
 .B --single-html <0|1> (Default: 1)
 Whether to embed everything into one HTML file.
@@ -74,6 +67,7 @@ If switched off, there will be several files generated along with the HTML file 
 Note that the outline will always be embedded into the main HTML file no matter if this switch is on or not. 
 And only when this switch is off will there be a separate .outline file contains the outline. 
 You need to modify the manifest if you do not want outline embedded.
+
 .TP
 .B --split-pages <0|1> (Default: 0)
 If turned on, pages will be stored into separated files named as <output-filename>0.page, <output-filename>1.page, ...
@@ -81,6 +75,27 @@ If turned on, pages will be stored into separated files named as <output-filenam
 Also the css and outline will be stored into separated files, and the will be no <output-filename>.html generated.
 
 This switch is useful if you want pages to be loaded separately & dynamically -- in which case you need to compose the page yourself, and a supporting backend might be necessary.
+
+.TP
+.B --dest-dir <dir> (Default: .)
+Specify destination folder
+
+.TP
+.B --css-filename <filename> (Default: <none>)
+Specify the filename of the generated css file, if not embedded.
+
+If it's empty, the file name will be determined automatically.
+
+.TP
+.B --outline-filename <filename> (Default: <none>)
+Specify the filename of the generated outline file, if not embedded.
+
+If it's empty, the file name will be determined automatically.
+
+
+.TP
+.B Fonts
+
 .TP
 .B --embed-base-font <0|1> (Default: 1)
 Whether to embed base 14 fonts.
@@ -88,20 +103,57 @@ Whether to embed base 14 fonts.
 There are several base font defined in PDF standards, which are supposed to be provided by the PDF reader.
 
 If this switch is on, local matched font will be used and embedded; otherwise only font names are exported such that web browsers may try to find proper fonts themselves.
+
 .TP
 .B --embed-external-font <0|1> (Default: 0)
 Similar as above but for non-base fonts.
+
+.TP
+.B --font-suffix <suffix> (Default: .ttf), --font-format <format> (Default: truetype)
+Specify the suffix and format of fonts extracted from the PDF file. They should be consistent.
+
 .TP
 .B --decompose-ligature <0|1> (Default: 0)
 Decompose ligatures. For example 'fi' -> 'f''i'.
+
+.TP
+.B --remove-unused-glyph <0|1> (Default: 1)
+If set to 1, remove unused glyphs in embedded fonts in order to reduce the file size.
+
+.TP
+.B --auto-hint <0|1> (Default: 0)
+If set to 1, hints will be generated for the fonts using fontforge. 
+
+This may be preceded by --external-hint-tool.
+
+.TP
+.B --external-hint-tool <tool> (Default: <none>)
+If specified, the tool will be called in order to enhanced hinting for fonts, this will precede --auto-hint.
+
+The tool will be called as '<tool> <in.suffix> <out.suffix>', where suffix will be the same as specified for --font-suffix.
+
+.TP
+.B --stretch-narrow-glyph <0|1> (Default: 0)
+If set to 1, glyphs narrower than described in PDF will be stretched; otherwise space will be padded to the right of the glyphs
+
+.TP
+.B --squeeze-wide-glyph <0|1> (Default: 1)
+If set to 1, glyphs wider than described in PDF will be squeezed; otherwise it will be truncated.
+
+
+.TP
+.B Text
+
 .TP
 .B --heps <len>, --veps <len> (Default: 1)
 Specify the maximum tolerable horizontal/vertical offset (in pixels).
 
 pdf2htmlEX would try to optimize the generated HTML file moving Text within this distance.
+
 .TP
 .B --space-threshold <ratio> (Default: 1.0/6)
 pdf2htmlEX would insert a whitespace character ' ' if the distance between two consecutive letters in the same line is wider than ratio * font_size.
+
 .TP
 .B --font-size-multiplier <ratio> (Default: 4.0)
 Many web browsers limit the minimum font size, and many would round the given font size, which results in incorrect rendering.
@@ -109,11 +161,13 @@ Many web browsers limit the minimum font size, and many would round the given fo
 Specify a ratio greater than 1 would resolve this issue, however it might freeze some browsers.
 
 For some versions of Firefox, however, there will be a problem when the font size is too large, in which case a smaller value should be specified here.
-.TP
-.B --auto-hint <0|1> (Default: 0)
-If set to 1, hints will be generated for the fonts using fontforge. 
 
-This may be preceded by --external-hint-tool. 
+.TP
+.B --space-as-offset <0|1> (Default: 0)
+Treat space characters as offsets, which may increase the size of the output.
+
+Turn it on if space characters are not displayed correctly, or you want to remove positional spaces.
+
 .TP
 .B --tounicode <-1|0|1> (Default: 0)
 A ToUnicode map may be provided for each font in PDF which indicates the 'meaning' of the characters. However often there is better "ToUnicode" info in Type 0/1 fonts, and sometimes the ToUnicode map provided is wrong. 
@@ -123,39 +177,59 @@ If this value is set to 1, the ToUnicode Map is always applied, if provided in P
 If set to -1, a customized map is used such that rendering will be correct in HTML (visually the same), but you may not get correct characters by select & copy & paste.
 
 If set to 0, pdf2htmlEX would try its best to balance the two methods above.
-.TP
-.B --space-as-offset <0|1> (Default: 0)
-Treat space characters as offsets, which may increase the size of the output.
 
-Turn it on if space characters are not displayed correctly, or you want to remove positional spaces.
-.TP
-.B --stretch-narrow-glyph <0|1> (Default: 0)
-If set to 1, glyphs narrower than described in PDF will be stretched; otherwise space will be padded to the right of the glyphs
-.TP
-.B --squeeze-wide-glyph <0|1> (Default: 1)
-If set to 1, glyphs wider than described in PDF will be squeezed; otherwise it will be truncated.
-.TP
-.B --remove-unused-glyph <0|1> (Default: 1)
-If set to 1, remove unused glyphs in embedded fonts in order to reduce the file size.
-.TP
-.B --font-suffix <suffix> (Default: .ttf), --font-format <format> (Default: truetype)
-Specify the suffix and format of fonts extracted from the PDF file. They should be consistent.
-.TP
-.B --external-hint-tool <tool> (Default: <none>)
-If specified, the tool will be called in order to enhanced hinting for fonts, this will precede --auto-hint.
 
-The tool will be called as '<tool> <in.suffix> <out.suffix>', where suffix will be the same as specified for --font-suffix.
 .TP
-.B --css-filename <filename> (Default: <none>)
-Specify the filename of the generated css file, if not embedded.
+.B Encryption
 
-If it's empty, the file name will be determined automatically.
 .TP
-.B --debug <0|1> (Default: 0)
-Show debug information.
+.B -o, --owner-password <password>
+Specify owner password
+
+.TP
+.B -u, --user-password <password>
+Specify user password
+
+.TP
+.B --no-drm <0|1> (Default: 0)
+Override document DRM settings
+
+
+.TP
+.B Misc.
+
 .TP
 .B --clean-tmp <0|1> (Default: 1)
 If switched off, intermediate files won't be cleaned in the end.
+
+.TP
+.B --process-nontext <0|1> (Default: 1)
+Whether to process non-text objects (as images)
+
+.TP
+.B --data-dir <dir> (Default: @CMAKE_INSTALL_PREFIX@/share/pdf2htmlEX)
+Specify the folder holding the manifest and other files
+
+.TP
+.B --css-draw <0|1> (Default: 0)
+Experimental and unsupported CSS drawing
+
+.TP
+.B --debug <0|1> (Default: 0)
+Print debug information.
+
+
+.TP
+.B Meta
+
+.TP
+.B -v, --version
+Print copyright and version info
+
+.TP
+.B --help
+Print usage information
+
 
 .SH EXAMPLE
 .TP
