@@ -43,8 +43,8 @@ namespace pdf2htmlEX {
         }
 
         f_css.fs << "@font-face{"
-            << "font-family:f" << info.id << ";"
-            << "src:url(";
+                 << "font-family:f" << info.id << ";"
+                 << "src:url(";
 
         {
             auto fn = str_fmt("f%llx%s", info.id, suffix.c_str());
@@ -63,23 +63,23 @@ namespace pdf2htmlEX {
         }
 
         f_css.fs << ")"
-            << "format(\"" << format << "\");"
-            << "}" // end of @font-face
-            << ".f" << info.id << "{"
-            << "font-family:f" << info.id << ";"
-            << "line-height:" << round(info.ascent - info.descent) << ";"
-            << "font-style:normal;"
-            << "font-weight:normal;"
-            << "visibility:visible;"
-            << "}" // end of .f
-            << endl;
+                 << "format(\"" << format << "\");"
+                 << "}" // end of @font-face
+                 << ".f" << info.id << "{"
+                 << "font-family:f" << info.id << ";"
+                 << "line-height:" << round(info.ascent - info.descent) << ";"
+                 << "font-style:normal;"
+                 << "font-weight:normal;"
+                 << "visibility:visible;"
+                 << "}" // end of .f
+                 << endl;
     }
 
 static string general_font_family(GfxFont * font)
 {
-    if(font -> isFixedWidth())
+    if(font->isFixedWidth())
         return "monospace";
-    else if (font -> isSerif())
+    else if (font->isSerif())
         return "serif";
     else
         return "sans-serif";
