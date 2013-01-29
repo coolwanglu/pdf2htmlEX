@@ -208,7 +208,7 @@ Whether to process non-text objects (as images)
 
 .TP
 .B --data-dir <dir> (Default: @CMAKE_INSTALL_PREFIX@/share/pdf2htmlEX)
-Specify the folder holding the manifest and other files
+Specify the folder holding the manifest and other files (see below for the manifest file)`
 
 .TP
 .B --css-draw <0|1> (Default: 0)
@@ -230,6 +230,15 @@ Print copyright and version info
 .B --help
 Print usage information
 
+
+.SH MANIFEST and DATA-DIR
+When split-pages is 0, the manifest file describes how the final html page should be generated.
+
+By default, pdf2htmlEX will use the manifest in the default data-dir (run `pdf2htmlEX -v` to check), which gives a simple demo of its syntax.
+
+You can modify the default one, or you can create a new one and specify the correct data-dir in the command line. 
+
+When single-html is 1, all files referred by the manifest must be located in the data-dir.
 
 .SH EXAMPLE
 .TP

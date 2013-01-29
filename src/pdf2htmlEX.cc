@@ -48,6 +48,7 @@ void show_version_and_exit(const char * dummy = nullptr)
     cerr << "Libraries: ";
     cerr << "poppler " << POPPLER_VERSION << ", ";
     cerr << "libfontforge " << ffw_get_version() << endl;
+    cerr << "Default data-dir: " << PDF2HTMLEX_DATA_PATH << endl;
     exit(EXIT_SUCCESS);
 }
 
