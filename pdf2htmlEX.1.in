@@ -23,9 +23,7 @@ Other objects are rendered as images and also embedded.
 
 .SH OPTIONS
 
-
-.TP
-.B Pages
+.SS Pages
 
 .TP
 .B -f, --first-page <num> (Default: 1)
@@ -35,9 +33,7 @@ Specify the first page to process
 .B -l, --last-page <num> (Default: last page)
 Specify the last page to process
 
-
-.TP
-.B Dimensions
+.SS Dimensions
 
 .B --zoom <ratio>, --fit-width <width>, --fit-height <height>
 --zoom specifies the zoom factor directly; --fit-width/height specifies the maximum width/height of a page, the values are in pixels.
@@ -55,8 +51,7 @@ Use CropBox instead of MediaBox for output.
 Specify the horizontal and vertical DPI for images
 
 
-.TP
-.B Output Files
+.SS Output Files
 
 .TP
 .B --single-html <0|1> (Default: 1)
@@ -92,9 +87,7 @@ Specify the filename of the generated outline file, if not embedded.
 
 If it's empty, the file name will be determined automatically.
 
-
-.TP
-.B Fonts
+.SS Fonts
 
 .TP
 .B --embed-base-font <0|1> (Default: 1)
@@ -140,9 +133,7 @@ If set to 1, glyphs narrower than described in PDF will be stretched; otherwise 
 .B --squeeze-wide-glyph <0|1> (Default: 1)
 If set to 1, glyphs wider than described in PDF will be squeezed; otherwise it will be truncated.
 
-
-.TP
-.B Text
+.SS Text
 
 .TP
 .B --heps <len>, --veps <len> (Default: 1)
@@ -178,9 +169,7 @@ If set to -1, a customized map is used such that rendering will be correct in HT
 
 If set to 0, pdf2htmlEX would try its best to balance the two methods above.
 
-
-.TP
-.B Encryption
+.SS PDF Protection
 
 .TP
 .B -o, --owner-password <password>
@@ -194,9 +183,7 @@ Specify user password
 .B --no-drm <0|1> (Default: 0)
 Override document DRM settings
 
-
-.TP
-.B Misc.
+.SS Misc.
 
 .TP
 .B --clean-tmp <0|1> (Default: 1)
@@ -218,9 +205,7 @@ Experimental and unsupported CSS drawing
 .B --debug <0|1> (Default: 0)
 Print debug information.
 
-
-.TP
-.B Meta
+.SS Meta
 
 .TP
 .B -v, --version
@@ -229,7 +214,6 @@ Print copyright and version info
 .TP
 .B --help
 Print usage information
-
 
 .SH MANIFEST and DATA-DIR
 When split-pages is 0, the manifest file describes how the final html page should be generated.
