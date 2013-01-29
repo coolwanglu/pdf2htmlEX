@@ -248,7 +248,7 @@ class HTMLRenderer : public OutputDev
          * remote font: to be retrieved from the web server
          * local font: to be substituted with a local (client side) font
          */
-        void export_remote_font(const FontInfo & info, const std::string & suffix, const std::string & fontfileformat, GfxFont * font);
+        void export_remote_font(const FontInfo & info, const std::string & suffix, GfxFont * font);
         void export_remote_default_font(long long fn_id);
         void export_local_font(const FontInfo & info, GfxFont * font, const std::string & original_font_name, const std::string & cssfont);
 

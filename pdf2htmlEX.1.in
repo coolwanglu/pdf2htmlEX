@@ -102,8 +102,8 @@ If this switch is on, local matched font will be used and embedded; otherwise on
 Similar as above but for non-base fonts.
 
 .TP
-.B --font-suffix <suffix> (Default: .ttf), --font-format <format> (Default: truetype)
-Specify the suffix and format of fonts extracted from the PDF file. They should be consistent.
+.B --font-suffix <suffix> (Default: .ttf)
+Specify the suffix of fonts extracted from the PDF file.
 
 .TP
 .B --decompose-ligature <0|1> (Default: 0)
