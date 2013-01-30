@@ -65,6 +65,9 @@ struct Param
 
     // not a paramater
     std::string tmp_dir;
+
+    int dump_mediabox;
+    std::string set_mediabox;
 };
 
 } // namespace pdf2htmlEX

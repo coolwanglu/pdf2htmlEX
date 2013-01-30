@@ -23,7 +23,7 @@
 
 #include "Param.h"
 #include "pdf2htmlEX-config.h"
-#include "HTMLRenderer/HTMLRenderer.h"
+#include "HTMLRenderer_mp.h"
 #include "util/ArgParser.h"
 #include "util/path.h"
 #include "util/ffw.h"
@@ -110,6 +110,10 @@ void parse_options (int argc, char **argv)
         // meta
         .add("version,v", "print copyright and version info", &show_version_and_exit)
         .add("help,h", "print usage information", &show_usage_and_exit)
+
+        // multipages
+        .add("dump-mediabox", &param.dump_mediabox, 0, "dump mediaboxes of each page")
+        .add("set-mediabox", &param.set_mediabox, "", "set new mediabox for each page")
         
         .add("", &param.input_filename, "", "")
         .add("", &param.output_filename, "", "")
@@ -263,7 +267,7 @@ int main(int argc, char **argv)
 
         }
 
-        HTMLRenderer * htmlOut = new HTMLRenderer(&param);
+        HTMLRenderer_mp * htmlOut = new HTMLRenderer_mp(&param);
         htmlOut->process(doc);
         delete htmlOut;
 
