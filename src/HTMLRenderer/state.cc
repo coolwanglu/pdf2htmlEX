@@ -92,6 +92,51 @@ void HTMLRenderer::updateStrokeColor(GfxState * state)
 {
     color_changed = true; 
 }
+void HTMLRenderer::reset_state()
+{
+    draw_text_scale = 1.0;
+
+    cur_font_info = install_font(nullptr);
+    cur_font_size = draw_font_size = 0;
+    cur_fs_id = install_font_size(cur_font_size);
+    
+    memcpy(cur_text_tm, ID_MATRIX, sizeof(cur_text_tm));
+    memcpy(draw_text_tm, ID_MATRIX, sizeof(draw_text_tm));
+    cur_ttm_id = install_transform_matrix(draw_text_tm);
+
+    cur_letter_space = cur_word_space = 0;
+    cur_ls_id = install_letter_space(cur_letter_space);
+    cur_ws_id = install_word_space(cur_word_space);
+
+    cur_color.r = cur_color.g = cur_color.b = 0;
+    cur_color_id = install_color(&cur_color);
+
+    cur_rise = 0;
+    cur_rise_id = install_rise(cur_rise);
+
+    cur_tx = cur_ty = 0;
+    draw_tx = draw_ty = 0;
+
+    reset_state_change();
+    all_changed = true;
+}
+void HTMLRenderer::reset_state_change()
+{
+    all_changed = false;
+
+    rise_changed = false;
+    text_pos_changed = false;
+
+    font_changed = false;
+    ctm_changed = false;
+    text_mat_changed = false;
+    hori_scale_changed = false;
+
+    letter_space_changed = false;
+    word_space_changed = false;
+
+    color_changed = false;
+}
 void HTMLRenderer::check_state_change(GfxState * state)
 {
     // DEPENDENCY WARNING
@@ -340,24 +385,6 @@ void HTMLRenderer::check_state_change(GfxState * state)
     }
 
     reset_state_change();
-}
-
-void HTMLRenderer::reset_state_change()
-{
-    all_changed = false;
-
-    rise_changed = false;
-    text_pos_changed = false;
-
-    font_changed = false;
-    ctm_changed = false;
-    text_mat_changed = false;
-    hori_scale_changed = false;
-
-    letter_space_changed = false;
-    word_space_changed = false;
-
-    color_changed = false;
 }
 void HTMLRenderer::prepare_text_line(GfxState * state)
 {
