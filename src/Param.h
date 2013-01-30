@@ -15,63 +15,56 @@ namespace pdf2htmlEX {
 
 struct Param
 {
-    // PDF stuff
-    std::string owner_password, user_password;
-    std::string input_filename, output_filename;
-    int no_drm;
-
-    // path
-    std::string dest_dir, tmp_dir, data_dir;
-
-    // normal parameters
+    // pages
     int first_page, last_page;
-
+    
+    // dimensions
     double zoom;
     double fit_width, fit_height;
-    double h_dpi, v_dpi;
     int use_cropbox;
-
-    int process_nontext;
+    double h_dpi, v_dpi;
+    
+    // output files
     int single_html;
     int split_pages;
+    std::string dest_dir;
+    std::string css_filename;
+    std::string outline_filename;
+    
+    // fonts
     int embed_base_font;
     int embed_external_font;
+    std::string font_suffix;
     int decompose_ligature;
-
-    // Advanced tweak
-    /*
-     * Position & Size
-     */
+    int remove_unused_glyph;
+    int auto_hint;
+    std::string external_hint_tool;
+    int stretch_narrow_glyph;
+    int squeeze_wide_glyph;
+    
+    // text
     double h_eps, v_eps;
     double space_threshold;
     double font_size_multiplier;
-
-    /*
-     * Font
-     */
-    int auto_hint;
-    int tounicode;
     int space_as_offset;
-    int stretch_narrow_glyph;
-    int squeeze_wide_glyph;
-    int remove_unused_glyph;
-
-    std::string font_suffix, font_format;
-    std::string external_hint_tool;
-
-    /*
-     * Output
-     */
-    std::string css_filename;
-
-    /*
-     * Debug
-     */
-    int debug;
+    int tounicode;
+    
+    // encryption
+    std::string owner_password, user_password;
+    int no_drm;
+    
+    // misc.
     int clean_tmp;
-
-    // experimental
+    int process_nontext;
+    std::string data_dir;
     int css_draw;
+    int debug;
+    
+    // non-optional
+    std::string input_filename, output_filename;
+
+    // not a paramater
+    std::string tmp_dir;
 };
 
 } // namespace pdf2htmlEX

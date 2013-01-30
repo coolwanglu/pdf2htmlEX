@@ -372,48 +372,48 @@ void HTMLRenderer::css_draw_rectangle(double x, double y, double w, double h, co
         }
     }
 
-    html_fout << "<div class=\"Cd t" << install_transform_matrix(new_tm) << "\" style=\"";
+    f_pages.fs << "<div class=\"Cd t" << install_transform_matrix(new_tm) << "\" style=\"";
 
     if(line_color)
     {
-        html_fout << "border-color:" << *line_color << ";";
+        f_pages.fs << "border-color:" << *line_color << ";";
 
-        html_fout << "border-width:";
+        f_pages.fs << "border-width:";
         for(int i = 0; i < line_width_count; ++i)
         {
-            if(i > 0) html_fout << ' ';
+            if(i > 0) f_pages.fs << ' ';
 
             double lw = line_width_array[i] * scale;
-            html_fout << round(lw);
-            if(is_positive(lw)) html_fout << "px";
+            f_pages.fs << round(lw);
+            if(is_positive(lw)) f_pages.fs << "px";
         }
-        html_fout << ";";
+        f_pages.fs << ";";
     }
     else
     {
-        html_fout << "border:none;";
+        f_pages.fs << "border:none;";
     }
 
     if(fill_color)
     {
-        html_fout << "background-color:" << (*fill_color) << ";";
+        f_pages.fs << "background-color:" << (*fill_color) << ";";
     }
     else
     {
-        html_fout << "background-color:transparent;";
+        f_pages.fs << "background-color:transparent;";
     }
 
     if(style_function)
     { 
-        style_function(style_function_data, html_fout);
+        style_function(style_function_data, f_pages.fs);
     }
 
-    html_fout << "bottom:" << round(y) << "px;"
+    f_pages.fs << "bottom:" << round(y) << "px;"
         << "left:" << round(x) << "px;"
         << "width:" << round(w * scale) << "px;"
         << "height:" << round(h * scale) << "px;";
 
-    html_fout << "\"></div>";
+    f_pages.fs << "\"></div>";
 }
 
 

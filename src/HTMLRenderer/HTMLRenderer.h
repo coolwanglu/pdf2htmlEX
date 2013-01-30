@@ -147,7 +147,9 @@ class HTMLRenderer : public OutputDev
         virtual void setDefaultCTM(double *ctm);
 
         // Start a page.
+        // UGLY: These 2 versions are for different versions of poppler
         virtual void startPage(int pageNum, GfxState *state);
+        virtual void startPage(int pageNum, GfxState *state, XRef * xref);
 
         // End a page.
         virtual void endPage();
@@ -210,11 +212,16 @@ class HTMLRenderer : public OutputDev
         void pre_process(PDFDoc * doc);
         void post_process();
 
-        // set flags 
+        void process_outline();
+        void process_outline_items(GooList * items);
+
         void set_stream_flags (std::ostream & out);
 
         std::string dump_embedded_font (GfxFont * font, long long fn_id);
         void embed_font(const std::string & filepath, GfxFont * font, FontInfo & info, bool get_metric_only = false);
+
+        // convert a LinkAction to a string that our Javascript code can understand
+        std::string get_linkaction_str(LinkAction *, std::string & detail);
 
         ////////////////////////////////////////////////////
         // manage styles
@@ -241,7 +248,7 @@ class HTMLRenderer : public OutputDev
          * remote font: to be retrieved from the web server
          * local font: to be substituted with a local (client side) font
          */
-        void export_remote_font(const FontInfo & info, const std::string & suffix, const std::string & fontfileformat, GfxFont * font);
+        void export_remote_font(const FontInfo & info, const std::string & suffix, GfxFont * font);
         void export_remote_default_font(long long fn_id);
         void export_local_font(const FontInfo & info, GfxFont * font, const std::string & original_font_name, const std::string & cssfont);
 
@@ -300,6 +307,8 @@ class HTMLRenderer : public OutputDev
         
         XRef * xref;
         PDFDoc * cur_doc;
+        Catalog * cur_catalog;
+
         double default_ctm[6];
 
         // page info
@@ -424,8 +433,11 @@ class HTMLRenderer : public OutputDev
         std::map<double, long long> left_map;
 
         const Param * param;
-        std::ofstream html_fout, css_fout;
-        std::string html_path, css_path;
+
+        struct {
+            std::ofstream fs;
+            std::string path;
+        } f_outline, f_pages, f_css;
 
         static const std::string MANIFEST_FILENAME;
 };

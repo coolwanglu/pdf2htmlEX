@@ -13,6 +13,8 @@
 #include <algorithm>
 #include <vector>
 
+#include <GlobalParams.h>
+
 #include "HTMLRenderer.h"
 #include "TextLineBuffer.h"
 #include "pdf2htmlEX-config.h"
@@ -35,10 +37,6 @@ using std::abs;
 using std::cerr;
 using std::endl;
 
-static void dummy(void *, enum ErrorCategory, int pos, char *)
-{
-}
-
 HTMLRenderer::HTMLRenderer(const Param * param)
     :OutputDev()
     ,line_opened(false)
@@ -49,8 +47,8 @@ HTMLRenderer::HTMLRenderer(const Param * param)
 {
     if(!(param->debug))
     {
-        //disable error function of poppler
-        setErrorCallback(&dummy, nullptr);
+        //disable error messages of poppler
+        globalParams->setErrQuiet(gTrue);
     }
 
     ffw_init(param->debug);
@@ -71,10 +69,14 @@ HTMLRenderer::~HTMLRenderer()
 void HTMLRenderer::process(PDFDoc *doc)
 {
     cur_doc = doc;
+    cur_catalog = doc->getCatalog();
     xref = doc->getXRef();
 
     pre_process(doc);
 
+    ///////////////////
+    // Process pages
+    
     BackgroundRenderer * bg_renderer = nullptr;
     if(param->process_nontext)
     {
@@ -90,10 +92,10 @@ void HTMLRenderer::process(PDFDoc *doc)
         if(param->split_pages)
         {
             auto page_fn = str_fmt("%s/%s%d.page", param->dest_dir.c_str(), param->output_filename.c_str(), i);
-            html_fout.open((char*)page_fn, ofstream::binary); 
-            if(!html_fout)
+            f_pages.fs.open((char*)page_fn, ofstream::binary); 
+            if(!f_pages.fs)
                 throw string("Cannot open ") + (char*)page_fn + " for writing";
-            set_stream_flags(html_fout);
+            set_stream_flags(f_pages.fs);
         }
 
         if(param->process_nontext)
@@ -114,12 +116,16 @@ void HTMLRenderer::process(PDFDoc *doc)
 
         if(param->split_pages)
         {
-            html_fout.close();
+            f_pages.fs.close();
         }
     }
     if(page_count >= 0)
         cerr << "Working: " << page_count << "/" << page_count;
     cerr << endl;
+
+    ////////////////////////
+    // Process Outline
+    process_outline(); 
 
     post_process();
 
@@ -136,13 +142,18 @@ void HTMLRenderer::setDefaultCTM(double *ctm)
 
 void HTMLRenderer::startPage(int pageNum, GfxState *state) 
 {
+    startPage(pageNum, state, nullptr);
+}
+
+void HTMLRenderer::startPage(int pageNum, GfxState *state, XRef * xref) 
+{
     this->pageNum = pageNum;
     this->pageWidth = state->getPageWidth();
     this->pageHeight = state->getPageHeight();
 
     assert((!line_opened) && "Open line in startPage detected!");
 
-    html_fout 
+    f_pages.fs 
         << "<div class=\"d\" style=\"width:" 
             << (pageWidth) << "px;height:" 
             << (pageHeight) << "px;\">"
@@ -151,7 +162,7 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
 
     if(param->process_nontext)
     {
-        html_fout << "background-image:url(";
+        f_pages.fs << "background-image:url(";
 
         {
             if(param->single_html)
@@ -160,18 +171,18 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
                 ifstream fin((char*)path, ifstream::binary);
                 if(!fin)
                     throw string("Cannot read background image ") + (char*)path;
-                html_fout << "'data:image/png;base64," << base64stream(fin) << "'";
+                f_pages.fs << "'data:image/png;base64," << base64stream(fin) << "'";
             }
             else
             {
-                html_fout << str_fmt("p%x.png", pageNum);
+                f_pages.fs << str_fmt("p%x.png", pageNum);
             }
         }
 
-        html_fout << ");background-position:0 0;background-size:" << pageWidth << "px " << pageHeight << "px;background-repeat:no-repeat;";
+        f_pages.fs << ");background-position:0 0;background-size:" << pageWidth << "px " << pageHeight << "px;background-repeat:no-repeat;";
     }
 
-    html_fout << "\">";
+    f_pages.fs << "\">";
     draw_text_scale = 1.0;
 
     cur_font_info = install_font(nullptr);
@@ -206,26 +217,26 @@ void HTMLRenderer::endPage() {
     cur_doc->processLinks(this, pageNum);
 
     // close box
-    html_fout << "</div>";
+    f_pages.fs << "</div>";
 
     // dump info for js
     // TODO: create a function for this
     // BE CAREFUL WITH ESCAPES
-    html_fout << "<div class=\"j\" data-data='{";
+    f_pages.fs << "<div class=\"j\" data-data='{";
     
     //default CTM
-    html_fout << "\"ctm\":[";
+    f_pages.fs << "\"ctm\":[";
     for(int i = 0; i < 6; ++i)
     {
-        if(i > 0) html_fout << ",";
-        html_fout << round(default_ctm[i]);
+        if(i > 0) f_pages.fs << ",";
+        f_pages.fs << round(default_ctm[i]);
     }
-    html_fout << "]";
+    f_pages.fs << "]";
 
-    html_fout << "}'></div>";
+    f_pages.fs << "}'></div>";
     
     // close page
-    html_fout << "</div></div>" << endl;
+    f_pages.fs << "</div></div>" << endl;
 }
 
 void HTMLRenderer::pre_process(PDFDoc * doc)
@@ -290,11 +301,32 @@ void HTMLRenderer::pre_process(PDFDoc * doc)
         if(param->single_html && (!param->split_pages))
             tmp_files.add((char*)fn);
 
-        css_path = (char*)fn,
-        css_fout.open(css_path, ofstream::binary);
-        if(!css_fout)
+        f_css.path = (char*)fn;
+        f_css.fs.open(f_css.path, ofstream::binary);
+        if(!f_css.fs)
             throw string("Cannot open ") + (char*)fn + " for writing";
-        set_stream_flags(css_fout);
+        set_stream_flags(f_css.fs);
+    }
+
+    {
+        /*
+         * The logic for outline is similar to css
+         */
+
+        auto fn = (param->single_html && (!param->split_pages))
+            ? str_fmt("%s/__outline", param->tmp_dir.c_str())
+            : str_fmt("%s/%s", param->dest_dir.c_str(), param->outline_filename.c_str());
+
+        if(param->single_html && (!param->split_pages))
+            tmp_files.add((char*)fn);
+
+        f_outline.path = (char*)fn;
+        f_outline.fs.open(f_outline.path, ofstream::binary);
+        if(!f_outline.fs)
+            throw string("Cannot open") + (char*)fn + " for writing";
+
+        // might not be necessary
+        set_stream_flags(f_outline.fs);
     }
 
     // if split-pages is specified, open & close the file in the process loop
@@ -303,7 +335,7 @@ void HTMLRenderer::pre_process(PDFDoc * doc)
     {
         /*
          * If single-html
-         * we have to keep the html file (for page) into a temporary place
+         * we have to keep the html file for pages into a temporary place
          * because we'll have to embed css before it
          *
          * Otherwise just generate it 
@@ -311,21 +343,22 @@ void HTMLRenderer::pre_process(PDFDoc * doc)
         auto fn = str_fmt("%s/__pages", param->tmp_dir.c_str());
         tmp_files.add((char*)fn);
 
-        html_path = (char*)fn;
-        html_fout.open(html_path, ofstream::binary); 
-        if(!html_fout)
+        f_pages.path = (char*)fn;
+        f_pages.fs.open(f_pages.path, ofstream::binary); 
+        if(!f_pages.fs)
             throw string("Cannot open ") + (char*)fn + " for writing";
-        set_stream_flags(html_fout);
+        set_stream_flags(f_pages.fs);
     }
 }
 
 void HTMLRenderer::post_process()
 {
     // close files
-    html_fout.close(); 
-    css_fout.close();
+    f_outline.fs.close();
+    f_pages.fs.close(); 
+    f_css.fs.close();
 
-    //only when split-page, do we have some work left to do
+    //only when split-page == 0, do we have some work left to do
     if(param->split_pages)
         return;
 
@@ -359,7 +392,9 @@ void HTMLRenderer::post_process()
             continue;
         }
 
-        if(line.empty() || line[0] == '#')
+        if(line.empty() 
+           || (line.find_first_not_of(' ') == string::npos)
+           || line[0] == '#')
             continue;
 
 
@@ -373,14 +408,23 @@ void HTMLRenderer::post_process()
         {
             if(line == "$css")
             {
-                embed_file(output, css_path, ".css", false);
+                embed_file(output, f_css.path, ".css", false);
             }
-            else if (line == "$pages")
+            else if (line == "$outline")
             {
-                ifstream fin(html_path, ifstream::binary);
+                ifstream fin(f_outline.path, ifstream::binary);
                 if(!fin)
                     throw "Cannot open read the pages";
                 output << fin.rdbuf();
+                output.clear(); // output will set fail big if fin is empty
+            }
+            else if (line == "$pages")
+            {
+                ifstream fin(f_pages.path, ifstream::binary);
+                if(!fin)
+                    throw "Cannot open read the pages";
+                output << fin.rdbuf();
+                output.clear(); // output will set fail big if fin is empty
             }
             else
             {
@@ -418,8 +462,9 @@ void HTMLRenderer::embed_file(ostream & out, const string & path, const string &
         if(!fin)
             throw string("Cannot open file ") + path + " for embedding";
         out << iter->second.first << endl
-            << fin.rdbuf()
-            << iter->second.second << endl;
+            << fin.rdbuf();
+        out.clear(); // out will set fail big if fin is empty
+        out << iter->second.second << endl;
     }
     else
     {
@@ -437,6 +482,7 @@ void HTMLRenderer::embed_file(ostream & out, const string & path, const string &
             if(!out)
                 throw string("Cannot open file ") + path + " for embedding";
             out << fin.rdbuf();
+            out.clear(); // out will set fail big if fin is empty
         }
     }
 }

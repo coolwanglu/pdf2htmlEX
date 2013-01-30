@@ -43,42 +43,26 @@ Readers can also be benefitted
   - Color
   - Transformation
 * Links
+* Outline
 * [EXPERIMENTAL] Path drawing with CSS
   - Orthogonal lines
   - Rectangles
   - Linear gradients 
-* Not fully supported, and rendered as images
+* Not fully supported (Rendered as images)
   - Type 3 fonts
   - Non-text object
 
 ## Get started
 
-### Ubuntu 
+### Install
+ 
+Thanks to all packagers!
 
-[PPA](https://launchpad.net/~coolwanglu/+archive/pdf2htmlex), which is not so up-to-date.
-
-### ArchLinux
-
-[AUR Package](https://aur.archlinux.org/packages.php?ID=62426), special thanks to Arthur Titeica <arthur.titeica@gmail.com>
-
-### Gentoo
-
-Install through Overlay gentoo-zh, mrueg or sunrise, thanks to the packagers.
-
-### Mac
-
-[Homebrew Formula](https://github.com/jamiely/homebrew/blob/pdf2htmlex/Library/Formula/pdf2htmlex.rb), special thanks to Jamie Ly <me@jamie.ly>
-
-[Macports (local repo)](https://github.com/iapain/pdf2htmlEX-macport), special thanks to Deepak Thukral <iapain@iapa.in>
-
-### Windows
-
-The code may be built with Cygwin.
-
-Or with MinGW with some modifications.
-
-More info can be found on [the pdf2htmlEX page in TeX Wiki](http://oku.edu.mie-u.ac.jp/~okumura/texwiki/?pdf2htmlEX) (in Japanese), special thanks to Haruhiko Okumura
-
+  * [Ubuntu PPA](https://launchpad.net/~coolwanglu/+archive/pdf2htmlex) by Lu Wang <coolwanglu@gmail.com>, not always up-to-date.
+  * [ArchLinux AUR](https://aur.archlinux.org/packages.php?ID=62426) by Arthur Titeica <arthur.titeica@gmail.com>
+  * [Gentoo Overlay](http://gpo.zugaina.org/app-text/pdf2htmlex), gentoo-zh, mrueg or sunrise, by respective packagers.  
+  * [Homebrew Formula](https://github.com/jamiely/homebrew/blob/pdf2htmlex/Library/Formula/pdf2htmlex.rb) by Jamie Ly <me@jamie.ly>
+  * [Macports (local repo)](https://github.com/iapain/pdf2htmlEX-macport) by Deepak Thukral <iapain@iapa.in>
 
 ### Build from source
 
@@ -96,6 +80,10 @@ More info can be found on [the pdf2htmlEX page in TeX Wiki](http://oku.edu.mie-u
  * git version is recommended to avoid annoying compilation issues
 * [Optional] **ttfautohint**
  * run pdf2htmlEX with **--external-hint-tool=ttfautohint** to enable it
+* [For Windows]
+ * Cygwin 
+ * or MinGW, with some modifications to pdf2htmlEX. See [pdf2htmlEX on TeX Wiki](http://oku.edu.mie-u.ac.jp/~okumura/texwiki/?pdf2htmlEX) (in Japanese), special thanks to Haruhiko Okumura
+
 
 #### Compiling
 
@@ -106,9 +94,7 @@ More info can be found on [the pdf2htmlEX page in TeX Wiki](http://oku.edu.mie-u
 ## Usage
 
     pdf2htmlEX /path/to/foobar.pdf
-
     pdf2htmlEX --help
-    
     man pdf2htmlEX
 
 ## FAQ
@@ -131,6 +117,16 @@ GPLv2 & GPLv3 Dual licensed
 
 ### [**Donate Now**](http://coolwanglu.github.com/pdf2htmlEX/donate.html)
 
+## Contact
+
+* Mailing list <pdf2htmlex@googlegroups.com>
+  * Please read `man pdf2htmlEX` and [**FAQ**](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ) before sending emails. Or your message might be ignored.
+  * Please use the **latest master branch**.
+
+* Lu Wang <coolwanglu@gmail.com>
+  * Please use the mailing list above unless for personal enquiries.
+  * Accepting messages in **Chinese**, **English** or **Japanese**.
+
 ## Acknowledge
 
 pdf2htmlEX is made possible thanks to the following projects:
@@ -146,18 +142,6 @@ pdf2htmlEX is inspired by the following projects:
 * PDF.js
 * Crocodoc
 * Google Doc
-
-
-## Contact
-
-* Mailing list <pdf2htmlex@googlegroups.com>
-  * Please read [**FAQ**](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ) before sending emails. Or your message might be ignored.
-  * Please use the **latest master branch**.
-
-* Lu Wang <coolwanglu@gmail.com>
-  * Please use the mailing list above unless for personal enquiries.
-  * Accepting messages in **Chinese**, **English** or **Japanese**.
-
 
 ### Special Thanks
 

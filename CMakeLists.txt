@@ -7,7 +7,7 @@ cmake_minimum_required(VERSION 2.6.0 FATAL_ERROR)
 
 include_directories(${CMAKE_SOURCE_DIR}/src)
 
-set(PDF2HTMLEX_VERSION "0.6")
+set(PDF2HTMLEX_VERSION "0.7")
 set(ARCHIVE_NAME pdf2htmlex-${PDF2HTMLEX_VERSION})
 add_custom_target(dist
     COMMAND git archive --prefix=${ARCHIVE_NAME}/ HEAD
@@ -154,6 +154,7 @@ add_executable(pdf2htmlEX
     src/HTMLRenderer/TextLineBuffer.h
     src/HTMLRenderer/TextLineBuffer.cc
     src/HTMLRenderer/link.cc
+    src/HTMLRenderer/outline.cc
     src/HTMLRenderer/state.cc
     src/HTMLRenderer/text.cc
     src/BackgroundRenderer/BackgroundRenderer.h 

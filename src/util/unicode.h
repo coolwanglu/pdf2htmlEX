@@ -33,6 +33,9 @@ Unicode unicode_from_font (CharCode code, GfxFont * font);
  */
 Unicode check_unicode(Unicode * u, int len, CharCode code, GfxFont * font);
 
+/*
+ * Escape necessary characters, and map Unicode to UTF-8
+ */
 void outputUnicodes(std::ostream & out, const Unicode * u, int uLen);
 
 

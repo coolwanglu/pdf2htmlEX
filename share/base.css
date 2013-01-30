@@ -1,19 +1,63 @@
 /* Base CSS */
 /* Copyright 2012 Lu Wang <coolwanglu@gmail.com> */
-#pdf-main { /* PDF container */
+#pdf-outline { /* PDF Outline */
   position:absolute;
   top:0;
   left:0;
   bottom:0;
+  width:193px;
+  overflow:auto;
+  margin:0px;
+  padding:0 0 0 7px;
+  background-color:#707070;
+  display:none;
+}
+#pdf-outline.opened {
+  display:block;
+}
+#pdf-outline ul {
+  margin-left:13px;
+  margin-right:3px;
+  padding-left:3px;
+}
+#pdf-outline li {
+  list-style-type:disc;
+  list-style-position:outside;
+}
+#pdf-outline a {
+  font-size:13px;
+  color:#e8e8e8;
+}
+#pdf-outline a:visited {
+  color:#e8e8e8;
+}
+#pdf-outline a:hover{
+  color:#e8e8e8;
+}
+#pdf-outline a:active{
+  color:#e8e8e8;
+}
+#pdf-main { /* PDF container */
+  position:absolute;
+  top:0;
+  left:0px;
+  bottom:0;
   right:0;
   overflow:auto;
-  background-color:grey;
+  background-color:#808080;
   /* margin & border-width have to be 0, 
    * otherwise pdf2htmlEX may not calculate the coordinates correctly
    */
   margin:0;
   border-width:0;
 }
+#pdf-outline.opened + #pdf-main {
+  left:200px;
+}
+/*
+ * The followings are base classes, which are meant to be override by PDF specific classes
+ * So do not increase the specificity
+ */
 .d { /* page decoration */
   position:relative;
   margin: 13px auto;

@@ -39,7 +39,6 @@ void dump_value(std::ostream & out, const T & v)
 
 extern void dump_value(std::ostream & out, const std::string & v);
 
-
 class ArgParser
 {
     public:
@@ -48,22 +47,29 @@ class ArgParser
         typedef void (*ArgParserCallBack) (const char * arg);
 
         /*
-         * optname: name of the argment, should be provided as --optname
-         * description: if description is "", the argument won't be shown in show_usage()
+         * The 1st is for arg without arguments (i.e. flags), and the 2nd is for general args.
+         * optname:
+         *  - if not nullptr, it should be the name of the arg, should be in the format of "<long name>[,<short char>]", e.g. "help,h"
+         *  - if nullptr, it denotes an optional arg, and description will be ignored
+         * description:
+         *  - if description is nullptr or "", the argument won't be shown in show_usage()
          */
-
         ArgParser & add(const char * optname, const char * description, ArgParserCallBack callback = nullptr);
-
         template <class T, class Tv>
-            ArgParser & add(const char * optname, T * location, const Tv & default_value, const char * description, ArgParserCallBack callback = nullptr, bool dont_show_default = false);
+        ArgParser & add(const char * optname, T * location, const Tv & default_value, const char * description, ArgParserCallBack callback = nullptr, bool dont_show_default = false);
 
         void parse(int argc, char ** argv) const;
         void show_usage(std::ostream & out) const;
 
     private:
+        // type names helper
+        template<class> 
+        static const char * get_type_name(void) { return "unknown"; }
+
         class ArgEntryBase
         {
             public:
+                /* name or description cannot be nullptr */
                 ArgEntryBase(const char * name, const char * description, bool need_arg);
                 virtual ~ArgEntryBase() { }
                 char shortname;
@@ -101,14 +107,24 @@ class ArgParser
 template<class T, class Tv>
 ArgParser & ArgParser::add(const char * optname, T * location, const Tv & default_value, const char * description, ArgParserCallBack callback, bool dont_show_default)
 {
-    // use "" in case nullptr is provided
+    // ArgEntry does not accept nullptr as optname nor description
     if((!optname) || (!optname[0]))
+    {
+        // when optname is nullptr or "", it's optional, and description is dropped
         optional_arg_entries.push_back(new ArgEntry<T, Tv>("", location, default_value, callback, "", dont_show_default));
+    }
     else
-        arg_entries.push_back(new ArgEntry<T, Tv>(optname, location, default_value, callback, description, dont_show_default));
+    {
+        arg_entries.push_back(new ArgEntry<T, Tv>(optname, location, default_value, callback, (description ? description : ""), dont_show_default));
+    }
 
     return *this;
 }
+
+// Known types
+template<> const char * ArgParser::get_type_name<int>         (void);
+template<> const char * ArgParser::get_type_name<double>      (void);
+template<> const char * ArgParser::get_type_name<std::string> (void);
 
 template<class T, class Tv>
 ArgParser::ArgEntry<T, Tv>::ArgEntry(const char * name, T * location, const Tv & default_value,  ArgParserCallBack callback, const char * description, bool dont_show_default)
@@ -141,7 +157,7 @@ void ArgParser::ArgEntry<T, Tv>::parse(const char * arg) const
 template<class T, class Tv>
 void ArgParser::ArgEntry<T, Tv>::show_usage(std::ostream & out) const
 { 
-    if(description == "")
+    if(description.empty())
         return;
 
     std::ostringstream sout;
@@ -161,13 +177,7 @@ void ArgParser::ArgEntry<T, Tv>::show_usage(std::ostream & out) const
 
     if(need_arg)
     {
-        sout << " <arg>";
-        if(!dont_show_default)
-        {
-            sout << " (=";
-            dump_value(sout, default_value);
-            sout << ")";
-        }
+        sout << " <" << get_type_name<T>() << ">";
     }
 
     std::string s = sout.str();
@@ -175,8 +185,17 @@ void ArgParser::ArgEntry<T, Tv>::show_usage(std::ostream & out) const
 
     for(int i = s.size(); i < arg_col_width; ++i)
         out << ' ';
-
-    out << " " << description << std::endl;
+    
+    out << " " << description;
+    
+    if(need_arg && !dont_show_default)
+    {
+        out << " (default: ";
+        dump_value(out, default_value);
+        out << ")";	
+    }
+    
+    out << std::endl;
 }
 
 } // namespace ArgParser
