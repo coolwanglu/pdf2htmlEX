@@ -18,6 +18,9 @@
 
 namespace pdf2htmlEX {
 
+using std::cerr;
+using std::endl;
+
 void HTMLRenderer::export_remote_font(const FontInfo & info, const string & suffix, GfxFont * font)
 {
     string mime_type, format;
@@ -45,6 +48,10 @@ void HTMLRenderer::export_remote_font(const FontInfo & info, const string & suff
     {
         format = "svg";
         mime_type = "image/svg+xml";
+    }
+    else
+    {
+        cerr << "Warning: unknown font suffix: " << suffix << endl;
     }
 
     f_css.fs << "@font-face{"
