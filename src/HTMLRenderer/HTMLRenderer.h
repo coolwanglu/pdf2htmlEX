@@ -270,11 +270,13 @@ class HTMLRenderer : public OutputDev
         ////////////////////////////////////////////////////
         // state tracking 
         ////////////////////////////////////////////////////
+        // reset all states
+        void reset_state();
+        // reset all ***_changed flags
+        void reset_state_change();
         // check updated states, and determine new_line_stauts
         // make sure this function can be called several times consecutively without problem
         void check_state_change(GfxState * state);
-        // reset all ***_changed flags
-        void reset_state_change();
         // prepare the line context, (close old tags, open new tags)
         // make sure the current HTML style consistent with PDF
         void prepare_text_line(GfxState * state);
