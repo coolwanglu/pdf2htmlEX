@@ -24,12 +24,14 @@ struct Param
     int use_cropbox;
     double h_dpi, v_dpi;
     
-    // output files
+    // output 
     int single_html;
     int split_pages;
     std::string dest_dir;
     std::string css_filename;
     std::string outline_filename;
+    int process_nontext;
+    int process_outline;
     
     // fonts
     int embed_base_font;
@@ -55,7 +57,6 @@ struct Param
     
     // misc.
     int clean_tmp;
-    int process_nontext;
     std::string data_dir;
     int css_draw;
     int debug;

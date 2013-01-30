@@ -51,7 +51,7 @@ Use CropBox instead of MediaBox for output.
 Specify the horizontal and vertical DPI for images
 
 
-.SS Output Files
+.SS Output 
 
 .TP
 .B --single-html <0|1> (Default: 1)
@@ -86,6 +86,14 @@ If it's empty, the file name will be determined automatically.
 Specify the filename of the generated outline file, if not embedded.
 
 If it's empty, the file name will be determined automatically.
+
+.TP
+.B --process-nontext <0|1> (Default: 1)
+Whether to process non-text objects (as images)
+
+.TP
+.B --process-outline <0|1> (Default: 0)
+Whether to show outline in the generated HTML
 
 .SS Fonts
 
@@ -188,10 +196,6 @@ Override document DRM settings
 .TP
 .B --clean-tmp <0|1> (Default: 1)
 If switched off, intermediate files won't be cleaned in the end.
-
-.TP
-.B --process-nontext <0|1> (Default: 1)
-Whether to process non-text objects (as images)
 
 .TP
 .B --data-dir <dir> (Default: @CMAKE_INSTALL_PREFIX@/share/pdf2htmlEX)

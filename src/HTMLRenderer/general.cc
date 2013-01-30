@@ -125,7 +125,8 @@ void HTMLRenderer::process(PDFDoc *doc)
 
     ////////////////////////
     // Process Outline
-    process_outline(); 
+    if(param->process_outline)
+        process_outline(); 
 
     post_process();
 
