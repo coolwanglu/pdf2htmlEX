@@ -68,6 +68,7 @@ struct Param
 
     int dump_mediabox;
     std::string set_mediabox;
+    int group_by_outline;
 };
 
 } // namespace pdf2htmlEX

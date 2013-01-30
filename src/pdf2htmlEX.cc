@@ -113,8 +113,8 @@ void parse_options (int argc, char **argv)
 
         // multipages
         .add("dump-mediabox", &param.dump_mediabox, 0, "dump mediaboxes of each page")
-        .add("set-mediabox", &param.set_mediabox, "", "set new mediabox for each page")
-        .add("group-by-bookmark", &param.set_mediabox, "", "set new mediabox for each page")
+        .add("set-mediabox", &param.set_mediabox, "", "specify new mediabox for each page, format \"x1 y1 x2 y2\"")
+        .add("group-by-outline", &param.group_by_outline, 0, "group pages according to the outline")
         
         .add("", &param.input_filename, "", "")
         .add("", &param.output_filename, "", "")
