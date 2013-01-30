@@ -82,7 +82,7 @@ Thanks to all packagers!
  * run pdf2htmlEX with **--external-hint-tool=ttfautohint** to enable it
 * [For Windows]
  * Cygwin 
- * or MinGW, with some modifications to pdf2htmlEX. See [the pdf2htmlEX page in TeX Wiki](http://oku.edu.mie-u.ac.jp/~okumura/texwiki/?pdf2htmlEX) (in Japanese), special thanks to Haruhiko Okumura
+ * or MinGW, with some modifications to pdf2htmlEX. See [pdf2htmlEX on TeX Wiki](http://oku.edu.mie-u.ac.jp/~okumura/texwiki/?pdf2htmlEX) (in Japanese), special thanks to Haruhiko Okumura
 
 
 #### Compiling
@@ -133,7 +133,6 @@ pdf2htmlEX is inspired by the following projects:
 * Crocodoc
 * Google Doc
 
-
 ## Contact
 
 * Mailing list <pdf2htmlex@googlegroups.com>
@@ -143,7 +142,6 @@ pdf2htmlEX is inspired by the following projects:
 * Lu Wang <coolwanglu@gmail.com>
   * Please use the mailing list above unless for personal enquiries.
   * Accepting messages in **Chinese**, **English** or **Japanese**.
-
 
 ### Special Thanks
 
