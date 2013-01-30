@@ -114,6 +114,7 @@ void parse_options (int argc, char **argv)
         // multipages
         .add("dump-mediabox", &param.dump_mediabox, 0, "dump mediaboxes of each page")
         .add("set-mediabox", &param.set_mediabox, "", "set new mediabox for each page")
+        .add("group-by-bookmark", &param.set_mediabox, "", "set new mediabox for each page")
         
         .add("", &param.input_filename, "", "")
         .add("", &param.output_filename, "", "")
