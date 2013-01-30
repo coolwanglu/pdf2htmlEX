@@ -210,7 +210,7 @@ class HTMLRenderer : public OutputDev
         // misc
         ////////////////////////////////////////////////////
         void pre_process(PDFDoc * doc);
-        void post_process();
+        virtual void post_process();
 
         void process_outline();
         void process_outline_items(GooList * items);
