@@ -101,10 +101,9 @@ Thanks to all packagers!
 ## FAQ
 
 * [Troubleshooting compilation errors](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ#wiki-compile)
-* [The demo pages are ugly](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ#wiki-ugly)
 * [How can I help](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ#wiki-help)
 * [I want more features](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ#wiki-feature_commission)
-* [More](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ)
+* [More about pdf2htmlEX](https://github.com/coolwanglu/pdf2htmlEX/wiki/)
 
 ## LICENSE
 
@@ -121,7 +120,7 @@ GPLv2 & GPLv3 Dual licensed
 ## Contact
 
 * Mailing list <pdf2htmlex@googlegroups.com>
-  * Please read `man pdf2htmlEX` and [**FAQ**](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ) before sending emails. Or your message might be ignored.
+  * Please read `man pdf2htmlEX` and [**the wiki**](https://github.com/coolwanglu/pdf2htmlEX/wiki) before sending emails. Or your message might be ignored.
   * Please use the **latest master branch**.
 
 * Lu Wang <coolwanglu@gmail.com>
