@@ -29,7 +29,7 @@ The generated HTML file is static, Javascript is not required.
 
 * Optional single HTML file output
 * Precise rendering 
-* Native text in HTML - you can select & copy & paste
+* Native text in HTML - you can select & copy & search
 * Proper styling 
   - Font - extracted and reencoded
   - Color
