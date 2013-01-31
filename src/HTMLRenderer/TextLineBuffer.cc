@@ -187,7 +187,8 @@ void HTMLRenderer::TextLineBuffer::set_state (State & state)
 {
     state.ids[State::FONT_ID] = renderer->cur_font_info->id;
     state.ids[State::FONT_SIZE_ID] = renderer->cur_fs_id;
-    state.ids[State::COLOR_ID] = renderer->cur_color_id;
+    state.ids[State::FILL_COLOR_ID] = renderer->cur_fill_color_id;
+    state.ids[State::STROKE_COLOR_ID] = renderer->cur_stroke_color_id;
     state.ids[State::LETTER_SPACE_ID] = renderer->cur_ls_id;
     state.ids[State::WORD_SPACE_ID] = renderer->cur_ws_id;
     state.ids[State::RISE_ID] = renderer->cur_rise_id;
@@ -216,8 +217,16 @@ void HTMLRenderer::TextLineBuffer::State::begin (ostream & out, const State * pr
             out << ' ';
         }
 
-        // out should has set hex
-        out << format_str[i] << ids[i];
+        // out should have hex set
+        if (ids[i] == -1)
+        {
+            // transparent
+            out << format_str[i] << "t";
+        }
+        else
+        {
+            out << format_str[i] << ids[i];
+        }
     }
 
     if(first)
@@ -262,5 +271,5 @@ int HTMLRenderer::TextLineBuffer::State::diff(const State & s) const
     return d;
 }
 
-const char * HTMLRenderer::TextLineBuffer::State::format_str = "fsclwr";
+const char * HTMLRenderer::TextLineBuffer::State::format_str = "fscClwr";
 } //namespace pdf2htmlEX

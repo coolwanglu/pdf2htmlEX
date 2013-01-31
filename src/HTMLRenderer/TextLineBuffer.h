@@ -33,7 +33,8 @@ public:
             enum {
                 FONT_ID,
                 FONT_SIZE_ID,
-                COLOR_ID,
+                FILL_COLOR_ID,
+                STROKE_COLOR_ID,
                 LETTER_SPACE_ID,
                 WORD_SPACE_ID,
                 RISE_ID,

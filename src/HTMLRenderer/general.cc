@@ -197,8 +197,12 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state, XRef * xref)
     cur_ls_id = install_letter_space(cur_letter_space);
     cur_ws_id = install_word_space(cur_word_space);
 
-    cur_color.r = cur_color.g = cur_color.b = 0;
-    cur_color_id = install_color(&cur_color);
+    cur_fill_color.r = cur_fill_color.g = cur_fill_color.b = 0;
+    cur_stroke_color.r = cur_stroke_color.g = cur_stroke_color.b = 0;
+    cur_fill_color_id = install_fill_color(&cur_fill_color);
+    cur_stroke_color_id = install_stroke_color(&cur_stroke_color);
+    cur_has_stroke = false;
+    cur_has_fill = true;
 
     cur_rise = 0;
     cur_rise_id = install_rise(cur_rise);
