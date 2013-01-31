@@ -76,7 +76,7 @@ void ArgParser::parse(int argc, char ** argv) const
             int v = p->shortname;
             if(!(opt_map.insert(make_pair(v, p)).second))
             {
-                cerr << "Warning: duplicated shortname '" << v << "' used by -" << (char)(p->shortname) << " and -" << (char)(opt_map[p->shortname]->shortname) << endl;
+                cerr << "Warning: duplicated shortname: " << v << endl;
             }
         }
 
@@ -93,7 +93,7 @@ void ArgParser::parse(int argc, char ** argv) const
             }
             if(!(opt_map.insert(make_pair(v, p)).second))
             {
-                cerr << "Warning: duplicated shortname '" << v << "' used by --" << (p->name) << " and --" << (opt_map[p->shortname]->name) << endl;
+                cerr << "Warning: duplicated long name: " << (p->name) << endl;
             }
         }
     }
@@ -146,6 +146,10 @@ void ArgParser::show_usage(ostream & out) const
     }
 }
 
+template<> const char * ArgParser::get_type_name<int>    (void) { return "int";    }
+template<> const char * ArgParser::get_type_name<double> (void) { return "fp";     }
+template<> const char * ArgParser::get_type_name<string> (void) { return "string"; }
+
 ArgParser::ArgEntryBase::ArgEntryBase(const char * name, const char * description, bool need_arg)
     : shortname(0), name(name), description(description), need_arg(need_arg)
 { 
@@ -159,7 +163,7 @@ ArgParser::ArgEntryBase::ArgEntryBase(const char * name, const char * descriptio
         }
         else
         {
-            cerr << "Warning: argument '" << this->name << "' may not be parsed correctly" << endl;
+            cerr << "Warning: argument '" << this->name << "' cannnot be parsed as a short option" << endl;
         }
     }
 }

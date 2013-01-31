@@ -48,6 +48,7 @@ void show_version_and_exit(const char * dummy = nullptr)
     cerr << "Libraries: ";
     cerr << "poppler " << POPPLER_VERSION << ", ";
     cerr << "libfontforge " << ffw_get_version() << endl;
+    cerr << "Default data-dir: " << PDF2HTMLEX_DATA_PATH << endl;
     exit(EXIT_SUCCESS);
 }
 
@@ -74,6 +75,8 @@ void parse_options (int argc, char **argv)
         .add("dest-dir", &param.dest_dir, ".", "specify destination directory")
         .add("css-filename", &param.css_filename, "", "filename of the generated css file")
         .add("outline-filename", &param.outline_filename, "", "filename of the generated outline file")
+        .add("process-nontext", &param.process_nontext, 1, "render graphics in addition to text")
+        .add("process-outline", &param.process_outline, 1, "show outline in HTML")
         
         // fonts
         .add("embed-base-font", &param.embed_base_font, 0, "embed local match for standard 14 fonts")
@@ -101,7 +104,6 @@ void parse_options (int argc, char **argv)
         
         // misc.
         .add("clean-tmp", &param.clean_tmp, 1, "remove temporary files after conversion")
-        .add("process-nontext", &param.process_nontext, 1, "render graphics in addition to text")
         .add("data-dir", &param.data_dir, PDF2HTMLEX_DATA_PATH, "specify data directory")
         .add("css-draw", &param.css_draw, 0, "[experimental and unsupported] CSS drawing")
         .add("debug", &param.debug, 0, "print debugging information")

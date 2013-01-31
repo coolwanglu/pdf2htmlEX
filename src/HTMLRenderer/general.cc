@@ -125,7 +125,8 @@ void HTMLRenderer::process(PDFDoc *doc)
 
     ////////////////////////
     // Process Outline
-    process_outline(); 
+    if(param->process_outline)
+        process_outline(); 
 
     post_process();
 
@@ -183,35 +184,8 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state, XRef * xref)
     }
 
     f_pages.fs << "\">";
-    draw_text_scale = 1.0;
 
-    cur_font_info = install_font(nullptr);
-    cur_font_size = draw_font_size = 0;
-    cur_fs_id = install_font_size(cur_font_size);
-    
-    memcpy(cur_text_tm, ID_MATRIX, sizeof(cur_text_tm));
-    memcpy(draw_text_tm, ID_MATRIX, sizeof(draw_text_tm));
-    cur_ttm_id = install_transform_matrix(draw_text_tm);
-
-    cur_letter_space = cur_word_space = 0;
-    cur_ls_id = install_letter_space(cur_letter_space);
-    cur_ws_id = install_word_space(cur_word_space);
-
-    cur_fill_color.r = cur_fill_color.g = cur_fill_color.b = 0;
-    cur_stroke_color.r = cur_stroke_color.g = cur_stroke_color.b = 0;
-    cur_fill_color_id = install_fill_color(&cur_fill_color);
-    cur_stroke_color_id = install_stroke_color(&cur_stroke_color);
-    cur_has_stroke = false;
-    cur_has_fill = true;
-
-    cur_rise = 0;
-    cur_rise_id = install_rise(cur_rise);
-
-    cur_tx = cur_ty = 0;
-    draw_tx = draw_ty = 0;
-
-    reset_state_change();
-    all_changed = true;
+    reset_state();
 }
 
 void HTMLRenderer::endPage() {
@@ -396,7 +370,9 @@ void HTMLRenderer::post_process()
             continue;
         }
 
-        if(line.empty() || line[0] == '#')
+        if(line.empty() 
+           || (line.find_first_not_of(' ') == string::npos)
+           || line[0] == '#')
             continue;
 
 

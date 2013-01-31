@@ -1,3 +1,9 @@
+pdf2htmlex (0.7-1~git201301292229r2595c-0ubuntu1) quantal; urgency=low
+
+  * Fixed a CSS issue
+
+ -- WANG Lu <coolwanglu@gmail.com>  Tue, 29 Jan 2013 22:29:21 +0800
+
 pdf2htmlex (0.7-1~git201301282229r2595c-0ubuntu1) quantal; urgency=low
 
   * Process PDF Outline  

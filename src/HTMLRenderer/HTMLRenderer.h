@@ -156,7 +156,7 @@ class HTMLRenderer : public OutputDev
         virtual void endPage();
 
         /*
-         * To optmize false alarms
+         * To optimize false alarms
          * We just mark as changed, and recheck if they have been changed when we are about to output a new string
          */
 
@@ -273,11 +273,13 @@ class HTMLRenderer : public OutputDev
         ////////////////////////////////////////////////////
         // state tracking 
         ////////////////////////////////////////////////////
+        // reset all states
+        void reset_state();
+        // reset all ***_changed flags
+        void reset_state_change();
         // check updated states, and determine new_line_stauts
         // make sure this function can be called several times consecutively without problem
         void check_state_change(GfxState * state);
-        // reset all ***_changed flags
-        void reset_state_change();
         // prepare the line context, (close old tags, open new tags)
         // make sure the current HTML style consistent with PDF
         void prepare_text_line(GfxState * state);
@@ -393,7 +395,7 @@ class HTMLRenderer : public OutputDev
         // we try to render the final font size directly
         // to reduce the effect of ctm as much as possible
         
-        // draw_ctm is cur_ctm scaled by 1/draw_text_scale, 
+        // draw_text_tm is cur_text_tm scaled by 1/draw_text_scale, 
         // so everything redenered should be multiplied by draw_text_scale
         double draw_text_tm[6];
         double draw_font_size;

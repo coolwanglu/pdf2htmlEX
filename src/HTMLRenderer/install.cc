@@ -304,7 +304,7 @@ long long HTMLRenderer::install_whitespace(double ws_width, double & actual_widt
 {
     // ws_width is already mulitpled by draw_scale
     auto iter = whitespace_map.lower_bound(ws_width - param->h_eps);
-    if((iter != whitespace_map.end()) && (abs(iter->first - ws_width) < param->h_eps))
+    if((iter != whitespace_map.end()) && (abs(iter->first - ws_width) <= param->h_eps))
     {
         actual_width = iter->first;
         return iter->second;
@@ -320,7 +320,7 @@ long long HTMLRenderer::install_whitespace(double ws_width, double & actual_widt
 long long HTMLRenderer::install_rise(double rise)
 {
     auto iter = rise_map.lower_bound(rise - param->v_eps);
-    if((iter != rise_map.end()) && (abs(iter->first - rise) < param->v_eps))
+    if((iter != rise_map.end()) && (abs(iter->first - rise) <= param->v_eps))
     {
         return iter->second;
     }
@@ -334,7 +334,7 @@ long long HTMLRenderer::install_rise(double rise)
 long long HTMLRenderer::install_height(double height)
 {
     auto iter = height_map.lower_bound(height - EPS);
-    if((iter != height_map.end()) && (abs(iter->first - height) < EPS))
+    if((iter != height_map.end()) && (abs(iter->first - height) <= EPS))
     {
         return iter->second;
     }
@@ -347,7 +347,7 @@ long long HTMLRenderer::install_height(double height)
 long long HTMLRenderer::install_left(double left)
 {
     auto iter = left_map.lower_bound(left - param->h_eps);
-    if((iter != left_map.end()) && (abs(iter->first - left) < param->h_eps))
+    if((iter != left_map.end()) && (abs(iter->first - left) <= param->h_eps))
     {
         return iter->second;
     }

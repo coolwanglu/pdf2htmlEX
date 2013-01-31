@@ -5,39 +5,28 @@
 A beautiful demo is worth a thousand words:
 
 - [**Typography**](http://coolwanglu.github.com/pdf2htmlEX/demo/geneve.html) [Original](https://github.com/raphink/geneve_1564/raw/master/geneve_1564.pdf)
-
 - [**Full Circle Magazine(large)**](http://coolwanglu.github.com/pdf2htmlEX/demo/issue65_en.html) [Sample](http://coolwanglu.github.com/pdf2htmlEX/demo/issue65_en_sample.html) [Original](http://dl.fullcirclemagazine.org/issue65_en.pdf)
-
 - [**Formulas**](http://coolwanglu.github.com/pdf2htmlEX/demo/cheat.html) [Original](http://www.tug.org/texshowcase/cheat.pdf)
-
 - [**Scientific Paper**](http://coolwanglu.github.com/pdf2htmlEX/demo/demo.html) [Original](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.148.349&rep=rep1&type=pdf)
-
 - [**Chinese**](http://coolwanglu.github.com/pdf2htmlEX/demo/chn.html) [Original](http://files.cnblogs.com/phphuaibei/git%E6%90%AD%E5%BB%BA.pdf)
+- Try your own files: [MediaFire](http://www.mediafire.com), a free online storage service, now uses pdf2htmlEX for its PDF preview feature.
 
 ## Introduction
 
-pdf2htmlEX renders PDF files in HTML, utilizing modern Web technologies, aims to provide an accuracy rendering, while keeping optimized for Web display.
+pdf2htmlEX renders PDF files in HTML, utilizing modern Web technologies.
+It aims to provide an accuracy rendering, while keeping optimized for Web display.
 
-It is optimized for modern web browsers. On Linux/Mac, the generated HTML pages could be as beautiful as PDF files.
+pdf2htmlEX is best for text-based PDF files, for example scientific papers with complicated formulas and figures.
+Text, fonts and formats are natively perserved in HTML such that you can still search and copy.
+The generated HTML file is static, Javascript is not required.
 
-This program is designed for scientific papers with complicate formulas and figures, therefore precise rendering is the #1 concern. But of course general PDF files are also supported.
-
-### Why HTML ?
-
-HTML, together with CSS and Javascript, is much more open and flexible than PDF. Almost everything can be customized.
- - Embedding documents to web pages with consistent theme and behavior
- - Cross references to other documents are much easier and intuitive
- - More functions to the document with Javascript, e.g. access control, animation, statistics
-
-Readers can also be benefitted
- - Read while downloading
- - Plugin-free
+[More info](https://github.com/coolwanglu/pdf2htmlEX/wiki/Introduction)
 
 ## Features
 
 * Optional single HTML file output
 * Precise rendering 
-* Text perserved - you can select & copy & paste
+* Native text in HTML - you can select & copy & search
 * Proper styling 
   - Font - extracted and reencoded
   - Color
@@ -54,32 +43,16 @@ Readers can also be benefitted
 
 ## Get started
 
-### Ubuntu 
+### Install
+ 
+Thanks to all packagers!
 
-[PPA](https://launchpad.net/~coolwanglu/+archive/pdf2htmlex), which is not so up-to-date.
-
-### ArchLinux
-
-[AUR Package](https://aur.archlinux.org/packages.php?ID=62426), special thanks to Arthur Titeica <arthur.titeica@gmail.com>
-
-### Gentoo
-
-Install through Overlay gentoo-zh, mrueg or sunrise, thanks to the packagers.
-
-### Mac
-
-[Homebrew Formula](https://github.com/jamiely/homebrew/blob/pdf2htmlex/Library/Formula/pdf2htmlex.rb), special thanks to Jamie Ly <me@jamie.ly>
-
-[Macports (local repo)](https://github.com/iapain/pdf2htmlEX-macport), special thanks to Deepak Thukral <iapain@iapa.in>
-
-### Windows
-
-The code may be built with Cygwin.
-
-Or with MinGW with some modifications.
-
-More info can be found on [the pdf2htmlEX page in TeX Wiki](http://oku.edu.mie-u.ac.jp/~okumura/texwiki/?pdf2htmlEX) (in Japanese), special thanks to Haruhiko Okumura
-
+  * [Ubuntu PPA](https://launchpad.net/~coolwanglu/+archive/pdf2htmlex) by Lu Wang <coolwanglu@gmail.com>, not always up-to-date.
+  * [ArchLinux AUR](https://aur.archlinux.org/packages.php?ID=62426) by Arthur Titeica <arthur.titeica@gmail.com>
+  * [Gentoo Overlay](http://gpo.zugaina.org/app-text/pdf2htmlex), gentoo-zh, mrueg or sunrise, by respective packagers.  
+  * [Homebrew Formula](https://github.com/jamiely/homebrew/blob/pdf2htmlex/Library/Formula/pdf2htmlex.rb) by Jamie Ly <me@jamie.ly>
+  * [Macports (local repo)](https://github.com/iapain/pdf2htmlEX-macport) by Deepak Thukral <iapain@iapa.in>
+  * Windows [N/A](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ#wiki-install-windows)
 
 ### Build from source
 
@@ -97,6 +70,10 @@ More info can be found on [the pdf2htmlEX page in TeX Wiki](http://oku.edu.mie-u
  * git version is recommended to avoid annoying compilation issues
 * [Optional] **ttfautohint**
  * run pdf2htmlEX with **--external-hint-tool=ttfautohint** to enable it
+* [For Windows]
+ * Cygwin 
+ * or MinGW, with some modifications to pdf2htmlEX. See [pdf2htmlEX on TeX Wiki](http://oku.edu.mie-u.ac.jp/~okumura/texwiki/?pdf2htmlEX) (in Japanese), special thanks to Haruhiko Okumura
+
 
 #### Compiling
 
@@ -107,18 +84,15 @@ More info can be found on [the pdf2htmlEX page in TeX Wiki](http://oku.edu.mie-u
 ## Usage
 
     pdf2htmlEX /path/to/foobar.pdf
-
     pdf2htmlEX --help
-    
     man pdf2htmlEX
 
 ## FAQ
 
 * [Troubleshooting compilation errors](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ#wiki-compile)
-* [The demo pages are ugly](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ#wiki-ugly)
 * [How can I help](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ#wiki-help)
 * [I want more features](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ#wiki-feature_commission)
-* [More](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ)
+* [More about pdf2htmlEX](https://github.com/coolwanglu/pdf2htmlEX/wiki/)
 
 ## LICENSE
 
@@ -131,6 +105,15 @@ GPLv2 & GPLv3 Dual licensed
 **Font extraction, conversion or redistribution may be illegal, please check your local laws**
 
 ### [**Donate Now**](http://coolwanglu.github.com/pdf2htmlEX/donate.html)
+
+## Contact
+
+* Mailing list <pdf2htmlex@googlegroups.com>
+  * You might want to try these useful resources first: `man pdf2htmlEX`, [wiki](https://github.com/coolwanglu/pdf2htmlEX/wiki) and [FAQ](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ)
+
+* Lu Wang <coolwanglu@gmail.com>
+  * For personal enquiries only
+  * Accepting messages in **Chinese**, **English** or **Japanese**.
 
 ## Acknowledge
 
@@ -147,18 +130,6 @@ pdf2htmlEX is inspired by the following projects:
 * PDF.js
 * Crocodoc
 * Google Doc
-
-
-## Contact
-
-* Mailing list <pdf2htmlex@googlegroups.com>
-  * Please read [**FAQ**](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ) before sending emails. Or your message might be ignored.
-  * Please use the **latest master branch**.
-
-* Lu Wang <coolwanglu@gmail.com>
-  * Please use the mailing list above unless for personal enquiries.
-  * Accepting messages in **Chinese**, **English** or **Japanese**.
-
 
 ### Special Thanks
 
