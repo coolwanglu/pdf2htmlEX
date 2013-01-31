@@ -16,11 +16,12 @@ A beautiful demo is worth a thousand words:
 
 ## Introduction
 
-pdf2htmlEX renders PDF files in HTML, utilizing modern Web technologies, aims to provide an accuracy rendering, while keeping optimized for Web display.
+pdf2htmlEX renders PDF files in HTML, utilizing modern Web technologies.
+It aims to provide an accuracy rendering, while keeping optimized for Web display.
 
-It is optimized for modern web browsers. On Linux/Mac, the generated HTML pages could be as beautiful as PDF files.
-
-This program is designed for scientific papers with complicate formulas and figures, therefore precise rendering is the #1 concern. But of course general PDF files are also supported.
+pdf2htmlEX is best for text-based PDF files, for example scientific papers with complicated formulas and figures.
+Text, fonts and formats are natively perserved in HTML such that you can still search and copy.
+The generated HTML file is static, Javascript is not required.
 
 ### Why HTML ?
 
@@ -37,7 +38,7 @@ Readers can also be benefitted
 
 * Optional single HTML file output
 * Precise rendering 
-* Text perserved - you can select & copy & paste
+* Native text in HTML - you can select & copy & paste
 * Proper styling 
   - Font - extracted and reencoded
   - Color
