@@ -23,16 +23,7 @@ pdf2htmlEX is best for text-based PDF files, for example scientific papers with 
 Text, fonts and formats are natively perserved in HTML such that you can still search and copy.
 The generated HTML file is static, Javascript is not required.
 
-### Why HTML ?
-
-HTML, together with CSS and Javascript, is much more open and flexible than PDF. Almost everything can be customized.
- - Embedding documents to web pages with consistent theme and behavior
- - Cross references to other documents are much easier and intuitive
- - More functions to the document with Javascript, e.g. access control, animation, statistics
-
-Readers can also be benefitted
- - Read while downloading
- - Plugin-free
+[More info](https://github.com/coolwanglu/pdf2htmlEX/wiki/Introduction)
 
 ## Features
 
