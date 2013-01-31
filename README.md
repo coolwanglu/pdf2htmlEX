@@ -110,16 +110,11 @@ GPLv2 & GPLv3 Dual licensed
 
 ## Contact
 
-* Try these useful resources before sending any email
-  * `man pdf2htmlEX`
-  * [wiki](https://github.com/coolwanglu/pdf2htmlEX/wiki)
-  * [FAQ](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ)
-  
-* In case those were not helpful
-  * Mailing list <pdf2htmlex@googlegroups.com>
-  
-* For personal enquiries
-  * Lu Wang <coolwanglu@gmail.com>
+* Mailing list <pdf2htmlex@googlegroups.com>
+  * You might want to try these useful resources first: `man pdf2htmlEX`, [wiki](https://github.com/coolwanglu/pdf2htmlEX/wiki) and [FAQ](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ)
+
+* Lu Wang <coolwanglu@gmail.com>
+  * For personal enquiries only
   * Accepting messages in **Chinese**, **English** or **Japanese**.
 
 ## Acknowledge
