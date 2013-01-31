@@ -5,14 +5,12 @@
 A beautiful demo is worth a thousand words:
 
 - [**Typography**](http://coolwanglu.github.com/pdf2htmlEX/demo/geneve.html) [Original](https://github.com/raphink/geneve_1564/raw/master/geneve_1564.pdf)
-
 - [**Full Circle Magazine(large)**](http://coolwanglu.github.com/pdf2htmlEX/demo/issue65_en.html) [Sample](http://coolwanglu.github.com/pdf2htmlEX/demo/issue65_en_sample.html) [Original](http://dl.fullcirclemagazine.org/issue65_en.pdf)
-
 - [**Formulas**](http://coolwanglu.github.com/pdf2htmlEX/demo/cheat.html) [Original](http://www.tug.org/texshowcase/cheat.pdf)
-
 - [**Scientific Paper**](http://coolwanglu.github.com/pdf2htmlEX/demo/demo.html) [Original](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.148.349&rep=rep1&type=pdf)
-
 - [**Chinese**](http://coolwanglu.github.com/pdf2htmlEX/demo/chn.html) [Original](http://files.cnblogs.com/phphuaibei/git%E6%90%AD%E5%BB%BA.pdf)
+- Try your own files
+ - [MediaFire](http://www.mediafire.com), a free online storage service, is now using pdf2htmlEX for its PDF preview feature.
 
 ## Introduction
 
