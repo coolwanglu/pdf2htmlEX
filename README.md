@@ -26,8 +26,8 @@ The generated HTML file is static, Javascript is not required.
 
 * Precise, native text in HTML, which means
   - You can select & copy & search
-  - With correct font & position & styles
-  - With proper reencoding
+  - Correct font & position & styles
+  - Proper reencoding
   - Generated HTML file is of similar size as the original (uncompressed) PDF file
 * Output modes
   - Normal HTML
@@ -96,13 +96,12 @@ Thanks to all packagers!
 
 GPLv2 & GPLv3 Dual licensed
 
-**pdf2htmlEX is totally free, please credit pdf2htmlEX if you use it**
-
+**pdf2htmlEX is totally free, please credit pdf2htmlEX if you use it**  
 **Please consider sponsoring it if you use it for commercial purpose**
 
-**Font extraction, conversion or redistribution may be illegal, please check your local laws**
+**Font extraction, conversion or redistribution MAY BE ILLEGAL, please check your local laws**
 
-### [**Donate Now**](http://coolwanglu.github.com/pdf2htmlEX/donate.html)
+## [**Donate Now**](http://coolwanglu.github.com/pdf2htmlEX/donate.html)
 
 ## Contact
 
