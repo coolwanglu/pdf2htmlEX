@@ -53,7 +53,8 @@
  * s<hex> - font Size
  * l<hex> - Letter spacing
  * w<hex> - Word spacing
- * c<hex> - Color
+ * c<hex> - Fill Color
+ * C<hex> - Stroke Color
  * _<hex> - white space
  * r<hex> - Rise
  * h<hex> - Height
@@ -235,7 +236,8 @@ class HTMLRenderer : public OutputDev
         long long install_transform_matrix(const double * tm);
         long long install_letter_space(double letter_space);
         long long install_word_space(double word_space);
-        long long install_color(const GfxRGB * rgb);
+        long long install_fill_color(const GfxRGB * rgb);
+        long long install_stroke_color(const GfxRGB * rgb);
         long long install_whitespace(double ws_width, double & actual_width);
         long long install_rise(double rise);
         long long install_height(double height);
@@ -256,7 +258,8 @@ class HTMLRenderer : public OutputDev
         void export_transform_matrix(long long tm_id, const double * tm);
         void export_letter_space(long long ls_id, double letter_space);
         void export_word_space(long long ws_id, double word_space);
-        void export_color(long long color_id, const GfxRGB * rgb);
+        void export_fill_color(long long color_id, const GfxRGB * rgb);
+        void export_stroke_color(long long color_id, const GfxRGB * rgb);
         void export_whitespace(long long ws_id, double ws_width);
         void export_rise(long long rise_id, double rise);
         void export_height(long long height_id, double height);
@@ -378,9 +381,10 @@ class HTMLRenderer : public OutputDev
         bool word_space_changed;
 
         // text color
-        long long cur_color_id;
-        GfxRGB cur_color;
-        bool color_changed;
+        long long cur_fill_color_id, cur_stroke_color_id;
+        GfxRGB cur_fill_color, cur_stroke_color;
+        bool cur_has_fill, cur_has_stroke;
+        bool fill_color_changed, stroke_color_changed;
 
         // rise
         long long cur_rise_id;
@@ -428,7 +432,7 @@ class HTMLRenderer : public OutputDev
         std::map<Matrix, long long, Matrix_less> transform_matrix_map;
         std::map<double, long long> letter_space_map;
         std::map<double, long long> word_space_map;
-        std::unordered_map<GfxRGB, long long, GfxRGB_hash, GfxRGB_equal> color_map; 
+        std::unordered_map<GfxRGB, long long, GfxRGB_hash, GfxRGB_equal> fill_color_map, stroke_color_map; 
         std::map<double, long long> whitespace_map;
         std::map<double, long long> rise_map;
         std::map<double, long long> height_map;

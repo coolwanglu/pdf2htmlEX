@@ -74,23 +74,24 @@ void HTMLRenderer::updateRender(GfxState * state)
 {
     // currently Render is traced for color only
     // might need something like render_changed later
-    color_changed = true; 
+    fill_color_changed = true; 
+    stroke_color_changed = true; 
 }
 void HTMLRenderer::updateFillColorSpace(GfxState * state) 
 {
-    color_changed = true; 
+    fill_color_changed = true; 
 }
 void HTMLRenderer::updateStrokeColorSpace(GfxState * state) 
 {
-    color_changed = true; 
+    stroke_color_changed = true; 
 }
 void HTMLRenderer::updateFillColor(GfxState * state) 
 {
-    color_changed = true; 
+    fill_color_changed = true; 
 }
 void HTMLRenderer::updateStrokeColor(GfxState * state) 
 {
-    color_changed = true; 
+    stroke_color_changed = true; 
 }
 void HTMLRenderer::reset_state()
 {
@@ -108,8 +109,12 @@ void HTMLRenderer::reset_state()
     cur_ls_id = install_letter_space(cur_letter_space);
     cur_ws_id = install_word_space(cur_word_space);
 
-    cur_color.r = cur_color.g = cur_color.b = 0;
-    cur_color_id = install_color(&cur_color);
+    cur_fill_color.r = cur_fill_color.g = cur_fill_color.b = 0;
+      cur_stroke_color.r = cur_stroke_color.g = cur_stroke_color.b = 0;
+      cur_fill_color_id = install_fill_color(&cur_fill_color);
+      cur_stroke_color_id = install_stroke_color(&cur_stroke_color);
+      cur_has_stroke = false;
+      cur_has_fill = true;
 
     cur_rise = 0;
     cur_rise_id = install_rise(cur_rise);
@@ -135,7 +140,8 @@ void HTMLRenderer::reset_state_change()
     letter_space_changed = false;
     word_space_changed = false;
 
-    color_changed = false;
+    fill_color_changed = false;
+    stroke_color_changed = false;
 }
 void HTMLRenderer::check_state_change(GfxState * state)
 {
@@ -350,25 +356,65 @@ void HTMLRenderer::check_state_change(GfxState * state)
     }
 
     // color
-    if(all_changed || color_changed)
+    if(all_changed || fill_color_changed || stroke_color_changed)
     {
-        GfxRGB new_color;
         /*
          * Render modes 0 2 4 6 fill text (stroke or not)
          * Render modes 1 5 stroke only
          * Render modes 3 7 hidden (but ok, we won't even draw text)
          */
-        if(state->getRender() % 2 == 0)
-            state->getFillRGB(&new_color);
-        else
-            state->getStrokeRGB(&new_color);
-
-        if(!((new_color.r == cur_color.r) && (new_color.g == cur_color.g) && (new_color.b == cur_color.b)))
+        
+        // PDF Spec. Table 106 –  Text rendering modes
+        bool is_filled, is_stroked;
+        switch (state->getRender()) {
+            case 0: is_filled = true;  is_stroked = false; break;
+            case 1: is_filled = false; is_stroked = true;  break;
+            case 2: is_filled = true;  is_stroked = true;  break;
+            case 3: is_filled = false; is_stroked = false; break;
+            case 4: is_filled = true;  is_stroked = false; break;
+            case 5: is_filled = false; is_stroked = true;  break;
+            case 6: is_filled = true;  is_stroked = true;  break;
+            case 7: is_filled = false; is_stroked = false; break;
+        }
+        
+        GfxRGB new_color;
+        
+        // fill
+        state->getFillRGB(&new_color);
+        
+        if(cur_has_fill != is_filled ||
+            !((new_color.r == cur_fill_color.r) &&
+             (new_color.g == cur_fill_color.g) &&
+             (new_color.b == cur_fill_color.b)))
         {
             new_line_state = max<NewLineState>(new_line_state, NLS_SPAN);
-            cur_color = new_color;
-            cur_color_id = install_color(&new_color);
+            cur_fill_color = new_color;
+            cur_fill_color_id = install_fill_color(&new_color);
         }
+        
+        if (!is_filled) {
+            cur_fill_color_id = install_fill_color(nullptr);
+        }
+        
+        // stroke
+        state->getStrokeRGB(&new_color);
+        
+        if(cur_has_stroke != is_stroked ||
+            !((new_color.r == cur_stroke_color.r) &&
+             (new_color.g == cur_stroke_color.g) &&
+             (new_color.b == cur_stroke_color.b)))
+        {
+            new_line_state = max<NewLineState>(new_line_state, NLS_SPAN);
+            cur_stroke_color = new_color;
+            cur_stroke_color_id = install_stroke_color(&new_color);
+        }
+        
+        if (!is_stroked) {
+            cur_stroke_color_id = install_stroke_color(nullptr);
+        }
+        
+        cur_has_fill = is_filled;
+        cur_has_stroke = is_stroked;
     }
 
     // rise
@@ -386,6 +432,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
 
     reset_state_change();
 }
+
 void HTMLRenderer::prepare_text_line(GfxState * state)
 {
     if(!line_opened)

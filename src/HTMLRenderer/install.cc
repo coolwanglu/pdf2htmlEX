@@ -264,16 +264,39 @@ long long HTMLRenderer::install_word_space(double word_space)
     return new_ws_id;
 }
 
-long long HTMLRenderer::install_color(const GfxRGB * rgb)
+long long HTMLRenderer::install_fill_color(const GfxRGB * rgb)
 {
+    // transparent
+    if (rgb == nullptr) {
+        return -1;
+    }
+    
     const GfxRGB & c = *rgb;
-    auto iter = color_map.find(c);
-    if(iter != color_map.end())
+    auto iter = fill_color_map.find(c);
+    if(iter != fill_color_map.end())
         return iter->second;
 
-    long long new_color_id = color_map.size();
-    color_map.insert(make_pair(c, new_color_id));
-    export_color(new_color_id, rgb);
+    long long new_color_id = fill_color_map.size();
+    fill_color_map.insert(make_pair(c, new_color_id));
+    export_fill_color(new_color_id, rgb);
+    return new_color_id;
+}
+
+long long HTMLRenderer::install_stroke_color(const GfxRGB * rgb)
+{
+    // transparent
+    if (rgb == nullptr) {
+        return -1;
+    }
+    
+    const GfxRGB & c = *rgb;
+    auto iter = stroke_color_map.find(c);
+    if(iter != stroke_color_map.end())
+        return iter->second;
+
+    long long new_color_id = stroke_color_map.size();
+    stroke_color_map.insert(make_pair(c, new_color_id));
+    export_stroke_color(new_color_id, rgb);
     return new_color_id;
 }
 
