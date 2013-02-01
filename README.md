@@ -4,13 +4,13 @@
 
 A beautiful demo is worth a thousand words:
 
-- [**Typography**](http://coolwanglu.github.com/pdf2htmlEX/demo/geneve.html) [Original](https://github.com/raphink/geneve_1564/raw/master/geneve_1564.pdf)
-- [**Full Circle Magazine(large)**](http://coolwanglu.github.com/pdf2htmlEX/demo/issue65_en.html) [Sample](http://coolwanglu.github.com/pdf2htmlEX/demo/issue65_en_sample.html) [Original](http://dl.fullcirclemagazine.org/issue65_en.pdf)
-- [**Formulas**](http://coolwanglu.github.com/pdf2htmlEX/demo/cheat.html) [Original](http://www.tug.org/texshowcase/cheat.pdf)
-- [**Scientific Paper**](http://coolwanglu.github.com/pdf2htmlEX/demo/demo.html) [Original](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.148.349&rep=rep1&type=pdf)
-- [**Chinese**](http://coolwanglu.github.com/pdf2htmlEX/demo/chn.html) [Original](http://files.cnblogs.com/phphuaibei/git%E6%90%AD%E5%BB%BA.pdf)
-- Try your own files: [MediaFire](http://www.mediafire.com), a free online storage service, now uses pdf2htmlEX for its PDF preview feature.
-
+- **Typography**: [Default](http://coolwanglu.github.com/pdf2htmlEX/demo/geneve.html) / [MediaFire](http://www.mediafire.com/view/?fqbc2d2o1kdz51a) / [Original](https://github.com/raphink/geneve_1564/raw/master/geneve_1564.pdf)
+- **Formulas**: [Default](http://coolwanglu.github.com/pdf2htmlEX/demo/cheat.html) / [MediaFire](http://www.mediafire.com/view/?84vdgrepkxclbq2) / [Original](http://www.tug.org/texshowcase/cheat.pdf)
+- **Scientific Paper**: [Default](http://coolwanglu.github.com/pdf2htmlEX/demo/demo.html) / [MediaFire](http://www.mediafire.com/view/?ibsvnsdass8i45u) / [Original](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.148.349&rep=rep1&type=pdf)
+- **Full Circle Magazine**: [Default](http://coolwanglu.github.com/pdf2htmlEX/demo/issue65_en.html) / [MediaFire](http://www.mediafire.com/view/?6hxmt94k2vppnpb) / [Original](http://dl.fullcirclemagazine.org/issue65_en.pdf)   <sub style="color:red;">The 1st link might be slow</sub>
+- **Chinese**: [Default](http://coolwanglu.github.com/pdf2htmlEX/demo/chn.html) / [MediaFire](http://www.mediafire.com/view/?6550ldag9w0uuq3) / [Original](http://files.cnblogs.com/phphuaibei/git%E6%90%AD%E5%BB%BA.pdf)
+- Try your own files on [MediaFire](http://www.mediafire.com), a free online storage service, which uses pdf2htmlEX for its PDF preview feature.
+  
 ## Introduction
 
 pdf2htmlEX renders PDF files in HTML, utilizing modern Web technologies.
