@@ -24,22 +24,20 @@ The generated HTML file is static, Javascript is not required.
 
 ## Features
 
-* Optional single HTML file output
-* Precise rendering 
-* Native text in HTML - you can select & copy & search
-* Proper styling 
-  - Font - extracted and reencoded
-  - Color
-  - Transformation
-* Links
-* Outline
-* [EXPERIMENTAL] Path drawing with CSS
-  - Orthogonal lines
-  - Rectangles
-  - Linear gradients 
-* Not fully supported (Rendered as images)
-  - Type 3 fonts
-  - Non-text object
+* Precise, native text in HTML, which means
+  - You can select & copy & search
+  - With correct font & position & styles
+  - With proper reencoding
+  - Generated HTML file is of similar size as the original (uncompressed) PDF file
+* Output modes
+  - Normal HTML
+  - All-in-one HTML - portable & easy to share
+  - One HTML per page - best for dynamic pages
+* More PDF stuffs that you love
+  - Links
+  - Outline
+
+[Full list](https://github.com/coolwanglu/pdf2htmlEX/wiki/Feature-List)
 
 ## Get started
 
