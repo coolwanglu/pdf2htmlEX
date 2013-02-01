@@ -103,6 +103,8 @@ GPLv2 & GPLv3 Dual licensed
 
 ## [**Donate Now**](http://coolwanglu.github.com/pdf2htmlEX/donate.html)
 
+pdf2htmlEX is maintained by one person in spare time, and it needs your help!
+
 ## Contact
 
 * Mailing list <pdf2htmlex@googlegroups.com>
