@@ -38,6 +38,7 @@ The generated HTML file is static, Javascript is not required.
   - Outline
 
 [Full list](https://github.com/coolwanglu/pdf2htmlEX/wiki/Feature-List)
+[Compare with others](https://github.com/coolwanglu/pdf2htmlEX/wiki/Comparison)
 
 ## Get started
 
