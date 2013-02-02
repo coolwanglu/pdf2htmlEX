@@ -95,7 +95,8 @@ Thanks to all packagers!
 
 ## LICENSE
 
-GPLv2 & GPLv3 Dual licensed
+GPLv2 & GPLv3 for most part, MIT License for share/\*   
+Read LICENSE for detail.
 
 **pdf2htmlEX is totally free, please credit pdf2htmlEX if you use it**  
 **Please consider sponsoring it if you use it for commercial purpose**
