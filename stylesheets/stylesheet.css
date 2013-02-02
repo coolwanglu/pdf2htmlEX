@@ -480,6 +480,6 @@ footer a:hover {
 @media only screen and (max-width: 479px) {}
 
 /* Added by Wang Lu */
-#socialbuttons { font-size: 1px }
-#socialbuttons iframe { vertical-align: middle; }
-#socialbuttons span { display:inline-block; width: 110px; }
+#socialbuttons { font-size:1px; }
+#socialbuttons iframe { vertical-align:middle; }
+#socialbuttons span { display:inline-block; width:110px; }
