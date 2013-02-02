@@ -1,10 +1,9 @@
 /*
  * state.cc
  *
- * track the current state
+ * track current state
  *
- * by WangLu
- * 2012.08.14
+ * Copyright (C) 2012,2013 Lu Wang <coolwanglu@gmail.com>
  */
 
 /*
