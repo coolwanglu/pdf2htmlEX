@@ -29,6 +29,7 @@
 #include "util/const.h"
 #include "util/StringFormatter.h"
 #include "util/TmpFiles.h"
+#include "util/misc.h"
 
 /*
  * Naming Convention
@@ -73,44 +74,6 @@ public:
     int em_size;
     double ascent, descent;
     bool is_type3;
-};
-
-class GfxRGB_hash 
-{
-public:
-    size_t operator () (const GfxRGB & rgb) const
-    {
-        return ( (((size_t)colToByte(rgb.r)) << 16) 
-               | (((size_t)colToByte(rgb.g)) << 8) 
-               | ((size_t)colToByte(rgb.b))
-               );
-    }
-};
-
-class GfxRGB_equal
-{ 
-public:
-    bool operator ()(const GfxRGB & rgb1, const GfxRGB & rgb2) const
-    {
-        return ((rgb1.r == rgb2.r) && (rgb1.g == rgb2.g) && (rgb1.b == rgb2.b));
-    }
-};
-
-class Matrix_less
-{
-public:
-    bool operator () (const Matrix & m1, const Matrix & m2) const
-    {
-        // Note that we only care about the first 4 elements
-        for(int i = 0; i < 4; ++i)
-        {
-            if(m1.m[i] < m2.m[i] - EPS)
-                return true;
-            if(m1.m[i] > m2.m[i] + EPS)
-                return false;
-        }
-        return false;
-    }
 };
 
 class HTMLRenderer : public OutputDev
@@ -380,11 +343,17 @@ class HTMLRenderer : public OutputDev
         double cur_word_space;
         bool word_space_changed;
 
-        // text color
-        long long cur_fill_color_id, cur_stroke_color_id;
-        GfxRGB cur_fill_color, cur_stroke_color;
-        bool cur_has_fill, cur_has_stroke;
-        bool fill_color_changed, stroke_color_changed;
+        // fill color
+        long long cur_fill_color_id;
+        GfxRGB cur_fill_color;
+        bool cur_has_fill;
+        bool fill_color_changed;
+
+        // stroke color
+        long long cur_stroke_color_id;
+        GfxRGB cur_stroke_color;
+        bool cur_has_stroke;
+        bool stroke_color_changed;
 
         // rise
         long long cur_rise_id;

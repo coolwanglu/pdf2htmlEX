@@ -13,6 +13,8 @@
 
 #include <GfxState.h>
 
+#include "util/const.h"
+
 namespace pdf2htmlEX {
 
 static inline long long hash_ref(const Ref * id)
@@ -31,6 +33,45 @@ void css_fix_rectangle_border_width(double x1, double y1, double x2, double y2,
         double & border_left_right_width);
 
 std::ostream & operator << (std::ostream & out, const GfxRGB & rgb);
+
+class GfxRGB_hash 
+{
+public:
+    size_t operator () (const GfxRGB & rgb) const
+    {
+        return ( (((size_t)colToByte(rgb.r)) << 16) 
+               | (((size_t)colToByte(rgb.g)) << 8) 
+               | ((size_t)colToByte(rgb.b))
+               );
+    }
+};
+
+class GfxRGB_equal
+{ 
+public:
+    bool operator ()(const GfxRGB & rgb1, const GfxRGB & rgb2) const
+    {
+        return ((rgb1.r == rgb2.r) && (rgb1.g == rgb2.g) && (rgb1.b == rgb2.b));
+    }
+};
+
+class Matrix_less
+{
+public:
+    bool operator () (const Matrix & m1, const Matrix & m2) const
+    {
+        // Note that we only care about the first 4 elements
+        for(int i = 0; i < 4; ++i)
+        {
+            if(m1.m[i] < m2.m[i] - EPS)
+                return true;
+            if(m1.m[i] > m2.m[i] + EPS)
+                return false;
+        }
+        return false;
+    }
+};
+
 
 } // namespace pdf2htmlEX
 
