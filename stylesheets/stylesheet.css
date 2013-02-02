@@ -478,3 +478,8 @@ footer a:hover {
 
 /* Mobile Portrait Size to Mobile Landscape Size (devices and browsers) */
 @media only screen and (max-width: 479px) {}
+
+/* Added by Wang Lu */
+#socialbuttons { font-size: 1px }
+#socialbuttons iframe { vertical-align: middle; }
+#socialbuttons span { display:inline-block; width: 110px; }
