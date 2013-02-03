@@ -79,6 +79,8 @@ var pdf2htmlEX = (function(){
     },
     is_visible : function() {
       var off = this.position();
+      console.log(this.n);
+      console.log(off);
       return !((off[1] > this.height()) || (off[1] + this.container.height() < 0));
     },
     /* return the coordinate of the top-left corner of container
@@ -124,11 +126,49 @@ var pdf2htmlEX = (function(){
       
       var new_pages = new Array();
       var pl= $('.p', this.container);
+
       /* don't use for(..in..) */
       for(var i = 0, l = pl.length; i < l; ++i) {
         var p = new Page(pl[i], this.container);
         new_pages[p.n] = p;
       }
+
+      
+      /* handle groups */
+      this.data = JSON.parse($($('> .j', this.container)[0]).attr('data-data'));
+      if('groups' in this.data) {
+        var groups = this.data['groups'];
+        if(groups.length > 0){
+          for(var i = 0, l = groups.length; i < l; ++i) {
+            groups[i] = parseInt(groups[i], 16);
+          }
+          /* currently for .p, height/width are set to 100%, but we want absolute values now */
+          var last_p = undefined;
+          var last_pp = undefined;
+          for(var i = 0, l = pl.length; i < l; ++i) {
+            var p = $(pl[i]);
+            p.height(p.parent().height());
+            p.width(p.parent().width());
+            // check if to merge
+            var pn = parseInt(p.attr('data-page-no'), 16);
+            while((groups.length > 0) && (groups[0] < pn))
+              groups.shift();
+
+            if((last_p == undefined) || ((groups.length > 0) && (groups[0] == pn))){
+              last_p = p;
+              last_pp = p.parent();
+              continue;
+            }
+            // merge with the previous page
+            var pp = p.parent();
+            p.css('top', last_pp.height());
+            last_pp.height(last_pp.height() + pp.height());
+            pp.remove();
+            last_pp.append(p);
+          }
+        }
+      }
+
       this.pages = new_pages;
 
       var _ = this;

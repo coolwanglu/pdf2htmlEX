@@ -118,6 +118,26 @@ public:
             HTMLRenderer::process(doc);
         }
     }
+
+    virtual void post_process (void) {
+        // dump info for js
+        // BE CAREFUL WITH ESCAPES
+        f_pages.fs << "<div class=\"j\" data-data='{";
+
+        // groups
+        if(param->group_by_outline){
+            f_pages.fs << "\"groups\":[";
+            for(auto iter = outline_indexed_pages.begin(); iter != outline_indexed_pages.end(); ++iter) {
+                if(iter != outline_indexed_pages.begin()) f_pages.fs << ",";
+                f_pages.fs << "\"" << (*iter) << "\"";
+            }
+            f_pages.fs << "]";
+        }
+
+        f_pages.fs << "}'></div>";
+
+        HTMLRenderer::post_process();
+    }
 };
 
 }
