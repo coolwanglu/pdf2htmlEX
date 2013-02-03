@@ -7,44 +7,84 @@
  * Copyright (C) 2013 Lu Wang <coolwanglu@gmail.com>
  */
 
-#ifndef STATE_TRACKER_H__
-#define STATE_TRACKER_H__
+#ifndef STATETRACKER_H__
+#define STATETRACKER_H__
+
+#include <map>
 
 #include <GfxState.h>
 
-
 namespace pdf2htmlEX {
 
-class StateTrackerBase
+template<class ValueType, class Imp> class StateTracker {};
+
+template<class Imp>
+class StateTracker<double>
 {
 public:
-    virtual ~StateTracker(void);
+    // values no father than eps are treated as equal
+    StateTracker(const char * css_class_prefix, double eps)
+        : css_class_prefix(css_class_prefix)
+        , eps(eps)
+        , changed(false)
+        , imp(static_cast<Imp>(this))
+    { }
 
     // usually called at the beginning of a page
-    virtual void reset(void) = 0;
-    /*
-     * update() is called when PDF updates the state
-     * check_state() is called when we really need the new state
-     *
-     * There could be a number of calls to update() between 2 consecutive calls to check_state()
-     * So usually we just mark as changed in update, and actually retrive from the state in check_state()
-     */
-    virtual void update(GfxState * state) = 0;
-    /*
-     * return if state has been updated
-     *
-     * if force is true, do check the state if there is no update() called before
-     * useful for updateAll
-     */
-    virtual bool check_state(GfxState * state, bool force) = 0;
+    void reset(void) { imp->reset(); }
 
-    long long get_id() const { return id; }
+    // is called when PDF updates the state
+    void update(GfxState * state) { changed = true; }
+    /*
+     * retrive the new state if update() is called recently, or force == true
+     * return if the state has been indeed changed
+     */
+    bool sync(GfxState * state, bool force)| {
+        if(!(changed || force))
+            return false;
 
-protected:
-    long long id; // For CSS classe
+        changed = false;
+
+        double new_value = imp->get_value(state);
+        if(equal(new_value, value))
+            return false;
+
+        install(new_value);
+        return true;
+    }
+        
+
+    long long install(double new_value) {
+        value = new_value;
+
+        auto iter = value_map.lower_bound(new_value - eps);
+        if((iter != value_map.end()) && (abs(iter->first - value) <= eps)) {
+            actual_value = iter->first;
+            return iter->second;
+        }
+
+        actual_value = new_value;
+        long long new_id = map.size();
+        map.insert(make_pair(new_value, new_id));
+
+        imp->create(new_id, new_value);
+
+        return new_id;
+    }
+private:
+    const char * css_class_prefix;
+    const double eps;
+    bool changed;
+    Imp * imp;
+
+
+    long long id;
+    double value; // the value we are tracking
+    double actual_value; // the value we actually exported to HTML
+    std::map<double, long long> value_map;
 };
 
 
 } // namespace pdf2htmlEX 
 
-#endif //STATE_TRACKER_H__
+#endif //STATETRACKER_H__
