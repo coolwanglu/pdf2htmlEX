@@ -482,4 +482,4 @@ footer a:hover {
 /* Added by Wang Lu */
 #socialbuttons { font-size:1px; }
 #socialbuttons iframe { vertical-align:middle; }
-#socialbuttons > div { display:inline-block; width:100px; vertical-align:middle; }
+#socialbuttons > div { margin:3px;height:20px; vertical-align:middle; }
