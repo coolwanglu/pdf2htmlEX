@@ -197,25 +197,25 @@ void HTMLRenderer::check_state_change(GfxState * state)
     // ctm & text ctm & hori scale
     if(all_changed || ctm_changed || text_mat_changed || hori_scale_changed)
     {
-        double new_ctm[6];
+        double new_text_tm[6];
 
         const double * m1 = state->getCTM();
         const double * m2 = state->getTextMat();
         double hori_scale = state->getHorizScaling();
 
-        new_ctm[0] = (m1[0] * m2[0] + m1[2] * m2[1]) * hori_scale;
-        new_ctm[1] = (m1[1] * m2[0] + m1[3] * m2[1]) * hori_scale;
-        new_ctm[2] = m1[0] * m2[2] + m1[2] * m2[3];
-        new_ctm[3] = m1[1] * m2[2] + m1[3] * m2[3];
-        new_ctm[4] = m1[0] * m2[4] + m1[2] * m2[5] + m1[4]; 
-        new_ctm[5] = m1[1] * m2[4] + m1[3] * m2[5] + m1[5];
-        //new_ctm[4] = new_ctm[5] = 0;
+        new_text_tm[0] = (m1[0] * m2[0] + m1[2] * m2[1]) * hori_scale;
+        new_text_tm[1] = (m1[1] * m2[0] + m1[3] * m2[1]) * hori_scale;
+        new_text_tm[2] = m1[0] * m2[2] + m1[2] * m2[3];
+        new_text_tm[3] = m1[1] * m2[2] + m1[3] * m2[3];
+        new_text_tm[4] = m1[0] * m2[4] + m1[2] * m2[5] + m1[4]; 
+        new_text_tm[5] = m1[1] * m2[4] + m1[3] * m2[5] + m1[5];
+        //new_text_tm[4] = new_text_tm[5] = 0;
 
-        if(!tm_equal(new_ctm, cur_text_tm))
+        if(!tm_equal(new_text_tm, cur_text_tm))
         {
             need_recheck_position = true;
             need_rescale_font = true;
-            memcpy(cur_text_tm, new_ctm, sizeof(cur_text_tm));
+            memcpy(cur_text_tm, new_text_tm, sizeof(cur_text_tm));
         }
     }
 
@@ -223,14 +223,22 @@ void HTMLRenderer::check_state_change(GfxState * state)
     // depends: font size & ctm & text_ctm & hori scale
     if(need_rescale_font)
     {
+        /*
+         * Rescale the font
+         * If the font-size is 1, and the matrix is [10,0,0,10,0,0], we would like to change it to
+         * font-size == 10 and matrix == [1,0,0,1,0,0], 
+         * such that it will be easy and natrual for web browsers
+         */
         double new_draw_text_tm[6];
         memcpy(new_draw_text_tm, cur_text_tm, sizeof(new_draw_text_tm));
 
+        // see how the tm (together with text_scale_factor2) would change the vector (0,1)
         double new_draw_text_scale = 1.0/text_scale_factor2 * hypot(new_draw_text_tm[2], new_draw_text_tm[3]);
 
         double new_draw_font_size = cur_font_size;
         if(is_positive(new_draw_text_scale))
         {
+            // scale both font size and matrix 
             new_draw_font_size *= new_draw_text_scale;
             for(int i = 0; i < 4; ++i)
                 new_draw_text_tm[i] /= new_draw_text_scale;
@@ -242,7 +250,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
 
         if(!is_positive(new_draw_font_size))
         {
-            // Page is flipped and css can't handle it.
+            // CSS cannot handle flipped pages
             new_draw_font_size = -new_draw_font_size;
 
             for(int i = 0; i < 4; ++i)
@@ -358,10 +366,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
     // color
     if(all_changed || fill_color_changed || stroke_color_changed)
     {
-        /*
-         * PDF Spec. Table 106 –  Text rendering modes
-         */
-
+        // * PDF Spec. Table 106 –  Text rendering modes
         static const char FILL[8]   = { true, false, true, false, true, false, true, false };
         static const char STROKE[8] = { false, true, true, false, false, true, true, false };
         
@@ -369,7 +374,6 @@ void HTMLRenderer::check_state_change(GfxState * state)
         assert((idx >= 0) && (idx < 8));
         bool is_filled = FILL[idx];
         bool is_stroked = STROKE[idx];
-        
         
         // fill
         if(is_filled)
