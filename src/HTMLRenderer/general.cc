@@ -60,6 +60,7 @@ HTMLRenderer::HTMLRenderer(const Param * param)
     letter_space_manager.set_param(CSS::LETTER_SPACE_CN, EPS         );
     word_space_manager  .set_param(CSS::WORD_SPACE_CN  , EPS         );
     rise_manager        .set_param(CSS::RISE_CN        , param->v_eps);
+    whitespace_manager  .set_param(CSS::WHITESPACE_CN  , param->h_eps);
     height_manager      .set_param(CSS::HEIGHT_CN      , EPS         );
 }
 
@@ -342,6 +343,7 @@ void HTMLRenderer::post_process()
     letter_space_manager.dump_css(f_css.fs);
     word_space_manager  .dump_css(f_css.fs);
     rise_manager        .dump_css(f_css.fs);
+    whitespace_manager  .dump_css(f_css.fs);
     height_manager      .dump_css(f_css.fs);
 
     // close files

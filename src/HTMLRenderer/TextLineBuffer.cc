@@ -145,9 +145,11 @@ void HTMLRenderer::TextLineBuffer::flush(void)
         if(cur_text_idx >= cur_offset_iter->start_idx)
         {
             double target = cur_offset_iter->width + dx;
-            double w;
 
-            auto wid = renderer->install_whitespace(target, w);
+            auto & wm = renderer->whitespace_manager;
+            wm.install(target);
+            auto wid = wm.get_id();
+            double w = wm.get_actual_value();
 
             if(w < 0)
                 last_text_pos_with_negative_offset = cur_text_idx;

@@ -318,6 +318,7 @@ class HTMLRenderer : public OutputDev
         bool rise_changed;
         RiseManager rise_manager;
 
+        WhitespaceManager whitespace_manager;
         HeightManager height_manager;
 
         // optimize for web
@@ -358,7 +359,6 @@ class HTMLRenderer : public OutputDev
         std::unordered_map<long long, FontInfo> font_name_map;
         std::map<Matrix, long long, Matrix_less> transform_matrix_map;
         std::unordered_map<GfxRGB, long long, GfxRGB_hash, GfxRGB_equal> fill_color_map, stroke_color_map; 
-        std::map<double, long long> whitespace_map;
         std::map<double, long long> left_map;
 
         const Param * param;

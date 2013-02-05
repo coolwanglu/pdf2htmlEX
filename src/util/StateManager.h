@@ -121,6 +121,13 @@ public:
     void dump_value(std::ostream & out, double value) { out << "top:" << round(-value) << "px;"; }
 };
 
+class WhitespaceManager : public StateManager<double, WhitespaceManager>
+{
+public:
+    double default_value(void) { return 0; }
+    void dump_value(std::ostream & out, double value) { out << "top:" << round(-value) << "px;"; }
+};
+
 class HeightManager : public StateManager<double, HeightManager>
 {
 public:

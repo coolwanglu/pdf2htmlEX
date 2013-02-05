@@ -263,23 +263,6 @@ long long HTMLRenderer::install_stroke_color(const GfxRGB * rgb)
     return new_color_id;
 }
 
-long long HTMLRenderer::install_whitespace(double ws_width, double & actual_width)
-{
-    // ws_width is already mulitpled by draw_scale
-    auto iter = whitespace_map.lower_bound(ws_width - param->h_eps);
-    if((iter != whitespace_map.end()) && (abs(iter->first - ws_width) <= param->h_eps))
-    {
-        actual_width = iter->first;
-        return iter->second;
-    }
-
-    actual_width = ws_width;
-    long long new_ws_id = whitespace_map.size();
-    whitespace_map.insert(make_pair(ws_width, new_ws_id));
-    export_whitespace(new_ws_id, ws_width);
-    return new_ws_id;
-}
-
 long long HTMLRenderer::install_left(double left)
 {
     auto iter = left_map.lower_bound(left - param->h_eps);
