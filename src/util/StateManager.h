@@ -11,6 +11,7 @@
 
 #include <iostream>
 #include <map>
+#include <unordered_map>
 
 #include "util/math.h"
 #include "util/CSSClassNames.h"
@@ -117,7 +118,6 @@ public:
 
     long long get_id                (void) const { return id;           }
     const Matrix & get_value        (void) const { return value;        }
-    const Matrix & get_actual_value (void) const { return *actual_value; }
 
     void dump_css(std::ostream & out) {
         for(auto iter = value_map.begin(); iter != value_map.end(); ++iter)
@@ -136,13 +136,12 @@ protected:
         auto iter = value_map.lower_bound(value);
         if((iter != value_map.end()) && (tm_equal(value.m, iter->first.m, 4)))
         {
-            actual_value = &(iter->first);
             id = iter->second;
             return false;
         }
 
         id = value_map.size();
-        actual_value = &(value_map.insert(std::make_pair(value, id)).first->first);
+        value_map.insert(std::make_pair(value, id));
         return true;
     }
 
@@ -150,7 +149,6 @@ protected:
 
     long long id;
     Matrix value;
-    const Matrix * actual_value;
 
     class Matrix_less
     {
@@ -169,6 +167,104 @@ protected:
         }
     };
     std::map<Matrix, long long, Matrix_less> value_map;
+};
+
+template <class Imp>
+class StateManager<GfxRGB, Imp>
+{
+public:
+    StateManager()
+        : imp(static_cast<Imp*>(this))
+    { }
+
+    void reset(void) {
+        is_transparent = true;
+        id = -1;
+    }
+
+    bool install(const GfxRGB & new_value) {
+        if((!is_transparent) && gfxrgb_equal_obj(new_value, value))
+            return false;
+        _install(new_value);
+        return true;
+    }
+
+    bool install_transparent (void) { 
+        if(is_transparent)
+            return false;
+        _install_transparent();
+        return true;
+    }
+
+
+    long long get_id                (void) const { return id;             }
+    const GfxRGB & get_value        (void) const { return value;          }
+    bool get_is_transparent         (void) const { return is_transparent; }
+
+    void dump_css(std::ostream & out) {
+        out << "." << imp->get_css_class_name() << CSS::INVALID_ID << "{";
+        imp->dump_transparent(out);
+        out << "}" << std::endl;
+
+        for(auto iter = value_map.begin(); iter != value_map.end(); ++iter)
+        {
+            out << "." << imp->get_css_class_name() << iter->second << "{";
+            imp->dump_value(out, iter->first);
+            out << "}" << std::endl;
+        }
+    }
+
+protected:
+    bool _install(const GfxRGB & new_value) { 
+        is_transparent = false;
+        value = new_value;
+        auto iter = value_map.find(new_value);
+        if(iter != value_map.end())
+        {
+            id = iter->second;
+            return false;
+        }
+
+        id = value_map.size();
+        value_map.insert(std::make_pair(value, id));
+        return true;
+    }
+
+    bool _install_transparent(void) {
+        is_transparent = true;
+        id = -1;
+        return false;
+    }
+
+    Imp * imp;
+
+    long long id;
+    GfxRGB value;
+    bool is_transparent;
+
+    class GfxRGB_hash 
+    {
+    public:
+        size_t operator () (const GfxRGB & rgb) const
+        {
+            return ( (((size_t)colToByte(rgb.r)) << 16) 
+                   | (((size_t)colToByte(rgb.g)) << 8) 
+                   | ((size_t)colToByte(rgb.b))
+                   );
+        }
+    };
+
+    class GfxRGB_equal
+    { 
+    public:
+        bool operator ()(const GfxRGB & rgb1, const GfxRGB & rgb2) const
+        {
+            return ((rgb1.r == rgb2.r) && (rgb1.g == rgb2.g) && (rgb1.b == rgb2.b));
+        }
+    };
+
+    GfxRGB_equal gfxrgb_equal_obj;
+    std::unordered_map<GfxRGB, long long, GfxRGB_hash, GfxRGB_equal> value_map;
 };
 
 /////////////////////////////////////
@@ -264,6 +360,57 @@ public:
                 out << "0,0);";
             }
         }
+    }
+};
+
+class FillColorManager : public StateManager<GfxRGB, FillColorManager>
+{
+public:
+    static const char * get_css_class_name (void) { return CSS::FILL_COLOR_CN; }
+    /* override base's method, as we need some workaround in CSS */ 
+    void dump_css(std::ostream & out) { 
+        // normal CSS
+        out << "." << get_css_class_name() << CSS::INVALID_ID << "{color:white;}" << std::endl;
+        for(auto iter = value_map.begin(); iter != value_map.end(); ++iter)
+        {
+            out << "." << get_css_class_name() << iter->second 
+                << "{color:" << iter->first << ";}" << std::endl;
+        }
+        // webkit
+        out << CSS::WEBKIT_ONLY << "{" << std::endl;
+        out << "." << get_css_class_name() << CSS::INVALID_ID << "{color:transparent;}" << std::endl;
+        out << "}" << std::endl;
+    }
+};
+
+class StrokeColorManager : public StateManager<GfxRGB, StrokeColorManager>
+{
+public:
+    static const char * get_css_class_name (void) { return CSS::STROKE_COLOR_CN; }
+    /* override base's method, as we need some workaround in CSS */ 
+    void dump_css(std::ostream & out) { 
+        // normal CSS
+        out << "." << get_css_class_name() << CSS::INVALID_ID << "{text-shadow:none;}" << std::endl;
+        for(auto iter = value_map.begin(); iter != value_map.end(); ++iter)
+        {
+            // TODO: take the stroke width from the graphics state,
+            //       currently using 0.015em as a good default
+            out << "." << get_css_class_name() << iter->second << "{text-shadow:" 
+                << "-0.015em 0 "  << iter->first << "," 
+                << "0 0.015em "   << iter->first << ","
+                << "0.015em 0 "   << iter->first << ","
+                << "0 -0.015em  " << iter->first << ";"
+                << "}" << std::endl;
+        }
+        // webkit
+        out << CSS::WEBKIT_ONLY << "{" << std::endl;
+        out << "." << get_css_class_name() << CSS::INVALID_ID << "{-webkit-text-stroke:0px transparent;}" << std::endl;
+        for(auto iter = value_map.begin(); iter != value_map.end(); ++iter)
+        {
+            out << "." << get_css_class_name() << iter->second 
+                << "{-webkit-text-stroke:0.015em " << iter->first << ";text-shadow:none;}" << std::endl;
+        }
+        out << "}" << std::endl;
     }
 };
 

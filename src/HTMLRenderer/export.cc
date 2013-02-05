@@ -130,29 +130,4 @@ void HTMLRenderer::export_local_font(const FontInfo & info, GfxFont * font, cons
     f_css.fs << "}" << endl;
 }
 
-void HTMLRenderer::export_fill_color (long long color_id, const GfxRGB * rgb) 
-{
-    f_css.fs << ".c" << color_id << "{color:" << *rgb << ";}" << endl;
-}
-
-void HTMLRenderer::export_stroke_color (long long color_id, const GfxRGB * rgb) 
-{   
-    // TODO: take the stroke width from the graphics state,
-    //       currently using 0.015em as a good default
-    
-    // Firefox, IE, etc.
-    f_css.fs << ".C" << color_id << "{"
-             << "text-shadow: "
-             << "-0.015em 0 "  << *rgb << "," 
-             << "0 0.015em "   << *rgb << ","
-             << "0.015em 0 "   << *rgb << ","
-             << "0 -0.015em  " << *rgb << ";"
-             << "}" << endl;
-    
-    // WebKit
-    f_css.fs << "@media screen and (-webkit-min-device-pixel-ratio:0) {";
-    f_css.fs << ".C" << color_id << "{-webkit-text-stroke: 0.015em " << *rgb << ";text-shadow: none;}";
-    f_css.fs << "}" << endl;
-}
-
-}
+} //namespace pdf2hmlEX

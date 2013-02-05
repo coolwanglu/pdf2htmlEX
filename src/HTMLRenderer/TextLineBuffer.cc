@@ -193,8 +193,8 @@ void HTMLRenderer::TextLineBuffer::set_state (State & state)
 {
     state.ids[State::FONT_ID] = renderer->cur_font_info->id;
     state.ids[State::FONT_SIZE_ID] = renderer->font_size_manager.get_id();
-    state.ids[State::FILL_COLOR_ID] = renderer->cur_fill_color_id;
-    state.ids[State::STROKE_COLOR_ID] = renderer->cur_stroke_color_id;
+    state.ids[State::FILL_COLOR_ID] = renderer->fill_color_manager.get_id();
+    state.ids[State::STROKE_COLOR_ID] = renderer->stroke_color_manager.get_id();
     state.ids[State::LETTER_SPACE_ID] = renderer->letter_space_manager.get_id();
     state.ids[State::WORD_SPACE_ID] = renderer->word_space_manager.get_id();
     state.ids[State::RISE_ID] = renderer->rise_manager.get_id();
@@ -224,16 +224,11 @@ void HTMLRenderer::TextLineBuffer::State::begin (ostream & out, const State * pr
         }
 
         // out should have hex set
+        out << css_class_names[i];
         if (ids[i] == -1)
-        {
-            // transparent
-            // TODO about "t"
-            out << css_class_names[i] << "t";
-        }
+            out << CSS::INVALID_ID;
         else
-        {
-            out << css_class_names[i] << ids[i];
-        }
+            out << ids[i];
     }
 
     if(first)

@@ -99,27 +99,19 @@ void HTMLRenderer::reset_state()
     cur_font_info = install_font(nullptr);
 
     cur_font_size = 0.0;
-    font_size_manager.reset();
     
     memcpy(cur_text_tm, ID_MATRIX, sizeof(cur_text_tm));
 
     transform_matrix_manager.reset();
     letter_space_manager    .reset();
+    stroke_color_manager    .reset();
     word_space_manager      .reset();
-
-    cur_fill_color.r = cur_fill_color.g = cur_fill_color.b = 0;
-    cur_fill_color_id = install_fill_color(&cur_fill_color);
-    cur_has_fill = true;
-
-    cur_stroke_color.r = cur_stroke_color.g = cur_stroke_color.b = 0;
-    cur_stroke_color_id = install_stroke_color(&cur_stroke_color);
-    cur_has_stroke = false;
-
-    rise_manager            .reset();
+    whitespace_manager      .reset();
+    fill_color_manager      .reset();
+    font_size_manager       .reset();
     height_manager          .reset();
-    transform_matrix_manager.reset();
-
-    // no need to reset whitespace or left
+    rise_manager            .reset();
+    left_manager            .reset();
 
     cur_tx  = cur_ty  = 0;
     draw_tx = draw_ty = 0;
@@ -351,59 +343,51 @@ void HTMLRenderer::check_state_change(GfxState * state)
         new_line_state = max<NewLineState>(new_line_state, NLS_SPAN);
     }
 
-    // color
-    if(all_changed || fill_color_changed || stroke_color_changed)
+    // fill color
+    if(all_changed || fill_color_changed)
     {
         // * PDF Spec. Table 106 –  Text rendering modes
         static const char FILL[8]   = { true, false, true, false, true, false, true, false };
+        
+        int idx = state->getRender();
+        assert((idx >= 0) && (idx < 8));
+        bool changed = true;
+        if(FILL[idx])
+        {
+            GfxRGB new_color;
+            state->getFillRGB(&new_color);
+            changed = fill_color_manager.install(new_color);
+        }
+        else
+        {
+            changed = fill_color_manager.install_transparent();
+        }
+        if(changed)
+            new_line_state = max<NewLineState>(new_line_state, NLS_SPAN);
+    }
+
+    // stroke color
+    if(all_changed || stroke_color_changed)
+    {
+        // * PDF Spec. Table 106 –  Text rendering modes
         static const char STROKE[8] = { false, true, true, false, false, true, true, false };
         
         int idx = state->getRender();
         assert((idx >= 0) && (idx < 8));
-        bool is_filled = FILL[idx];
-        bool is_stroked = STROKE[idx];
-        
-        // fill
-        if(is_filled)
-        {
-            GfxRGB new_color;
-            state->getFillRGB(&new_color);
-        
-            if(!cur_has_fill
-               || (!GfxRGB_equal()(new_color, cur_fill_color))
-              )
-            {
-                new_line_state = max<NewLineState>(new_line_state, NLS_SPAN);
-                cur_fill_color = new_color;
-                cur_fill_color_id = install_fill_color(&new_color);
-            }
-        }
-        else
-        {
-            cur_fill_color_id = install_fill_color(nullptr);
-        }
-        cur_has_fill = is_filled;
-        
+        bool changed = true;
         // stroke
-        if(is_stroked)
+        if(STROKE[idx])
         {
             GfxRGB new_color;
             state->getStrokeRGB(&new_color);
-
-            if(!cur_has_stroke 
-                    || (!GfxRGB_equal()(new_color, cur_stroke_color))
-              )
-            {
-                new_line_state = max<NewLineState>(new_line_state, NLS_SPAN);
-                cur_stroke_color = new_color;
-                cur_stroke_color_id = install_stroke_color(&new_color);
-            }
+            changed = stroke_color_manager.install(new_color);
         }
         else
         {
-            cur_stroke_color_id = install_stroke_color(nullptr);
+            changed = stroke_color_manager.install_transparent();
         }
-        cur_has_stroke = is_stroked;
+        if(changed)
+            new_line_state = max<NewLineState>(new_line_state, NLS_SPAN);
     }
 
     // rise

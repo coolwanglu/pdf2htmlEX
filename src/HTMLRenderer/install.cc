@@ -212,40 +212,4 @@ void HTMLRenderer::install_external_font(GfxFont * font, FontInfo & info)
     export_local_font(info, font, fontname, "");
 }
     
-long long HTMLRenderer::install_fill_color(const GfxRGB * rgb)
-{
-    // transparent
-    if (rgb == nullptr) {
-        return -1;
-    }
-    
-    const GfxRGB & c = *rgb;
-    auto iter = fill_color_map.find(c);
-    if(iter != fill_color_map.end())
-        return iter->second;
-
-    long long new_color_id = fill_color_map.size();
-    fill_color_map.insert(make_pair(c, new_color_id));
-    export_fill_color(new_color_id, rgb);
-    return new_color_id;
-}
-
-long long HTMLRenderer::install_stroke_color(const GfxRGB * rgb)
-{
-    // transparent
-    if (rgb == nullptr) {
-        return -1;
-    }
-    
-    const GfxRGB & c = *rgb;
-    auto iter = stroke_color_map.find(c);
-    if(iter != stroke_color_map.end())
-        return iter->second;
-
-    long long new_color_id = stroke_color_map.size();
-    stroke_color_map.insert(make_pair(c, new_color_id));
-    export_stroke_color(new_color_id, rgb);
-    return new_color_id;
-}
-
 } // namespace pdf2htmlEX

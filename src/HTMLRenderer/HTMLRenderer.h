@@ -160,9 +160,6 @@ protected:
     void install_base_font(GfxFont * font, GfxFontLoc * font_loc, FontInfo & info);
     void install_external_font (GfxFont * font, FontInfo & info);
 
-    long long install_fill_color(const GfxRGB * rgb);
-    long long install_stroke_color(const GfxRGB * rgb);
-
     ////////////////////////////////////////////////////
     // export css styles
     ////////////////////////////////////////////////////
@@ -173,9 +170,6 @@ protected:
     void export_remote_font(const FontInfo & info, const std::string & suffix, GfxFont * font);
     void export_remote_default_font(long long fn_id);
     void export_local_font(const FontInfo & info, GfxFont * font, const std::string & original_font_name, const std::string & cssfont);
-
-    void export_fill_color(long long color_id, const GfxRGB * rgb);
-    void export_stroke_color(long long color_id, const GfxRGB * rgb);
 
     // depending on single-html, to embed the content or add a link to it
     // "type": specify the file type, usually it's the suffix, in which case this parameter could be ""
@@ -258,9 +252,7 @@ protected:
         NLS_DIV   // has to open a new <div>
     } new_line_state;
     
-    // The order is according to the appearance in check_state_change
-    // any state changed
-    bool all_changed;
+
     // current position
     double cur_tx, cur_ty; // real text position, in text coords
 
@@ -271,40 +263,36 @@ protected:
     // as we'll calculate the position of the origin separately
     double cur_text_tm[6]; // unscaled
 
-    bool text_pos_changed; 
-    bool font_changed;
+    bool all_changed;
     bool ctm_changed;
-    bool text_mat_changed;
-    bool hori_scale_changed;
-    bool letter_space_changed;
-    bool word_space_changed;
     bool rise_changed;
+    bool font_changed;
+    bool text_pos_changed; 
+    bool text_mat_changed;
+    bool fill_color_changed;
+    bool hori_scale_changed;
+    bool word_space_changed;
+    bool letter_space_changed;
+    bool stroke_color_changed;
+
 
     // font & size
     const FontInfo * cur_font_info;
 
-    // fill color
-    long long cur_fill_color_id;
-    GfxRGB cur_fill_color;
-    bool cur_has_fill;
-    bool fill_color_changed;
-
-    // stroke color
-    long long cur_stroke_color_id;
-    GfxRGB cur_stroke_color;
-    bool cur_has_stroke;
-    bool stroke_color_changed;
-
 
     // managers store values actually used in HTML (i.e. scaled)
-    FontSizeManager               font_size_manager;
-    LetterSpaceManager         letter_space_manager;
-    WordSpaceManager             word_space_manager;
-    RiseManager                        rise_manager;
-    WhitespaceManager            whitespace_manager;
-    HeightManager                    height_manager;
-    LeftManager                        left_manager;
+    ////////////////////////////////////////////////
     TransformMatrixManager transform_matrix_manager;
+    StrokeColorManager         stroke_color_manager;
+    LetterSpaceManager         letter_space_manager;
+    WhitespaceManager            whitespace_manager;
+    WordSpaceManager             word_space_manager;
+    FillColorManager             fill_color_manager;
+    FontSizeManager               font_size_manager;
+    HeightManager                    height_manager;
+    RiseManager                        rise_manager;
+    LeftManager                        left_manager;
+    ////////////////////////////////////////////////
 
     // optimize for web
     // we try to render the final font size directly
@@ -341,7 +329,6 @@ protected:
     ////////////////////////////////////////////////////
 
     std::unordered_map<long long, FontInfo> font_name_map;
-    std::unordered_map<GfxRGB, long long, GfxRGB_hash, GfxRGB_equal> fill_color_map, stroke_color_map; 
 
     const Param * param;
 

@@ -125,22 +125,7 @@ span {
 }
 .a {
 }
-/* transparent color - Firefox, IE, etc. */
-.ct { /*fill*/
-  color: white;
-}
-.Ct { /*stroke*/
-    text-shadow: none;
-}
 /* transparent color - WebKit */
-@media screen and (-webkit-min-device-pixel-ratio:0) {
-  .ct { /*fill*/
-    color: transparent;
-  }
-  .Ct { /*stroke*/
-    -webkit-text-stroke: 0px transparent;
-  }
-}
 .Cd { /* css drawing */
   position:absolute;
   transform-origin:0% 100%;

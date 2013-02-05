@@ -15,6 +15,17 @@
 namespace pdf2htmlEX {
 namespace CSS {
 
+
+
+// usually the class name is XXX_CN or XXX_CN<hex id>
+// sometimes we need a special one, e.g. transparent color, where the id is -1
+const char * const INVALID_ID          = "_";
+// work around strings
+// TODOsince we have this string, should this file be named as general "css.h" ?
+const char * const WEBKIT_ONLY         = "@media screen and (-webkit-min-device-pixel-ratio:0)";
+
+
+// TODO: better names, remove collission (i.e LINE_CN vs LETTER_SPACE_CN)
 const char * const LINE_CN             = "l";
 const char * const TRANSFORM_MATRIX_CN = "t";
 
