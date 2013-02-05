@@ -13,6 +13,7 @@
 #include "util/namespace.h"
 #include "util/unicode.h"
 #include "util/math.h"
+#include "util/CSSClassNames.h"
 
 namespace pdf2htmlEX {
 
@@ -89,10 +90,10 @@ void HTMLRenderer::TextLineBuffer::flush(void)
     out << "<div style=\""
         << "bottom:" << round(y) << "px;"
         << "\""
-        << " class=\"l"
-        << " t" << tm_id 
-        << " L" << renderer->left_manager.get_id()
-        << " h" << renderer->height_manager.get_id()
+        << " class=\"" << CSS::LINE_CN
+        << " "         << CSS::TRANSFORM_MATRIX_CN << tm_id 
+        << " "         << CSS::LEFT_CN             << renderer->left_manager.get_id()
+        << " "         << CSS::HEIGHT_CN           << renderer->height_manager.get_id()
         << "\">";
 
     auto cur_state_iter = states.begin();
@@ -158,7 +159,8 @@ void HTMLRenderer::TextLineBuffer::flush(void)
             auto * p = stack.back();
             double threshold = p->draw_font_size * (p->ascent - p->descent) * (renderer->param->space_threshold);
 
-            out << "<span class=\"_ _" << wid << "\">" << (target > (threshold - EPS) ? " " : "") << "</span>";
+            out << "<span class=\"" << CSS::WHITESPACE_CN
+                << ' ' << CSS::WHITESPACE_CN << wid << "\">" << (target > (threshold - EPS) ? " " : "") << "</span>";
 
             dx = target - w;
 
@@ -225,11 +227,12 @@ void HTMLRenderer::TextLineBuffer::State::begin (ostream & out, const State * pr
         if (ids[i] == -1)
         {
             // transparent
-            out << format_str[i] << "t";
+            // TODO about "t"
+            out << css_class_names[i] << "t";
         }
         else
         {
-            out << format_str[i] << ids[i];
+            out << css_class_names[i] << ids[i];
         }
     }
 
@@ -275,5 +278,15 @@ int HTMLRenderer::TextLineBuffer::State::diff(const State & s) const
     return d;
 }
 
-const char * HTMLRenderer::TextLineBuffer::State::format_str = "fscClwr";
+// the order should be the same as in the enum
+const char * const HTMLRenderer::TextLineBuffer::State::css_class_names [] = {
+    CSS::FONT_NAME_CN,
+    CSS::FONT_SIZE_CN,
+    CSS::FILL_COLOR_CN,
+    CSS::STROKE_COLOR_CN,
+    CSS::LETTER_SPACE_CN,
+    CSS::WORD_SPACE_CN,
+    CSS::RISE_CN
+};
+
 } //namespace pdf2htmlEX

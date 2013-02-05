@@ -13,6 +13,7 @@
 #include <map>
 
 #include "util/math.h"
+#include "util/CSSClassNames.h"
 
 namespace pdf2htmlEX {
 
@@ -30,8 +31,7 @@ public:
     }
 
     // values no father than eps are treated as equal
-    void set_param (const char * css_class_name, double eps) { 
-        this->css_class_name = css_class_name;
+    void set_param (double eps) { 
         this->eps = eps; 
     }
 
@@ -58,7 +58,7 @@ public:
     void dump_css(std::ostream & out) {
         for(auto iter = value_map.begin(); iter != value_map.end(); ++iter)
         {
-            out << "." << css_class_name << iter->second << "{";
+            out << "." << imp->get_css_class_name() << iter->second << "{";
             imp->dump_value(out, iter->first);
             out << "}" << std::endl;
         }
@@ -83,7 +83,6 @@ protected:
         return true;
     }
 
-    const char * css_class_name;
     double eps;
     Imp * imp;
 
@@ -96,13 +95,15 @@ protected:
 class FontSizeManager : public StateManager<double, FontSizeManager>
 {
 public:
+    static const char * get_css_class_name (void) { return CSS::FONT_SIZE_CN; }
     double default_value(void) { return 0; }
     void dump_value(std::ostream & out, double value) { out << "font-size:" << round(value) << "px;"; }
 };
 
-class LetterSpaceManager : public StateManager<double, LetterSpaceManager>
+class LetterSpaceManager : public StateManager<double,  LetterSpaceManager>
 {
 public:
+    static const char * get_css_class_name (void) { return CSS::LETTER_SPACE_CN; }
     double default_value(void) { return 0; }
     void dump_value(std::ostream & out, double value) { out << "letter-spacing:" << round(value) << "px;"; }
 };
@@ -110,6 +111,7 @@ public:
 class WordSpaceManager : public StateManager<double, WordSpaceManager>
 {
 public:
+    static const char * get_css_class_name (void) { return CSS::WORD_SPACE_CN;}
     double default_value(void) { return 0; }
     void dump_value(std::ostream & out, double value) { out << "word-spacing:" << round(value) << "px;"; }
 };
@@ -117,6 +119,7 @@ public:
 class RiseManager : public StateManager<double, RiseManager>
 {
 public:
+    static const char * get_css_class_name (void) { return CSS::RISE_CN; }
     double default_value(void) { return 0; }
     void dump_value(std::ostream & out, double value) { out << "top:" << round(-value) << "px;"; }
 };
@@ -124,6 +127,7 @@ public:
 class WhitespaceManager : public StateManager<double, WhitespaceManager>
 {
 public:
+    static const char * get_css_class_name (void) { return CSS::WHITESPACE_CN; }
     double default_value(void) { return 0; }
     void dump_value(std::ostream & out, double value) { 
         out << ((value > 0) ? "display:inline-block;width:" 
@@ -135,6 +139,7 @@ public:
 class HeightManager : public StateManager<double, HeightManager>
 {
 public:
+    static const char * get_css_class_name (void) { return CSS::HEIGHT_CN; }
     double default_value(void) { return 0; }
     void dump_value(std::ostream & out, double value) { out << "height:" << round(value) << "px;"; }
 };
@@ -142,6 +147,7 @@ public:
 class LeftManager : public StateManager<double, LeftManager>
 {
 public:
+    static const char * get_css_class_name (void) { return CSS::LEFT_CN; }
     double default_value(void) { return 0; }
     void dump_value(std::ostream & out, double value) { out << "left:" << round(value) << "px;"; }
 };

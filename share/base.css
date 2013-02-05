@@ -74,7 +74,7 @@
   background-color:white;
   overflow: hidden;
   /* margin & border-width have to be 0, 
-   * otherwise pdf2htmlEX may not calculate the coordinates correctly
+   * otherwise pdf2htmlEX.js may not calculate the coordinates correctly
    */
   margin:0;
   border-width:0;

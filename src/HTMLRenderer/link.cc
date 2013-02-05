@@ -193,7 +193,7 @@ void HTMLRenderer::processLink(AnnotLink * al)
 
     if(!dest_str.empty())
     {
-        f_pages.fs << "<a class=\"a\" href=\"" << dest_str << "\"";
+        f_pages.fs << "<a class=\"" << CSS::LINE_CN << "\" href=\"" << dest_str << "\"";
 
         if(!dest_detail_str.empty())
             f_pages.fs << " data-dest-detail='" << dest_detail_str << "'";
@@ -201,7 +201,7 @@ void HTMLRenderer::processLink(AnnotLink * al)
         f_pages.fs << ">";
     }
 
-    f_pages.fs << "<div class=\"Cd t"
+    f_pages.fs << "<div class=\"" << CSS::CSS_DRAW_CN << ' ' << CSS::TRANSFORM_MATRIX_CN
         << install_transform_matrix(default_ctm)
         << "\" style=\"";
 

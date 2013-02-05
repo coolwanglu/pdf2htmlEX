@@ -53,7 +53,7 @@ public:
             long long hash_value;
             bool need_close;
 
-            static const char * format_str; // class names for each id
+            static const char * const css_class_names []; // class names for each id
     };
 
 

@@ -56,13 +56,13 @@ HTMLRenderer::HTMLRenderer(const Param * param)
     cur_mapping2 = new char* [0x100];
     width_list = new int [0x10000];
 
-    font_size_manager   .set_param(CSS::FONT_SIZE_CN   , EPS         );
-    letter_space_manager.set_param(CSS::LETTER_SPACE_CN, EPS         );
-    word_space_manager  .set_param(CSS::WORD_SPACE_CN  , EPS         );
-    rise_manager        .set_param(CSS::RISE_CN        , param->v_eps);
-    whitespace_manager  .set_param(CSS::WHITESPACE_CN  , param->h_eps);
-    height_manager      .set_param(CSS::HEIGHT_CN      , EPS         );
-    left_manager        .set_param(CSS::LEFT_CN        , param->h_eps);
+    font_size_manager   .set_param(EPS);
+    letter_space_manager.set_param(EPS);
+    word_space_manager  .set_param(EPS);
+    rise_manager        .set_param(param->v_eps);
+    whitespace_manager  .set_param(param->h_eps);
+    height_manager      .set_param(EPS);
+    left_manager        .set_param(param->h_eps);
 }
 
 HTMLRenderer::~HTMLRenderer()
@@ -163,11 +163,12 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state, XRef * xref)
     assert((!line_opened) && "Open line in startPage detected!");
 
     f_pages.fs 
-        << "<div class=\"d\" style=\"width:" 
+        << "<div class=\"" << CSS::PAGE_DECORATION_CN 
+            << "\" style=\"width:" 
             << (pageWidth) << "px;height:" 
             << (pageHeight) << "px;\">"
-        << "<div id=\"p" << pageNum << "\" data-page-no=\"" << pageNum << "\" class=\"p\">"
-        << "<div class=\"b\" style=\"";
+        << "<div id=\"" << CSS::PAGE_FRAME_CN << pageNum << "\" data-page-no=\"" << pageNum << "\" class=\"p\">"
+        << "<div class=\"" << CSS::PAGE_CONTENT_BOX_CN << "\" style=\"";
 
     if(param->process_nontext)
     {
@@ -208,7 +209,7 @@ void HTMLRenderer::endPage() {
     // dump info for js
     // TODO: create a function for this
     // BE CAREFUL WITH ESCAPES
-    f_pages.fs << "<div class=\"j\" data-data='{";
+    f_pages.fs << "<div class=\"" << CSS::PAGE_DATA_CN << "\" data-data='{";
     
     //default CTM
     f_pages.fs << "\"ctm\":[";
