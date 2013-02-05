@@ -115,12 +115,13 @@ void HTMLRenderer::reset_state()
     cur_stroke_color_id = install_stroke_color(&cur_stroke_color);
     cur_has_stroke = false;
 
-    rise_manager  .reset();
-    height_manager.reset();
+    rise_manager            .reset();
+    height_manager          .reset();
+    transform_matrix_manager.reset();
 
     // no need to reset whitespace or left
 
-    cur_tx = cur_ty = 0;
+    cur_tx  = cur_ty  = 0;
     draw_tx = draw_ty = 0;
 
     reset_state_change();

@@ -27,7 +27,7 @@ using std::endl;
 void HTMLRenderer::TextLineBuffer::reset(GfxState * state)
 {
     state->transform(state->getCurX(), state->getCurY(), &x, &y);
-    tm_id = renderer->cur_ttm_id;
+    tm_id = renderer->transform_matrix_manager.get_id();
 }
 
 void HTMLRenderer::TextLineBuffer::append_unicodes(const Unicode * u, int l)

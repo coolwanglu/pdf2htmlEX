@@ -277,7 +277,6 @@ class HTMLRenderer : public OutputDev
         double cur_font_size;
 
         // transform matrix
-        long long cur_ttm_id;
         bool ctm_changed;
         bool text_mat_changed;
         // horizontal scaling

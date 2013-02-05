@@ -341,13 +341,14 @@ void HTMLRenderer::pre_process(PDFDoc * doc)
 void HTMLRenderer::post_process()
 {
     // dump css
-    font_size_manager   .dump_css(f_css.fs);
-    letter_space_manager.dump_css(f_css.fs);
-    word_space_manager  .dump_css(f_css.fs);
-    rise_manager        .dump_css(f_css.fs);
-    whitespace_manager  .dump_css(f_css.fs);
-    height_manager      .dump_css(f_css.fs);
-    left_manager        .dump_css(f_css.fs);
+    font_size_manager       .dump_css(f_css.fs);
+    letter_space_manager    .dump_css(f_css.fs);
+    word_space_manager      .dump_css(f_css.fs);
+    rise_manager            .dump_css(f_css.fs);
+    whitespace_manager      .dump_css(f_css.fs);
+    height_manager          .dump_css(f_css.fs);
+    left_manager            .dump_css(f_css.fs);
+    transform_matrix_manager.dump_css(f_css.fs);
 
     // close files
     f_outline.fs.close();
