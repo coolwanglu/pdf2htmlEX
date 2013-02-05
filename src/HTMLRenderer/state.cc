@@ -119,6 +119,8 @@ void HTMLRenderer::reset_state()
     rise_manager  .reset();
     height_manager.reset();
 
+    // no need to reset whitespace or left
+
     cur_tx = cur_ty = 0;
     draw_tx = draw_ty = 0;
 
