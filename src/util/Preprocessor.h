@@ -40,7 +40,10 @@ public:
       double originX, double originY,
       CharCode code, int nBytes, Unicode *u, int uLen);
 
+    // Start a page.
+    // UGLY: These 2 versions are for different versions of poppler
     virtual void startPage(int pageNum, GfxState *state);
+    virtual void startPage(int pageNum, GfxState *state, XRef * xref);
 
     const char * get_code_map (long long font_id) const;
     double get_max_width (void) const { return max_width; }
