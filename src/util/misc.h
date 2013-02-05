@@ -55,23 +55,6 @@ public:
     }
 };
 
-class Matrix_less
-{
-public:
-    bool operator () (const Matrix & m1, const Matrix & m2) const
-    {
-        // Note that we only care about the first 4 elements
-        for(int i = 0; i < 4; ++i)
-        {
-            if(m1.m[i] < m2.m[i] - EPS)
-                return true;
-            if(m1.m[i] > m2.m[i] + EPS)
-                return false;
-        }
-        return false;
-    }
-};
-
 
 } // namespace pdf2htmlEX
 

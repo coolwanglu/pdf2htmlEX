@@ -102,11 +102,10 @@ void HTMLRenderer::reset_state()
     font_size_manager.reset();
     
     memcpy(cur_text_tm, ID_MATRIX, sizeof(cur_text_tm));
-    memcpy(draw_text_tm, ID_MATRIX, sizeof(draw_text_tm));
-    cur_ttm_id = install_transform_matrix(draw_text_tm);
 
-    letter_space_manager.reset();
-    word_space_manager  .reset();
+    transform_matrix_manager.reset();
+    letter_space_manager    .reset();
+    word_space_manager      .reset();
 
     cur_fill_color.r = cur_fill_color.g = cur_fill_color.b = 0;
     cur_fill_color_id = install_fill_color(&cur_fill_color);
@@ -269,11 +268,9 @@ void HTMLRenderer::check_state_change(GfxState * state)
         {
             new_line_state = max<NewLineState>(new_line_state, NLS_SPAN);
         }
-        if(!(tm_equal(new_draw_text_tm, draw_text_tm, 4)))
+        if(transform_matrix_manager.install(new_draw_text_tm))
         {
             new_line_state = max<NewLineState>(new_line_state, NLS_DIV);
-            memcpy(draw_text_tm, new_draw_text_tm, sizeof(draw_text_tm));
-            cur_ttm_id = install_transform_matrix(draw_text_tm);
         }
     }
 

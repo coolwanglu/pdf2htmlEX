@@ -212,21 +212,6 @@ void HTMLRenderer::install_external_font(GfxFont * font, FontInfo & info)
     export_local_font(info, font, fontname, "");
 }
     
-long long HTMLRenderer::install_transform_matrix(const double * tm)
-{
-    Matrix m;
-    memcpy(m.m, tm, sizeof(m.m));
-
-    auto iter = transform_matrix_map.lower_bound(m);
-    if((iter != transform_matrix_map.end()) && (tm_equal(m.m, iter->first.m, 4)))
-        return iter->second;
-
-    long long new_tm_id = transform_matrix_map.size();
-    transform_matrix_map.insert(make_pair(m, new_tm_id));
-    export_transform_matrix(new_tm_id, tm);
-    return new_tm_id;
-}
-
 long long HTMLRenderer::install_fill_color(const GfxRGB * rgb)
 {
     // transparent

@@ -164,7 +164,6 @@ class HTMLRenderer : public OutputDev
         void install_base_font(GfxFont * font, GfxFontLoc * font_loc, FontInfo & info);
         void install_external_font (GfxFont * font, FontInfo & info);
 
-        long long install_transform_matrix(const double * tm);
         long long install_fill_color(const GfxRGB * rgb);
         long long install_stroke_color(const GfxRGB * rgb);
 
@@ -179,7 +178,6 @@ class HTMLRenderer : public OutputDev
         void export_remote_default_font(long long fn_id);
         void export_local_font(const FontInfo & info, GfxFont * font, const std::string & original_font_name, const std::string & cssfont);
 
-        void export_transform_matrix(long long tm_id, const double * tm);
         void export_fill_color(long long color_id, const GfxRGB * rgb);
         void export_stroke_color(long long color_id, const GfxRGB * rgb);
 
@@ -277,7 +275,6 @@ class HTMLRenderer : public OutputDev
         // cur_font_size is as in GfxState,
         // font_size_manager saves the final font size used in HTML
         double cur_font_size;
-        FontSizeManager font_size_manager;
 
         // transform matrix
         long long cur_ttm_id;
@@ -292,11 +289,7 @@ class HTMLRenderer : public OutputDev
 
         // letter spacing 
         bool letter_space_changed;
-        LetterSpaceManager letter_space_manager;
-
-        // word spacing
         bool word_space_changed;
-        WordSpaceManager word_space_manager;
 
         // fill color
         long long cur_fill_color_id;
@@ -309,22 +302,24 @@ class HTMLRenderer : public OutputDev
         GfxRGB cur_stroke_color;
         bool cur_has_stroke;
         bool stroke_color_changed;
-
-        // rise
         bool rise_changed;
-        RiseManager rise_manager;
 
-        WhitespaceManager whitespace_manager;
-        HeightManager height_manager;
-        LeftManager left_manager;
+        // managers store values actually used in HTML (i.e. scaled)
+        FontSizeManager        font_size_manager;
+        LetterSpaceManager     letter_space_manager;
+        WordSpaceManager       word_space_manager;
+        RiseManager            rise_manager;
+        WhitespaceManager      whitespace_manager;
+        HeightManager          height_manager;
+        LeftManager            left_manager;
+        TransformMatrixManager transform_matrix_manager;
 
         // optimize for web
         // we try to render the final font size directly
         // to reduce the effect of ctm as much as possible
         
-        // draw_text_tm is cur_text_tm scaled by 1/draw_text_scale, 
+        // the actual tm used is `real tm in PDF` scaled by 1/draw_text_scale, 
         // so everything redenered should be multiplied by draw_text_scale
-        double draw_text_tm[6];
         double draw_text_scale; 
 
         // the position of next char, in text coords
@@ -354,7 +349,6 @@ class HTMLRenderer : public OutputDev
         ////////////////////////////////////////////////////
 
         std::unordered_map<long long, FontInfo> font_name_map;
-        std::map<Matrix, long long, Matrix_less> transform_matrix_map;
         std::unordered_map<GfxRGB, long long, GfxRGB_hash, GfxRGB_equal> fill_color_map, stroke_color_map; 
 
         const Param * param;

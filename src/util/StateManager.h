@@ -37,8 +37,7 @@ public:
 
     // usually called at the beginning of a page
     void reset(void) { 
-        value = imp->default_value(); 
-        _install(value);
+        _install(imp->default_value());
     }
 
     /*
@@ -79,9 +78,8 @@ protected:
             return false;
         }
 
-        actual_value = new_value;
         id = value_map.size();
-        value_map.insert(std::make_pair(new_value, id));
+        actual_value = value_map.insert(std::make_pair(new_value, id)).first->first;
         return true;
     }
 
@@ -93,6 +91,88 @@ protected:
     double actual_value; // the value we actually exported to HTML
     std::map<double, long long> value_map;
 };
+
+// Be careful about the mixed usage of Matrix and const double *
+template <class Imp>
+class StateManager<Matrix, Imp>
+{
+public:
+    StateManager()
+        : imp(static_cast<Imp*>(this))
+    { }
+
+    void reset(void) {
+        _install(imp->default_value());
+    }
+
+    // return if changed
+    bool install(const double * new_value) {
+        // For a transform matrix m
+        // m[4] & m[5] have been taken care of
+        if(tm_equal(new_value, value.m, 4))
+            return false;
+        _install(new_value);
+        return true;
+    }
+
+    long long get_id                (void) const { return id;           }
+    const Matrix & get_value        (void) const { return value;        }
+    const Matrix & get_actual_value (void) const { return *actual_value; }
+
+    void dump_css(std::ostream & out) {
+        for(auto iter = value_map.begin(); iter != value_map.end(); ++iter)
+        {
+            out << "." << imp->get_css_class_name() << iter->second << "{";
+            imp->dump_value(out, iter->first);
+            out << "}" << std::endl;
+        }
+    }
+
+protected:
+    // return if a new entry has been created
+    bool _install(const double * new_value) {
+        memcpy(value.m, new_value, sizeof(value.m));
+
+        auto iter = value_map.lower_bound(value);
+        if((iter != value_map.end()) && (tm_equal(value.m, iter->first.m, 4)))
+        {
+            actual_value = &(iter->first);
+            id = iter->second;
+            return false;
+        }
+
+        id = value_map.size();
+        actual_value = &(value_map.insert(std::make_pair(value, id)).first->first);
+        return true;
+    }
+
+    Imp * imp;
+
+    long long id;
+    Matrix value;
+    const Matrix * actual_value;
+
+    class Matrix_less
+    {
+    public:
+        bool operator () (const Matrix & m1, const Matrix & m2) const
+        {
+            // Note that we only care about the first 4 elements
+            for(int i = 0; i < 4; ++i)
+            {
+                if(m1.m[i] < m2.m[i] - EPS)
+                    return true;
+                if(m1.m[i] > m2.m[i] + EPS)
+                    return false;
+            }
+            return false;
+        }
+    };
+    std::map<Matrix, long long, Matrix_less> value_map;
+};
+
+/////////////////////////////////////
+// Specific state managers
 
 class FontSizeManager : public StateManager<double, FontSizeManager>
 {
@@ -152,6 +232,39 @@ public:
     static const char * get_css_class_name (void) { return CSS::LEFT_CN; }
     double default_value(void) { return 0; }
     void dump_value(std::ostream & out, double value) { out << "left:" << round(value) << "px;"; }
+};
+
+class TransformMatrixManager : public StateManager<Matrix, TransformMatrixManager>
+{
+public:
+    static const char * get_css_class_name (void) { return CSS::TRANSFORM_MATRIX_CN; }
+    const double * default_value(void) { return ID_MATRIX; }
+    void dump_value(std::ostream & out, const Matrix & matrix) { 
+        // always ignore tm[4] and tm[5] because
+        // we have already shifted the origin
+        // TODO: recognize common matices
+        const auto & m = matrix.m;
+        if(tm_equal(m, ID_MATRIX, 4))
+        {
+            auto prefixes = {"", "-ms-", "-moz-", "-webkit-", "-o-"};
+            for(auto iter = prefixes.begin(); iter != prefixes.end(); ++iter)
+                out << *iter << "transform:none;";
+        }
+        else
+        {
+            auto prefixes = {"", "-ms-", "-moz-", "-webkit-", "-o-"};
+            for(auto iter = prefixes.begin(); iter != prefixes.end(); ++iter)
+            {
+                // PDF use a different coordinate system from Web
+                out << *iter << "transform:matrix("
+                    << round(m[0]) << ','
+                    << round(-m[1]) << ','
+                    << round(-m[2]) << ','
+                    << round(m[3]) << ',';
+                out << "0,0);";
+            }
+        }
+    }
 };
 
 } // namespace pdf2htmlEX 

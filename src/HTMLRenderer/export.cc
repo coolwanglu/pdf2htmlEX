@@ -130,39 +130,6 @@ void HTMLRenderer::export_local_font(const FontInfo & info, GfxFont * font, cons
     f_css.fs << "}" << endl;
 }
 
-
-void HTMLRenderer::export_transform_matrix (long long tm_id, const double * tm) 
-{
-    f_css.fs << ".t" << tm_id << "{";
-
-    // always ignore tm[4] and tm[5] because
-    // we have already shifted the origin
-    
-    // TODO: recognize common matices
-    if(tm_equal(tm, ID_MATRIX, 4))
-    {
-        auto prefixes = {"", "-ms-", "-moz-", "-webkit-", "-o-"};
-        for(auto iter = prefixes.begin(); iter != prefixes.end(); ++iter)
-            f_css.fs << *iter << "transform:none;";
-    }
-    else
-    {
-        auto prefixes = {"", "-ms-", "-moz-", "-webkit-", "-o-"};
-        for(auto iter = prefixes.begin(); iter != prefixes.end(); ++iter)
-        {
-            // PDF use a different coordinate system from Web
-            f_css.fs << *iter << "transform:matrix("
-                << round(tm[0]) << ','
-                << round(-tm[1]) << ','
-                << round(-tm[2]) << ','
-                << round(tm[3]) << ',';
-
-            f_css.fs << "0,0);";
-        }
-    }
-    f_css.fs << "}" << endl;
-}
-
 void HTMLRenderer::export_fill_color (long long color_id, const GfxRGB * rgb) 
 {
     f_css.fs << ".c" << color_id << "{color:" << *rgb << ";}" << endl;
