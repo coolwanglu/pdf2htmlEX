@@ -167,8 +167,6 @@ class HTMLRenderer : public OutputDev
         long long install_transform_matrix(const double * tm);
         long long install_fill_color(const GfxRGB * rgb);
         long long install_stroke_color(const GfxRGB * rgb);
-        long long install_whitespace(double ws_width, double & actual_width);
-        long long install_left(double left);
 
         ////////////////////////////////////////////////////
         // export css styles
@@ -184,8 +182,6 @@ class HTMLRenderer : public OutputDev
         void export_transform_matrix(long long tm_id, const double * tm);
         void export_fill_color(long long color_id, const GfxRGB * rgb);
         void export_stroke_color(long long color_id, const GfxRGB * rgb);
-        void export_whitespace(long long ws_id, double ws_width);
-        void export_left(long long left_id, double left);
 
         // depending on single-html, to embed the content or add a link to it
         // "type": specify the file type, usually it's the suffix, in which case this parameter could be ""
@@ -320,6 +316,7 @@ class HTMLRenderer : public OutputDev
 
         WhitespaceManager whitespace_manager;
         HeightManager height_manager;
+        LeftManager left_manager;
 
         // optimize for web
         // we try to render the final font size directly
@@ -359,7 +356,6 @@ class HTMLRenderer : public OutputDev
         std::unordered_map<long long, FontInfo> font_name_map;
         std::map<Matrix, long long, Matrix_less> transform_matrix_map;
         std::unordered_map<GfxRGB, long long, GfxRGB_hash, GfxRGB_equal> fill_color_map, stroke_color_map; 
-        std::map<double, long long> left_map;
 
         const Param * param;
 

@@ -62,6 +62,7 @@ HTMLRenderer::HTMLRenderer(const Param * param)
     rise_manager        .set_param(CSS::RISE_CN        , param->v_eps);
     whitespace_manager  .set_param(CSS::WHITESPACE_CN  , param->h_eps);
     height_manager      .set_param(CSS::HEIGHT_CN      , EPS         );
+    left_manager        .set_param(CSS::LEFT_CN        , param->h_eps);
 }
 
 HTMLRenderer::~HTMLRenderer()
@@ -345,6 +346,7 @@ void HTMLRenderer::post_process()
     rise_manager        .dump_css(f_css.fs);
     whitespace_manager  .dump_css(f_css.fs);
     height_manager      .dump_css(f_css.fs);
+    left_manager        .dump_css(f_css.fs);
 
     // close files
     f_outline.fs.close();

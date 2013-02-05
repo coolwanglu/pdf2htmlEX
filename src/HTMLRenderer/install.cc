@@ -263,18 +263,4 @@ long long HTMLRenderer::install_stroke_color(const GfxRGB * rgb)
     return new_color_id;
 }
 
-long long HTMLRenderer::install_left(double left)
-{
-    auto iter = left_map.lower_bound(left - param->h_eps);
-    if((iter != left_map.end()) && (abs(iter->first - left) <= param->h_eps))
-    {
-        return iter->second;
-    }
-
-    long long new_left_id = left_map.size();
-    left_map.insert(make_pair(left, new_left_id));
-    export_left(new_left_id, left);
-    return new_left_id;
-}
-
 } // namespace pdf2htmlEX

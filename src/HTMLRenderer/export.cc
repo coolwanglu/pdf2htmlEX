@@ -185,20 +185,7 @@ void HTMLRenderer::export_stroke_color (long long color_id, const GfxRGB * rgb)
     // WebKit
     f_css.fs << "@media screen and (-webkit-min-device-pixel-ratio:0) {";
     f_css.fs << ".C" << color_id << "{-webkit-text-stroke: 0.015em " << *rgb << ";text-shadow: none;}";
-    f_css.fs << "}";
-}
-
-void HTMLRenderer::export_whitespace (long long ws_id, double ws_width) 
-{
-    if(ws_width > 0)
-        f_css.fs << "._" << ws_id << "{display:inline-block;width:" << round(ws_width) << "px;}" << endl;
-    else
-        f_css.fs << "._" << ws_id << "{display:inline;margin-left:" << round(ws_width) << "px;}" << endl;
-}
-
-void HTMLRenderer::export_left (long long left_id, double left) 
-{
-    f_css.fs << ".L" << left_id << "{left:" << round(left) << "px;}" << endl;
+    f_css.fs << "}" << endl;
 }
 
 }
