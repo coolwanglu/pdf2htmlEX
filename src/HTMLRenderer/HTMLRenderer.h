@@ -8,10 +8,6 @@
 #define HTMLRENDERER_H_
 
 #include <unordered_map>
-#include <map>
-#include <vector>
-#include <set>
-#include <sstream>
 #include <cstdint>
 #include <fstream>
 
