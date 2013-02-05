@@ -168,7 +168,6 @@ class HTMLRenderer : public OutputDev
         long long install_fill_color(const GfxRGB * rgb);
         long long install_stroke_color(const GfxRGB * rgb);
         long long install_whitespace(double ws_width, double & actual_width);
-        long long install_height(double height);
         long long install_left(double left);
 
         ////////////////////////////////////////////////////
@@ -186,7 +185,6 @@ class HTMLRenderer : public OutputDev
         void export_fill_color(long long color_id, const GfxRGB * rgb);
         void export_stroke_color(long long color_id, const GfxRGB * rgb);
         void export_whitespace(long long ws_id, double ws_width);
-        void export_height(long long height_id, double height);
         void export_left(long long left_id, double left);
 
         // depending on single-html, to embed the content or add a link to it
@@ -320,6 +318,8 @@ class HTMLRenderer : public OutputDev
         bool rise_changed;
         RiseManager rise_manager;
 
+        HeightManager height_manager;
+
         // optimize for web
         // we try to render the final font size directly
         // to reduce the effect of ctm as much as possible
@@ -359,7 +359,6 @@ class HTMLRenderer : public OutputDev
         std::map<Matrix, long long, Matrix_less> transform_matrix_map;
         std::unordered_map<GfxRGB, long long, GfxRGB_hash, GfxRGB_equal> fill_color_map, stroke_color_map; 
         std::map<double, long long> whitespace_map;
-        std::map<double, long long> height_map;
         std::map<double, long long> left_map;
 
         const Param * param;

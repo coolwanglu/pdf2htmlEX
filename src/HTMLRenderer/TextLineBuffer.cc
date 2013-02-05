@@ -83,13 +83,15 @@ void HTMLRenderer::TextLineBuffer::flush(void)
     }
 
     ostream & out = renderer->f_pages.fs;
+    renderer->height_manager.install(max_ascent);
+
     out << "<div style=\""
         << "bottom:" << round(y) << "px;"
         << "\""
         << " class=\"l"
         << " t" << tm_id 
         << " L" << renderer->install_left(x)
-        << " h" << renderer->install_height(max_ascent)
+        << " h" << renderer->height_manager.get_id()
         << "\">";
 
     auto cur_state_iter = states.begin();

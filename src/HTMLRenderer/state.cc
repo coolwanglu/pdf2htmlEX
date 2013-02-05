@@ -116,7 +116,8 @@ void HTMLRenderer::reset_state()
     cur_stroke_color_id = install_stroke_color(&cur_stroke_color);
     cur_has_stroke = false;
 
-    rise_manager.reset();
+    rise_manager  .reset();
+    height_manager.reset();
 
     cur_tx = cur_ty = 0;
     draw_tx = draw_ty = 0;
