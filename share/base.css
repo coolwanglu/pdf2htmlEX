@@ -58,7 +58,11 @@
 }
 @media print {
   @page { margin:0; }
-  body { margin:0; }
+  body { 
+    margin:0; 
+    /* enable printing background images for WebKit */
+    -webkit-print-color-adjust:exact;
+  }
   #pdf-main {
     width:auto;
     height:auto;
