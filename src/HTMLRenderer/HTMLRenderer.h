@@ -146,27 +146,30 @@ protected:
 
     void set_stream_flags (std::ostream & out);
 
-    std::string dump_embedded_font (GfxFont * font, long long fn_id);
-    void embed_font(const std::string & filepath, GfxFont * font, FontInfo & info, bool get_metric_only = false);
-
     // convert a LinkAction to a string that our Javascript code can understand
     std::string get_linkaction_str(LinkAction *, std::string & detail);
 
     ////////////////////////////////////////////////////
-    // manage styles
+    /*
+     * manage fonts
+     *
+     * In PDF: (install_*)
+     * embedded font: fonts embedded in PDF
+     * base font: standard 14 fonts defined in PDF spec
+     * external font: fonts that have only names provided in PDF, the viewer should find a local font to match with
+     *
+     * In HTML: (export_*)
+     * remote font: to be retrieved from the web server
+     * remote default font: fallback styles for invalid fonts
+     * local font: to be substituted with a local (client side) font
+     */
     ////////////////////////////////////////////////////
+    std::string dump_embedded_font (GfxFont * font, long long fn_id);
+    void embed_font(const std::string & filepath, GfxFont * font, FontInfo & info, bool get_metric_only = false);
     const FontInfo * install_font(GfxFont * font);
     void install_embedded_font(GfxFont * font, FontInfo & info);
     void install_base_font(GfxFont * font, GfxFontLoc * font_loc, FontInfo & info);
     void install_external_font (GfxFont * font, FontInfo & info);
-
-    ////////////////////////////////////////////////////
-    // export css styles
-    ////////////////////////////////////////////////////
-    /*
-     * remote font: to be retrieved from the web server
-     * local font: to be substituted with a local (client side) font
-     */
     void export_remote_font(const FontInfo & info, const std::string & suffix, GfxFont * font);
     void export_remote_default_font(long long fn_id);
     void export_local_font(const FontInfo & info, GfxFont * font, const std::string & original_font_name, const std::string & cssfont);
