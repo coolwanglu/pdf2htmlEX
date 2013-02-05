@@ -134,6 +134,6 @@ pdf2htmlEX is inspired by the following projects:
 
 ### Special Thanks
 
-* Hongliang Tian <tatetian@gmail.com>
-* Wanmin Liu <wanminliu@gmail.com>
+* Hongliang Tian
+* Wanmin Liu 
 
