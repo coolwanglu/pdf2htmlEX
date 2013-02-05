@@ -98,6 +98,7 @@ void HTMLRenderer::reset_state()
 
     cur_font_info = install_font(nullptr);
 
+    cur_font_size = 0.0;
     font_size_manager.reset();
     
     memcpy(cur_text_tm, ID_MATRIX, sizeof(cur_text_tm));
@@ -262,7 +263,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
             draw_text_scale = new_draw_text_scale;
         }
 
-        if(!font_size_manager.install(new_draw_font_size))
+        if(font_size_manager.install(new_draw_font_size))
         {
             new_line_state = max<NewLineState>(new_line_state, NLS_SPAN);
         }
