@@ -3,8 +3,7 @@
  *
  * maintaining all known styles
  *
- * by WangLu
- * 2012.08.14
+ * Copyright (C) 2012,2013 Lu Wang <coolwanglu@gmail.com>
  */
 
 #include <iostream>
@@ -213,18 +212,6 @@ void HTMLRenderer::install_external_font(GfxFont * font, FontInfo & info)
     export_local_font(info, font, fontname, "");
 }
     
-long long HTMLRenderer::install_font_size(double font_size)
-{
-    auto iter = font_size_map.lower_bound(font_size - EPS);
-    if((iter != font_size_map.end()) && (equal(iter->first, font_size)))
-        return iter->second;
-
-    long long new_fs_id = font_size_map.size();
-    font_size_map.insert(make_pair(font_size, new_fs_id));
-    export_font_size(new_fs_id, font_size);
-    return new_fs_id;
-}
-
 long long HTMLRenderer::install_transform_matrix(const double * tm)
 {
     Matrix m;

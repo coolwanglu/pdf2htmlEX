@@ -3,8 +3,7 @@
  *
  * Export styles to HTML
  *
- * by WangLu
- * 2012.08.14
+ * Copyright (C) 2012,2013 Lu Wang <coolwanglu@gmail.com>
  */
 
 #include <sstream>
@@ -131,10 +130,6 @@ void HTMLRenderer::export_local_font(const FontInfo & info, GfxFont * font, cons
     f_css.fs << "}" << endl;
 }
 
-void HTMLRenderer::export_font_size (long long fs_id, double font_size) 
-{
-    f_css.fs << ".s" << fs_id << "{font-size:" << round(font_size) << "px;}" << endl;
-}
 
 void HTMLRenderer::export_transform_matrix (long long tm_id, const double * tm) 
 {

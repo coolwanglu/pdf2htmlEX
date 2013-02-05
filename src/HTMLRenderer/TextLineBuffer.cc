@@ -3,8 +3,7 @@
  *
  * Generate and optimized HTML for one line
  *
- * by WangLu
- * 2012.09.04
+ * Copyright (C) 2012,2013 Lu Wang <coolwanglu@gmail.com>
  */
 
 #include <vector>
@@ -186,17 +185,17 @@ void HTMLRenderer::TextLineBuffer::flush(void)
 void HTMLRenderer::TextLineBuffer::set_state (State & state)
 {
     state.ids[State::FONT_ID] = renderer->cur_font_info->id;
-    state.ids[State::FONT_SIZE_ID] = renderer->cur_fs_id;
+    state.ids[State::FONT_SIZE_ID] = renderer->font_size_manager.get_id();
     state.ids[State::FILL_COLOR_ID] = renderer->cur_fill_color_id;
     state.ids[State::STROKE_COLOR_ID] = renderer->cur_stroke_color_id;
-    state.ids[State::LETTER_SPACE_ID] = renderer->letter_space_tracker.get_id();
-    state.ids[State::WORD_SPACE_ID] = renderer->word_space_tracker.get_id();
+    state.ids[State::LETTER_SPACE_ID] = renderer->letter_space_manager.get_id();
+    state.ids[State::WORD_SPACE_ID] = renderer->word_space_manager.get_id();
     state.ids[State::RISE_ID] = renderer->cur_rise_id;
 
     const FontInfo * info = renderer->cur_font_info;
     state.ascent = info->ascent;
     state.descent = info->descent;
-    state.draw_font_size = renderer->draw_font_size;
+    state.draw_font_size = renderer->font_size_manager.get_value();
 }
 
 void HTMLRenderer::TextLineBuffer::State::begin (ostream & out, const State * prev_state)

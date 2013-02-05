@@ -30,7 +30,7 @@
 #include "util/StringFormatter.h"
 #include "util/TmpFiles.h"
 #include "util/misc.h"
-#include "util/StateTracker.h"
+#include "util/StateManager.h"
 
 namespace pdf2htmlEX {
 
@@ -164,7 +164,6 @@ class HTMLRenderer : public OutputDev
         void install_base_font(GfxFont * font, GfxFontLoc * font_loc, FontInfo & info);
         void install_external_font (GfxFont * font, FontInfo & info);
 
-        long long install_font_size(double font_size);
         long long install_transform_matrix(const double * tm);
         long long install_fill_color(const GfxRGB * rgb);
         long long install_stroke_color(const GfxRGB * rgb);
@@ -184,7 +183,6 @@ class HTMLRenderer : public OutputDev
         void export_remote_default_font(long long fn_id);
         void export_local_font(const FontInfo & info, GfxFont * font, const std::string & original_font_name, const std::string & cssfont);
 
-        void export_font_size(long long fs_id, double font_size);
         void export_transform_matrix(long long tm_id, const double * tm);
         void export_fill_color(long long color_id, const GfxRGB * rgb);
         void export_stroke_color(long long color_id, const GfxRGB * rgb);
@@ -283,9 +281,11 @@ class HTMLRenderer : public OutputDev
 
         // font & size
         const FontInfo * cur_font_info;
-        double cur_font_size;
-        long long cur_fs_id; 
         bool font_changed;
+        // cur_font_size is as in GfxState,
+        // font_size_manager saves the final font size used in HTML
+        double cur_font_size;
+        FontSizeManager font_size_manager;
 
         // transform matrix
         long long cur_ttm_id;
@@ -300,11 +300,11 @@ class HTMLRenderer : public OutputDev
 
         // letter spacing 
         bool letter_space_changed;
-        LetterSpaceTracker letter_space_tracker;
+        LetterSpaceManager letter_space_manager;
 
         // word spacing
         bool word_space_changed;
-        WordSpaceTracker word_space_tracker;
+        WordSpaceManager word_space_manager;
 
         // fill color
         long long cur_fill_color_id;
@@ -330,7 +330,6 @@ class HTMLRenderer : public OutputDev
         // draw_text_tm is cur_text_tm scaled by 1/draw_text_scale, 
         // so everything redenered should be multiplied by draw_text_scale
         double draw_text_tm[6];
-        double draw_font_size;
         double draw_text_scale; 
 
         // the position of next char, in text coords

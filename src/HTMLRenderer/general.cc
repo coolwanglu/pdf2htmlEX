@@ -3,8 +3,7 @@
  *
  * Handling general stuffs
  *
- * Copyright (C) 2012 Lu Wang <coolwanglu@gmail.com>
- * 2012.08.14
+ * Copyright (C) 2012,2013 Lu Wang <coolwanglu@gmail.com>
  */
 
 #include <cstdio>
@@ -57,8 +56,9 @@ HTMLRenderer::HTMLRenderer(const Param * param)
     cur_mapping2 = new char* [0x100];
     width_list = new int [0x10000];
 
-    letter_space_tracker.set_param(CSS::LETTER_SPACE_CN, EPS);
-    word_space_tracker  .set_param(CSS::WORD_SPACE_CN  , EPS);
+    font_size_manager   .set_param(CSS::FONT_SIZE_CN   , EPS);
+    letter_space_manager.set_param(CSS::LETTER_SPACE_CN, EPS);
+    word_space_manager  .set_param(CSS::WORD_SPACE_CN  , EPS);
 }
 
 HTMLRenderer::~HTMLRenderer()
@@ -336,7 +336,9 @@ void HTMLRenderer::pre_process(PDFDoc * doc)
 void HTMLRenderer::post_process()
 {
     // dump css
-    letter_space_tracker.dump_css(f_css.fs);
+    font_size_manager   .dump_css(f_css.fs);
+    letter_space_manager.dump_css(f_css.fs);
+    word_space_manager  .dump_css(f_css.fs);
 
     // close files
     f_outline.fs.close();

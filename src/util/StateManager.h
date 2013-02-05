@@ -1,14 +1,13 @@
 /*
- * StateTracker.h
+ * StateManager.h
  *
- * track specific PDF state
  * manage reusable CSS classes
  *
  * Copyright (C) 2013 Lu Wang <coolwanglu@gmail.com>
  */
 
-#ifndef STATETRACKER_H__
-#define STATETRACKER_H__
+#ifndef STATEMANAGER_H__
+#define STATEMANAGER_H__
 
 #include <iostream>
 #include <map>
@@ -17,13 +16,13 @@
 
 namespace pdf2htmlEX {
 
-template<class ValueType, class Imp> class StateTracker {};
+template<class ValueType, class Imp> class StateManager {};
 
 template<class Imp>
-class StateTracker<double, Imp>
+class StateManager<double, Imp>
 {
 public:
-    StateTracker()
+    StateManager()
         : eps(0)
         , imp(static_cast<Imp*>(this))
     { 
@@ -52,8 +51,9 @@ public:
         return _install(new_value);
     }
 
-    long long get_id (void) const { return id; }
-    double get_actual_value (void) const { return actual_value; }
+    long long get_id           (void) const { return id;           }
+    double    get_value        (void) const { return value;        }
+    double    get_actual_value (void) const { return actual_value; }
 
     void dump_css(std::ostream & out) {
         for(auto iter = value_map.begin(); iter != value_map.end(); ++iter)
@@ -93,21 +93,21 @@ protected:
     std::map<double, long long> value_map;
 };
 
-class FontSizeTracker : public StateTracker<double, FontSizeTracker>
+class FontSizeManager : public StateManager<double, FontSizeManager>
 {
 public:
     double default_value(void) { return 0; }
     void dump_value(std::ostream & out, double value) { out << "font-size:" << round(value) << "px;"; }
 };
 
-class LetterSpaceTracker : public StateTracker<double, LetterSpaceTracker>
+class LetterSpaceManager : public StateManager<double, LetterSpaceManager>
 {
 public:
     double default_value(void) { return 0; }
     void dump_value(std::ostream & out, double value) { out << "letter-spacing:" << round(value) << "px;"; }
 };
 
-class WordSpaceTracker : public StateTracker<double, WordSpaceTracker>
+class WordSpaceManager : public StateManager<double, WordSpaceManager>
 {
 public:
     double default_value(void) { return 0; }
@@ -116,4 +116,4 @@ public:
 
 } // namespace pdf2htmlEX 
 
-#endif //STATETRACKER_H__
+#endif //STATEMANAGER_H__

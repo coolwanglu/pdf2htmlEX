@@ -97,15 +97,15 @@ void HTMLRenderer::reset_state()
     draw_text_scale = 1.0;
 
     cur_font_info = install_font(nullptr);
-    cur_font_size = draw_font_size = 0;
-    cur_fs_id = install_font_size(cur_font_size);
+
+    font_size_manager.reset();
     
     memcpy(cur_text_tm, ID_MATRIX, sizeof(cur_text_tm));
     memcpy(draw_text_tm, ID_MATRIX, sizeof(draw_text_tm));
     cur_ttm_id = install_transform_matrix(draw_text_tm);
 
-    letter_space_tracker.reset();
-    word_space_tracker  .reset();
+    letter_space_manager.reset();
+    word_space_manager  .reset();
 
     cur_fill_color.r = cur_fill_color.g = cur_fill_color.b = 0;
     cur_fill_color_id = install_fill_color(&cur_fill_color);
@@ -262,11 +262,9 @@ void HTMLRenderer::check_state_change(GfxState * state)
             draw_text_scale = new_draw_text_scale;
         }
 
-        if(!(equal(new_draw_font_size, draw_font_size)))
+        if(!font_size_manager.install(new_draw_font_size))
         {
             new_line_state = max<NewLineState>(new_line_state, NLS_SPAN);
-            draw_font_size = new_draw_font_size;
-            cur_fs_id = install_font_size(draw_font_size);
         }
         if(!(tm_equal(new_draw_text_tm, draw_text_tm, 4)))
         {
@@ -339,7 +337,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
     // letter space
     // depends: draw_text_scale
     if((all_changed || letter_space_changed || draw_text_scale_changed)
-        && (letter_space_tracker.install(state->getCharSpace() * draw_text_scale)))
+        && (letter_space_manager.install(state->getCharSpace() * draw_text_scale)))
     {
         new_line_state = max<NewLineState>(new_line_state, NLS_SPAN);
     }
@@ -347,7 +345,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
     // word space
     // depends draw_text_scale
     if((all_changed || word_space_changed || draw_text_scale_changed)
-        && (word_space_tracker.install(state->getWordSpace() * draw_text_scale)))
+        && (word_space_manager.install(state->getWordSpace() * draw_text_scale)))
     {
         new_line_state = max<NewLineState>(new_line_state, NLS_SPAN);
     }
