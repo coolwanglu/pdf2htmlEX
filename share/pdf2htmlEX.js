@@ -1,6 +1,5 @@
-/* -*- Mode: Java; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 /* vim: set shiftwidth=2 tabstop=2 autoindent cindent expandtab: */
-/* vim modeline copied from pdf.js */
+/* -*- Mode: Java; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 
 /*
  * pdf2htmlEX.js
@@ -53,14 +52,14 @@ var pdf2htmlEX = (function(){
   };
   $.extend(Page.prototype, {
     hide : function(){
-      this.b.hide();
+      this.b.removeClass('opened');
     },
     show : function(){
       if(Math.abs(this.set_r - this.cur_r) > EPS) {
         this.cur_r = this.set_r;
         this.b.css('transform', 'scale('+this.cur_r.toFixed(3)+')');
       }
-      this.b.show();
+      this.b.addClass('opened');
     },
     rescale : function(ratio, is_relative) {
       if(ratio == 0) {
@@ -147,7 +146,7 @@ var pdf2htmlEX = (function(){
 
     pre_hide_pages : function() {
       /* pages might have not been loaded yet, so add a CSS rule */
-      var s = '.b{display:none;}';
+      var s = '@media screen{.b{display:none;}}';
       var n = document.createElement('style');
       n.type = 'text/css';
       if (n.styleSheet) {
