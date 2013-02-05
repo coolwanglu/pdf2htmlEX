@@ -56,13 +56,13 @@ HTMLRenderer::HTMLRenderer(const Param * param)
     cur_mapping2 = new char* [0x100];
     width_list = new int [0x10000];
 
-    font_size_manager   .set_param(EPS);
-    letter_space_manager.set_param(EPS);
-    word_space_manager  .set_param(EPS);
-    rise_manager        .set_param(param->v_eps);
-    whitespace_manager  .set_param(param->h_eps);
-    height_manager      .set_param(EPS);
-    left_manager        .set_param(param->h_eps);
+    font_size_manager   .set_eps(EPS);
+    letter_space_manager.set_eps(EPS);
+    word_space_manager  .set_eps(EPS);
+    rise_manager        .set_eps(param->v_eps);
+    whitespace_manager  .set_eps(param->h_eps);
+    height_manager      .set_eps(EPS);
+    left_manager        .set_eps(param->h_eps);
 }
 
 HTMLRenderer::~HTMLRenderer()

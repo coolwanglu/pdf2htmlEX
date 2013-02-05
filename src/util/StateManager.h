@@ -30,8 +30,8 @@ public:
         reset();
     }
 
-    // values no father than eps are treated as equal
-    void set_param (double eps) { 
+    // values no farther than eps are treated as equal
+    void set_eps (double eps) { 
         this->eps = eps; 
     }
 
