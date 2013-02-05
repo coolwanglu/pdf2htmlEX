@@ -66,6 +66,7 @@
   #pdf-main {
     width:auto;
     height:auto;
+    overflow:visible;
     background-color:transparent;
   }
 }
@@ -159,6 +160,12 @@ span {
     box-shadow:none;
     page-break-after:always;
     page-break-inside:avoid;
+  }
+  @-moz-document url-prefix() {
+    /* fix page truncation for Firefox */
+    .d {overflow:visible;}
+    .p {overflow:visible;}
+    .b {overflow:visible;}
   }
 }
 /* Base CSS END */
