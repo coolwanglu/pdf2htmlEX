@@ -168,7 +168,6 @@ class HTMLRenderer : public OutputDev
         long long install_fill_color(const GfxRGB * rgb);
         long long install_stroke_color(const GfxRGB * rgb);
         long long install_whitespace(double ws_width, double & actual_width);
-        long long install_rise(double rise);
         long long install_height(double height);
         long long install_left(double left);
 
@@ -187,7 +186,6 @@ class HTMLRenderer : public OutputDev
         void export_fill_color(long long color_id, const GfxRGB * rgb);
         void export_stroke_color(long long color_id, const GfxRGB * rgb);
         void export_whitespace(long long ws_id, double ws_width);
-        void export_rise(long long rise_id, double rise);
         void export_height(long long height_id, double height);
         void export_left(long long left_id, double left);
 
@@ -319,9 +317,8 @@ class HTMLRenderer : public OutputDev
         bool stroke_color_changed;
 
         // rise
-        long long cur_rise_id;
-        double cur_rise;
         bool rise_changed;
+        RiseManager rise_manager;
 
         // optimize for web
         // we try to render the final font size directly
@@ -359,11 +356,9 @@ class HTMLRenderer : public OutputDev
         ////////////////////////////////////////////////////
 
         std::unordered_map<long long, FontInfo> font_name_map;
-        std::map<double, long long> font_size_map;
         std::map<Matrix, long long, Matrix_less> transform_matrix_map;
         std::unordered_map<GfxRGB, long long, GfxRGB_hash, GfxRGB_equal> fill_color_map, stroke_color_map; 
         std::map<double, long long> whitespace_map;
-        std::map<double, long long> rise_map;
         std::map<double, long long> height_map;
         std::map<double, long long> left_map;
 

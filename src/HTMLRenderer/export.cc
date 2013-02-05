@@ -196,11 +196,6 @@ void HTMLRenderer::export_whitespace (long long ws_id, double ws_width)
         f_css.fs << "._" << ws_id << "{display:inline;margin-left:" << round(ws_width) << "px;}" << endl;
 }
 
-void HTMLRenderer::export_rise (long long rise_id, double rise) 
-{
-    f_css.fs << ".r" << rise_id << "{top:" << round(-rise) << "px;}" << endl;
-}
-
 void HTMLRenderer::export_height (long long height_id, double height) 
 {
     f_css.fs << ".h" << height_id << "{height:" << round(height) << "px;}" << endl;

@@ -280,20 +280,6 @@ long long HTMLRenderer::install_whitespace(double ws_width, double & actual_widt
     return new_ws_id;
 }
 
-long long HTMLRenderer::install_rise(double rise)
-{
-    auto iter = rise_map.lower_bound(rise - param->v_eps);
-    if((iter != rise_map.end()) && (abs(iter->first - rise) <= param->v_eps))
-    {
-        return iter->second;
-    }
-
-    long long new_rise_id = rise_map.size();
-    rise_map.insert(make_pair(rise, new_rise_id));
-    export_rise(new_rise_id, rise);
-    return new_rise_id;
-}
-
 long long HTMLRenderer::install_height(double height)
 {
     auto iter = height_map.lower_bound(height - EPS);

@@ -190,7 +190,7 @@ void HTMLRenderer::TextLineBuffer::set_state (State & state)
     state.ids[State::STROKE_COLOR_ID] = renderer->cur_stroke_color_id;
     state.ids[State::LETTER_SPACE_ID] = renderer->letter_space_manager.get_id();
     state.ids[State::WORD_SPACE_ID] = renderer->word_space_manager.get_id();
-    state.ids[State::RISE_ID] = renderer->cur_rise_id;
+    state.ids[State::RISE_ID] = renderer->rise_manager.get_id();
 
     const FontInfo * info = renderer->cur_font_info;
     state.ascent = info->ascent;

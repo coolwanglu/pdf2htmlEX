@@ -114,6 +114,13 @@ public:
     void dump_value(std::ostream & out, double value) { out << "word-spacing:" << round(value) << "px;"; }
 };
 
+class RiseManager : public StateManager<double, RiseManager>
+{
+public:
+    double default_value(void) { return 0; }
+    void dump_value(std::ostream & out, double value) { out << "top:" << round(-value) << "px;"; }
+};
+
 } // namespace pdf2htmlEX 
 
 #endif //STATEMANAGER_H__

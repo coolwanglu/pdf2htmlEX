@@ -56,9 +56,10 @@ HTMLRenderer::HTMLRenderer(const Param * param)
     cur_mapping2 = new char* [0x100];
     width_list = new int [0x10000];
 
-    font_size_manager   .set_param(CSS::FONT_SIZE_CN   , EPS);
-    letter_space_manager.set_param(CSS::LETTER_SPACE_CN, EPS);
-    word_space_manager  .set_param(CSS::WORD_SPACE_CN  , EPS);
+    font_size_manager   .set_param(CSS::FONT_SIZE_CN   , EPS         );
+    letter_space_manager.set_param(CSS::LETTER_SPACE_CN, EPS         );
+    word_space_manager  .set_param(CSS::WORD_SPACE_CN  , EPS         );
+    rise_manager        .set_param(CSS::RISE_CN        , param->v_eps);
 }
 
 HTMLRenderer::~HTMLRenderer()
@@ -339,6 +340,7 @@ void HTMLRenderer::post_process()
     font_size_manager   .dump_css(f_css.fs);
     letter_space_manager.dump_css(f_css.fs);
     word_space_manager  .dump_css(f_css.fs);
+    rise_manager        .dump_css(f_css.fs);
 
     // close files
     f_outline.fs.close();

@@ -116,8 +116,7 @@ void HTMLRenderer::reset_state()
     cur_stroke_color_id = install_stroke_color(&cur_stroke_color);
     cur_has_stroke = false;
 
-    cur_rise = 0;
-    cur_rise_id = install_rise(cur_rise);
+    rise_manager.reset();
 
     cur_tx = cur_ty = 0;
     draw_tx = draw_ty = 0;
@@ -408,15 +407,10 @@ void HTMLRenderer::check_state_change(GfxState * state)
 
     // rise
     // depends draw_text_scale
-    if(all_changed || rise_changed || draw_text_scale_changed)
+    if((all_changed || rise_changed || draw_text_scale_changed)
+        && (rise_manager.install(state->getRise() * draw_text_scale)))
     {
-        double new_rise = state->getRise();
-        if(!equal(cur_rise, new_rise))
-        {
-            new_line_state = max<NewLineState>(new_line_state, NLS_SPAN);
-            cur_rise = new_rise;
-            cur_rise_id = install_rise(new_rise * draw_text_scale);
-        }
+        new_line_state = max<NewLineState>(new_line_state, NLS_SPAN);
     }
 
     reset_state_change();
