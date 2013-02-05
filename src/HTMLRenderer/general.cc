@@ -55,6 +55,8 @@ HTMLRenderer::HTMLRenderer(const Param * param)
     cur_mapping = new int32_t [0x10000];
     cur_mapping2 = new char* [0x100];
     width_list = new int [0x10000];
+
+    letter_space_tracker.set_param("l", EPS);
 }
 
 HTMLRenderer::~HTMLRenderer()
@@ -331,6 +333,9 @@ void HTMLRenderer::pre_process(PDFDoc * doc)
 
 void HTMLRenderer::post_process()
 {
+    // dump css
+    letter_space_tracker.dump_css(f_css.fs);
+
     // close files
     f_outline.fs.close();
     f_pages.fs.close(); 

@@ -30,6 +30,7 @@
 #include "util/StringFormatter.h"
 #include "util/TmpFiles.h"
 #include "util/misc.h"
+#include "util/StateTracker.h"
 
 /*
  * Naming Convention
@@ -197,7 +198,6 @@ class HTMLRenderer : public OutputDev
 
         long long install_font_size(double font_size);
         long long install_transform_matrix(const double * tm);
-        long long install_letter_space(double letter_space);
         long long install_word_space(double word_space);
         long long install_fill_color(const GfxRGB * rgb);
         long long install_stroke_color(const GfxRGB * rgb);
@@ -219,7 +219,6 @@ class HTMLRenderer : public OutputDev
 
         void export_font_size(long long fs_id, double font_size);
         void export_transform_matrix(long long tm_id, const double * tm);
-        void export_letter_space(long long ls_id, double letter_space);
         void export_word_space(long long ws_id, double word_space);
         void export_fill_color(long long color_id, const GfxRGB * rgb);
         void export_stroke_color(long long color_id, const GfxRGB * rgb);
@@ -334,9 +333,8 @@ class HTMLRenderer : public OutputDev
         double cur_text_tm[6]; // unscaled
 
         // letter spacing 
-        long long cur_ls_id;
-        double cur_letter_space;
         bool letter_space_changed;
+        LetterSpaceTracker letter_space_tracker;
 
         // word spacing
         long long cur_ws_id;
@@ -399,7 +397,6 @@ class HTMLRenderer : public OutputDev
         std::unordered_map<long long, FontInfo> font_name_map;
         std::map<double, long long> font_size_map;
         std::map<Matrix, long long, Matrix_less> transform_matrix_map;
-        std::map<double, long long> letter_space_map;
         std::map<double, long long> word_space_map;
         std::unordered_map<GfxRGB, long long, GfxRGB_hash, GfxRGB_equal> fill_color_map, stroke_color_map; 
         std::map<double, long long> whitespace_map;

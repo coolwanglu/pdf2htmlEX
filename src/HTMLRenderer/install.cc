@@ -240,18 +240,6 @@ long long HTMLRenderer::install_transform_matrix(const double * tm)
     return new_tm_id;
 }
 
-long long HTMLRenderer::install_letter_space(double letter_space)
-{
-    auto iter = letter_space_map.lower_bound(letter_space - EPS);
-    if((iter != letter_space_map.end()) && (equal(iter->first, letter_space)))
-        return iter->second;
-
-    long long new_ls_id = letter_space_map.size();
-    letter_space_map.insert(make_pair(letter_space, new_ls_id));
-    export_letter_space(new_ls_id, letter_space);
-    return new_ls_id;
-}
-
 long long HTMLRenderer::install_word_space(double word_space)
 {
     auto iter = word_space_map.lower_bound(word_space - EPS);

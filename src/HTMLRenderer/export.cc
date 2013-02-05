@@ -168,11 +168,6 @@ void HTMLRenderer::export_transform_matrix (long long tm_id, const double * tm)
     f_css.fs << "}" << endl;
 }
 
-void HTMLRenderer::export_letter_space (long long ls_id, double letter_space) 
-{
-    f_css.fs << ".l" << ls_id << "{letter-spacing:" << round(letter_space) << "px;}" << endl;
-}
-
 void HTMLRenderer::export_word_space (long long ws_id, double word_space) 
 {
     f_css.fs << ".w" << ws_id << "{word-spacing:" << round(word_space) << "px;}" << endl;

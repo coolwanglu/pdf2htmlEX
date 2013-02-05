@@ -189,7 +189,7 @@ void HTMLRenderer::TextLineBuffer::set_state (State & state)
     state.ids[State::FONT_SIZE_ID] = renderer->cur_fs_id;
     state.ids[State::FILL_COLOR_ID] = renderer->cur_fill_color_id;
     state.ids[State::STROKE_COLOR_ID] = renderer->cur_stroke_color_id;
-    state.ids[State::LETTER_SPACE_ID] = renderer->cur_ls_id;
+    state.ids[State::LETTER_SPACE_ID] = renderer->letter_space_tracker.get_id();
     state.ids[State::WORD_SPACE_ID] = renderer->cur_ws_id;
     state.ids[State::RISE_ID] = renderer->cur_rise_id;
 
