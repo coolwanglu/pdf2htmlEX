@@ -7,6 +7,11 @@
 #ifndef CSSCLASSNAMES_H__
 #define CSSCLASSNAMES_H__
 
+
+/*
+ * should be consistent with base.css and pdf2htmlEX.js
+ */
+
 namespace pdf2htmlEX {
 namespace CSS {
 
