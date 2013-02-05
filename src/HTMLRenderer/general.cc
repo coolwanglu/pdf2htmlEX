@@ -24,6 +24,7 @@
 #include "util/base64stream.h"
 #include "util/math.h"
 #include "util/path.h"
+#include "util/CSSClassNames.h"
 
 namespace pdf2htmlEX {
 
@@ -56,7 +57,8 @@ HTMLRenderer::HTMLRenderer(const Param * param)
     cur_mapping2 = new char* [0x100];
     width_list = new int [0x10000];
 
-    letter_space_tracker.set_param("l", EPS);
+    letter_space_tracker.set_param(CSS::LETTER_SPACE_CN, EPS);
+    word_space_tracker  .set_param(CSS::WORD_SPACE_CN  , EPS);
 }
 
 HTMLRenderer::~HTMLRenderer()

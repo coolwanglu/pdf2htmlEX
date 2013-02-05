@@ -97,7 +97,6 @@ class FontSizeTracker : public StateTracker<double, FontSizeTracker>
 {
 public:
     double default_value(void) { return 0; }
-    double get_value(GfxState * state) { return state->getFontSize(); }
     void dump_value(std::ostream & out, double value) { out << "font-size:" << round(value) << "px;"; }
 };
 
@@ -105,8 +104,14 @@ class LetterSpaceTracker : public StateTracker<double, LetterSpaceTracker>
 {
 public:
     double default_value(void) { return 0; }
-    double get_value(GfxState * state) { return state->getCharSpace(); }
     void dump_value(std::ostream & out, double value) { out << "letter-spacing:" << round(value) << "px;"; }
+};
+
+class WordSpaceTracker : public StateTracker<double, WordSpaceTracker>
+{
+public:
+    double default_value(void) { return 0; }
+    void dump_value(std::ostream & out, double value) { out << "word-spacing:" << round(value) << "px;"; }
 };
 
 } // namespace pdf2htmlEX 

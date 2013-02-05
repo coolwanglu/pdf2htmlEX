@@ -105,9 +105,7 @@ void HTMLRenderer::reset_state()
     cur_ttm_id = install_transform_matrix(draw_text_tm);
 
     letter_space_tracker.reset();
-
-    cur_word_space = 0;
-    cur_ws_id = install_word_space(cur_word_space);
+    word_space_tracker  .reset();
 
     cur_fill_color.r = cur_fill_color.g = cur_fill_color.b = 0;
     cur_fill_color_id = install_fill_color(&cur_fill_color);
@@ -348,15 +346,10 @@ void HTMLRenderer::check_state_change(GfxState * state)
 
     // word space
     // depends draw_text_scale
-    if(all_changed || word_space_changed || draw_text_scale_changed)
+    if((all_changed || word_space_changed || draw_text_scale_changed)
+        && (word_space_tracker.install(state->getWordSpace() * draw_text_scale)))
     {
-        double new_word_space = state->getWordSpace();
-        if(!equal(cur_word_space, new_word_space))
-        {
-            new_line_state = max<NewLineState>(new_line_state, NLS_SPAN);
-            cur_word_space = new_word_space;
-            cur_ws_id = install_word_space(cur_word_space * draw_text_scale);
-        }
+        new_line_state = max<NewLineState>(new_line_state, NLS_SPAN);
     }
 
     // color

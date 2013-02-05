@@ -240,18 +240,6 @@ long long HTMLRenderer::install_transform_matrix(const double * tm)
     return new_tm_id;
 }
 
-long long HTMLRenderer::install_word_space(double word_space)
-{
-    auto iter = word_space_map.lower_bound(word_space - EPS);
-    if((iter != word_space_map.end()) && (equal(iter->first, word_space)))
-        return iter->second;
-
-    long long new_ws_id = word_space_map.size();
-    word_space_map.insert(make_pair(word_space, new_ws_id));
-    export_word_space(new_ws_id, word_space);
-    return new_ws_id;
-}
-
 long long HTMLRenderer::install_fill_color(const GfxRGB * rgb)
 {
     // transparent

@@ -32,38 +32,6 @@
 #include "util/misc.h"
 #include "util/StateTracker.h"
 
-/*
- * Naming Convention
- *
- * CSS classes
- *
- * _ - white space
- * a - Annot link
- * b - page Box
- * d - page Decoration
- * l - Line
- * j - Js data
- * p - Page
- *
- * Cd - CSS Draw
- *
- * Numbered CSS classes
- * See also: HTMLRenderer::TextLineBuffer::format_str
- *
- * t<hex> - Transform matrix
- * f<hex> - Font (also for font names)
- * s<hex> - font Size
- * l<hex> - Letter spacing
- * w<hex> - Word spacing
- * c<hex> - Fill Color
- * C<hex> - Stroke Color
- * _<hex> - white space
- * r<hex> - Rise
- * h<hex> - Height
- * L<hex> - Left
- *
- */
-
 namespace pdf2htmlEX {
 
 // we may need more info of a font in the future
@@ -198,7 +166,6 @@ class HTMLRenderer : public OutputDev
 
         long long install_font_size(double font_size);
         long long install_transform_matrix(const double * tm);
-        long long install_word_space(double word_space);
         long long install_fill_color(const GfxRGB * rgb);
         long long install_stroke_color(const GfxRGB * rgb);
         long long install_whitespace(double ws_width, double & actual_width);
@@ -219,7 +186,6 @@ class HTMLRenderer : public OutputDev
 
         void export_font_size(long long fs_id, double font_size);
         void export_transform_matrix(long long tm_id, const double * tm);
-        void export_word_space(long long ws_id, double word_space);
         void export_fill_color(long long color_id, const GfxRGB * rgb);
         void export_stroke_color(long long color_id, const GfxRGB * rgb);
         void export_whitespace(long long ws_id, double ws_width);
@@ -337,9 +303,8 @@ class HTMLRenderer : public OutputDev
         LetterSpaceTracker letter_space_tracker;
 
         // word spacing
-        long long cur_ws_id;
-        double cur_word_space;
         bool word_space_changed;
+        WordSpaceTracker word_space_tracker;
 
         // fill color
         long long cur_fill_color_id;
@@ -397,7 +362,6 @@ class HTMLRenderer : public OutputDev
         std::unordered_map<long long, FontInfo> font_name_map;
         std::map<double, long long> font_size_map;
         std::map<Matrix, long long, Matrix_less> transform_matrix_map;
-        std::map<double, long long> word_space_map;
         std::unordered_map<GfxRGB, long long, GfxRGB_hash, GfxRGB_equal> fill_color_map, stroke_color_map; 
         std::map<double, long long> whitespace_map;
         std::map<double, long long> rise_map;

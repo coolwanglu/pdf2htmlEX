@@ -505,6 +505,7 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
 
     auto font = state->getFont();
     double cur_letter_space = state->getCharSpace();
+    double cur_word_space   = state->getWordSpace();
 
     // Writing mode fonts and Type 3 fonts are rendered as images
     // I don't find a way to display writing mode fonts in HTML except for one div for each character, which is too costly
