@@ -48,7 +48,8 @@ public:
     bool install(double new_value) {
         if(equal(new_value, value))
             return false;
-        return _install(new_value);
+        _install(new_value);
+        return true;
     }
 
     long long get_id           (void) const { return id;           }
@@ -66,6 +67,7 @@ public:
 
 protected:
     // this version of install does not check if value has been updated
+    // return if a new entry has been created
     bool _install(double new_value) {
         value = new_value;
 
