@@ -66,6 +66,9 @@ public:
     }
 
     void dump_print_css(std::ostream & out, double scale) {
+        //debug
+        std::cout << imp->get_css_class_name << ' ' << scale << std::endl;
+
         for(auto iter = value_map.begin(); iter != value_map.end(); ++iter)
         {
             out << "." << imp->get_css_class_name() << iter->second << "{";
