@@ -139,12 +139,14 @@ protected:
     // misc
     ////////////////////////////////////////////////////
     void pre_process(PDFDoc * doc);
-    void post_process();
+    void post_process(void);
 
-    void process_outline();
+    void process_outline(void);
     void process_outline_items(GooList * items);
 
     void set_stream_flags (std::ostream & out);
+
+    void dump_css(void);
 
     // convert a LinkAction to a string that our Javascript code can understand
     std::string get_linkaction_str(LinkAction *, std::string & detail);
@@ -222,6 +224,7 @@ protected:
     XRef * xref;
     PDFDoc * cur_doc;
     Catalog * cur_catalog;
+    int pageNum;
 
     double default_ctm[6];
 

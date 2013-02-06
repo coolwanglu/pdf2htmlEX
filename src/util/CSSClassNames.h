@@ -23,6 +23,7 @@ const char * const INVALID_ID          = "_";
 // work around strings
 // TODOsince we have this string, should this file be named as general "css.h" ?
 const char * const WEBKIT_ONLY         = "@media screen and (-webkit-min-device-pixel-ratio:0)";
+const char * const PRINT_ONLY           = "@media print";
 
 
 // TODO: better names, remove collission (i.e LINE_CN vs LETTER_SPACE_CN)

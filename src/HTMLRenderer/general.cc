@@ -160,8 +160,10 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state, XRef * xref)
 {
     assert((!line_opened) && "Open line in startPage detected!");
 
-    height_manager.install(state->getPageWidth());
-    width_maanger.install(state->getPageHeight());
+    this->pageNum = pageNum;
+
+    width_manager.install(state->getPageWidth());
+    height_manager.install(state->getPageHeight());
     f_pages.fs 
         << "<div class=\"" << CSS::PAGE_DECORATION_CN 
             << " " << CSS::WIDTH_CN << width_manager.get_id()
@@ -191,7 +193,9 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state, XRef * xref)
         }
 
         // TODO print css
-        f_pages.fs << ");background-position:0 0;background-size:" << pageWidth << "px " << pageHeight << "px;background-repeat:no-repeat;";
+        f_pages.fs << ");background-position:0 0;background-size:" 
+            << state->getPageWidth() << "px " 
+            << state->getPageHeight() << "px;background-repeat:no-repeat;";
     }
 
     f_pages.fs << "\">";
@@ -340,22 +344,9 @@ void HTMLRenderer::pre_process(PDFDoc * doc)
     }
 }
 
-void HTMLRenderer::post_process()
+void HTMLRenderer::post_process(void)
 {
-    // dump css
-    transform_matrix_manager.dump_css(f_css.fs);
-    letter_space_manager    .dump_css(f_css.fs);
-    stroke_color_manager    .dump_css(f_css.fs);
-    word_space_manager      .dump_css(f_css.fs);
-    whitespace_manager      .dump_css(f_css.fs);
-    fill_color_manager      .dump_css(f_css.fs);
-    font_size_manager       .dump_css(f_css.fs);
-    bottom_manager          .dump_css(f_css.fs);
-    height_manager          .dump_css(f_css.fs);
-    width_manager           .dump_css(f_css.fs);
-    rise_manager            .dump_css(f_css.fs);
-    left_manager            .dump_css(f_css.fs);
-
+    dump_css();
     // close files
     f_outline.fs.close();
     f_pages.fs.close(); 
@@ -445,6 +436,39 @@ void HTMLRenderer::set_stream_flags(std::ostream & out)
     // we output all ID's in hex
     // browsers are not happy with scientific notations
     out << hex << fixed;
+}
+
+void HTMLRenderer::dump_css (void)
+{
+    transform_matrix_manager.dump_css(f_css.fs);
+    letter_space_manager    .dump_css(f_css.fs);
+    stroke_color_manager    .dump_css(f_css.fs);
+    word_space_manager      .dump_css(f_css.fs);
+    whitespace_manager      .dump_css(f_css.fs);
+    fill_color_manager      .dump_css(f_css.fs);
+    font_size_manager       .dump_css(f_css.fs);
+    bottom_manager          .dump_css(f_css.fs);
+    height_manager          .dump_css(f_css.fs);
+    width_manager           .dump_css(f_css.fs);
+    rise_manager            .dump_css(f_css.fs);
+    left_manager            .dump_css(f_css.fs);
+    
+    // print css
+    double print_scale = 96.0 / DEFAULT_DPI / text_zoom_factor();
+    f_css.fs << CSS::PRINT_ONLY << "{" << endl;
+    transform_matrix_manager.dump_print_css(f_css.fs, print_scale);
+    letter_space_manager    .dump_print_css(f_css.fs, print_scale);
+    stroke_color_manager    .dump_print_css(f_css.fs, print_scale);
+    word_space_manager      .dump_print_css(f_css.fs, print_scale);
+    whitespace_manager      .dump_print_css(f_css.fs, print_scale);
+    fill_color_manager      .dump_print_css(f_css.fs, print_scale);
+    font_size_manager       .dump_print_css(f_css.fs, print_scale);
+    bottom_manager          .dump_print_css(f_css.fs, print_scale);
+    height_manager          .dump_print_css(f_css.fs, print_scale);
+    width_manager           .dump_print_css(f_css.fs, print_scale);
+    rise_manager            .dump_print_css(f_css.fs, print_scale);
+    left_manager            .dump_print_css(f_css.fs, print_scale);
+    f_css.fs << "}" << endl;
 }
 
 void HTMLRenderer::embed_file(ostream & out, const string & path, const string & type, bool copy)

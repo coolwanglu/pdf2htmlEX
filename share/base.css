@@ -58,6 +58,7 @@
 }
 @media print {
   @page { margin:0; }
+  html { margin:0; }
   body { 
     margin:0; 
     /* enable printing background images for WebKit */
