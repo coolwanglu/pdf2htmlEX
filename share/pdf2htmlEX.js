@@ -51,6 +51,7 @@ var pdf2htmlEX = (function(){
     this.container = container;
   };
   $.extend(Page.prototype, {
+    /* hide & show are for contents, the page frame is still there */
     hide : function(){
       this.b.removeClass('opened');
     },
@@ -142,8 +143,6 @@ var pdf2htmlEX = (function(){
 
       this.render();
     },
-
-
     pre_hide_pages : function() {
       /* pages might have not been loaded yet, so add a CSS rule */
       var s = '@media screen{.b{display:none;}}';
