@@ -85,15 +85,14 @@ void HTMLRenderer::TextLineBuffer::flush(void)
 
     ostream & out = renderer->f_pages.fs;
     renderer->height_manager.install(max_ascent);
-    renderer->left_manager.install(x);
+    renderer->left_manager  .install(x);
+    renderer->bottom_manager.install(y);
 
-    out << "<div style=\""
-        << "bottom:" << round(y) << "px;"
-        << "\""
-        << " class=\"" << CSS::LINE_CN
-        << " "         << CSS::TRANSFORM_MATRIX_CN << tm_id 
-        << " "         << CSS::LEFT_CN             << renderer->left_manager.get_id()
-        << " "         << CSS::HEIGHT_CN           << renderer->height_manager.get_id()
+    out << "<div class=\"" << CSS::LINE_CN
+        << " "             << CSS::TRANSFORM_MATRIX_CN << tm_id 
+        << " "             << CSS::LEFT_CN             << renderer->left_manager  .get_id()
+        << " "             << CSS::HEIGHT_CN           << renderer->height_manager.get_id()
+        << " "             << CSS::BOTTOM_CN           << renderer->bottom_manager.get_id()
         << "\">";
 
     auto cur_state_iter = states.begin();

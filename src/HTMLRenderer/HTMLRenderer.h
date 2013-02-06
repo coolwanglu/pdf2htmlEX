@@ -225,11 +225,6 @@ protected:
 
     double default_ctm[6];
 
-    // page info
-    int pageNum;
-    double pageWidth ;
-    double pageHeight ;
-
     /*
      * The content of each page is first scaled with factor1 (>=1), then scale back with factor2(<=1)
      *
@@ -292,7 +287,9 @@ protected:
     WordSpaceManager             word_space_manager;
     FillColorManager             fill_color_manager;
     FontSizeManager               font_size_manager;
+    BottomManager                    bottom_manager;
     HeightManager                    height_manager;
+    WidthManager                      width_manager;
     RiseManager                        rise_manager;
     LeftManager                        left_manager;
     ////////////////////////////////////////////////

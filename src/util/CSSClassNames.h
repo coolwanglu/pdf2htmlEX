@@ -46,8 +46,10 @@ const char * const LETTER_SPACE_CN     = "l";
 const char * const WORD_SPACE_CN       = "w";
 const char * const RISE_CN             = "r";
 const char * const WHITESPACE_CN       = "_";
-const char * const HEIGHT_CN           = "h";
 const char * const LEFT_CN             = "L";
+const char * const HEIGHT_CN           = "h";
+const char * const WIDTH_CN            = "W";
+const char * const BOTTOM_CN           = "B";
 
 const char * const CSS_DRAW_CN         = "Cd";
 const char * const LINK_CN             = "a";

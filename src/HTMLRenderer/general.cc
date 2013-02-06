@@ -61,8 +61,10 @@ HTMLRenderer::HTMLRenderer(const Param * param)
     word_space_manager  .set_eps(EPS);
     rise_manager        .set_eps(param->v_eps);
     whitespace_manager  .set_eps(param->h_eps);
-    height_manager      .set_eps(EPS);
     left_manager        .set_eps(param->h_eps);
+    height_manager      .set_eps(EPS);
+    width_manager       .set_eps(EPS);
+    bottom_manager      .set_eps(EPS);
 }
 
 HTMLRenderer::~HTMLRenderer()
@@ -156,18 +158,17 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
 
 void HTMLRenderer::startPage(int pageNum, GfxState *state, XRef * xref) 
 {
-    this->pageNum = pageNum;
-    this->pageWidth = state->getPageWidth();
-    this->pageHeight = state->getPageHeight();
-
     assert((!line_opened) && "Open line in startPage detected!");
 
+    height_manager.install(state->getPageWidth());
+    width_maanger.install(state->getPageHeight());
     f_pages.fs 
         << "<div class=\"" << CSS::PAGE_DECORATION_CN 
-            << "\" style=\"width:" 
-            << (pageWidth) << "px;height:" 
-            << (pageHeight) << "px;\">"
-        << "<div id=\"" << CSS::PAGE_FRAME_CN << pageNum << "\" data-page-no=\"" << pageNum << "\" class=\"p\">"
+            << " " << CSS::WIDTH_CN << width_manager.get_id()
+            << " " << CSS::HEIGHT_CN << height_manager.get_id()
+            << "\">"
+        << "<div id=\"" << CSS::PAGE_FRAME_CN << pageNum 
+            << "\" data-page-no=\"" << pageNum << "\" class=\"p\">"
         << "<div class=\"" << CSS::PAGE_CONTENT_BOX_CN << "\" style=\"";
 
     if(param->process_nontext)
@@ -189,6 +190,7 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state, XRef * xref)
             }
         }
 
+        // TODO print css
         f_pages.fs << ");background-position:0 0;background-size:" << pageWidth << "px " << pageHeight << "px;background-repeat:no-repeat;";
     }
 
@@ -348,7 +350,9 @@ void HTMLRenderer::post_process()
     whitespace_manager      .dump_css(f_css.fs);
     fill_color_manager      .dump_css(f_css.fs);
     font_size_manager       .dump_css(f_css.fs);
+    bottom_manager          .dump_css(f_css.fs);
     height_manager          .dump_css(f_css.fs);
+    width_manager           .dump_css(f_css.fs);
     rise_manager            .dump_css(f_css.fs);
     left_manager            .dump_css(f_css.fs);
 

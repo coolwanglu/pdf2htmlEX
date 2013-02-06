@@ -314,6 +314,22 @@ public:
     }
 };
 
+class WidthManager : public StateManager<double, WidthManager>
+{
+public:
+    static const char * get_css_class_name (void) { return CSS::WIDTH_CN; }
+    double default_value(void) { return 0; }
+    void dump_value(std::ostream & out, double value) { out << "width:" << round(value) << "px;"; }
+};
+
+class BottomManager : public StateManager<double, BottomManager>
+{
+public:
+    static const char * get_css_class_name (void) { return CSS::BOTTOM_CN; }
+    double default_value(void) { return 0; }
+    void dump_value(std::ostream & out, double value) { out << "bottom:" << round(value) << "px;"; }
+};
+
 class HeightManager : public StateManager<double, HeightManager>
 {
 public:

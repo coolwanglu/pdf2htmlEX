@@ -109,7 +109,9 @@ void HTMLRenderer::reset_state()
     whitespace_manager      .reset();
     fill_color_manager      .reset();
     font_size_manager       .reset();
+    bottom_manager          .reset();
     height_manager          .reset();
+    width_manager           .reset();
     rise_manager            .reset();
     left_manager            .reset();
 
