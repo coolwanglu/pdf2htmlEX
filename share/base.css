@@ -163,8 +163,11 @@ span {
     page-break-inside:avoid;
   }
   @-moz-document url-prefix() {
-    /* fix page truncation for Firefox */
-    .d {overflow:visible;}
+    /* fix page truncation for FireFox */
+    .d {
+      overflow:visible;
+      border:1px solid #FFFFFF;
+    }
     .p {overflow:visible;}
     .b {overflow:visible;}
   }
