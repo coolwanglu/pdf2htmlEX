@@ -254,10 +254,9 @@ protected:
     } new_line_state;
     
 
+    // track the original (unscaled) values to determine scaling and merge lines
     // current position
     double cur_tx, cur_ty; // real text position, in text coords
-
-    // cur_font_size and cur_text_tm are unscaled (the same as in PDF)
     double cur_font_size;
     // this is CTM * TextMAT in PDF
     // [4] and [5] are ignored,
@@ -279,7 +278,6 @@ protected:
 
     // font & size
     const FontInfo * cur_font_info;
-
 
     // managers store values actually used in HTML (i.e. scaled)
     ////////////////////////////////////////////////
