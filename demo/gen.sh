@@ -6,4 +6,4 @@ for f in ../test/demo/*.pdf; do
     pdf2htmlEX $PARA $f
 done
 
-pdf2htmlEX $PARA -l 3 ../test/demo/issue65_en.pdf issue65_en_sample.html
+#pdf2htmlEX $PARA -l 3 ../test/demo/issue65_en.pdf issue65_en_sample.html
