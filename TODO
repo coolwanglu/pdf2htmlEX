@@ -24,3 +24,4 @@ Not enough motivated/Lazy
  - multiple charcode mapped to a same glyph
  - don't dump image when there is nothing
  - minimum line width of css drawing
+ - ajax in pdf2htmlEX for separated pages
