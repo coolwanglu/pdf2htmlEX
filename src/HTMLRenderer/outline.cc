@@ -35,8 +35,9 @@ void HTMLRenderer::process_outline_items(GooList * items)
         string dest = get_linkaction_str(item->getAction(), detail);
 
         // we don't care dest is empty or not.
-        f_outline.fs << "<li>"
-            << "<a href=\"" << dest << "\"";
+        f_outline.fs << "<li>" << "<a href=\"";
+        outputURL(f_outline.fs, dest);
+        f_outline.fs << "\"";
 
         if(!detail.empty())
             f_outline.fs << " data-dest-detail='" << detail << "'";
