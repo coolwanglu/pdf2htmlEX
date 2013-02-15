@@ -301,6 +301,7 @@ void HTMLRenderer::pre_process(PDFDoc * doc)
         set_stream_flags(f_css.fs);
     }
 
+    if (param->process_outline)
     {
         /*
          * The logic for outline is similar to css
