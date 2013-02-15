@@ -167,6 +167,8 @@ add_executable(pdf2htmlEX
     src/util/base64stream.cc
     src/util/const.h
     src/util/const.cc
+    src/util/encoding.h
+    src/util/encoding.cc
     src/util/ffw.h
     src/util/ffw.c
     src/util/math.h

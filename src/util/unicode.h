@@ -8,8 +8,6 @@
 #ifndef UNICODE_H__
 #define UNICODE_H__
 
-#include <iostream>
-
 #include <GfxFont.h>
 #include <CharTypes.h>
 
@@ -32,11 +30,6 @@ Unicode unicode_from_font (CharCode code, GfxFont * font);
  * if we cannot figure it out at the end, use a private mapping
  */
 Unicode check_unicode(Unicode * u, int len, CharCode code, GfxFont * font);
-
-/*
- * Escape necessary characters, and map Unicode to UTF-8
- */
-void outputUnicodes(std::ostream & out, const Unicode * u, int uLen);
 
 
 } // namespace pdf2htmlEX

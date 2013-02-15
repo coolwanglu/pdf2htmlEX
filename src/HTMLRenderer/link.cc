@@ -17,6 +17,7 @@
 #include "util/namespace.h"
 #include "util/math.h"
 #include "util/misc.h"
+#include "util/encoding.h"
 
 namespace pdf2htmlEX {
    
@@ -193,7 +194,9 @@ void HTMLRenderer::processLink(AnnotLink * al)
 
     if(!dest_str.empty())
     {
-        f_pages.fs << "<a class=\"" << CSS::LINK_CN << "\" href=\"" << dest_str << "\"";
+        f_pages.fs << "<a class=\"" << CSS::LINK_CN << "\" href=\"";
+        outputURL(f_pages.fs, dest_str);
+        f_pages.fs << "\"";
 
         if(!dest_detail_str.empty())
             f_pages.fs << " data-dest-detail='" << dest_detail_str << "'";
