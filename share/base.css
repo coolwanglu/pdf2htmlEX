@@ -1,9 +1,13 @@
 /* vim: set shiftwidth=2 tabstop=2 autoindent cindent expandtab: */
 /* -*- Mode: Java; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 /* Base CSS */
-/* Copyright 2012,2013 Lu Wang <coolwanglu@gmail.com> */
+/* Copyright 2012,2013 Lu Wang <coolwanglu@gmail.com>  */
+/* cssreset.com */
+* {
+  margin: 0;
+  padding: 0;
+}
 #pdf-outline { /* PDF Outline */
-  position:absolute;
   top:0;
   left:0;
   bottom:0;
