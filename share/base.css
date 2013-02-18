@@ -41,7 +41,6 @@
   color:#e8e8e8;
 }
 #pdf-main { /* PDF container */
-  position:absolute;
   top:0;
   left:0px;
   /* margin & border-width have to be 0, 
