@@ -316,9 +316,9 @@ var pdf2htmlEX = (function(){
       if(target_page == undefined) return;
 
       var cur_target_pos = target_page.position();
-
-      this.container.scrollLeft(this.container.scrollLeft()-cur_target_pos[0]+pos[0]);
-      this.container.scrollTop(this.container.scrollTop()-cur_target_pos[1]+pos[1]);
+      // scroll is now relative to $(window)
+      $(window).scrollLeft(pos[0]-cur_target_pos[0]);
+      $(window).scrollTop(pos[1]-cur_target_pos[1]);
     },
 
     __last_member__ : 'no comma' /*,*/

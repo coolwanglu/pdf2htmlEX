@@ -8,6 +8,7 @@
   padding: 0;
 }
 #pdf-outline { /* PDF Outline */
+  position:fixed;
   top:0;
   left:0;
   bottom:0;
@@ -51,7 +52,7 @@
 }
 @media screen {
   #pdf-outline.opened { display:block; }
-  #pdf-outline.opened + #pdf-main { left:200px; }
+  #pdf-outline.opened + #pdf-main { margin-left:200px; }
   #pdf-main {
     bottom:0;
     right:0;
