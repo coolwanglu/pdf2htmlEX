@@ -79,7 +79,7 @@ var pdf2htmlEX = (function(){
     },
     is_visible : function() {
       var off = this.position();
-      return !((off[1] > this.height()) || (off[1] + this.container.height() < 0));
+      return !((off[1] > this.height()) || (off[1] + $(window).height() < 0));
     },
     /* return the coordinate of the top-left corner of container
      * in our cooridnate system
@@ -87,7 +87,7 @@ var pdf2htmlEX = (function(){
     position : function () {
       var off = this.p.offset();
       var off_c = this.container.offset();
-      return [off_c.left-off.left, off_c.top-off.top];
+      return [$(window).scrollLeft()+off_c.left-off.left, $(window).scrollTop()+off_c.top-off.top];
     },
     height : function() {
       return this.p.height();
@@ -132,7 +132,7 @@ var pdf2htmlEX = (function(){
       this.pages = new_pages;
 
       var _ = this;
-      this.container.scroll(function(){ _.schedule_render(); });
+      $(window).scroll(function(){ _.schedule_render(); });
 
       //this.zoom_fixer();
       
@@ -317,8 +317,8 @@ var pdf2htmlEX = (function(){
 
       var cur_target_pos = target_page.position();
       // scroll is now relative to $(window)
-      $(window).scrollLeft(pos[0]-cur_target_pos[0]);
-      $(window).scrollTop(pos[1]-cur_target_pos[1]);
+      $(window).scrollLeft($(window).scrollLeft()-cur_target_pos[0]+pos[0]);
+      $(window).scrollTop($(window).scrollTop()-cur_target_pos[1]+pos[1]);
     },
 
     __last_member__ : 'no comma' /*,*/
