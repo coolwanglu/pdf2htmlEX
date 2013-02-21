@@ -418,7 +418,9 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
         
         ffw_reencode_raw(cur_mapping, max_key + 1, 1);
 
-        // we need the space character for offsets
+        // In some space offsets in HTML, we insert a ' ' there in order to improve text copy&paste
+        // We need to make sure that ' ' is in the font, otherwise it would be very ugly if you select the text
+        // Might be a problem if ' ' is in the font, but not empty
         if(!has_space)
         {
             int space_width;
