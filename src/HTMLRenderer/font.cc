@@ -431,7 +431,7 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
                 char buf[2] = {0, ' '};
                 space_width = (int)floor(font_cid->getWidth(buf, 2) * info.em_size + 0.5);
             }
-            ffw_make_char((int)' ', space_width);
+            ffw_add_empty_char((int32_t)' ', space_width);
         }
 
         if(ctu)

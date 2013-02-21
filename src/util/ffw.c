@@ -260,9 +260,12 @@ void ffw_cidflatten(void)
     SFFlatten(cur_fv->sf->cidmaster);
 }
 
-void ffw_make_char(int enc, int width)
+void ffw_add_empty_char(int32_t unicode, int width)
 {
-    SFMakeChar(cur_fv->sf, cur_fv->map, enc)->width = width;
+    // append the new char to Enc
+    SplineChar * sc = SFMakeChar(cur_fv->sf, cur_fv->map, cur_fv->map->enccount);
+    sc->unicodeenc = unicode;
+    sc->width = width;
 }
 
 int ffw_get_em_size(void)
