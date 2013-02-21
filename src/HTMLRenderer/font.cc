@@ -349,6 +349,7 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
             int k = i;
             if(code2GID)
             {
+                // for fonts with GID (e.g. TTF) we need to map GIDs instead of codes
                 if((k = code2GID[i]) == 0) continue;
             }
 
@@ -482,7 +483,9 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
     /* 
      * Step 5 
      * Generate the font
-     * Reload to retrieve/fix accurate ascent/descent
+     *
+     * Ascent/Descent are not used in PDF, and the values in PDF may be wrong or inconsistent (there are 3 sets of them)
+     * We need to reload in order to retrieve/fix accurate ascent/descent
      */
     string fn = (char*)str_fmt("%s/f%llx%s", 
         (param->single_html ? param->tmp_dir : param->dest_dir).c_str(),

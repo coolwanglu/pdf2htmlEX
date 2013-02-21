@@ -1,3 +1,9 @@
+pdf2htmlex (0.7-1~git201302182049r3bc73-0ubuntu1) quantal; urgency=low
+
+  * New parameter: process-outline
+
+ -- WANG Lu <coolwanglu@gmail.com>  Mon, 18 Feb 2013 20:49:57 +0800
+
 pdf2htmlex (0.7-1~git201301292229r2595c-0ubuntu1) quantal; urgency=low
 
   * Fixed a CSS issue
