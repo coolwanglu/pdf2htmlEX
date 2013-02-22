@@ -415,7 +415,7 @@ void HTMLRenderer::post_process(void)
                 {
                     ifstream fin(f_outline.path, ifstream::binary);
                     if(!fin)
-                        throw "Cannot open read the pages";
+                        throw "Cannot open outline for reading";
                     output << fin.rdbuf();
                     output.clear(); // output will set fail big if fin is empty
                 }
@@ -424,7 +424,7 @@ void HTMLRenderer::post_process(void)
             {
                 ifstream fin(f_pages.path, ifstream::binary);
                 if(!fin)
-                    throw "Cannot open read the pages";
+                    throw "Cannot open pages for reading";
                 output << fin.rdbuf();
                 output.clear(); // output will set fail big if fin is empty
             }
