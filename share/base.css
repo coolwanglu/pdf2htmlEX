@@ -1,7 +1,8 @@
 /* vim: set shiftwidth=2 tabstop=2 autoindent cindent expandtab: */
 /* -*- Mode: Java; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
-/* Base CSS */
+/* Demo CSS for pdf2htmlEX */
 /* Copyright 2012,2013 Lu Wang <coolwanglu@gmail.com> */
+/* Part 1: Web Page Layout: Free to modify, except for a few of them which are required by pdf2htmlEX.js, see the comments */
 #pdf-outline { /* PDF Outline */
   position:absolute;
   top:0;
@@ -40,16 +41,17 @@
   position:absolute;
   top:0;
   left:0px;
-  /* margin & border-width have to be 0, 
-   * otherwise pdf2htmlEX may not calculate the coordinates correctly
-   */
-  margin:0;
+  margin:0; /* required by pdf2htmlEX.js for page visibility test */
   padding:0;
   border-width:0;
 }
 @media screen {
+  /* for sidebar */
   #pdf-outline.opened { display:block; }
   #pdf-outline.opened + #pdf-main { left:200px; }
+  /* `bottom' and `right' are required by pdf2htmlEX.js if you want lazy page loading 
+   * you can also limit width and/or height of #pdf-main
+   */
   #pdf-main {
     bottom:0;
     right:0;
@@ -57,7 +59,7 @@
     background-color:#808080;
   }
 }
-@media print {
+@media print { 
   @page { margin:0; }
   html { margin:0; }
   body { 
@@ -73,9 +75,9 @@
   }
 }
 
-/*
+/* Part 2: Page Elements: Modify with caution
  * The followings are base classes, which are meant to be override by PDF specific classes
- * So do not increase the specificity
+ * So do not increase the specificity (e.g. ".d" -> "#pdf-main .d")
  */
 .d { /* page decoration */
   position:relative;
@@ -92,10 +94,7 @@
   height:100%;
   background-color:white;
   overflow: hidden;
-  /* margin & border-width have to be 0, 
-   * otherwise pdf2htmlEX.js may not calculate the coordinates correctly
-   */
-  margin:0;
+  margin:0; /* required by pdf2htmlEX.js for page visibility test */
   border-width:0;
 }
 .b { /* content of a page */
@@ -116,6 +115,23 @@
 .b.opened { /* used by pdf2htmlEX.js, to show/hide pages */
   display:block;
 }
+@media print {
+  .d {
+    margin:0;
+    box-shadow:none;
+    page-break-after:always;
+    page-break-inside:avoid;
+  }
+  @-moz-document url-prefix() {
+    /* fix page truncation for FireFox */
+    .d {
+      overflow:visible;
+      border:1px solid #FFFFFF;
+    }
+    .p {overflow:visible;}
+    .b {overflow:visible;}
+  }
+}
 .l { /* text line */
   position:absolute;
   white-space:pre;
@@ -126,7 +142,7 @@
   -webkit-transform-origin:0% 100%;
   -o-transform-origin:0% 100%;
 }
-span {
+span { /* text blocks within a line */
   position:relative;
   vertical-align: baseline;
   /* _<id> for spaces may need display:inline, which will override this */ 
@@ -145,7 +161,7 @@ span {
 .j { /* info for Javascript */
   display:none;
 }
-.a {
+.a { /* annotation links */
 }
 /* transparent color - WebKit */
 .Cd { /* css drawing */
@@ -155,22 +171,5 @@ span {
   -moz-transform-origin:0% 100%;
   -webkit-transform-origin:0% 100%;
   -o-transform-origin:0% 100%;
-}
-@media print {
-  .d {
-    margin:0;
-    box-shadow:none;
-    page-break-after:always;
-    page-break-inside:avoid;
-  }
-  @-moz-document url-prefix() {
-    /* fix page truncation for FireFox */
-    .d {
-      overflow:visible;
-      border:1px solid #FFFFFF;
-    }
-    .p {overflow:visible;}
-    .b {overflow:visible;}
-  }
 }
 /* Base CSS END */
