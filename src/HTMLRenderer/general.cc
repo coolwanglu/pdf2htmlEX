@@ -348,8 +348,12 @@ void HTMLRenderer::pre_process(PDFDoc * doc)
 void HTMLRenderer::post_process(void)
 {
     dump_css();
-    // close files
-    f_outline.fs.close();
+    // close files if they opened
+    // it's better to brace single liner LLVM complains
+    if (param->process_outline)
+    {
+        f_outline.fs.close();
+    }
     f_pages.fs.close(); 
     f_css.fs.close();
 
@@ -407,17 +411,20 @@ void HTMLRenderer::post_process(void)
             }
             else if (line == "$outline")
             {
-                ifstream fin(f_outline.path, ifstream::binary);
-                if(!fin)
-                    throw "Cannot open read the pages";
-                output << fin.rdbuf();
-                output.clear(); // output will set fail big if fin is empty
+                if (param->process_outline)
+                {
+                    ifstream fin(f_outline.path, ifstream::binary);
+                    if(!fin)
+                        throw "Cannot open outline for reading";
+                    output << fin.rdbuf();
+                    output.clear(); // output will set fail big if fin is empty
+                }
             }
             else if (line == "$pages")
             {
                 ifstream fin(f_pages.path, ifstream::binary);
                 if(!fin)
-                    throw "Cannot open read the pages";
+                    throw "Cannot open pages for reading";
                 output << fin.rdbuf();
                 output.clear(); // output will set fail big if fin is empty
             }
