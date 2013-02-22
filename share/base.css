@@ -44,6 +44,7 @@
    * otherwise pdf2htmlEX may not calculate the coordinates correctly
    */
   margin:0;
+  padding:0;
   border-width:0;
 }
 @media screen {
