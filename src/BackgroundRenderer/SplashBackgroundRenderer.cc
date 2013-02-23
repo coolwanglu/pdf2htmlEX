@@ -23,12 +23,11 @@ void SplashBackgroundRenderer::drawChar(GfxState *state, double x, double y,
     // - there is special filling method
     // - OR using a writing mode font
     // - OR using a Type 3 font
-    if( ((state->getRender() & 3) == 3)
-        || ( (state->getFont()) 
-             && ( (state->getFont()->getWMode())
-                  || (state->getFont()->getType() == fontType3)
-                )
-           )
+    if(( (state->getFont()) 
+         && ( (state->getFont()->getWMode())
+              || (state->getFont()->getType() == fontType3)
+            )
+       )
       )
     {
         SplashOutputDev::drawChar(state,x,y,dx,dy,originX,originY,code, nBytes, u, uLen);

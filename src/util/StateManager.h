@@ -413,17 +413,12 @@ public:
     static const char * get_css_class_name (void) { return CSS::FILL_COLOR_CN; }
     /* override base's method, as we need some workaround in CSS */ 
     void dump_css(std::ostream & out) { 
-        // normal CSS
-        out << "." << get_css_class_name() << CSS::INVALID_ID << "{color:white;}" << std::endl;
+        out << "." << get_css_class_name() << CSS::INVALID_ID << "{color:transparent;}" << std::endl;
         for(auto iter = value_map.begin(); iter != value_map.end(); ++iter)
         {
             out << "." << get_css_class_name() << iter->second 
                 << "{color:" << iter->first << ";}" << std::endl;
         }
-        // webkit
-        out << CSS::WEBKIT_ONLY << "{" << std::endl;
-        out << "." << get_css_class_name() << CSS::INVALID_ID << "{color:transparent;}" << std::endl;
-        out << "}" << std::endl;
     }
 };
 
