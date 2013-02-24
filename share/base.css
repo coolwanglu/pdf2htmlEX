@@ -41,18 +41,18 @@
   position:absolute;
   top:0;
   left:0px;
-  margin:0; /* required by pdf2htmlEX.js for page visibility test */
+  margin:0; 
   padding:0;
-  border-width:0;
+  border-width:0; /* required for lazy page loading in pdf2htmlEX.js (page visibility test) */
 }
 @media screen {
   /* for sidebar */
   #pdf-outline.opened { display:block; }
   #pdf-outline.opened + #pdf-main { left:200px; }
-  /* `bottom' and `right' are required by pdf2htmlEX.js if you want lazy page loading 
-   * you can also limit width and/or height of #pdf-main
-   */
   #pdf-main {
+    /* `bottom' and `right' are required for lazy page loading in pdf2htmlEX.js (page visibility test)
+     * alternatively you may set width and height
+     */
     bottom:0;
     right:0;
     overflow:auto;
@@ -64,8 +64,7 @@
   html { margin:0; }
   body { 
     margin:0; 
-    /* enable printing background images for WebKit */
-    -webkit-print-color-adjust:exact;
+    -webkit-print-color-adjust:exact; /* enable printing background images for WebKit */
   }
   #pdf-main {
     width:auto;
@@ -74,7 +73,6 @@
     background-color:transparent;
   }
 }
-
 /* Part 2: Page Elements: Modify with caution
  * The followings are base classes, which are meant to be override by PDF specific classes
  * So do not increase the specificity (e.g. ".d" -> "#pdf-main .d")
@@ -94,8 +92,8 @@
   height:100%;
   background-color:white;
   overflow: hidden;
-  margin:0; /* required by pdf2htmlEX.js for page visibility test */
-  border-width:0;
+  margin:0; 
+  border-width:0; /* required by pdf2htmlEX.js for page visibility test */
 }
 .b { /* content of a page */
   position:absolute;
