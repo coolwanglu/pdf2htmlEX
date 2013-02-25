@@ -380,7 +380,8 @@ void ffw_set_widths(int * width_list, int mapping_len,
                 && (((sc->width > width_list[i] + EPS) && (squeeze_wide))
                     || ((sc->width < width_list[i] - EPS) && (stretch_narrow))))) 
         {
-            real transform[6]; transform[0] = ((double)width_list[i]) / (sc->width);
+            real transform[6]; 
+            transform[0] = ((double)width_list[i]) / (sc->width);
             transform[3] = 1.0;
             transform[1] = transform[2] = transform[4] = transform[5] = 0;
             FVTrans(cur_fv, sc, transform, NULL, fvt_alllayers | fvt_dontmovewidth);

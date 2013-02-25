@@ -484,10 +484,10 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
 
     /* 
      * Step 5 
-     * Generate the font
+     * Generate the font and load the metrics
      *
      * Ascent/Descent are not used in PDF, and the values in PDF may be wrong or inconsistent (there are 3 sets of them)
-     * We need to reload in order to retrieve/fix accurate ascent/descent
+     * We need to reload in order to retrieve/fix accurate ascent/descent, some info won't be written to the font by fontforge until saved.
      */
     string fn = (char*)str_fmt("%s/f%llx%s", 
         (param->single_html ? param->tmp_dir : param->dest_dir).c_str(),
