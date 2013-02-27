@@ -15,7 +15,7 @@ var pdf2htmlEX = (function(){
     page_decoration  : '@CSS_PAGE_DECORATION_CN@',
     page_content_box : '@CSS_PAGE_CONTENT_BOX_CN@',
     page_data        : '@CSS_PAGE_DATA_CN@',
-    link             : '@CSS_LINE_CN@',
+    link             : '@CSS_LINK_CN@',
     __dummy__        : 'no comma'
   };
 
@@ -146,7 +146,7 @@ var pdf2htmlEX = (function(){
       //this.zoom_fixer();
       
       // used by outline/annot_link etc
-      $([this.container, this.outline]).on('click', '.'+CSS_CLASS_NAMES['link'], this, this.link_handler);
+      this.container.add(this.outline).on('click', '.'+CSS_CLASS_NAMES['link'], this, this.link_handler);
 
       this.render();
     },
@@ -248,6 +248,7 @@ var pdf2htmlEX = (function(){
     },
 
     link_handler : function (e) {
+      console.log('here');
       var _ = e.data;
       var t = $(e.currentTarget);
 

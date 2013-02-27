@@ -26,6 +26,7 @@
 #include "util/ffw.h"
 #include "util/path.h"
 #include "util/unicode.h"
+#include "util/css_const.h"
 
 namespace pdf2htmlEX {
 
@@ -726,7 +727,7 @@ void HTMLRenderer::export_remote_font(const FontInfo & info, const string & suff
     }
 
     f_css.fs << "@font-face{"
-             << "font-family:f" << info.id << ";"
+             << "font-family:" << CSS::FONT_NAME_CN << info.id << ";"
              << "src:url(";
 
     {
@@ -748,13 +749,13 @@ void HTMLRenderer::export_remote_font(const FontInfo & info, const string & suff
     f_css.fs << ")"
              << "format(\"" << format << "\");"
              << "}" // end of @font-face
-             << ".f" << info.id << "{"
-             << "font-family:f" << info.id << ";"
+             << "." << CSS::FONT_NAME_CN << info.id << "{"
+             << "font-family:" << CSS::FONT_NAME_CN << info.id << ";"
              << "line-height:" << round(info.ascent - info.descent) << ";"
              << "font-style:normal;"
              << "font-weight:normal;"
              << "visibility:visible;"
-             << "}" // end of .f
+             << "}" 
              << endl;
 }
 
@@ -771,12 +772,12 @@ static string general_font_family(GfxFont * font)
 // TODO: this function is called when some font is unable to process, may use the name there as a hint
 void HTMLRenderer::export_remote_default_font(long long fn_id) 
 {
-    f_css.fs << ".f" << fn_id << "{font-family:sans-serif;visibility:hidden;}" << endl;
+    f_css.fs << "." << CSS::FONT_NAME_CN << fn_id << "{font-family:sans-serif;visibility:hidden;}" << endl;
 }
 
 void HTMLRenderer::export_local_font(const FontInfo & info, GfxFont * font, const string & original_font_name, const string & cssfont) 
 {
-    f_css.fs << ".f" << info.id << "{";
+    f_css.fs << "." << CSS::FONT_NAME_CN << info.id << "{";
     f_css.fs << "font-family:" << ((cssfont == "") ? (original_font_name + "," + general_font_family(font)) : cssfont) << ";";
 
     string fn = original_font_name;
@@ -802,4 +803,4 @@ void HTMLRenderer::export_local_font(const FontInfo & info, GfxFont * font, cons
     f_css.fs << "}" << endl;
 }
 
-} //namespace pdf2hmlEX
+} //namespace pdf2htmlEX

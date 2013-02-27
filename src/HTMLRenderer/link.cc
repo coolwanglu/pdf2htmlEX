@@ -18,6 +18,7 @@
 #include "util/math.h"
 #include "util/misc.h"
 #include "util/encoding.h"
+#include "util/css_const.h"
 
 namespace pdf2htmlEX {
    
@@ -151,7 +152,7 @@ string HTMLRenderer::get_linkaction_str(LinkAction * action, string & detail)
                         detail = get_linkdest_detail_str(dest, cur_catalog, pageno);
                         if(pageno > 0)
                         {
-                            dest_str = (char*)str_fmt("#p%x", pageno);
+                            dest_str = (char*)str_fmt("#%s%x", CSS::PAGE_FRAME_CN, pageno);
                         }
                         delete dest;
                     }

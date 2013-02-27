@@ -170,7 +170,8 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state, XRef * xref)
             << " " << CSS::HEIGHT_CN << height_manager.get_id()
             << "\">"
         << "<div id=\"" << CSS::PAGE_FRAME_CN << pageNum 
-            << "\" data-page-no=\"" << pageNum << "\" class=\"p\">"
+            << "\" class=\"" << CSS::PAGE_FRAME_CN
+            << "\" data-page-no=\"" << pageNum << "\">"
         << "<div class=\"" << CSS::PAGE_CONTENT_BOX_CN << "\" style=\"";
 
     if(param->process_nontext)

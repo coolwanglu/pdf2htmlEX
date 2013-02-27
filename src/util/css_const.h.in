@@ -21,7 +21,7 @@ const char * const PRINT_ONLY          = "@media print";
 
 // usually the class name is XXX_CN or XXX_CN<hex id>
 // sometimes we need a special one, e.g. transparent color, where the id is -1
-const char * const INVALID_ID          = "@CSS_INVALID_ID";
+const char * const INVALID_ID          = "@CSS_INVALID_ID@";
 
 const char * const LINE_CN             = "@CSS_LINE_CN@";
 const char * const TRANSFORM_MATRIX_CN = "@CSS_TRANSFORM_MATRIX_CN@";
@@ -49,7 +49,7 @@ const char * const WIDTH_CN            = "@CSS_WIDTH_CN@";
 const char * const BOTTOM_CN           = "@CSS_BOTTTOM_CN@";
 
 const char * const CSS_DRAW_CN         = "@CSS_CSS_DRAW_CN@";
-const char * const LINK_CN             = "@CSS_LINE_CN@";
+const char * const LINK_CN             = "@CSS_LINK_CN@";
 
 }
 }
