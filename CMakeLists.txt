@@ -141,6 +141,11 @@ endif()
 configure_file (${CMAKE_SOURCE_DIR}/src/pdf2htmlEX-config.h.in ${CMAKE_SOURCE_DIR}/src/pdf2htmlEX-config.h)
 configure_file (${CMAKE_SOURCE_DIR}/pdf2htmlEX.1.in ${CMAKE_SOURCE_DIR}/pdf2htmlEX.1)
 
+include(${CMAKE_SOURCE_DIR}/src/css_class_names.cmakelists.txt)
+configure_file (${CMAKE_SOURCE_DIR}/src/util/css_const.h.in ${CMAKE_SOURCE_DIR}/src/util/css_const.h)
+configure_file (${CMAKE_SOURCE_DIR}/share/base.css.in ${CMAKE_SOURCE_DIR}/share/base.css)
+configure_file (${CMAKE_SOURCE_DIR}/share/pdf2htmlEX.js.in ${CMAKE_SOURCE_DIR}/share/pdf2htmlEX.js)
+
 add_executable(pdf2htmlEX 
     src/Param.h
     src/pdf2htmlEX-config.h
@@ -167,6 +172,7 @@ add_executable(pdf2htmlEX
     src/util/base64stream.cc
     src/util/const.h
     src/util/const.cc
+    src/util/css_const.h
     src/util/encoding.h
     src/util/encoding.cc
     src/util/ffw.h

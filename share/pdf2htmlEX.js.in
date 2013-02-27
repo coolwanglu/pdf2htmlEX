@@ -10,6 +10,15 @@
  */
 
 var pdf2htmlEX = (function(){
+  var CSS_CLASS_NAMES = {
+    page_frame       : '@CSS_PAGE_FRAME_CN@',
+    page_decoration  : '@CSS_PAGE_DECORATION_CN@',
+    page_content_box : '@CSS_PAGE_CONTENT_BOX_CN@',
+    page_data        : '@CSS_PAGE_DATA_CN@',
+    link             : '@CSS_LINE_CN@',
+    __dummy__        : 'no comma'
+  };
+
   var pdf2htmlEX = new Object();
 
   var EPS = 1e-6;
@@ -33,7 +42,7 @@ var pdf2htmlEX = (function(){
 
     this.p = $(page);
     this.n = parseInt(this.p.attr('data-page-no'), 16);
-    this.b = $('.b', this.p);
+    this.b = $('.'+CSS_CLASS_NAMES['page_decoration'], this.p);
 
     /*
      * scale ratios
@@ -44,7 +53,7 @@ var pdf2htmlEX = (function(){
      */
     this.default_r = this.set_r = this.cur_r = this.p.height() / this.b.height();
 
-    this.data = JSON.parse($($('.j', this.p)[0]).attr('data-data'));
+    this.data = JSON.parse($($('.'+CSS_CLASS_NAMES['page_data'], this.p)[0]).attr('data-data'));
 
     this.ctm = this.data.ctm;
     this.ictm = invert(this.ctm);
@@ -123,7 +132,7 @@ var pdf2htmlEX = (function(){
       }
       
       var new_pages = new Array();
-      var pl= $('.p', this.container);
+      var pl= $('.'+CSS_CLASS_NAMES['page_frame'], this.container);
       /* don't use for(..in..) */
       for(var i = 0, l = pl.length; i < l; ++i) {
         var p = new Page(pl[i], this.container);
@@ -137,15 +146,13 @@ var pdf2htmlEX = (function(){
       //this.zoom_fixer();
       
       // used by outline/annot_link etc
-      // note that one is for the class 'a' and the other is for the tag 'a'
-      this.container.on('click', '.a', this, this.link_handler);
-      this.outline.on('click', 'a', this, this.link_handler);
+      $([this.container, this.outline]).on('click', '.'+CSS_CLASS_NAMES['link'], this, this.link_handler);
 
       this.render();
     },
     pre_hide_pages : function() {
       /* pages might have not been loaded yet, so add a CSS rule */
-      var s = '@media screen{.b{display:none;}}';
+      var s = '@media screen{.'+CSS_CLASS_NAMES['page_content_box']+'{display:none;}}';
       var n = document.createElement('style');
       n.type = 'text/css';
       if (n.styleSheet) {
@@ -236,7 +243,7 @@ var pdf2htmlEX = (function(){
 
     get_containing_page : function(obj) {
       /* get the page obj containing obj */
-      var p = obj.closest('.p')[0];
+      var p = obj.closest('.'+CSS_CLASS_NAMES['page_frame'])[0];
       return p && this.pages[(new Page(p)).n];
     },
 

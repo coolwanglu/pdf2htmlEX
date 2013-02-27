@@ -77,14 +77,14 @@
  * The followings are base classes, which are meant to be override by PDF specific classes
  * So do not increase the specificity (e.g. ".d" -> "#pdf-main .d")
  */
-.d { /* page decoration */
+.@CSS_PAGE_DECORATION_CN@ { /* page decoration */
   position:relative;
   margin: 13px auto;
   border-width: 0;
   box-shadow: 1px 1px 3px 1px #333;
   overflow: hidden;
 }
-.p { /* page */
+.@CSS_PAGE_FRAME_CN@ { /* page */
   position:absolute;
   top:0;
   left:0;
@@ -95,7 +95,7 @@
   margin:0; 
   border-width:0; /* required by pdf2htmlEX.js for page visibility test */
 }
-.b { /* content of a page */
+.@CSS_PAGE_CONTENT_BOX_CN@ { /* content of a page */
   position:absolute;
   border-width:0;
   top:0;
@@ -110,11 +110,11 @@
   -webkit-transform-origin:0% 0%;
   -o-transform-origin:0% 0%;
 }
-.b.opened { /* used by pdf2htmlEX.js, to show/hide pages */
+.@CSS_PAGE_CONTENT_BOX_CN@.opened { /* used by pdf2htmlEX.js, to show/hide pages */
   display:block;
 }
 @media print {
-  .d {
+  .@CSS_PAGE_DECORATION_CN@ {
     margin:0;
     box-shadow:none;
     page-break-after:always;
@@ -122,15 +122,15 @@
   }
   @-moz-document url-prefix() {
     /* fix page truncation for FireFox */
-    .d {
+    .@CSS_PAGE_DECORATION_CN@ {
       overflow:visible;
       border:1px solid #FFFFFF;
     }
-    .p {overflow:visible;}
-    .b {overflow:visible;}
+    .@CSS_PAGE_FRAME_CN@ {overflow:visible;}
+    .@CSS_PAGE_CONTENT_BOX_CN@ {overflow:visible;}
   }
 }
-.l { /* text line */
+.@CSS_LINE_CN@ { /* text line */
   position:absolute;
   white-space:pre;
   font-size:1px;
@@ -146,7 +146,7 @@ span { /* text blocks within a line */
   /* _<id> for spaces may need display:inline, which will override this */ 
   display:inline-block;
 }
-._ { /* text shift */
+.@CSS_WHITESPACE_CN@ { /* text shift */
   color:transparent;
   z-index:-1;
 }
@@ -156,13 +156,13 @@ span { /* text blocks within a line */
 ::-moz-selection{
   background: rgba(127,255,255,1);
 }
-.j { /* info for Javascript */
+.@CSS_PAGE_DATA_CN@ { /* info for Javascript */
   display:none;
 }
-.a { /* annotation links */
+.@CSS_LINE_CN@ { /* annotation links */
 }
 /* transparent color - WebKit */
-.Cd { /* css drawing */
+.@CSS_CSS_DRAW_CN@ { /* css drawing */
   position:absolute;
   transform-origin:0% 100%;
   -ms-transform-origin:0% 100%;

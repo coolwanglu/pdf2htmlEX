@@ -14,7 +14,7 @@
 #include <unordered_map>
 
 #include "util/math.h"
-#include "util/CSSClassNames.h"
+#include "util/css_const.h"
 
 namespace pdf2htmlEX {
 

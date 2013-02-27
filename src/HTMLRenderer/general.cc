@@ -23,7 +23,7 @@
 #include "util/base64stream.h"
 #include "util/math.h"
 #include "util/path.h"
-#include "util/CSSClassNames.h"
+#include "util/css_const.h"
 
 namespace pdf2htmlEX {
 

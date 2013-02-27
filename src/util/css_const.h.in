@@ -1,0 +1,58 @@
+/*
+ * css_const.h
+ *
+ * Copyright (C) 2013 Lu Wang <coolwanglu@gmail.com>
+ */
+
+#ifndef CSS_CONST_H__
+#define CSS_CONST_H__
+
+
+/*
+ * should be consistent with base.css and pdf2htmlEX.js
+ */
+
+namespace pdf2htmlEX {
+namespace CSS {
+
+// work around strings
+const char * const WEBKIT_ONLY         = "@media screen and (-webkit-min-device-pixel-ratio:0)";
+const char * const PRINT_ONLY          = "@media print";
+
+// usually the class name is XXX_CN or XXX_CN<hex id>
+// sometimes we need a special one, e.g. transparent color, where the id is -1
+const char * const INVALID_ID          = "@CSS_INVALID_ID";
+
+const char * const LINE_CN             = "@CSS_LINE_CN@";
+const char * const TRANSFORM_MATRIX_CN = "@CSS_TRANSFORM_MATRIX_CN@";
+
+// page_decoration is for shadow etc
+// page_frame cannot have margin or border-width, pdf2htmlEX.js will use it to determine the coordinates
+// page_content holds everything inside the page, could be hidden to speed up rendering
+// page_data holds data for pdf2htmlEX.js
+const char * const PAGE_DECORATION_CN  = "@CSS_PAGE_DECORATION_CN@";
+const char * const PAGE_FRAME_CN       = "@CSS_PAGE_FRAME_CN@";
+const char * const PAGE_CONTENT_BOX_CN = "@CSS_PAGE_CONTENT_BOX_CN@";
+const char * const PAGE_DATA_CN        = "@CSS_PAGE_DATA_CN@";
+
+const char * const FONT_NAME_CN        = "@CSS_FONT_NAME_CN@";
+const char * const FONT_SIZE_CN        = "@CSS_FONT_SIZE_CN@";
+const char * const FILL_COLOR_CN       = "@CSS_FILL_COLOR_CN@";
+const char * const STROKE_COLOR_CN     = "@CSS_STROKE_COLOR_CN@";
+const char * const LETTER_SPACE_CN     = "@CSS_LETTER_SPACE_CN@";
+const char * const WORD_SPACE_CN       = "@CSS_WORD_SPACE_CN@";
+const char * const RISE_CN             = "@CSS_RISE_CN@";
+const char * const WHITESPACE_CN       = "@CSS_WHITESPACE_CN@";
+const char * const LEFT_CN             = "@CSS_LEFT_CN@";
+const char * const HEIGHT_CN           = "@CSS_HEIGHT_CN@";
+const char * const WIDTH_CN            = "@CSS_WIDTH_CN@";
+const char * const BOTTOM_CN           = "@CSS_BOTTTOM_CN@";
+
+const char * const CSS_DRAW_CN         = "@CSS_CSS_DRAW_CN@";
+const char * const LINK_CN             = "@CSS_LINE_CN@";
+
+}
+}
+
+
+#endif //CSS_CONST_H__

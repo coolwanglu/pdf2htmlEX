@@ -13,7 +13,7 @@
 #include "util/namespace.h"
 #include "util/unicode.h"
 #include "util/math.h"
-#include "util/CSSClassNames.h"
+#include "util/css_const.h"
 #include "util/encoding.h"
 
 namespace pdf2htmlEX {

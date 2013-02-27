@@ -15,6 +15,7 @@
 #include "HTMLRenderer.h"
 #include "util/namespace.h"
 #include "util/encoding.h"
+#include "util/css_const.h"
 
 namespace pdf2htmlEX {
 
@@ -35,7 +36,7 @@ void HTMLRenderer::process_outline_items(GooList * items)
         string dest = get_linkaction_str(item->getAction(), detail);
 
         // we don't care dest is empty or not.
-        f_outline.fs << "<li>" << "<a href=\"";
+        f_outline.fs << "<li>" << "<a class=\"" << CSS::LINK_CN << "\" href=\"";
         outputURL(f_outline.fs, dest);
         f_outline.fs << "\"";
 
