@@ -42,7 +42,7 @@ var pdf2htmlEX = (function(){
 
     this.p = $(page);
     this.n = parseInt(this.p.attr('data-page-no'), 16);
-    this.b = $('.'+CSS_CLASS_NAMES['page_decoration'], this.p);
+    this.b = $('.'+CSS_CLASS_NAMES['page_content_box'], this.p);
 
     /*
      * scale ratios

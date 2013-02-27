@@ -75,7 +75,7 @@
 }
 /* Part 2: Page Elements: Modify with caution
  * The followings are base classes, which are meant to be override by PDF specific classes
- * So do not increase the specificity (e.g. ".d" -> "#pdf-main .d")
+ * So do not increase the specificity (e.g. ".classname" -> "#pdf-main .classname")
  */
 .@CSS_PAGE_DECORATION_CN@ { /* page decoration */
   position:relative;
