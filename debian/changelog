@@ -1,3 +1,21 @@
+pdf2htmlex (0.7-1~git201302271054r3bc73-0ubuntu1) precise; urgency=low
+
+  * Packaging for 12.04
+
+ -- WANG Lu <coolwanglu@gmail.com>  Wed, 27 Feb 2013 10:54:12 +0800
+
+pdf2htmlex (0.7-1~git201302271053r3bc73-0ubuntu1) quantal; urgency=low
+
+  * Fix packpage dependency 
+
+ -- WANG Lu <coolwanglu@gmail.com>  Wed, 27 Feb 2013 10:52:17 +0800
+
+pdf2htmlex (0.7-1~git201302270111r3bc73-0ubuntu1) quantal; urgency=low
+
+  * Regular upload
+
+ -- WANG Lu <coolwanglu@gmail.com>  Wed, 27 Feb 2013 01:11:56 +0800
+
 pdf2htmlex (0.7-1~git201302182049r3bc73-0ubuntu1) quantal; urgency=low
 
   * New parameter: process-outline
