@@ -10,6 +10,7 @@
 #include <string>
 #include <limits>
 #include <iostream>
+#include <regex>
 #include <getopt.h>
 
 #include <poppler-config.h>
@@ -213,7 +214,7 @@ int main(int argc, char **argv)
             if(get_suffix(param.input_filename) == ".pdf")
             {
                 if(param.split_pages)
-                    param.output_filename = s.substr(0, s.size() - 4);
+                    param.output_filename = s.substr(0, s.size() - 4) + "%d.page";
                 else
                     param.output_filename = s.substr(0, s.size() - 4) + ".html";
 
@@ -221,11 +222,16 @@ int main(int argc, char **argv)
             else
             {
                 if(param.split_pages)
-                    param.output_filename = s;
+                    param.output_filename = s + "%d.page";
                 else
                     param.output_filename = s + ".html";
                 
             }
+        }
+		else if(param.split_pages && !std::regex_match(param.output_filename, std::regex("^.*%[0-9]*d.*$")))
+        {
+            const string suffix = get_suffix(param.output_filename);
+            param.output_filename = param.output_filename.substr(0, param.output_filename.size() - suffix.size()) + "%d" + suffix;
         }
         if(param.css_filename.empty())
         {

@@ -101,7 +101,8 @@ void HTMLRenderer::process(PDFDoc *doc)
 
         if(param->split_pages)
         {
-            auto page_fn = str_fmt("%s/%s%d.page", param->dest_dir.c_str(), param->output_filename.c_str(), i);
+            auto page_template_fn = str_fmt("%s/%s", param->dest_dir.c_str(), param->output_filename.c_str());
+            auto page_fn = str_fmt(page_template_fn, i);
             f_pages.fs.open((char*)page_fn, ofstream::binary); 
             if(!f_pages.fs)
                 throw string("Cannot open ") + (char*)page_fn + " for writing";
