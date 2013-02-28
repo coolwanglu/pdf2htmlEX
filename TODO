@@ -1,4 +1,3 @@
-print css for draw/link
 
 == Future: ==
 
@@ -7,7 +6,6 @@ Too difficult/complicated to implement:
  - naive support for image/drawing (SVG?)
  - type 3 fonts (convert to SVG fonts?)
  - reflowable text/combine lines/unwrapping
- - Printing
 
 Not enough motivated/Lazy
  - argument auto-completion
@@ -25,3 +23,4 @@ Not enough motivated/Lazy
  - don't dump image when there is nothing
  - minimum line width of css drawing
  - ajax in pdf2htmlEX for separated pages
+ - separate classes for annotations (such that we don't have to hide all css drawings for printing)

@@ -72,6 +72,9 @@
     overflow:visible;
     background-color:transparent;
   }
+  .@CSS_CSS_DRAW_CN@ {
+    display:none;
+  }
 }
 /* Part 2: Page Elements: Modify with caution
  * The followings are base classes, which are meant to be override by PDF specific classes

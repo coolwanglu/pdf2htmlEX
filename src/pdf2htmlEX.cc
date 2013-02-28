@@ -103,7 +103,8 @@ void parse_options (int argc, char **argv)
         // misc.
         .add("clean-tmp", &param.clean_tmp, 1, "remove temporary files after conversion")
         .add("data-dir", &param.data_dir, PDF2HTMLEX_DATA_PATH, "specify data directory")
-        .add("css-draw", &param.css_draw, 0, "[experimental and unsupported] CSS drawing")
+        // TODO: css drawings are hidden on print, for annot links, need to fix it for other drawings
+//        .add("css-draw", &param.css_draw, 0, "[experimental and unsupported] CSS drawing")
         .add("debug", &param.debug, 0, "print debugging information")
         
         // meta
