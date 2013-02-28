@@ -36,6 +36,7 @@ The generated HTML file is static, Javascript is not required.
 * More PDF stuffs that you love
   - Links
   - Outline
+  - Printing
 
 [Full list](https://github.com/coolwanglu/pdf2htmlEX/wiki/Feature-List)   
 [Compare with others](https://github.com/coolwanglu/pdf2htmlEX/wiki/Comparison)
