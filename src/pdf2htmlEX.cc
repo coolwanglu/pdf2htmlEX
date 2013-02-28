@@ -54,8 +54,6 @@ void show_version_and_exit(const char * dummy = nullptr)
 
 void parse_options (int argc, char **argv)
 {
-    string deprecated_string; 
-    
     argparser
         // pages
         .add("first-page,f", &param.first_page, 1, "first page to convert")
