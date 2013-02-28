@@ -1,3 +1,9 @@
+pdf2htmlex (0.7-1~git201302282259r3bc73-0ubuntu1) quantal; urgency=low
+
+  * suggests ttfautohint
+
+ -- WANG Lu <coolwanglu@gmail.com>  Thu, 28 Feb 2013 22:59:45 +0800
+
 pdf2htmlex (0.7-1~git201302271054r3bc73-0ubuntu1) precise; urgency=low
 
   * Packaging for 12.04
