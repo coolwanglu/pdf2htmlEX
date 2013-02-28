@@ -45,7 +45,7 @@ The generated HTML file is static, Javascript is not required.
 
 ### Install
  
-Thanks to all packagers!
+Thanks to all the packagers!
 
   * [Ubuntu PPA](https://launchpad.net/~coolwanglu/+archive/pdf2htmlex) by Lu Wang <coolwanglu@gmail.com>, not always up-to-date.
   * [ArchLinux AUR](https://aur.archlinux.org/packages.php?ID=62426) by Arthur Titeica <arthur.titeica@gmail.com>
