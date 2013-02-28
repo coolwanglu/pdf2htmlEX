@@ -109,6 +109,8 @@
   -moz-transform-origin:0% 0%;
   -webkit-transform-origin:0% 0%;
   -o-transform-origin:0% 0%;
+  background-position:0 0;
+  background-repeat:no-repeat;
 }
 .@CSS_PAGE_CONTENT_BOX_CN@.opened { /* used by pdf2htmlEX.js, to show/hide pages */
   display:block;

@@ -172,12 +172,13 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state, XRef * xref)
         << "<div id=\"" << CSS::PAGE_FRAME_CN << pageNum 
             << "\" class=\"" << CSS::PAGE_FRAME_CN
             << "\" data-page-no=\"" << pageNum << "\">"
-        << "<div class=\"" << CSS::PAGE_CONTENT_BOX_CN << "\" style=\"";
+        << "<div class=\"" << CSS::PAGE_CONTENT_BOX_CN 
+            << " " << CSS::PAGE_CONTENT_BOX_CN << pageNum
+            << "\" style=\"";
 
     if(param->process_nontext)
     {
         f_pages.fs << "background-image:url(";
-
         {
             if(param->single_html)
             {
@@ -192,11 +193,8 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state, XRef * xref)
                 f_pages.fs << str_fmt("p%x.png", pageNum);
             }
         }
-
-        // TODO print css
-        f_pages.fs << ");background-position:0 0;background-size:" 
-            << state->getPageWidth() << "px " 
-            << state->getPageHeight() << "px;background-repeat:no-repeat;";
+        f_pages.fs << ");";
+        bgimage_size_manager.install(pageNum, state->getPageWidth(), state->getPageHeight());
     }
 
     f_pages.fs << "\">";
@@ -461,22 +459,24 @@ void HTMLRenderer::dump_css (void)
     width_manager           .dump_css(f_css.fs);
     rise_manager            .dump_css(f_css.fs);
     left_manager            .dump_css(f_css.fs);
+    bgimage_size_manager.dump_css(f_css.fs);
     
     // print css
-    double print_scale = 96.0 / DEFAULT_DPI / text_zoom_factor();
+    double ps = print_scale();
     f_css.fs << CSS::PRINT_ONLY << "{" << endl;
-    transform_matrix_manager.dump_print_css(f_css.fs, print_scale);
-    letter_space_manager    .dump_print_css(f_css.fs, print_scale);
-    stroke_color_manager    .dump_print_css(f_css.fs, print_scale);
-    word_space_manager      .dump_print_css(f_css.fs, print_scale);
-    whitespace_manager      .dump_print_css(f_css.fs, print_scale);
-    fill_color_manager      .dump_print_css(f_css.fs, print_scale);
-    font_size_manager       .dump_print_css(f_css.fs, print_scale);
-    bottom_manager          .dump_print_css(f_css.fs, print_scale);
-    height_manager          .dump_print_css(f_css.fs, print_scale);
-    width_manager           .dump_print_css(f_css.fs, print_scale);
-    rise_manager            .dump_print_css(f_css.fs, print_scale);
-    left_manager            .dump_print_css(f_css.fs, print_scale);
+    transform_matrix_manager.dump_print_css(f_css.fs, ps);
+    letter_space_manager    .dump_print_css(f_css.fs, ps);
+    stroke_color_manager    .dump_print_css(f_css.fs, ps);
+    word_space_manager      .dump_print_css(f_css.fs, ps);
+    whitespace_manager      .dump_print_css(f_css.fs, ps);
+    fill_color_manager      .dump_print_css(f_css.fs, ps);
+    font_size_manager       .dump_print_css(f_css.fs, ps);
+    bottom_manager          .dump_print_css(f_css.fs, ps);
+    height_manager          .dump_print_css(f_css.fs, ps);
+    width_manager           .dump_print_css(f_css.fs, ps);
+    rise_manager            .dump_print_css(f_css.fs, ps);
+    left_manager            .dump_print_css(f_css.fs, ps);
+    bgimage_size_manager.dump_print_css(f_css.fs, ps);
     f_css.fs << "}" << endl;
 }
 
