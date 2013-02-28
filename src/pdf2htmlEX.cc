@@ -114,11 +114,6 @@ void parse_options (int argc, char **argv)
         
         .add("", &param.input_filename, "", "")
         .add("", &param.output_filename, "", "")
-        
-        // deprecated
-        .add("font-format", &deprecated_string, "", "", [] (const char*) {
-            cerr << "warning: --font-format is deprecated, @font-face format is inferred from --font-suffix" << endl;
-        })
         ;
 
     try

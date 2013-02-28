@@ -8,6 +8,7 @@
 #include <cstring>
 
 #include "encoding.h"
+#include "const.h" // for nullptr
 
 namespace pdf2htmlEX {
 
