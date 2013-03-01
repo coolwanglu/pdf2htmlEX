@@ -110,7 +110,7 @@ void HTMLRenderer::process(PDFDoc *doc)
 
         if(param->process_nontext)
         {
-            auto fn = str_fmt("%s/p%x.png", (param->single_html ? param->tmp_dir : param->dest_dir).c_str(), i);
+            auto fn = str_fmt("%s/bg%x.png", (param->single_html ? param->tmp_dir : param->dest_dir).c_str(), i);
             if(param->single_html)
                 tmp_files.add((char*)fn);
 
@@ -174,30 +174,26 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state, XRef * xref)
             << "\" data-page-no=\"" << pageNum << "\">"
         << "<div class=\"" << CSS::PAGE_CONTENT_BOX_CN 
             << " " << CSS::PAGE_CONTENT_BOX_CN << pageNum
-            << "\" style=\"";
+            << "\">";
 
     if(param->process_nontext)
     {
-        f_pages.fs << "background-image:url(";
+        f_pages.fs << "<img class=\"" << CSS::BACKGROUND_IMAGE_CN 
+            << "\" alt=\"\" src=\"";
+        if(param->single_html)
         {
-            if(param->single_html)
-            {
-                auto path = str_fmt("%s/p%x.png", param->tmp_dir.c_str(), pageNum);
-                ifstream fin((char*)path, ifstream::binary);
-                if(!fin)
-                    throw string("Cannot read background image ") + (char*)path;
-                f_pages.fs << "'data:image/png;base64," << base64stream(fin) << "'";
-            }
-            else
-            {
-                f_pages.fs << str_fmt("p%x.png", pageNum);
-            }
+            auto path = str_fmt("%s/bg%x.png", param->tmp_dir.c_str(), pageNum);
+            ifstream fin((char*)path, ifstream::binary);
+            if(!fin)
+                throw string("Cannot read background image ") + (char*)path;
+            f_pages.fs << "data:image/png;base64," << base64stream(fin);
         }
-        f_pages.fs << ");";
-        bgimage_size_manager.install(pageNum, state->getPageWidth(), state->getPageHeight());
+        else
+        {
+            f_pages.fs << str_fmt("bg%x.png", pageNum);
+        }
+        f_pages.fs << "\"/>";
     }
-
-    f_pages.fs << "\">";
 
     reset_state();
 }

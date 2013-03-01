@@ -14,6 +14,8 @@ set(CSS_PAGE_FRAME_CN       "pf") # page frame
 set(CSS_PAGE_CONTENT_BOX_CN "pc") # page content
 set(CSS_PAGE_DATA_CN        "pi") # page info
 
+set(CSS_BACKGROUND_IMAGE_CN "bi") # background image
+
 set(CSS_FONT_FAMILY_CN      "ff") # font family
 set(CSS_FONT_SIZE_CN        "fs") # font size
 

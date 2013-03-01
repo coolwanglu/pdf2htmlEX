@@ -35,6 +35,8 @@ const char * const PAGE_FRAME_CN       = "@CSS_PAGE_FRAME_CN@";
 const char * const PAGE_CONTENT_BOX_CN = "@CSS_PAGE_CONTENT_BOX_CN@";
 const char * const PAGE_DATA_CN        = "@CSS_PAGE_DATA_CN@";
 
+const char * const BACKGROUND_IMAGE_CN = "@CSS_BACKGROUND_IMAGE_CN@";
+
 const char * const FONT_FAMILY_CN      = "@CSS_FONT_FAMILY_CN@";
 const char * const FONT_SIZE_CN        = "@CSS_FONT_SIZE_CN@";
 const char * const FILL_COLOR_CN       = "@CSS_FILL_COLOR_CN@";
