@@ -1,3 +1,10 @@
+pdf2htmlex (0.8-1~git201303011406r3bc73-0ubuntu1) quantal; urgency=low
+
+  * Experimental printing support
+  * New version
+
+ -- WANG Lu <coolwanglu@gmail.com>  Fri, 01 Mar 2013 14:06:42 +0800
+
 pdf2htmlex (0.7-1~git201302282259r3bc73-0ubuntu1) quantal; urgency=low
 
   * suggests ttfautohint
