@@ -115,7 +115,7 @@ pdf2htmlEX is maintained by one person in spare time, and it needs your help!
 
 * Lu Wang <coolwanglu@gmail.com>
   * For personal enquiries only
-  * Accepting messages in **Chinese**, **English** or **Japanese**.
+  * Accepting messages in **中文**, **English** or **日本語**.
 
 ## Acknowledge
 
