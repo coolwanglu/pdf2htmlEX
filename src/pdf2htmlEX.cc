@@ -63,7 +63,7 @@ void parse_options (int argc, char **argv)
         .add("zoom", &param.zoom, 0, "zoom ratio", nullptr, true)
         .add("fit-width", &param.fit_width, 0, "fit width to <fp> pixels", nullptr, true) 
         .add("fit-height", &param.fit_height, 0, "fit height to <fp> pixels", nullptr, true)
-        .add("use-cropbox", &param.use_cropbox, 0, "use CropBox instead of MediaBox")
+        .add("use-cropbox", &param.use_cropbox, 1, "use CropBox instead of MediaBox")
         .add("hdpi", &param.h_dpi, 144.0, "horizontal resolution for graphics in DPI")
         .add("vdpi", &param.v_dpi, 144.0, "vertical resolution for graphics in DPI")
         
