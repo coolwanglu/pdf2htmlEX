@@ -75,6 +75,7 @@ void parse_options (int argc, char **argv)
         .add("outline-filename", &param.outline_filename, "", "filename of the generated outline file")
         .add("process-nontext", &param.process_nontext, 1, "render graphics in addition to text")
         .add("process-outline", &param.process_outline, 1, "show outline in HTML")
+        .add("fallback", &param.fallback, 0, "output in fallback mode")
         
         // fonts
         .add("embed-base-font", &param.embed_base_font, 0, "embed local match for standard 14 fonts")

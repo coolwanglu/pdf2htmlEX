@@ -32,6 +32,7 @@ struct Param
     std::string outline_filename;
     int process_nontext;
     int process_outline;
+    int fallback;
     
     // fonts
     int embed_base_font;

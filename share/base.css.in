@@ -164,11 +164,12 @@ span { /* text blocks within a line */
   color:transparent;
   z-index:-1;
 }
+/* selection background should not be opaque, for fallback mode */
 ::selection{
-  background: rgba(127,255,255,1);
+  background: rgba(127,255,255,0.4);
 }
 ::-moz-selection{
-  background: rgba(127,255,255,1);
+  background: rgba(127,255,255,0.4);
 }
 .@CSS_PAGE_DATA_CN@ { /* info for Javascript */
   display:none;

@@ -120,7 +120,7 @@ void HTMLRenderer::process(PDFDoc *doc)
         doc->displayPage(this, i, 
                 text_zoom_factor() * DEFAULT_DPI, text_zoom_factor() * DEFAULT_DPI,
                 0, 
-                (param->use_cropbox == 0), 
+                (!(param->use_cropbox)),
                 false, false,
                 nullptr, nullptr, nullptr, nullptr);
 

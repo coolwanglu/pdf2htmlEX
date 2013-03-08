@@ -20,17 +20,19 @@ void SplashBackgroundRenderer::drawChar(GfxState *state, double x, double y,
   CharCode code, int nBytes, Unicode *u, int uLen)
 {
     // draw characters as image when
-    // - there is special filling method
+    // - in fallback mode
+    // - OR there is special filling method
     // - OR using a writing mode font
     // - OR using a Type 3 font
-    if(( (state->getFont()) 
-         && ( (state->getFont()->getWMode())
-              || (state->getFont()->getType() == fontType3)
-            )
-       )
+    if((param->fallback)
+       || ( (state->getFont()) 
+            && ( (state->getFont()->getWMode())
+                 || (state->getFont()->getType() == fontType3)
+               )
+          )
       )
     {
-        SplashOutputDev::drawChar(state,x,y,dx,dy,originX,originY,code, nBytes, u, uLen);
+        SplashOutputDev::drawChar(state,x,y,dx,dy,originX,originY,code,nBytes,u,uLen);
     }
 }
 
@@ -42,7 +44,7 @@ void SplashBackgroundRenderer::render_page(PDFDoc * doc, int pageno, const strin
 {
     doc->displayPage(this, pageno, param->h_dpi, param->v_dpi,
             0, 
-            (param->use_cropbox == 0), 
+            (!(param->use_cropbox)),
             false, false,
             nullptr, nullptr, &annot_cb, nullptr);
 
