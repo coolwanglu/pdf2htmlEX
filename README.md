@@ -29,11 +29,11 @@ The generated HTML file is static, Javascript is not required.
   - Correct font & position & styles
   - Proper reencoding
   - Generated HTML file is of similar size as the original (uncompressed) PDF file
+  - Fallback (image + hidden text) - better accuracy and compatibility
 * Output modes
   - Normal HTML
   - All-in-one HTML - portable & easy to share
   - One HTML per page - best for dynamic pages
-  - Fallback (image + hidden text) - better accuracy and compatibility
 * More PDF stuffs that you love
   - Links
   - Outline
