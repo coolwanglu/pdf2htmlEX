@@ -93,7 +93,7 @@ Thanks to all packagers!
 * [Troubleshooting compilation errors](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ#wiki-compile)
 * [How can I help](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ#wiki-help)
 * [I want more features](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ#wiki-feature_commission)
-* [More about pdf2htmlEX](https://github.com/coolwanglu/pdf2htmlEX/wiki/)
+* [More...](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ)
 
 ## LICENSE
 
