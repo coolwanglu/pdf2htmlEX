@@ -33,7 +33,7 @@ The generated HTML file is static, Javascript is not required.
   - Normal HTML
   - All-in-one HTML - portable & easy to share
   - One HTML per page - best for dynamic pages
-  - Fallback - better accuracy and compatibility
+  - Fallback (image + hidden text) - better accuracy and compatibility
 * More PDF stuffs that you love
   - Links
   - Outline
