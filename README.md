@@ -85,8 +85,8 @@ Thanks to all packagers!
 ## Usage
 
     pdf2htmlEX /path/to/foobar.pdf
-    pdf2htmlEX --help
-    man pdf2htmlEX
+
+[Quick Start](https://github.com/coolwanglu/pdf2htmlEX/wiki/QuickStart)
 
 ## FAQ
 
