@@ -260,12 +260,14 @@ void ffw_cidflatten(void)
     SFFlatten(cur_fv->sf->cidmaster);
 }
 
+/*
+ * There is no check if a glyph with the same unicode exists!
+ */
 void ffw_add_empty_char(int32_t unicode, int width)
 {
-    // append the new char to Enc
     SplineChar * sc = SFMakeChar(cur_fv->sf, cur_fv->map, cur_fv->map->enccount);
-    sc->unicodeenc = unicode;
-    sc->width = width;
+    SCSetMetaData(sc, sc->name, unicode, sc->comment);
+    SCSynchronizeWidth(sc, width, sc->width, cur_fv);
 }
 
 int ffw_get_em_size(void)
