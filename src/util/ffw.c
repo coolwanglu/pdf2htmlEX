@@ -319,6 +319,13 @@ void ffw_metric(double * ascent, double * descent)
     sf->descent = em - bb.maxy;
     */
 
+    /*
+     * The embedded fonts are likely to have inconsistent values for the 3 sets of ascent/descent
+     * PDF viewers don't care, since they don't even use these values
+     * But have to unify them, for different browsers on different platforms
+     * Things may become easier when there are CSS rules for baseline-based positioning.
+     */
+
     info->os2_winascent = a;
     info->os2_typoascent = a;
     info->hhead_ascent = a;
