@@ -108,8 +108,9 @@ endif()
 
 
 # debug build flags (overwrite default cmake debug flags)
-set(CMAKE_C_FLAGS_DEBUG "-ggdb")
-set(CMAKE_CXX_FLAGS_DEBUG "-ggdb")
+set(CMAKE_C_FLAGS_DEBUG "-ggdb -pg")
+set(CMAKE_CXX_FLAGS_DEBUG "-ggdb -pg")
+set(CMAKE_EXE_LINKER_FLAGS_DEBUG "-pg")
 
 # release build flags (overwrite default cmake release flags)
 set(CMAKE_C_FLAGS_RELEASE "-O2 -DNDEBUG")
