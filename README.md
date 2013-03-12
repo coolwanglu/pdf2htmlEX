@@ -9,7 +9,11 @@ A beautiful demo is worth a thousand words:
 - **Scientific Paper**: [Default](http://coolwanglu.github.com/pdf2htmlEX/demo/demo.html) / [MediaFire](http://www.mediafire.com/view/?6po429kz9czcga2) / [Original](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.148.349&rep=rep1&type=pdf)
 - **Full Circle Magazine**: [Default](http://coolwanglu.github.com/pdf2htmlEX/demo/issue65_en.html) / [MediaFire](http://www.mediafire.com/view/?6hxmt94k2vppnpb) / [Original](http://dl.fullcirclemagazine.org/issue65_en.pdf)   <sub>The 1st link might be slow</sub>
 - **Chinese**: [Default](http://coolwanglu.github.com/pdf2htmlEX/demo/chn.html) / [MediaFire](http://www.mediafire.com/view/?6550ldag9w0uuq3) / [Original](http://files.cnblogs.com/phphuaibei/git%E6%90%AD%E5%BB%BA.pdf)
-- Try your own files on [MediaFire](http://www.mediafire.com), which uses pdf2htmlEX for its PDF preview feature.
+- **More**(http://www.mediafire.com/?clnnit9kn3vf9)
+  - You can [upload your own files](http://www.mediafire.com/filedrop/filedrop_hosted.php?drop=b9da314994a5e9af384dfd020fe8280e0d2e425d0870dc5edcca272e9fdc7d43) to this public folder
+  - Do not upload inpropriate materials (include but not limited to: private, copyrighted, illegal, threatening etc).
+  - The folder may be cleaned periodically, but you cannot removed any file once uploaded.
+  - Hosted on [MediaFire](http://www.mediafire.com)
   
 ## Introduction
 
