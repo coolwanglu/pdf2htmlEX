@@ -72,6 +72,9 @@
     overflow:visible;
     background-color:transparent;
   }
+  .@CSS_CSS_DRAW_CN@ {
+    display:none;
+  }
 }
 /* Part 2: Page Elements: Modify with caution
  * The followings are base classes, which are meant to be override by PDF specific classes
@@ -113,6 +116,17 @@
 .@CSS_PAGE_CONTENT_BOX_CN@.opened { /* used by pdf2htmlEX.js, to show/hide pages */
   display:block;
 }
+.@CSS_BACKGROUND_IMAGE_CN@ {
+  position:absolute;
+  left:0;
+  top:0;
+  width:100%;
+  height:100%;
+  -ms-user-select:none;
+  -moz-user-select:none;
+  -webkit-user-select:none;
+  user-select:none;
+}
 @media print {
   .@CSS_PAGE_DECORATION_CN@ {
     margin:0;
@@ -150,11 +164,12 @@ span { /* text blocks within a line */
   color:transparent;
   z-index:-1;
 }
+/* selection background should not be opaque, for fallback mode */
 ::selection{
-  background: rgba(127,255,255,1);
+  background: rgba(127,255,255,0.4);
 }
 ::-moz-selection{
-  background: rgba(127,255,255,1);
+  background: rgba(127,255,255,0.4);
 }
 .@CSS_PAGE_DATA_CN@ { /* info for Javascript */
   display:none;

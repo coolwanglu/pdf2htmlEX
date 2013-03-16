@@ -9,8 +9,8 @@ A beautiful demo is worth a thousand words:
 - **Scientific Paper**: [Default](http://coolwanglu.github.com/pdf2htmlEX/demo/demo.html) / [MediaFire](http://www.mediafire.com/view/?6po429kz9czcga2) / [Original](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.148.349&rep=rep1&type=pdf)
 - **Full Circle Magazine**: [Default](http://coolwanglu.github.com/pdf2htmlEX/demo/issue65_en.html) / [MediaFire](http://www.mediafire.com/view/?6hxmt94k2vppnpb) / [Original](http://dl.fullcirclemagazine.org/issue65_en.pdf)   <sub>The 1st link might be slow</sub>
 - **Chinese**: [Default](http://coolwanglu.github.com/pdf2htmlEX/demo/chn.html) / [MediaFire](http://www.mediafire.com/view/?6550ldag9w0uuq3) / [Original](http://files.cnblogs.com/phphuaibei/git%E6%90%AD%E5%BB%BA.pdf)
-- Try your own files on [MediaFire](http://www.mediafire.com), which uses pdf2htmlEX for its PDF preview feature.
-  
+- [Try your own files](https://github.com/coolwanglu/pdf2htmlEX/wiki/UploadDemo)
+ 
 ## Introduction
 
 pdf2htmlEX renders PDF files in HTML, utilizing modern Web technologies.
@@ -29,6 +29,7 @@ The generated HTML file is static, Javascript is not required.
   - Correct font & position & styles
   - Proper reencoding
   - Generated HTML file is of similar size as the original (uncompressed) PDF file
+  - Fallback (image + hidden text) - better accuracy and compatibility
 * Output modes
   - Normal HTML
   - All-in-one HTML - portable & easy to share
@@ -36,6 +37,7 @@ The generated HTML file is static, Javascript is not required.
 * More PDF stuffs that you love
   - Links
   - Outline
+  - Printing (experimental)
 
 [Full list](https://github.com/coolwanglu/pdf2htmlEX/wiki/Feature-List)   
 [Compare with others](https://github.com/coolwanglu/pdf2htmlEX/wiki/Comparison)
@@ -83,15 +85,15 @@ Thanks to all packagers!
 ## Usage
 
     pdf2htmlEX /path/to/foobar.pdf
-    pdf2htmlEX --help
-    man pdf2htmlEX
+
+[Quick Start](https://github.com/coolwanglu/pdf2htmlEX/wiki/QuickStart)
 
 ## FAQ
 
 * [Troubleshooting compilation errors](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ#wiki-compile)
 * [How can I help](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ#wiki-help)
 * [I want more features](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ#wiki-feature_commission)
-* [More about pdf2htmlEX](https://github.com/coolwanglu/pdf2htmlEX/wiki/)
+* [More...](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ)
 
 ## LICENSE
 
@@ -114,7 +116,7 @@ pdf2htmlEX is maintained by one person in spare time, and it needs your help!
 
 * Lu Wang <coolwanglu@gmail.com>
   * For personal enquiries only
-  * Accepting messages in **Chinese**, **English** or **Japanese**.
+  * Accepting messages in **中文**, **English** or **日本語**.
 
 ## Acknowledge
 

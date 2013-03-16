@@ -88,6 +88,10 @@ Specify the filename of the generated outline file, if not embedded.
 If it's empty, the file name will be determined automatically.
 
 .TP
+.B --fallback <0|1> (Deafult: 0)
+Output in fallback mode, for better accuracy and browser compatibility, but the size becomes larger.
+
+.TP
 .B --process-nontext <0|1> (Default: 1)
 Whether to process non-text objects (as images)
 

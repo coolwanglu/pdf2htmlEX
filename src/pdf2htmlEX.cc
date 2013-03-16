@@ -64,7 +64,7 @@ void parse_options (int argc, char **argv)
         .add("zoom", &param.zoom, 0, "zoom ratio", nullptr, true)
         .add("fit-width", &param.fit_width, 0, "fit width to <fp> pixels", nullptr, true) 
         .add("fit-height", &param.fit_height, 0, "fit height to <fp> pixels", nullptr, true)
-        .add("use-cropbox", &param.use_cropbox, 0, "use CropBox instead of MediaBox")
+        .add("use-cropbox", &param.use_cropbox, 1, "use CropBox instead of MediaBox")
         .add("hdpi", &param.h_dpi, 144.0, "horizontal resolution for graphics in DPI")
         .add("vdpi", &param.v_dpi, 144.0, "vertical resolution for graphics in DPI")
         
@@ -76,6 +76,7 @@ void parse_options (int argc, char **argv)
         .add("outline-filename", &param.outline_filename, "", "filename of the generated outline file")
         .add("process-nontext", &param.process_nontext, 1, "render graphics in addition to text")
         .add("process-outline", &param.process_outline, 1, "show outline in HTML")
+        .add("fallback", &param.fallback, 0, "output in fallback mode")
         
         // fonts
         .add("embed-base-font", &param.embed_base_font, 0, "embed local match for standard 14 fonts")
@@ -104,7 +105,8 @@ void parse_options (int argc, char **argv)
         // misc.
         .add("clean-tmp", &param.clean_tmp, 1, "remove temporary files after conversion")
         .add("data-dir", &param.data_dir, PDF2HTMLEX_DATA_PATH, "specify data directory")
-        .add("css-draw", &param.css_draw, 0, "[experimental and unsupported] CSS drawing")
+        // TODO: css drawings are hidden on print, for annot links, need to fix it for other drawings
+//        .add("css-draw", &param.css_draw, 0, "[experimental and unsupported] CSS drawing")
         .add("debug", &param.debug, 0, "print debugging information")
         
         // meta

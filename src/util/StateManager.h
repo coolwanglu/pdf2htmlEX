@@ -453,6 +453,43 @@ public:
     }
 };
 
+/////////////////////////////////////
+/*
+ * Manage the background image sizes
+ * Kind of similar with StateManager, but not exactly the same
+ * anyway temporarly leave it here
+ */
+class BGImageSizeManager
+{
+public:
+    void install(int page_no, double width, double height){
+        value_map.insert(std::make_pair(page_no, std::make_pair(width, height)));
+    }
+
+    void dump_css(std::ostream & out) {
+        for(auto iter = value_map.begin(); iter != value_map.end(); ++iter)
+        {
+            const auto & s = iter->second;
+            out << "." << CSS::PAGE_CONTENT_BOX_CN << iter->first << "{";
+            out << "background-size:" << round(s.first) << "px " << round(s.second) << "px;";
+            out << "}" << std::endl;
+        }
+    }
+
+    void dump_print_css(std::ostream & out, double scale) {
+        for(auto iter = value_map.begin(); iter != value_map.end(); ++iter)
+        {
+            const auto & s = iter->second;
+            out << "." << CSS::PAGE_CONTENT_BOX_CN << iter->first << "{";
+            out << "background-size:" << round(s.first * scale) << "pt " << round(s.second * scale) << "pt;";
+            out << "}" << std::endl;
+        }
+    }
+
+private:
+    std::unordered_map<int, std::pair<double,double>> value_map; 
+};
+
 } // namespace pdf2htmlEX 
 
 #endif //STATEMANAGER_H__

@@ -7,7 +7,7 @@ cmake_minimum_required(VERSION 2.6.0 FATAL_ERROR)
 
 include_directories(${CMAKE_SOURCE_DIR}/src)
 
-set(PDF2HTMLEX_VERSION "0.7")
+set(PDF2HTMLEX_VERSION "0.8")
 set(ARCHIVE_NAME pdf2htmlex-${PDF2HTMLEX_VERSION})
 add_custom_target(dist
     COMMAND git archive --prefix=${ARCHIVE_NAME}/ HEAD
@@ -43,7 +43,7 @@ if(FONTFORGE_FOUND)
     link_directories(${FONTFORGE_LIBRARY_DIRS})
     set(PDF2HTMLEX_LIBS ${PDF2HTMLEX_LIBS} ${FONTFORGE_LIBRARIES})
 else()
-    message("Trying to locate fontforge...")
+    message("Trying to locate old versions of fontforge...")
     find_path(FF_INCLUDE_PATH fontforge/fontforge.h)
     if(FF_INCLUDE_PATH)
         message("Found fontforge.h: ${FF_INCLUDE_PATH}/fontforge/fontforge.h")
@@ -60,6 +60,14 @@ else()
         endif()
     else()
         message(FATAL_ERROR "Error: cannot locate fontforge.h")
+    endif()
+    find_path(FF_CONFIG_INCLUDE_PATH config.h PATHS
+      ${FONTFORGE_INCLUDE_DIRS} NO_DEFAULT_PATH)
+    if(FF_CONFIG_INCLUDE_PATH)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -include ${FF_CONFIG_INCLUDE_PATH}/config.h")
+    message("Found config.h: ${FF_CONFIG_INCLUDE_PATH}/config.h")
+    else()
+    message("Cannot locate config.h for fontforge")
     endif()
 
     macro(wl_find_library LIB_NAME RESULT)
@@ -98,14 +106,6 @@ else()
     set(PDF2HTMLEX_LIBS ${PDF2HTMLEX_LIBS} ${PYTHON_LIBRARIES})
 endif()
 
-find_path(FF_CONFIG_INCLUDE_PATH config.h PATHS
-  ${FONTFORGE_INCLUDE_DIRS} NO_DEFAULT_PATH)
-if(FF_CONFIG_INCLUDE_PATH)
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -include ${FF_CONFIG_INCLUDE_PATH}/config.h")
-message("Found config.h: ${FF_CONFIG_INCLUDE_PATH}/config.h")
-else()
-message("Cannot locate config.h for fontforge")
-endif()
 
 # debug build flags (overwrite default cmake debug flags)
 set(CMAKE_C_FLAGS_DEBUG "-ggdb")

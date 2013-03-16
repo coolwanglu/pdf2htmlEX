@@ -1,8 +1,13 @@
-Latest v0.7
+Latest v0.8
+
+v0.7
+2013.03.01
 
 * Process outline
 * Fix build with poppler
 * Many code cleaning jobs [John Hewson]
+* Experimental printing support
+* Lots of code refinements
 
 v0.6
 2013.01.26

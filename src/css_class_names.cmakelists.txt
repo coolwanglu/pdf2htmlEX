@@ -2,19 +2,21 @@
 
 # Note
 # don't use: (otherwise conflicted with others when there is an ID suffix)
-# p f
+# p f s
 
 set(CSS_INVALID_ID          "_")
 
-set(CSS_LINE_CN             "tl") # text line
-set(CSS_TRANSFORM_MATRIX_CN "tm") # transform matrix
+set(CSS_LINE_CN             "t") # text 
+set(CSS_TRANSFORM_MATRIX_CN "m") # matrix
 
 set(CSS_PAGE_DECORATION_CN  "pd") # page decoration
 set(CSS_PAGE_FRAME_CN       "pf") # page frame
 set(CSS_PAGE_CONTENT_BOX_CN "pc") # page content
 set(CSS_PAGE_DATA_CN        "pi") # page info
 
-set(CSS_FONT_NAME_CN        "fn") # font name
+set(CSS_BACKGROUND_IMAGE_CN "bi") # background image
+
+set(CSS_FONT_FAMILY_CN      "ff") # font family
 set(CSS_FONT_SIZE_CN        "fs") # font size
 
 set(CSS_FILL_COLOR_CN       "fc") # fill color

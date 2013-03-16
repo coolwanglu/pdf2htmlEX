@@ -260,12 +260,14 @@ void ffw_cidflatten(void)
     SFFlatten(cur_fv->sf->cidmaster);
 }
 
+/*
+ * There is no check if a glyph with the same unicode exists!
+ */
 void ffw_add_empty_char(int32_t unicode, int width)
 {
-    // append the new char to Enc
     SplineChar * sc = SFMakeChar(cur_fv->sf, cur_fv->map, cur_fv->map->enccount);
-    sc->unicodeenc = unicode;
-    sc->width = width;
+    SCSetMetaData(sc, sc->name, unicode, sc->comment);
+    SCSynchronizeWidth(sc, width, sc->width, cur_fv);
 }
 
 int ffw_get_em_size(void)
@@ -318,6 +320,13 @@ void ffw_metric(double * ascent, double * descent)
     sf->ascent = min(a, em);
     sf->descent = em - bb.maxy;
     */
+
+    /*
+     * The embedded fonts are likely to have inconsistent values for the 3 sets of ascent/descent
+     * PDF viewers don't care, since they don't even use these values
+     * But have to unify them, for different browsers on different platforms
+     * Things may become easier when there are CSS rules for baseline-based positioning.
+     */
 
     info->os2_winascent = a;
     info->os2_typoascent = a;

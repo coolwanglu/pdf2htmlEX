@@ -15,6 +15,7 @@ var pdf2htmlEX = (function(){
     page_decoration  : '@CSS_PAGE_DECORATION_CN@',
     page_content_box : '@CSS_PAGE_CONTENT_BOX_CN@',
     page_data        : '@CSS_PAGE_DATA_CN@',
+    background_image : '@CSS_BACKGROUND_IMAGE_CN@',
     link             : '@CSS_LINK_CN@',
     __dummy__        : 'no comma'
   };
@@ -126,11 +127,12 @@ var pdf2htmlEX = (function(){
       this.outline = $('#'+this.outline_id);
       this.container = $('#'+this.container_id);
 
-      // need a better design
+      // Open the outline if nonempty
       if(this.outline.children().length > 0) { 
         this.outline.addClass('opened');
       }
       
+      // collect pages
       var new_pages = new Array();
       var pl= $('.'+CSS_CLASS_NAMES['page_frame'], this.container);
       /* don't use for(..in..) */
@@ -140,13 +142,17 @@ var pdf2htmlEX = (function(){
       }
       this.pages = new_pages;
 
+      // register schedule rendering
       var _ = this;
       this.container.scroll(function(){ _.schedule_render(); });
 
       //this.zoom_fixer();
       
-      // used by outline/annot_link etc
+      // handle links
       this.container.add(this.outline).on('click', '.'+CSS_CLASS_NAMES['link'], this, this.link_handler);
+
+      // disable background image draging
+      $('.'+CSS_CLASS_NAMES['background_image'], this.container).on('dragstart', function(e){return false;});
 
       this.render();
     },

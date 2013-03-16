@@ -275,7 +275,7 @@ int HTMLRenderer::TextLineBuffer::State::diff(const State & s) const
 
 // the order should be the same as in the enum
 const char * const HTMLRenderer::TextLineBuffer::State::css_class_names [] = {
-    CSS::FONT_NAME_CN,
+    CSS::FONT_FAMILY_CN,
     CSS::FONT_SIZE_CN,
     CSS::FILL_COLOR_CN,
     CSS::STROKE_COLOR_CN,

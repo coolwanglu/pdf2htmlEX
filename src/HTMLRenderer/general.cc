@@ -111,7 +111,7 @@ void HTMLRenderer::process(PDFDoc *doc)
 
         if(param->process_nontext)
         {
-            auto fn = str_fmt("%s/p%x.png", (param->single_html ? param->tmp_dir : param->dest_dir).c_str(), i);
+            auto fn = str_fmt("%s/bg%x.png", (param->single_html ? param->tmp_dir : param->dest_dir).c_str(), i);
             if(param->single_html)
                 tmp_files.add((char*)fn);
 
@@ -121,7 +121,7 @@ void HTMLRenderer::process(PDFDoc *doc)
         doc->displayPage(this, i, 
                 text_zoom_factor() * DEFAULT_DPI, text_zoom_factor() * DEFAULT_DPI,
                 0, 
-                (param->use_cropbox == 0), 
+                (!(param->use_cropbox)),
                 false, false,
                 nullptr, nullptr, nullptr, nullptr);
 
@@ -173,34 +173,28 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state, XRef * xref)
         << "<div id=\"" << CSS::PAGE_FRAME_CN << pageNum 
             << "\" class=\"" << CSS::PAGE_FRAME_CN
             << "\" data-page-no=\"" << pageNum << "\">"
-        << "<div class=\"" << CSS::PAGE_CONTENT_BOX_CN << "\" style=\"";
+        << "<div class=\"" << CSS::PAGE_CONTENT_BOX_CN 
+            << " " << CSS::PAGE_CONTENT_BOX_CN << pageNum
+            << "\">";
 
     if(param->process_nontext)
     {
-        f_pages.fs << "background-image:url(";
-
+        f_pages.fs << "<img class=\"" << CSS::BACKGROUND_IMAGE_CN 
+            << "\" alt=\"\" src=\"";
+        if(param->single_html)
         {
-            if(param->single_html)
-            {
-                auto path = str_fmt("%s/p%x.png", param->tmp_dir.c_str(), pageNum);
-                ifstream fin((char*)path, ifstream::binary);
-                if(!fin)
-                    throw string("Cannot read background image ") + (char*)path;
-                f_pages.fs << "'data:image/png;base64," << base64stream(fin) << "'";
-            }
-            else
-            {
-                f_pages.fs << str_fmt("p%x.png", pageNum);
-            }
+            auto path = str_fmt("%s/bg%x.png", param->tmp_dir.c_str(), pageNum);
+            ifstream fin((char*)path, ifstream::binary);
+            if(!fin)
+                throw string("Cannot read background image ") + (char*)path;
+            f_pages.fs << "data:image/png;base64," << base64stream(fin);
         }
-
-        // TODO print css
-        f_pages.fs << ");background-position:0 0;background-size:" 
-            << state->getPageWidth() << "px " 
-            << state->getPageHeight() << "px;background-repeat:no-repeat;";
+        else
+        {
+            f_pages.fs << str_fmt("bg%x.png", pageNum);
+        }
+        f_pages.fs << "\"/>";
     }
-
-    f_pages.fs << "\">";
 
     reset_state();
 }
@@ -462,22 +456,24 @@ void HTMLRenderer::dump_css (void)
     width_manager           .dump_css(f_css.fs);
     rise_manager            .dump_css(f_css.fs);
     left_manager            .dump_css(f_css.fs);
+    bgimage_size_manager.dump_css(f_css.fs);
     
     // print css
-    double print_scale = 96.0 / DEFAULT_DPI / text_zoom_factor();
+    double ps = print_scale();
     f_css.fs << CSS::PRINT_ONLY << "{" << endl;
-    transform_matrix_manager.dump_print_css(f_css.fs, print_scale);
-    letter_space_manager    .dump_print_css(f_css.fs, print_scale);
-    stroke_color_manager    .dump_print_css(f_css.fs, print_scale);
-    word_space_manager      .dump_print_css(f_css.fs, print_scale);
-    whitespace_manager      .dump_print_css(f_css.fs, print_scale);
-    fill_color_manager      .dump_print_css(f_css.fs, print_scale);
-    font_size_manager       .dump_print_css(f_css.fs, print_scale);
-    bottom_manager          .dump_print_css(f_css.fs, print_scale);
-    height_manager          .dump_print_css(f_css.fs, print_scale);
-    width_manager           .dump_print_css(f_css.fs, print_scale);
-    rise_manager            .dump_print_css(f_css.fs, print_scale);
-    left_manager            .dump_print_css(f_css.fs, print_scale);
+    transform_matrix_manager.dump_print_css(f_css.fs, ps);
+    letter_space_manager    .dump_print_css(f_css.fs, ps);
+    stroke_color_manager    .dump_print_css(f_css.fs, ps);
+    word_space_manager      .dump_print_css(f_css.fs, ps);
+    whitespace_manager      .dump_print_css(f_css.fs, ps);
+    fill_color_manager      .dump_print_css(f_css.fs, ps);
+    font_size_manager       .dump_print_css(f_css.fs, ps);
+    bottom_manager          .dump_print_css(f_css.fs, ps);
+    height_manager          .dump_print_css(f_css.fs, ps);
+    width_manager           .dump_print_css(f_css.fs, ps);
+    rise_manager            .dump_print_css(f_css.fs, ps);
+    left_manager            .dump_print_css(f_css.fs, ps);
+    bgimage_size_manager.dump_print_css(f_css.fs, ps);
     f_css.fs << "}" << endl;
 }
 
