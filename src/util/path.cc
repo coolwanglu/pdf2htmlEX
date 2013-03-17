@@ -6,6 +6,7 @@
  */
 
 #include <errno.h>
+#include <regex>
 #include <sys/stat.h>
 #include <sys/types.h>
 
@@ -38,6 +39,21 @@ void create_directories(const string & path)
         throw string("Cannot create directory: ") + path;
     }
 }
+
+string sanitize_filename(const string & filename, bool allow_single_format_number)
+{
+    // First, escape all %'s to make safe for use in printf.
+    string sanitized = std::regex_replace(filename, std::regex("%"), "%%");
+    
+    if(allow_single_format_number)
+    {
+        // A single %d or %0xd is allowed in the input.
+        sanitized = std::regex_replace(sanitized, std::regex("%%([0-9]*)d"), "%$1d", std::regex_constants::format_first_only);
+    }
+    
+    return sanitized;
+}
+
 
 bool is_truetype_suffix(const string & suffix)
 {

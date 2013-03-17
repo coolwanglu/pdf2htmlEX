@@ -65,9 +65,9 @@ You need to modify the manifest if you do not want outline embedded.
 
 .TP
 .B --split-pages <0|1> (Default: 0)
-If turned on, pages will be stored into separated files named as <output-filename>0.page, <output-filename>1.page, ...
+If turned on, pages will be stored into separated files. By defualt, these files will be named as <output-filename>0.page, <output-filename>1.page, ..., however the name of the files can be customized by adding a %d marker in the <output-filename> to specify how the page should be used to generate the name. E.g. p%d.page yeilding p1.page, p2.page ... or p%03d.page yielding p001.page, p002.page etc. Only %d may be used, no other formatting markers.
 
-Also the css and outline will be stored into separated files, and the will be no <output-filename>.html generated.
+Also the css and outline will be stored into separated files, and there will be no <output-filename>.html generated.
 
 This switch is useful if you want pages to be loaded separately & dynamically -- in which case you need to compose the page yourself, and a supporting backend might be necessary.
 
@@ -83,7 +83,7 @@ If it's empty, the file name will be determined automatically.
 
 .TP
 .B --outline-filename <filename> (Default: <none>)
-Specify the filename of the generated outline file, if not embedded.
+Specify the filename of the generated outline file, if not embedded. 
 
 If it's empty, the file name will be determined automatically.
 
