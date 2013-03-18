@@ -190,6 +190,22 @@ class OutputNamingTests(unittest.TestCase):
         ])
         self.assertEquals(files, sorted(['3-pages.css', '3-pages.outline', 'f%%oo1.xyz', 'f%%oo2.xyz', 'f%%oo3.xyz']))
 
+    def test_generate_split_pages_specify_name_only_percent_d_is_used_percent_percent_with_actual_placeholder(self):
+        files = execute_pdf2htmlex_and_get_files([
+            '--split-pages', 1,
+            path_to_test_file('3-pages.pdf'),
+            'f%%o%do.xyz'
+        ])
+        self.assertEquals(files, sorted(['3-pages.css', '3-pages.outline', 'f%%o1o.xyz', 'f%%o2o.xyz', 'f%%o3o.xyz']))
+
+    def test_generate_split_pages_specify_name_only_percent_d_is_used_percent_percent_with_actual_placeholder(self):
+        files = execute_pdf2htmlex_and_get_files([
+            '--split-pages', 1,
+            path_to_test_file('3-pages.pdf'),
+            'fo%do%%.xyz'
+        ])
+        self.assertEquals(files, sorted(['3-pages.css', '3-pages.outline', 'fo1o%%.xyz', 'fo2o%%.xyz', 'fo3o%%.xyz']))
+
     def test_generate_split_pages_specify_name_only_formatter_starts_part_way_through_invalid_formatter(self):
         files = execute_pdf2htmlex_and_get_files([
             '--split-pages', 1,

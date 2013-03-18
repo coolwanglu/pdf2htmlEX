@@ -20,24 +20,14 @@ std::string get_filename(const std::string & path);
 std::string get_suffix(const std::string & path);
 
 /**
- * Function to sanitize a filename so that it can be eventually safely used in a printf 
- * statement. Allows a single %d placeholder, but no other format specifiers.
+ * Sanitize all occurrences of '%' except for the first valid format specifier. Filename
+ * is only sanitized if a formatter is found, and the function returns true.
  *
- * @param filename the filename to be sanitized.
+ * @param filename the filename to be sanitized. Value will be modified.
  *
- * @return the sanitized filename.
+ * @return true if a format specifier was found, false otherwise.
  */ 
-std::string sanitize_filename(const std::string & filename);
-
-/**
- * Function to check if a filename contains at least one %d integer placeholder
- * for use in a printf statement.
- *
- * @param filename the filename to check
- *
- * @return true if the filename contains an integer placeholder, false otherwise.
- */
-bool contains_integer_placeholder(const std::string & filename);
+bool sanitize_filename(std::string & filename);
 
 } //namespace pdf2htmlEX 
 #endif //PATH_H__

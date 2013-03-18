@@ -40,7 +40,7 @@ void create_directories(const string & path)
     }
 }
 
-string sanitize_filename(const string & filename)
+bool sanitize_filename(string & filename)
 {
     string sanitized;
     bool format_specifier_found = false;
@@ -65,13 +65,13 @@ string sanitize_filename(const string & filename)
                     tmp.push_back(filename[i]);
                     
                     // If we aren't still in option specifiers, stop looking
-                    if(!strchr("+-#0123456789.", filename[i]))
+                    if(!strchr("0123456789", filename[i]))
                     {
                         break;
                     }
                 }
                 
-                // Check to see if we yielded a valid format speifier
+                // Check to see if we yielded a valid format specifier
                 if('d' == tmp.back())
                 {
                     // Found a valid integer format
@@ -93,46 +93,15 @@ string sanitize_filename(const string & filename)
             sanitized.push_back(filename[i]);
         }
     }
-    
-    return sanitized;
-}
 
-bool contains_integer_placeholder(const string & filename)
-{
-    for(size_t i = 0; i < filename.size(); i++) 
+    // Only sanitize if it is a valid format.
+    if(format_specifier_found)
     {
-        if('%' == filename[i])
-        {
-            size_t original_i = i;
-            char last_char = '%';
-            while(++i < filename.size())
-            {
-                last_char = filename[i];
-                
-                // If we aren't still in option specifiers, stop looking
-                if(!strchr("+-#0123456789.", last_char))
-                {
-                    break;
-                }
-            }
-            
-            // Check to see if we yielded a valid format speifier
-            if('d' == last_char)
-            {
-                // Yep.
-                return true;
-            }
-            else
-            {
-                // Nope. Resume looking where we left off.
-                i = original_i;
-            }
-        }
+        filename.assign(sanitized);   
     }
-    
-    return false;
-}
 
+    return format_specifier_found;
+}
 
 bool is_truetype_suffix(const string & suffix)
 {
