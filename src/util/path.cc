@@ -8,6 +8,7 @@
 #include <errno.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <cstring>
 
 #include "path.h"
 
@@ -37,6 +38,69 @@ void create_directories(const string & path)
 
         throw string("Cannot create directory: ") + path;
     }
+}
+
+bool sanitize_filename(string & filename)
+{
+    string sanitized;
+    bool format_specifier_found = false;
+    
+    for(size_t i = 0; i < filename.size(); i++) 
+    {
+        if('%' == filename[i])
+        {
+            if(format_specifier_found)
+            {
+                sanitized.push_back('%');
+                sanitized.push_back('%');
+            }
+            else  
+            {
+                // We haven't found the format specifier yet, so see if we can use this one as a valid formatter
+                size_t original_i = i;
+                string tmp;
+                tmp.push_back('%');
+                while(++i < filename.size())
+                {
+                    tmp.push_back(filename[i]);
+                    
+                    // If we aren't still in option specifiers, stop looking
+                    if(!strchr("0123456789", filename[i]))
+                    {
+                        break;
+                    }
+                }
+                
+                // Check to see if we yielded a valid format specifier
+                if('d' == tmp.back())
+                {
+                    // Found a valid integer format
+                    sanitized.append(tmp);
+                    format_specifier_found = true;
+                }
+                else
+                {
+                    // Not a valid format specifier. Just append the protected %
+                    // and keep looking from where we left of in the search
+                    sanitized.push_back('%');
+                    sanitized.push_back('%');
+                    i = original_i;
+                }
+            }
+        }
+        else 
+        {
+            sanitized.push_back(filename[i]);
+        }
+    }
+
+    // Only sanitize if it is a valid format.
+    if(format_specifier_found)
+    {
+        filename.assign(sanitized);   
+    }
+
+    return format_specifier_found;
 }
 
 bool is_truetype_suffix(const string & suffix)
