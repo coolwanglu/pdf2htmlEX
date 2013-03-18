@@ -10,7 +10,6 @@
 #include <string>
 #include <limits>
 #include <iostream>
-#include <regex>
 #include <getopt.h>
 
 #include <poppler-config.h>
@@ -216,7 +215,7 @@ int main(int argc, char **argv)
             if(get_suffix(param.input_filename) == ".pdf")
             {
                 if(param.split_pages)
-                    param.output_filename = sanitize_filename(s.substr(0, s.size() - 4) + "%d.page", true);
+                    param.output_filename = sanitize_filename(s.substr(0, s.size() - 4) + "%d.page");
                 else
                     param.output_filename = s.substr(0, s.size() - 4) + ".html";
 
@@ -224,7 +223,7 @@ int main(int argc, char **argv)
             else
             {
                 if(param.split_pages)
-                    param.output_filename = sanitize_filename(s + "%d.page", true);
+                    param.output_filename = sanitize_filename(s + "%d.page");
                 else
                     param.output_filename = s + ".html";
                 
@@ -233,16 +232,16 @@ int main(int argc, char **argv)
 		else if(param.split_pages)
         {
             // Need to make sure we have a page number placeholder in the filename
-            if(!std::regex_match(param.output_filename, std::regex("^.*%[0-9]*d.*$")))
+            if(!contains_integer_placeholder(param.output_filename))
             {
                 // Inject the placeholder just before the file extension
                 const string suffix = get_suffix(param.output_filename);
-                param.output_filename = sanitize_filename(param.output_filename.substr(0, param.output_filename.size() - suffix.size()) + "%d" + suffix, true);
+                param.output_filename = sanitize_filename(param.output_filename.substr(0, param.output_filename.size() - suffix.size()) + "%d" + suffix);
             }
             else
             {
                 // Already have the placeholder, just make sure the name is safe.
-                param.output_filename = sanitize_filename(param.output_filename, true);
+                param.output_filename = sanitize_filename(param.output_filename);
             }
         }
         if(param.css_filename.empty())

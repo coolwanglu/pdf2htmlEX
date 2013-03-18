@@ -6,7 +6,6 @@
  */
 
 #include <errno.h>
-#include <regex>
 #include <sys/stat.h>
 #include <sys/types.h>
 
@@ -40,18 +39,97 @@ void create_directories(const string & path)
     }
 }
 
-string sanitize_filename(const string & filename, bool allow_single_format_number)
+string sanitize_filename(const string & filename)
 {
-    // First, escape all %'s to make safe for use in printf.
-    string sanitized = std::regex_replace(filename, std::regex("%"), "%%");
+    string sanitized = string();
+    bool format_specifier_found = false;
     
-    if(allow_single_format_number)
+    for(int i = 0; i < filename.size(); i++) 
     {
-        // A single %d or %0xd is allowed in the input.
-        sanitized = std::regex_replace(sanitized, std::regex("%%([0-9]*)d"), "%$1d", std::regex_constants::format_first_only);
+        if('%' == filename[i])
+        {
+            if(format_specifier_found)
+            {
+                sanitized.push_back('%');
+                sanitized.push_back('%');
+            }
+            else  
+            {
+                // We haven't found the format specifier yet, so see if we can use this one as a valid formatter
+                int original_i = i;
+                string tmp("");
+                tmp.push_back('%');
+                while(++i < filename.size())
+                {
+                    tmp.push_back(filename[i]);
+                    
+                    // If we aren't still in option specifiers, stop looking
+                    if(!strchr("+-#0123456789.", filename[i]))
+                    {
+                        break;
+                    }
+                }
+                
+                // Check to see if we yielded a valid format speifier
+                if('d' == tmp.back())
+                {
+                    // Found a valid integer format
+                    sanitized.append(tmp);
+                    format_specifier_found = true;
+                }
+                else
+                {
+                    // Not a valid format specifier. Just append the protected %
+                    // and keep looking from where we left of in the search
+                    sanitized.push_back('%');
+                    sanitized.push_back('%');
+                    i = original_i;
+                }
+            }
+        }
+        else 
+        {
+            sanitized.push_back(filename[i]);
+        }
     }
     
     return sanitized;
+}
+
+bool contains_integer_placeholder(const string & filename)
+{
+    for(int i = 0; i < filename.size(); i++) 
+    {
+        if('%' == filename[i])
+        {
+            int original_i = i;
+            char last_char = '%';
+            while(++i < filename.size())
+            {
+                last_char = filename[i];
+                
+                // If we aren't still in option specifiers, stop looking
+                if(!strchr("+-#0123456789.", last_char))
+                {
+                    break;
+                }
+            }
+            
+            // Check to see if we yielded a valid format speifier
+            if('d' == last_char)
+            {
+                // Yep.
+                return true;
+            }
+            else
+            {
+                // Nope. Resume looking where we left off.
+                i = original_i;
+            }
+        }
+    }
+    
+    return false;
 }
 
 

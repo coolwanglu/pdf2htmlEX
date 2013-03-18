@@ -190,6 +190,22 @@ class OutputNamingTests(unittest.TestCase):
         ])
         self.assertEquals(files, sorted(['3-pages.css', '3-pages.outline', 'f%%oo1.xyz', 'f%%oo2.xyz', 'f%%oo3.xyz']))
 
+    def test_generate_split_pages_specify_name_only_formatter_starts_part_way_through_invalid_formatter(self):
+        files = execute_pdf2htmlex_and_get_files([
+            '--split-pages', 1,
+            path_to_test_file('3-pages.pdf'),
+            'f%02%doo.xyz'
+        ])
+        self.assertEquals(files, sorted(['3-pages.css', '3-pages.outline', 'f%021oo.xyz', 'f%022oo.xyz', 'f%023oo.xyz']))
+
+    def test_generate_split_pages_specify_output_filename_no_formatter_no_extension(self):
+        files = execute_pdf2htmlex_and_get_files([
+            '--split-pages', 1,
+            path_to_test_file('1-page.pdf'),
+            'foo'
+        ])
+        self.assertEquals(files, sorted(['1-page.css', '1-page.outline', 'foo1']))
+
     def test_generate_single_html_name_specified_format_characters_percent_d(self):
         files = execute_pdf2htmlex_and_get_files([
             path_to_test_file('2-pages.pdf'),
@@ -217,7 +233,7 @@ class OutputNamingTests(unittest.TestCase):
             'foo%%.html'
         ])
         self.assertEquals(files, ['foo%%.html'])
-        
+
 if __name__=="__main__":
     if not os.path.isfile(PDF2HTMLEX_PATH) or not os.access(PDF2HTMLEX_PATH, os.X_OK):
         print >> sys.stderr, "Cannot locate pdf2htmlEX executable. Make sure source was built before running this test."
