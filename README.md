@@ -91,7 +91,6 @@ Thanks to all packagers!
 ## FAQ
 
 * [Troubleshooting compilation errors](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ#wiki-compile)
-* [How can I help](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ#wiki-help)
 * [I want more features](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ#wiki-feature_commission)
 * [More...](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ)
 
@@ -105,14 +104,20 @@ Read LICENSE for detail.
 
 **Font extraction, conversion or redistribution MAY BE ILLEGAL, please check your local laws**
 
-## [**Donate Now**](http://coolwanglu.github.com/pdf2htmlEX/donate.html)
+## Contribute
 
-pdf2htmlEX is maintained by one person in spare time, and it needs your help!
+
+Consider how much you have to pay for an alternatve with a similar quality, keeping in mind that pdf2htmlEX is maintained by one person in spare time. 
+
+* Patches are more than welcome.
+* Or you may prefer [making a donation](http://coolwanglu.github.com/pdf2htmlEX/donate.html), the easier way.
+* [Others](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ#wiki-help)
 
 ## Contact
 
 * Mailing list <pdf2htmlex@googlegroups.com>
-  * You might want to try these useful resources first: `man pdf2htmlEX`, [wiki](https://github.com/coolwanglu/pdf2htmlEX/wiki) and [FAQ](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ)
+  * Make sure you have read `man pdf2htmlEX`, [wiki](https://github.com/coolwanglu/pdf2htmlEX/wiki) and [FAQ](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ)
+  * Or you may not get any reply.
 
 * Lu Wang <coolwanglu@gmail.com>
   * For personal enquiries only
