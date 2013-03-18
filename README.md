@@ -111,7 +111,7 @@ Consider how much you have to pay for an alternatve with a similar quality, keep
 
 * Patches are more than welcome.
 * Or you may prefer [making a donation](http://coolwanglu.github.com/pdf2htmlEX/donate.html), the easier way.
-* [Others](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ#wiki-help)
+* [Other ways you may help](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ#wiki-help)
 
 ## Contact
 
