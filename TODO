@@ -1,12 +1,11 @@
-cheat.html on IE
-
 == Future: ==
 
 Too difficult/complicated to implement:
  - integrate splash/cairo
- - naive support for image/drawing (SVG?)
+ - naive image/drawing (SVG?)
  - type 3 fonts (convert to SVG fonts?)
  - reflowable text/combine lines/unwrapping
+ - multi-thread
 
 Not enough motivated/Lazy
  - argument auto-completion
