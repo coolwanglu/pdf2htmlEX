@@ -8,6 +8,7 @@
 #include <errno.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <cstring>
 
 #include "path.h"
 
@@ -41,10 +42,10 @@ void create_directories(const string & path)
 
 string sanitize_filename(const string & filename)
 {
-    string sanitized = string();
+    string sanitized;
     bool format_specifier_found = false;
     
-    for(int i = 0; i < filename.size(); i++) 
+    for(uint i = 0; i < filename.size(); i++) 
     {
         if('%' == filename[i])
         {
@@ -57,7 +58,7 @@ string sanitize_filename(const string & filename)
             {
                 // We haven't found the format specifier yet, so see if we can use this one as a valid formatter
                 int original_i = i;
-                string tmp("");
+                string tmp;
                 tmp.push_back('%');
                 while(++i < filename.size())
                 {
