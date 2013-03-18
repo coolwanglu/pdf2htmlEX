@@ -215,18 +215,39 @@ int main(int argc, char **argv)
             if(get_suffix(param.input_filename) == ".pdf")
             {
                 if(param.split_pages)
-                    param.output_filename = s.substr(0, s.size() - 4);
+                {
+                    param.output_filename = s.substr(0, s.size() - 4) + "%d.page";
+                    sanitize_filename(param.output_filename);
+                }
                 else
+                {
                     param.output_filename = s.substr(0, s.size() - 4) + ".html";
+                }
 
             }
             else
             {
                 if(param.split_pages)
-                    param.output_filename = s;
+                {
+                    param.output_filename = s + "%d.page";
+                    sanitize_filename(param.output_filename);
+                }
                 else
+                {
                     param.output_filename = s + ".html";
+                }
                 
+            }
+        }
+		else if(param.split_pages)
+        {
+            // Need to make sure we have a page number placeholder in the filename
+            if(!sanitize_filename(param.output_filename))
+            {
+                // Inject the placeholder just before the file extension
+                const string suffix = get_suffix(param.output_filename);
+                param.output_filename = param.output_filename.substr(0, param.output_filename.size() - suffix.size()) + "%d" + suffix;
+                sanitize_filename(param.output_filename);
             }
         }
         if(param.css_filename.empty())

@@ -65,11 +65,33 @@ You need to modify the manifest if you do not want outline embedded.
 
 .TP
 .B --split-pages <0|1> (Default: 0)
-If turned on, pages will be stored into separated files named as <output-filename>0.page, <output-filename>1.page, ...
+If turned on, the pages, css, and outline will be stored into separated files and no consolidated <output-filename>.html will be generated. 
 
-Also the css and outline will be stored into separated files, and the will be no <output-filename>.html generated.
+<output-filename> may be used to specify the format for the filenames for individual pages. <output-filename> may contain a %d placeholder to indicate where the page number should be placed. The placeholder supports a limited subset of normal numerical placeholders, including specified width and zero padding.
+
+If <output-filename> does not contain a placeholder for the page number, the page number will be inserted directly before the file extension. If the filename does not have an extension, the page number will be placed at the end of the file name.
+
+If <output-filename> is not specified, <input-filename> will be used for the output filename, replacing the extension with .page and adding the page number directly before the extension.
 
 This switch is useful if you want pages to be loaded separately & dynamically -- in which case you need to compose the page yourself, and a supporting backend might be necessary.
+
+.B Examples
+
+.B pdf2htmlEX --split-pages 1 foo.pdf
+
+  Yields page files foo1.page, foo2.page, etc.
+
+.B pdf2htmlEX --split-pages 1 foo.pdf bar.baz
+
+  Yields page files bar1.baz, bar2.baz, etc.
+
+.B pdf2htmlEX --split-pages 1 foo.pdf page%dbar.baz
+
+  Yields page files page1bar.baz, page2bar.baz, etc.
+
+.B pdf2htmlEX --split-pages 1 foo.pdf bar%03d.baz
+
+  Yields page files bar001.baz, bar002.baz, etc.
 
 .TP
 .B --dest-dir <dir> (Default: .)
@@ -83,7 +105,7 @@ If it's empty, the file name will be determined automatically.
 
 .TP
 .B --outline-filename <filename> (Default: <none>)
-Specify the filename of the generated outline file, if not embedded.
+Specify the filename of the generated outline file, if not embedded. 
 
 If it's empty, the file name will be determined automatically.
 
