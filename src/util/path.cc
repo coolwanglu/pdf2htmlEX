@@ -45,7 +45,7 @@ string sanitize_filename(const string & filename)
     string sanitized;
     bool format_specifier_found = false;
     
-    for(uint i = 0; i < filename.size(); i++) 
+    for(size_t i = 0; i < filename.size(); i++) 
     {
         if('%' == filename[i])
         {
@@ -57,7 +57,7 @@ string sanitize_filename(const string & filename)
             else  
             {
                 // We haven't found the format specifier yet, so see if we can use this one as a valid formatter
-                int original_i = i;
+                size_t original_i = i;
                 string tmp;
                 tmp.push_back('%');
                 while(++i < filename.size())
@@ -99,11 +99,11 @@ string sanitize_filename(const string & filename)
 
 bool contains_integer_placeholder(const string & filename)
 {
-    for(int i = 0; i < filename.size(); i++) 
+    for(size_t i = 0; i < filename.size(); i++) 
     {
         if('%' == filename[i])
         {
-            int original_i = i;
+            size_t original_i = i;
             char last_char = '%';
             while(++i < filename.size())
             {
