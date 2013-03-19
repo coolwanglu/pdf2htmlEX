@@ -10,6 +10,8 @@ A beautiful demo is worth a thousand words:
 - **Full Circle Magazine**: [Default](http://coolwanglu.github.com/pdf2htmlEX/demo/issue65_en.html) / [MediaFire](http://www.mediafire.com/view/?6hxmt94k2vppnpb) / [Original](http://dl.fullcirclemagazine.org/issue65_en.pdf)   <sub>The 1st link might be slow</sub>
 - **Chinese**: [Default](http://coolwanglu.github.com/pdf2htmlEX/demo/chn.html) / [MediaFire](http://www.mediafire.com/view/?6550ldag9w0uuq3) / [Original](http://files.cnblogs.com/phphuaibei/git%E6%90%AD%E5%BB%BA.pdf)
 - [Try your own files](https://github.com/coolwanglu/pdf2htmlEX/wiki/UploadDemo)
+
+[Browser requirements](https://github.com/coolwanglu/pdf2htmlEX/wiki/Browser-Requirements)
  
 ## Introduction
 
