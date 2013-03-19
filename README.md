@@ -117,6 +117,7 @@ Consider how much you have to pay for an alternatve with a similar quality, keep
 
 ## Contact
 
+* IRC Channel [irc://freenode/pdf2htmlEX](irc://freenode/pdf2htmlEX)
 * Mailing list <pdf2htmlex@googlegroups.com>
   * Make sure you have read `man pdf2htmlEX`, [wiki](https://github.com/coolwanglu/pdf2htmlEX/wiki) and [FAQ](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ)
   * Or you may not get any reply.
