@@ -7,6 +7,7 @@
  */
 
 #include <vector>
+#include <algorithm>
 
 #include "HTMLRenderer.h"
 #include "TextLineBuffer.h"
@@ -24,6 +25,7 @@ using std::vector;
 using std::ostream;
 using std::cerr;
 using std::endl;
+using std::find;
 
 void HTMLRenderer::TextLineBuffer::reset(GfxState * state)
 {
@@ -50,6 +52,7 @@ void HTMLRenderer::TextLineBuffer::append_state(void)
     {
         states.resize(states.size() + 1);
         states.back().start_idx = text.size();
+        states.back().hash_umask = 0;
     }
 
     set_state(states.back());
@@ -69,6 +72,8 @@ void HTMLRenderer::TextLineBuffer::flush(void)
         return;
     }
 
+    optimize();
+
     for(auto iter = states.begin(); iter != states.end(); ++iter)
         iter->hash();
 
@@ -81,7 +86,7 @@ void HTMLRenderer::TextLineBuffer::flush(void)
     for(auto iter = states.begin(); iter != states.end(); ++iter)
     {
         const auto & s = *iter;
-        max_ascent = max<double>(max_ascent, s.ascent * s.draw_font_size);
+        max_ascent = max<double>(max_ascent, s.font_info->ascent * s.draw_font_size);
     }
 
     ostream & out = renderer->f_pages.fs;
@@ -157,7 +162,7 @@ void HTMLRenderer::TextLineBuffer::flush(void)
                 last_text_pos_with_negative_offset = cur_text_idx;
 
             auto * p = stack.back();
-            double threshold = p->draw_font_size * (p->ascent - p->descent) * (renderer->param->space_threshold);
+            double threshold = p->draw_font_size * (p->font_info->ascent - p->font_info->descent) * (renderer->param->space_threshold);
 
             out << "<span class=\"" << CSS::WHITESPACE_CN
                 << ' ' << CSS::WHITESPACE_CN << wid << "\">" << (target > (threshold - EPS) ? " " : "") << "</span>";
@@ -199,18 +204,47 @@ void HTMLRenderer::TextLineBuffer::set_state (State & state)
     state.ids[State::WORD_SPACE_ID] = renderer->word_space_manager.get_id();
     state.ids[State::RISE_ID] = renderer->rise_manager.get_id();
 
-    const FontInfo * info = renderer->cur_font_info;
-    state.ascent = info->ascent;
-    state.descent = info->descent;
+    state.font_info = renderer->cur_font_info;
     state.draw_font_size = renderer->font_size_manager.get_value();
 }
 
+void HTMLRenderer::TextLineBuffer::optimize(void)
+{
+    assert(!states.empty());
+
+    // TODO
+   
+    // set proper hash_umask
+    
+    // In some PDF files all spaces are converted into positionig shifts
+    // We may try to change them to ' ' and adjusted word_spaces
+    // This can also be applied when param->space_as_offset is set
+
+}
+
+// this state will be converted to a child node of the node of prev_state
+// dump the difference between previous state
+// also clone corresponding states
 void HTMLRenderer::TextLineBuffer::State::begin (ostream & out, const State * prev_state)
 {
+    long long cur_mask = 0xff;
     bool first = true;
-    for(int i = 0; i < ID_COUNT; ++i)
+    for(int i = 0; i < ID_COUNT; ++i, cur_mask<<=8)
     {
-        if(prev_state && (prev_state->ids[i] == ids[i]))
+        if(hash_umask & cur_mask) // we don't care about this ID
+        {
+            if (prev_state && (!(prev_state->hash_umask & cur_mask))) // if prev_state have it set
+            {
+                // we have to inherit it
+                ids[i] = prev_state->ids[i]; 
+                hash_umask &= (~cur_mask);
+            }
+            //anyway we don't have to output it
+            continue;
+        }
+
+        // now we care about the ID
+        if(prev_state && (!(prev_state->hash_umask & cur_mask)) && (prev_state->ids[i] == ids[i]))
             continue;
 
         if(first)
@@ -231,7 +265,7 @@ void HTMLRenderer::TextLineBuffer::State::begin (ostream & out, const State * pr
             out << ids[i];
     }
 
-    if(first)
+    if(first) // we actually just inherit the whole prev_state
     {
         need_close = false;
     }
@@ -264,12 +298,17 @@ int HTMLRenderer::TextLineBuffer::State::diff(const State & s) const
      * it could be wrong when there are more then 256 classes, 
      * in which case the output may not be optimal, but still 'correct' in terms of HTML
      */
-    if(hash_value == s.hash_value) return 0;
+    long long common_mask = ~(hash_umask | s.hash_umask);
+    if((hash_value & common_mask) == (s.hash_value & common_mask)) return 0;
 
+    long long cur_mask = 0xff;
     int d = 0;
     for(int i = 0; i < ID_COUNT; ++i)
-        if(ids[i] != s.ids[i])
+    {
+        if((common_mask & cur_mask) && (ids[i] != s.ids[i]))
             ++ d;
+        cur_mask <<= 8;
+    }
     return d;
 }
 
