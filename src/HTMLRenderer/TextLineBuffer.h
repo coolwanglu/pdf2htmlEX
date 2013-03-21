@@ -29,6 +29,8 @@ public:
             void hash(void);
             // calculate the difference between another State
             int diff(const State & s) const;
+            // the offset cause by a single ' ' char
+            double single_space_offset(void) const;
 
             enum {
                 FONT_ID,
@@ -46,6 +48,7 @@ public:
 
             const FontInfo * font_info;
             double draw_font_size;
+            double letter_space;
             double word_space;
 
             size_t start_idx; // index of the first Text using this state

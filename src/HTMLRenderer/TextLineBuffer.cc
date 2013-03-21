@@ -7,6 +7,7 @@
  */
 
 #include <vector>
+#include <cmath>
 #include <algorithm>
 
 #include "HTMLRenderer.h"
@@ -26,6 +27,7 @@ using std::ostream;
 using std::cerr;
 using std::endl;
 using std::find;
+using std::abs;
 
 void HTMLRenderer::TextLineBuffer::reset(GfxState * state)
 {
@@ -74,20 +76,22 @@ void HTMLRenderer::TextLineBuffer::flush(void)
 
     optimize();
 
-    for(auto iter = states.begin(); iter != states.end(); ++iter)
-        iter->hash();
-
-    states.resize(states.size() + 1);
-    states.back().start_idx = text.size();
-
-    offsets.push_back(Offset({text.size(), 0}));
-
     double max_ascent = 0;
     for(auto iter = states.begin(); iter != states.end(); ++iter)
     {
         const auto & s = *iter;
         max_ascent = max<double>(max_ascent, s.font_info->ascent * s.draw_font_size);
     }
+
+    // append a dummy state for convenience
+    states.resize(states.size() + 1);
+    states.back().start_idx = text.size();
+    
+    for(auto iter = states.begin(); iter != states.end(); ++iter)
+        iter->hash();
+
+    // append a dummy offset for convenience
+    offsets.push_back(Offset({text.size(), 0}));
 
     ostream & out = renderer->f_pages.fs;
     renderer->height_manager.install(max_ascent);
@@ -153,21 +157,30 @@ void HTMLRenderer::TextLineBuffer::flush(void)
         {
             double target = cur_offset_iter->width + dx;
 
-            auto & wm = renderer->whitespace_manager;
-            wm.install(target);
-            auto wid = wm.get_id();
-            double w = wm.get_actual_value();
+            if(equal(target, stack.back()->single_space_offset()))
+            {
+                Unicode u = ' ';
+                outputUnicodes(out, &u, 1);
+                dx = 0;
+            }
+            else
+            {
+                auto & wm = renderer->whitespace_manager;
+                wm.install(target);
+                auto wid = wm.get_id();
+                double w = wm.get_actual_value();
 
-            if(w < 0)
-                last_text_pos_with_negative_offset = cur_text_idx;
+                if(w < 0)
+                    last_text_pos_with_negative_offset = cur_text_idx;
 
-            auto * p = stack.back();
-            double threshold = p->draw_font_size * (p->font_info->ascent - p->font_info->descent) * (renderer->param->space_threshold);
+                auto * p = stack.back();
+                double threshold = p->draw_font_size * (p->font_info->ascent - p->font_info->descent) * (renderer->param->space_threshold);
 
-            out << "<span class=\"" << CSS::WHITESPACE_CN
-                << ' ' << CSS::WHITESPACE_CN << wid << "\">" << (target > (threshold - EPS) ? " " : "") << "</span>";
+                out << "<span class=\"" << CSS::WHITESPACE_CN
+                    << ' ' << CSS::WHITESPACE_CN << wid << "\">" << (target > (threshold - EPS) ? " " : "") << "</span>";
 
-            dx = target - w;
+                dx = target - w;
+            }
 
             ++ cur_offset_iter;
         }
@@ -205,21 +218,114 @@ void HTMLRenderer::TextLineBuffer::set_state (State & state)
     state.ids[State::RISE_ID] = renderer->rise_manager.get_id();
 
     state.font_info = renderer->cur_font_info;
-    state.draw_font_size = renderer->font_size_manager.get_value();
+    state.draw_font_size = renderer->font_size_manager.get_actual_value();
+    state.letter_space = renderer->letter_space_manager.get_actual_value();
+    state.word_space = renderer->word_space_manager.get_actual_value();
 }
 
 void HTMLRenderer::TextLineBuffer::optimize(void)
 {
     assert(!states.empty());
 
-    // TODO
-   
     // set proper hash_umask
+    long long word_space_umask = ((long long)0xff) << (8*((int)State::WORD_SPACE_ID));
+    for(auto iter = states.begin(); iter != states.end(); ++iter)
+    {
+        auto text_iter1 = text.begin() + (iter->start_idx);
+        auto next_iter = iter;
+        ++next_iter;
+        auto text_iter2 =  (next_iter == states.end()) ? (text.end()) : (text.begin() + (next_iter->start_idx));
+        if(find(text_iter1, text_iter2, ' ') == text_iter2)
+        {
+            // if there's no space, word_space does not matter;
+            iter->hash_umask |= word_space_umask;
+        }
+    }
+
+    // clean zero offsets
+    {
+        auto write_iter = offsets.begin();
+        for(auto iter = offsets.begin(); iter != offsets.end(); ++iter)
+        {
+            if(!equal(iter->width, 0))
+            {
+                *write_iter = *iter;
+                ++write_iter;
+            }
+        }
+        offsets.erase(write_iter, offsets.end());
+    }
     
     // In some PDF files all spaces are converted into positionig shifts
     // We may try to change them to ' ' and adjusted word_spaces
     // This can also be applied when param->space_as_offset is set
 
+    // for now, we cosider only the no-space scenario
+    if(offsets.size() > 0)
+    {
+        // Since GCC 4.4.6 is suported, I cannot use all_of + lambda here
+        bool all_ws_umask = true;
+        for(auto iter = states.begin(); iter != states.end(); ++iter)
+        {
+            if(!(iter->hash_umask & word_space_umask))
+            {
+                all_ws_umask = false;
+                break;
+            }
+        }
+        if(all_ws_umask)
+        {
+            double avg_width = 0;
+            int posive_offset_count = 0;
+            for(auto iter = offsets.begin(); iter != offsets.end(); ++iter)
+            {
+                if(is_positive(iter->width))
+                {
+                    ++posive_offset_count;
+                    avg_width += iter->width;
+                }
+            }
+            avg_width /= posive_offset_count;
+
+            // now check if the width of offsets are close enough
+            // TODO: it might make more sense if the threshold is proportion to the font size
+            bool ok = true;
+            double accum_off = 0;
+            double orig_accum_off = 0;
+            for(auto iter = offsets.begin(); iter != offsets.end(); ++iter)
+            {
+                orig_accum_off += iter->width;
+                accum_off += avg_width;
+                if(is_positive(iter->width) && abs(orig_accum_off - accum_off) >= renderer->param->h_eps)
+                {
+                    ok = false;
+                    break;
+                }
+            }
+            if(ok)
+            {
+                // ok, make all offsets equi-width
+                for(auto iter = offsets.begin(); iter != offsets.end(); ++iter)
+                {
+                    if(is_positive(iter->width))
+                        iter->width = avg_width;
+                }
+                // set new word_space
+                for(auto iter = states.begin(); iter != states.end(); ++iter)
+                {
+                    double new_word_space = avg_width - iter->single_space_offset();
+
+                    // install new word_space
+                    // we might introduce more variance here
+                    auto & wm = renderer->word_space_manager;
+                    wm.install(new_word_space);
+                    iter->ids[State::WORD_SPACE_ID] = wm.get_id();
+                    iter->word_space = wm.get_actual_value();
+                    iter->hash_umask &= (~word_space_umask);
+                }
+            }
+        }
+    }
 }
 
 // this state will be converted to a child node of the node of prev_state
@@ -310,6 +416,11 @@ int HTMLRenderer::TextLineBuffer::State::diff(const State & s) const
         cur_mask <<= 8;
     }
     return d;
+}
+
+double HTMLRenderer::TextLineBuffer::State::single_space_offset(void) const
+{
+    return letter_space + font_info->space_width * draw_font_size;
 }
 
 // the order should be the same as in the enum

@@ -36,7 +36,7 @@ public:
     long long id;
     bool use_tounicode;
     int em_size;
-    int space_width;
+    double space_width;
     double ascent, descent;
     bool is_type3;
 };
