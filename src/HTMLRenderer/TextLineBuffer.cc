@@ -313,7 +313,7 @@ void HTMLRenderer::TextLineBuffer::optimize(void)
                 // set new word_space
                 for(auto iter = states.begin(); iter != states.end(); ++iter)
                 {
-                    double new_word_space = avg_width - iter->single_space_offset();
+                    double new_word_space = avg_width - iter->single_space_offset() + iter->word_space;
 
                     // install new word_space
                     // we might introduce more variance here
@@ -420,7 +420,7 @@ int HTMLRenderer::TextLineBuffer::State::diff(const State & s) const
 
 double HTMLRenderer::TextLineBuffer::State::single_space_offset(void) const
 {
-    return letter_space + font_info->space_width * draw_font_size;
+    return word_space + letter_space + font_info->space_width * draw_font_size;
 }
 
 // the order should be the same as in the enum
