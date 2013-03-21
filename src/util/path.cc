@@ -72,7 +72,7 @@ bool sanitize_filename(string & filename)
                 }
                 
                 // Check to see if we yielded a valid format specifier
-                if('d' == tmp.back())
+                if('d' == tmp[tmp.size()-1])
                 {
                     // Found a valid integer format
                     sanitized.append(tmp);
