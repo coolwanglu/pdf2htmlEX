@@ -204,6 +204,18 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
 
     info.em_size = ffw_get_em_size();
 
+    if(!font->isCIDFont())
+    {
+        font_8bit = dynamic_cast<Gfx8BitFont*>(font);
+        info.space_width = font_8bit->getWidth(' ');
+    }
+    else
+    {
+        font_cid = dynamic_cast<GfxCIDFont*>(font);
+        char buf[2] = {0, ' '};
+        info.space_width = font_cid->getWidth(buf, 2);
+    }
+
     if(get_metric_only)
     {
         ffw_metric(&info.ascent, &info.descent);
@@ -228,9 +240,8 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
      * for CID Truetype
      * same as 8bitTrueType, except for that we have to check 65536 charcodes
      */
-    if(!font->isCIDFont())
+    if(font_8bit)
     {
-        font_8bit = dynamic_cast<Gfx8BitFont*>(font);
         maxcode = 0xff;
         if(is_truetype_suffix(suffix))
         {
@@ -283,7 +294,6 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
     }
     else
     {
-        font_cid = dynamic_cast<GfxCIDFont*>(font);
         maxcode = 0xffff;
 
         if(is_truetype_suffix(suffix))
@@ -424,17 +434,7 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
         // Might be a problem if ' ' is in the font, but not empty
         if(!has_space)
         {
-            int space_width;
-            if(font_8bit)
-            {
-                space_width = (int)floor(font_8bit->getWidth(' ') * info.em_size + 0.5);
-            }
-            else
-            {
-                char buf[2] = {0, ' '};
-                space_width = (int)floor(font_cid->getWidth(buf, 2) * info.em_size + 0.5);
-            }
-            ffw_add_empty_char((int32_t)' ', space_width);
+            ffw_add_empty_char((int32_t)' ', (int)floor(info.space_width * info.em_size + 0.5));
         }
 
         if(ctu)
@@ -525,6 +525,8 @@ const FontInfo * HTMLRenderer::install_font(GfxFont * font)
 
     if(font == nullptr)
     {
+        new_font_info.em_size = 0;
+        new_font_info.space_width = 0;
         new_font_info.ascent = 0;
         new_font_info.descent = 0;
         new_font_info.is_type3 = false;

@@ -29,6 +29,8 @@ public:
             void hash(void);
             // calculate the difference between another State
             int diff(const State & s) const;
+            // the offset cause by a single ' ' char
+            double single_space_offset(void) const;
 
             enum {
                 FONT_ID,
@@ -44,13 +46,15 @@ public:
 
             long long ids[ID_COUNT];
 
-            double ascent;
-            double descent;
+            const FontInfo * font_info;
             double draw_font_size;
+            double letter_space;
+            double word_space;
 
             size_t start_idx; // index of the first Text using this state
             // for optimzation
             long long hash_value;
+            long long hash_umask; // some states may not be actually used
             bool need_close;
 
             static const char * const css_class_names []; // class names for each id
@@ -72,6 +76,8 @@ public:
 private:
     // retrieve state from renderer
     void set_state(State & state);
+
+    void optimize(void);
 
     HTMLRenderer * renderer;
 
