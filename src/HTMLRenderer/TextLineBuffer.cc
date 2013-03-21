@@ -225,6 +225,9 @@ void HTMLRenderer::TextLineBuffer::set_state (State & state)
 
 void HTMLRenderer::TextLineBuffer::optimize(void)
 {
+    // this function needs more work
+    return;
+
     assert(!states.empty());
 
     // set proper hash_umask
