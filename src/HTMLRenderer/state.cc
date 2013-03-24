@@ -286,7 +286,8 @@ void HTMLRenderer::check_state_change(GfxState * state)
          * For horizontal text, set dy = 0, and try to solve dx
          * If dx can be solved, we can simply append a x-offset without creating a new line
          *
-         * TODO, writing mode, set dx and solve dy
+         * TODO, writing mode, set dx = 0 and solve dy
+         * TODO, try to merge when cur_tx and draw_tx are proportional
          */
 
         bool merged = false;
