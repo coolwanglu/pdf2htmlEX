@@ -288,7 +288,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
          * If dx can be solved, we can simply append a x-offset without creating a new line
          *
          * TODO, writing mode, set dx = 0 and solve dy
-         * TODO, try to merge when cur_tx and draw_tx are proportional
+         * TODO, try to merge when cur_tm and old_tm are proportional
          */
 
         bool merged = false;
