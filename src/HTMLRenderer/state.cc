@@ -247,7 +247,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
         if(!is_positive(new_draw_font_size))
         {
             // CSS cannot handle flipped pages
-            new_draw_font_size = -new_draw_font_size;
+            new_draw_font_size *= -1;
 
             for(int i = 0; i < 4; ++i)
                 new_draw_text_tm[i] *= -1;
