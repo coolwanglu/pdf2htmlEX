@@ -27,3 +27,4 @@ Not enough motivated/Lazy
  - minimum line width of css drawing
  - ajax in pdf2htmlEX for separated pages
  - separate classes for annotations (such that we don't have to hide all css drawings for printing)
+ - Widget Annoataion
