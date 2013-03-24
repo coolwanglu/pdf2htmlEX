@@ -270,6 +270,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
     }
 
     // see if the new line is compatible with the current line with proper position shift
+    // don't bother doing the heavy job when (new_line_state == NLS_DIV)
     // depends: rise & text position & transformation
     if(need_recheck_position && (new_line_state < NLS_DIV))
     {
