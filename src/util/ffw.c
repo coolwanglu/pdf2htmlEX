@@ -383,9 +383,11 @@ void ffw_set_widths(int * width_list, int mapping_len,
         if(j == -1) continue;
 
         SplineChar * sc = sf->glyphs[j];
-        if(sc == NULL) continue;
-
-        if(((sc->width > EPS)
+        if(sc == NULL)
+        {
+            sc = SFMakeChar(cur_fv->sf, cur_fv->map, j);
+        }
+        else if(((sc->width > EPS)
                 && (((sc->width > width_list[i] + EPS) && (squeeze_wide))
                     || ((sc->width < width_list[i] - EPS) && (stretch_narrow))))) 
         {
@@ -396,7 +398,7 @@ void ffw_set_widths(int * width_list, int mapping_len,
             FVTrans(cur_fv, sc, transform, NULL, fvt_alllayers | fvt_dontmovewidth);
         }
 
-        sc->width = width_list[i];
+        SCSynchronizeWidth(sc, width_list[i], sc->width, cur_fv);
     }
 
     for(; i < map->enccount; ++i)

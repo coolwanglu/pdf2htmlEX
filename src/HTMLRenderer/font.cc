@@ -178,7 +178,7 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
 
     if(param->debug)
     {
-        auto fn = str_fmt("%s/__raw_font_%lld", param->tmp_dir.c_str(), info.id, param->font_suffix.c_str());
+        auto fn = str_fmt("%s/__raw_font_%llx", param->tmp_dir.c_str(), info.id, param->font_suffix.c_str());
         tmp_files.add((char*)fn);
         ofstream((char*)fn, ofstream::binary) << ifstream(filepath).rdbuf();
     }
