@@ -187,8 +187,8 @@ void HTMLRenderer::check_state_change(GfxState * state)
     }  
 
     // backup the current ctm for need_recheck_position
-    double old_ctm[6];
-    memcpy(old_ctm, cur_text_tm, sizeof(old_ctm));
+    double old_tm[6];
+    memcpy(old_tm, cur_text_tm, sizeof(old_tm));
 
     // ctm & text ctm & hori scale
     if(all_changed || ctm_changed || text_mat_changed || hori_scale_changed)
@@ -269,51 +269,54 @@ void HTMLRenderer::check_state_change(GfxState * state)
         }
     }
 
-    // see if we can merge with the current line
+    // see if the new line is compatible with the current line with proper position shift
     // depends: rise & text position & transformation
     if(need_recheck_position)
     {
         // try to transform the old origin under the new TM
         /*
-         * OldTM * (draw_tx, draw_ty, 1)^T = CurTM * (draw_tx + dx, draw_ty + dy, 1)^T
+         * CurTM * (cur_tx, cur_ty, 1)^T = OldTM * (draw_tx + dx, draw_ty + dy, 1)^T
          *
-         * OldTM[4] = CurTM[0] * dx + CurTM[2] * dy + CurTM[4] 
-         * OldTM[5] = CurTM[1] * dx + CurTM[3] * dy + CurTM[5] 
+         * the first 4 elements of CurTM and OldTM should be the same
+         * otherwise the following text cannot be parallel
          *
-         * We just care if we can map the origin y to the same new y
-         * So just let dy = cur_y - old_y, and try to solve dx
+         * CurTM[4] - OldTM[4] = OldTM[0] * (draw_tx + dx - cur_tx) + OldTM[2] * (draw_ty + dy - cur_ty)
+         * CurTM[5] - OldTM[5] = OldTM[1] * (draw_tx + dx - cur_tx) + OldTM[3] * (draw_ty + dy - cur_ty)
+         *
+         * For horizontal text, set dy = 0, and try to solve dx
+         * If dx can be solved, we can simply append a x-offset without creating a new line
          *
          * TODO, writing mode, set dx and solve dy
          */
 
         bool merged = false;
-        if(tm_equal(old_ctm, cur_text_tm, 4))
+        double dx = 0;
+        if(tm_equal(old_tm, cur_text_tm, 4))
         {
-            double dy = cur_ty - draw_ty;
-            double tdx = old_ctm[4] - cur_text_tm[4] - cur_text_tm[2] * dy;
-            double tdy = old_ctm[5] - cur_text_tm[5] - cur_text_tm[3] * dy;
+            double lhs1 = cur_text_tm[4] - old_tm[4] - old_tm[2] * (draw_ty - cur_ty) - old_tm[0] * (draw_tx - cur_tx);
+            double lhs2 = cur_text_tm[5] - old_tm[5] - old_tm[3] * (draw_ty - cur_ty) - old_tm[0] * (draw_tx - cur_tx);
 
-            if(equal(cur_text_tm[0] * tdy, cur_text_tm[1] * tdx))
+            if(equal(old_tm[0] * lhs2, old_tm[1] * lhs1))
             {
-                if(is_positive(cur_text_tm[0]))
+                if(!equal(old_tm[0], 0))
                 {
-                    draw_tx += tdx / cur_text_tm[0];
-                    draw_ty += dy;
+                    dx = lhs1 / old_tm[0];
+                    draw_tx += dx;
                     merged = true;
                 }
-                else if (is_positive(cur_text_tm[1]))
+                else if (!equal(old_tm[1], 0))
                 {
-                    draw_tx += tdy / cur_text_tm[1];
-                    draw_ty += dy;
+                    dx = lhs2 / old_tm[1];
+                    draw_tx += dx;
                     merged = true;
                 }
                 else
                 {
-                    if((equal(tdx,0)) && (equal(tdy,0)))
+                    if((equal(lhs1,0)) && (equal(lhs2,0)))
                     {
                         // free
+                        dx = 0;
                         draw_tx = cur_tx;
-                        draw_ty += dy;
                         merged = true;
                     }
                     // else fail
@@ -323,7 +326,12 @@ void HTMLRenderer::check_state_change(GfxState * state)
         }
         // else force new line
 
-        if(!merged)
+        if(merged)
+        {
+            text_line_buf->append_offset(dx * draw_text_scale);
+            draw_ty = cur_ty;
+        }
+        else
         {
             new_line_state = max<NewLineState>(new_line_state, NLS_DIV);
         }

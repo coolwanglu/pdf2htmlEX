@@ -157,7 +157,11 @@ void HTMLRenderer::TextLineBuffer::flush(void)
         {
             double target = cur_offset_iter->width + dx;
 
-            if(equal(target, stack.back()->single_space_offset()))
+            if(equal(target, 0))
+            {
+                dx = 0;
+            }
+            else if(equal(target, stack.back()->single_space_offset()))
             {
                 Unicode u = ' ';
                 outputUnicodes(out, &u, 1);

@@ -262,7 +262,6 @@ protected:
     double cur_tx, cur_ty; // real text position, in text coords
     double cur_font_size;
     // this is CTM * TextMAT in PDF
-    // [4] and [5] are ignored,
     // as we'll calculate the position of the origin separately
     double cur_text_tm[6]; // unscaled
 
