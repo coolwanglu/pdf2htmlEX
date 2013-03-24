@@ -271,7 +271,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
 
     // see if the new line is compatible with the current line with proper position shift
     // depends: rise & text position & transformation
-    if(need_recheck_position)
+    if(need_recheck_position && (new_line_state < NLS_DIV))
     {
         // try to transform the old origin under the new TM
         /*
@@ -295,20 +295,18 @@ void HTMLRenderer::check_state_change(GfxState * state)
         if(tm_equal(old_tm, cur_text_tm, 4))
         {
             double lhs1 = cur_text_tm[4] - old_tm[4] - old_tm[2] * (draw_ty - cur_ty) - old_tm[0] * (draw_tx - cur_tx);
-            double lhs2 = cur_text_tm[5] - old_tm[5] - old_tm[3] * (draw_ty - cur_ty) - old_tm[0] * (draw_tx - cur_tx);
+            double lhs2 = cur_text_tm[5] - old_tm[5] - old_tm[3] * (draw_ty - cur_ty) - old_tm[1] * (draw_tx - cur_tx);
 
             if(equal(old_tm[0] * lhs2, old_tm[1] * lhs1))
             {
                 if(!equal(old_tm[0], 0))
                 {
                     dx = lhs1 / old_tm[0];
-                    draw_tx += dx;
                     merged = true;
                 }
                 else if (!equal(old_tm[1], 0))
                 {
                     dx = lhs2 / old_tm[1];
-                    draw_tx += dx;
                     merged = true;
                 }
                 else
@@ -317,7 +315,6 @@ void HTMLRenderer::check_state_change(GfxState * state)
                     {
                         // free
                         dx = 0;
-                        draw_tx = cur_tx;
                         merged = true;
                     }
                     // else fail
@@ -330,6 +327,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
         if(merged)
         {
             text_line_buf->append_offset(dx * draw_text_scale);
+            draw_tx = cur_tx;
             draw_ty = cur_ty;
         }
         else

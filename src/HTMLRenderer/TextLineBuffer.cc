@@ -156,36 +156,43 @@ void HTMLRenderer::TextLineBuffer::flush(void)
         if(cur_text_idx >= cur_offset_iter->start_idx)
         {
             double target = cur_offset_iter->width + dx;
+            double actual_offset = 0;
 
-            if(equal(target, 0))
+            if(abs(target) <= renderer->param->h_eps)
             {
-                dx = 0;
-            }
-            else if(equal(target, stack.back()->single_space_offset()))
-            {
-                Unicode u = ' ';
-                outputUnicodes(out, &u, 1);
-                dx = 0;
+                actual_offset = 0;
             }
             else
             {
-                auto & wm = renderer->whitespace_manager;
-                wm.install(target);
-                auto wid = wm.get_id();
-                double w = wm.get_actual_value();
+                double space_off = stack.back()->single_space_offset();
+                if(abs(target - space_off) <= renderer->param->h_eps)
+                {
+                    Unicode u = ' ';
+                    outputUnicodes(out, &u, 1);
+                    actual_offset = space_off;
+                }
+                else
+                {
+                    auto & wm = renderer->whitespace_manager;
+                    wm.install(target);
+                    auto wid = wm.get_id();
+                    actual_offset = wm.get_actual_value();
 
-                if(w < 0)
-                    last_text_pos_with_negative_offset = cur_text_idx;
+                    if(!equal(actual_offset, 0))
+                    {
+                        if(is_positive(-actual_offset))
+                            last_text_pos_with_negative_offset = cur_text_idx;
 
-                auto * p = stack.back();
-                double threshold = p->draw_font_size * (p->font_info->ascent - p->font_info->descent) * (renderer->param->space_threshold);
+                        auto * p = stack.back();
+                        double threshold = p->draw_font_size * (p->font_info->ascent - p->font_info->descent) * (renderer->param->space_threshold);
 
-                out << "<span class=\"" << CSS::WHITESPACE_CN
-                    << ' ' << CSS::WHITESPACE_CN << wid << "\">" << (target > (threshold - EPS) ? " " : "") << "</span>";
+                        out << "<span class=\"" << CSS::WHITESPACE_CN
+                            << ' ' << CSS::WHITESPACE_CN << wid << "\">" << (target > (threshold - EPS) ? " " : "") << "</span>";
 
-                dx = target - w;
+                    }
+                }
             }
-
+            dx = target - actual_offset;
             ++ cur_offset_iter;
         }
 
