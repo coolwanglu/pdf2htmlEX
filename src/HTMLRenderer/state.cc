@@ -6,11 +6,6 @@
  * Copyright (C) 2012,2013 Lu Wang <coolwanglu@gmail.com>
  */
 
-/*
- * TODO
- * optimize lines using nested <span> (reuse classes)
- */
-
 #include <cmath>
 #include <algorithm>
 
