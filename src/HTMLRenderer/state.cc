@@ -6,11 +6,6 @@
  * Copyright (C) 2012,2013 Lu Wang <coolwanglu@gmail.com>
  */
 
-/*
- * TODO
- * optimize lines using nested <span> (reuse classes)
- */
-
 #include <cmath>
 #include <algorithm>
 
@@ -64,7 +59,6 @@ void HTMLRenderer::updateCharSpace(GfxState * state)
 {
     letter_space_changed = true;
 }
-
 void HTMLRenderer::updateWordSpace(GfxState * state)
 {
     word_space_changed = true;
@@ -356,8 +350,8 @@ void HTMLRenderer::check_state_change(GfxState * state)
     // fill color
     if((!(param->fallback)) && (all_changed || fill_color_changed))
     {
-        // * PDF Spec. Table 106 –  Text rendering modes
-        static const char FILL[8]   = { true, false, true, false, true, false, true, false };
+        // * PDF Spec. Table 106 –Text rendering modes
+        static const char FILL[8] = { true, false, true, false, true, false, true, false };
         
         int idx = state->getRender();
         assert((idx >= 0) && (idx < 8));

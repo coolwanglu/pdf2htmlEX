@@ -164,14 +164,21 @@ void HTMLRenderer::TextLineBuffer::flush(void)
             }
             else
             {
-                double space_off = stack.back()->single_space_offset();
-                if(abs(target - space_off) <= renderer->param->h_eps)
+                bool done = false;
+                auto cur_state = stack.back();
+                if(!(cur_state->hash_umask & State::umask_by_id(State::WORD_SPACE_ID)))
                 {
-                    Unicode u = ' ';
-                    outputUnicodes(out, &u, 1);
-                    actual_offset = space_off;
+                    double space_off = cur_state->single_space_offset();
+                    if(abs(target - space_off) <= renderer->param->h_eps)
+                    {
+                        Unicode u = ' ';
+                        outputUnicodes(out, &u, 1);
+                        actual_offset = space_off;
+                        done = true;
+                    }
                 }
-                else
+
+                if(!done)
                 {
                     auto & wm = renderer->whitespace_manager;
                     wm.install(target);
@@ -183,8 +190,7 @@ void HTMLRenderer::TextLineBuffer::flush(void)
                         if(is_positive(-actual_offset))
                             last_text_pos_with_negative_offset = cur_text_idx;
 
-                        auto * p = stack.back();
-                        double threshold = p->draw_font_size * (p->font_info->ascent - p->font_info->descent) * (renderer->param->space_threshold);
+                        double threshold = cur_state->draw_font_size * (cur_state->font_info->ascent - cur_state->font_info->descent) * (renderer->param->space_threshold);
 
                         out << "<span class=\"" << CSS::WHITESPACE_CN
                             << ' ' << CSS::WHITESPACE_CN << wid << "\">" << (target > (threshold - EPS) ? " " : "") << "</span>";
@@ -236,13 +242,13 @@ void HTMLRenderer::TextLineBuffer::set_state (State & state)
 
 void HTMLRenderer::TextLineBuffer::optimize(void)
 {
-    // this function needs more work
+    // need more work
     return;
 
     assert(!states.empty());
 
     // set proper hash_umask
-    long long word_space_umask = ((long long)0xff) << (8*((int)State::WORD_SPACE_ID));
+    long long word_space_umask = State::umask_by_id(State::WORD_SPACE_ID);
     for(auto iter = states.begin(); iter != states.end(); ++iter)
     {
         auto text_iter1 = text.begin() + (iter->start_idx);
@@ -254,20 +260,6 @@ void HTMLRenderer::TextLineBuffer::optimize(void)
             // if there's no space, word_space does not matter;
             iter->hash_umask |= word_space_umask;
         }
-    }
-
-    // clean zero offsets
-    {
-        auto write_iter = offsets.begin();
-        for(auto iter = offsets.begin(); iter != offsets.end(); ++iter)
-        {
-            if(!equal(iter->width, 0))
-            {
-                *write_iter = *iter;
-                ++write_iter;
-            }
-        }
-        offsets.erase(write_iter, offsets.end());
     }
     
     // In some PDF files all spaces are converted into positionig shifts
@@ -358,6 +350,22 @@ void HTMLRenderer::TextLineBuffer::State::begin (ostream & out, const State * pr
                 // we have to inherit it
                 ids[i] = prev_state->ids[i]; 
                 hash_umask &= (~cur_mask);
+                //copy the corresponding value
+                //TODO: this is so ugly
+                switch(i)
+                {
+                case FONT_SIZE_ID:
+                    draw_font_size = prev_state->draw_font_size;
+                    break;
+                case LETTER_SPACE_ID:
+                    letter_space = prev_state->letter_space;
+                    break;
+                case WORD_SPACE_ID:
+                    word_space = prev_state->word_space;
+                    break;
+                default:
+                    break;
+                }
             }
             //anyway we don't have to output it
             continue;
@@ -435,6 +443,11 @@ int HTMLRenderer::TextLineBuffer::State::diff(const State & s) const
 double HTMLRenderer::TextLineBuffer::State::single_space_offset(void) const
 {
     return word_space + letter_space + font_info->space_width * draw_font_size;
+}
+
+long long HTMLRenderer::TextLineBuffer::State::umask_by_id(int id)
+{
+    return (((long long)0xff) << (8*id));
 }
 
 // the order should be the same as in the enum

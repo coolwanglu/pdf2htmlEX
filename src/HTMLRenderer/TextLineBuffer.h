@@ -44,6 +44,8 @@ public:
                 ID_COUNT
             };
 
+            static long long umask_by_id(int id);
+
             long long ids[ID_COUNT];
 
             const FontInfo * font_info;
