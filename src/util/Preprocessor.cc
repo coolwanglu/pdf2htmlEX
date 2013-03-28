@@ -48,7 +48,10 @@ void Preprocessor::process(PDFDoc * doc)
         cerr << "Preprocessing: " << (i-param->first_page) << "/" << page_count << '\r' << flush;
 
         doc->displayPage(this, i, DEFAULT_DPI, DEFAULT_DPI,
-                0, true, false, false,
+                0, 
+                (!(param->use_cropbox)),
+                true,  // crop
+                false, // printing
                 nullptr, nullptr, nullptr, nullptr);
     }
     if(page_count >= 0)

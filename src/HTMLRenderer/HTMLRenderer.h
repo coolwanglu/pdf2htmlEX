@@ -73,6 +73,10 @@ public:
     // Does this device need non-text content?
     virtual GBool needNonText() { return (param->process_nontext) ? gTrue: gFalse; }
 
+    // Does this device need to clip pages to the crop box even when the
+    // box is the crop box?
+    virtual GBool needClipToCropBox() { return gTrue; }
+
     virtual void setDefaultCTM(double *ctm);
 
     // Start a page.

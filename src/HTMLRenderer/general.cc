@@ -122,7 +122,8 @@ void HTMLRenderer::process(PDFDoc *doc)
                 text_zoom_factor() * DEFAULT_DPI, text_zoom_factor() * DEFAULT_DPI,
                 0, 
                 (!(param->use_cropbox)),
-                false, false,
+                true,  // crop
+                false, // printing
                 nullptr, nullptr, nullptr, nullptr);
 
         if(param->split_pages)
