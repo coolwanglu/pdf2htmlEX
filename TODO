@@ -1,6 +1,4 @@
-non-trivial space optimization
-(For each state whose word_space is free, set a proper value such that it may cover most whitespaces)
-(Or just set word_space according to the first positive whitespace, but need to do this before the state inherit some value)
+optimize letter_space
 
 == Future: ==
 
