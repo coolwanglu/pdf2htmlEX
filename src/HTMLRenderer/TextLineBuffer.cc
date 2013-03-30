@@ -191,7 +191,6 @@ void HTMLRenderer::TextLineBuffer::flush(void)
 
                         out << "<span class=\"" << CSS::WHITESPACE_CN
                             << ' ' << CSS::WHITESPACE_CN << wid << "\">" << (target > (threshold - EPS) ? " " : "") << "</span>";
-
                     }
                 }
             }
@@ -239,93 +238,77 @@ void HTMLRenderer::TextLineBuffer::optimize(void)
 {
     assert(!states.empty());
 
+    auto offset_iter = offsets.begin();
+    std::map<double, int> width_map;
+
     // set proper hash_umask
     long long word_space_umask = State::umask_by_id(State::WORD_SPACE_ID);
-    for(auto iter = states.begin(); iter != states.end(); ++iter)
+    for(auto state_iter2 = states.begin(), state_iter1 = state_iter2++; 
+            state_iter1 != states.end(); 
+            ++state_iter1, ++state_iter2)
     {
-        auto text_iter1 = text.begin() + (iter->start_idx);
-        auto next_iter = iter;
-        ++next_iter;
-        auto text_iter2 =  (next_iter == states.end()) ? (text.end()) : (text.begin() + (next_iter->start_idx));
-        if(find(text_iter1, text_iter2, ' ') == text_iter2)
-        {
-            // if there's no space, word_space does not matter;
-            iter->hash_umask |= word_space_umask;
-        }
-    }
-    
-    // In some PDF files all spaces are converted into positionig shifts
-    // We may try to change them to ' ' and adjusted word_spaces
-    // This can also be applied when param->space_as_offset is set
+        size_t text_idx1 = state_iter1->start_idx;
+        size_t text_idx2 = (state_iter2 == states.end()) ? text.size() : state_iter2->start_idx;
 
-    // for now, we cosider only the no-space scenario
-    if(offsets.size() > 0)
-    {
-        // Since GCC 4.4.6 is suported, I cannot use all_of + lambda here
-        bool all_ws_umask = true;
-        for(auto iter = states.begin(); iter != states.end(); ++iter)
+        // get the text segment covered by current state (*state_iter1)
+        auto text_iter1 = text.begin() + text_idx1;
+        auto text_iter2 = text.begin() + text_idx2;
+
+        // In some PDF files all spaces are converted into positionig shift
+        // We may try to change (some of) them to ' ' and adjust word_space accordingly
+        // This can also be applied when param->space_as_offset is set
+        // for now, we cosider only the no-space scenario
+        if(find(text_iter1, text_iter2, ' ') != text_iter2)
+            continue;
+
+        // if there is not any space, we may change the value of word_space arbitrarily
+        // collect widths
+        width_map.clear();
+
+        while((offset_iter != offsets.end()) && (offset_iter->start_idx < text_idx1))
+            ++ offset_iter;
+
+        for(; (offset_iter != offsets.end()) && (offset_iter->start_idx < text_idx2); ++offset_iter)
         {
-            if(!(iter->hash_umask & word_space_umask))
+            double target = offset_iter->width;
+            auto iter = width_map.lower_bound(target-EPS);
+            if((iter != width_map.end()) && (abs(iter->first - target) <= EPS))
             {
-                all_ws_umask = false;
-                break;
+                ++ iter->second;
+            }
+            else
+            {
+                width_map.insert(iter, std::make_pair(target, 1));
             }
         }
-        if(all_ws_umask)
+        if(width_map.empty())
         {
-            double avg_width = 0;
-            int posive_offset_count = 0;
-            for(auto iter = offsets.begin(); iter != offsets.end(); ++iter)
+            // if there is no offset at all
+            // we just free word_space
+            state_iter1->hash_umask |= word_space_umask;
+            continue;
+        }
+
+        // set word_space for the most frequently used offset
+        double most_used_width = 0;
+        int max_count = 0;
+        for(auto iter = width_map.begin(); iter != width_map.end(); ++iter)
+        {
+            if(iter->second > max_count)
             {
-                if(is_positive(iter->width))
-                {
-                    ++posive_offset_count;
-                    avg_width += iter->width;
-                }
-            }
-
-            if(posive_offset_count > 0)
-            {
-                avg_width /= posive_offset_count;
-
-                // now check if the width of offsets are close enough
-                // TODO: it might make more sense if the threshold is proportion to the font size
-                bool ok = true;
-                double accum_off = 0;
-                double orig_accum_off = 0;
-                for(auto iter = offsets.begin(); iter != offsets.end(); ++iter)
-                {
-                    orig_accum_off += iter->width;
-                    accum_off += avg_width;
-                    if(is_positive(iter->width) && abs(orig_accum_off - accum_off) >= renderer->param->h_eps)
-                    {
-                        ok = false;
-                        break;
-                    }
-                }
-                if(ok)
-                {
-                    // ok, make all offsets equi-width
-                    for(auto iter = offsets.begin(); iter != offsets.end(); ++iter)
-                    {
-                        if(is_positive(iter->width))
-                            iter->width = avg_width;
-                    }
-                    // set new word_space
-                    for(auto iter = states.begin(); iter != states.end(); ++iter)
-                    {
-                        iter->word_space = 0;
-                        double new_word_space = avg_width - iter->single_space_offset();
-
-                        // install new word_space
-                        // we might introduce more variance here
-                        iter->ids[State::WORD_SPACE_ID] = renderer->word_space_manager.install(new_word_space, &(iter->word_space));
-                        iter->hash_umask &= (~word_space_umask);
-                    }
-                }
+                max_count = iter->second;
+                most_used_width = iter->first;
             }
         }
-    }
+        
+        state_iter1->word_space = 0;
+        double new_word_space = most_used_width - state_iter1->single_space_offset();
+
+        // install new word_space
+        state_iter1->ids[State::WORD_SPACE_ID] = renderer->word_space_manager.install(new_word_space, &(state_iter1->word_space));
+        // mark that the word_space is not free
+        state_iter1->hash_umask &= (~word_space_umask);
+    } 
 }
 
 // this state will be converted to a child node of the node of prev_state
