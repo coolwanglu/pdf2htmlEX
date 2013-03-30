@@ -203,17 +203,15 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
     const char * used_map = nullptr;
 
     info.em_size = ffw_get_em_size();
+    info.space_width = 0;
 
     if(!font->isCIDFont())
     {
         font_8bit = dynamic_cast<Gfx8BitFont*>(font);
-        info.space_width = font_8bit->getWidth(' ');
     }
     else
     {
         font_cid = dynamic_cast<GfxCIDFont*>(font);
-        char buf[2] = {0, ' '};
-        info.space_width = font_cid->getWidth(buf, 2);
     }
 
     if(get_metric_only)
@@ -343,47 +341,44 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
          * Traverse all possible codes
          */
         bool retried = false; // avoid infinite loop
-        for(int i = 0; i <= maxcode; ++i)
+        for(int cur_code = 0; cur_code <= maxcode; ++cur_code)
         {
-            if(!used_map[i])
+            if(!used_map[cur_code])
                 continue;
 
             /*
              * Skip glyphs without names (only for non-ttf fonts)
              */
             if(!is_truetype && (font_8bit != nullptr) 
-                    && (font_8bit->getCharName(i) == nullptr))
+                    && (font_8bit->getCharName(cur_code) == nullptr))
             {
                 continue;
             }
 
-            int k = i;
+            int mapped_code = cur_code;
             if(code2GID)
             {
                 // for fonts with GID (e.g. TTF) we need to map GIDs instead of codes
-                if((k = code2GID[i]) == 0) continue;
+                if((mapped_code = code2GID[cur_code]) == 0) continue;
             }
 
-            if(k > max_key)
-                max_key = k;
+            if(mapped_code > max_key)
+                max_key = mapped_code;
 
             Unicode u, *pu=&u;
             if(info.use_tounicode)
             {
-                int n = ctu ? (ctu->mapToUnicode(i, &pu)) : 0;
-                u = check_unicode(pu, n, i, font);
+                int n = ctu ? (ctu->mapToUnicode(cur_code, &pu)) : 0;
+                u = check_unicode(pu, n, cur_code, font);
             }
             else
             {
-                u = unicode_from_font(i, font);
+                u = unicode_from_font(cur_code, font);
             }
-
-            if(u == ' ')
-                has_space = true;
 
             if(codeset.insert(u).second)
             {
-                cur_mapping[k] = u;
+                cur_mapping[mapped_code] = u;
             }
             else
             {
@@ -400,7 +395,7 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
                         //TODO: constant for the length
                         memset(cur_mapping, -1, 0x10000 * sizeof(*cur_mapping));
                         memset(width_list, -1, 0x10000 * sizeof(*width_list));
-                        i = -1;
+                        cur_code = -1;
                         continue;
                     }
                 }
@@ -412,16 +407,26 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
                 }
             }
 
-            if(font_8bit)
             {
-                width_list[k] = (int)floor(font_8bit->getWidth(i) * info.em_size + 0.5);
-            }
-            else
-            {
-                char buf[2];  
-                buf[0] = (i >> 8) & 0xff;
-                buf[1] = (i & 0xff);
-                width_list[k] = (int)floor(font_cid->getWidth(buf, 2) * info.em_size + 0.5);
+                double cur_width = 0;
+                if(font_8bit)
+                {
+                    cur_width = font_8bit->getWidth(cur_code);
+                }
+                else
+                {
+                    char buf[2];  
+                    buf[0] = (cur_code >> 8) & 0xff;
+                    buf[1] = (cur_code & 0xff);
+                    cur_width = font_cid->getWidth(buf, 2) ;
+                }
+                width_list[mapped_code] = (int)floor(cur_width * info.em_size + 0.5);
+
+                if(u == ' ')
+                {
+                    has_space = true;
+                    info.space_width = cur_width;
+                }
             }
         }
 
@@ -434,6 +439,15 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
         // Might be a problem if ' ' is in the font, but not empty
         if(!has_space)
         {
+            if(font_8bit)
+            {
+                info.space_width = font_8bit->getWidth(' ');
+            }
+            else
+            {
+                char buf[2] = {0, ' '};
+                info.space_width = font_cid->getWidth(buf, 2);
+            }
             ffw_add_empty_char((int32_t)' ', (int)floor(info.space_width * info.em_size + 0.5));
         }
 

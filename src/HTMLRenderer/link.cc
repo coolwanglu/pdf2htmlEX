@@ -205,7 +205,7 @@ void HTMLRenderer::processLink(AnnotLink * al)
         f_pages.fs << ">";
     }
 
-    transform_matrix_manager.install(default_ctm);
+    transform_matrix_manager.update(default_ctm);
     f_pages.fs << "<div class=\"" << CSS::CSS_DRAW_CN << ' ' << CSS::TRANSFORM_MATRIX_CN
         << transform_matrix_manager.get_id()
         << "\" style=\"";

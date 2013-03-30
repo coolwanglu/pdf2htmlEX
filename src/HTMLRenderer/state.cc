@@ -253,11 +253,11 @@ void HTMLRenderer::check_state_change(GfxState * state)
             draw_text_scale = new_draw_text_scale;
         }
 
-        if(font_size_manager.install(new_draw_font_size))
+        if(font_size_manager.update(new_draw_font_size))
         {
             new_line_state = max<NewLineState>(new_line_state, NLS_SPAN);
         }
-        if(transform_matrix_manager.install(new_draw_text_tm))
+        if(transform_matrix_manager.update(new_draw_text_tm))
         {
             new_line_state = max<NewLineState>(new_line_state, NLS_DIV);
         }
@@ -334,7 +334,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
     // letter space
     // depends: draw_text_scale
     if((all_changed || letter_space_changed || draw_text_scale_changed)
-        && (letter_space_manager.install(state->getCharSpace() * draw_text_scale)))
+        && (letter_space_manager.update(state->getCharSpace() * draw_text_scale)))
     {
         new_line_state = max<NewLineState>(new_line_state, NLS_SPAN);
     }
@@ -342,7 +342,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
     // word space
     // depends draw_text_scale
     if((all_changed || word_space_changed || draw_text_scale_changed)
-        && (word_space_manager.install(state->getWordSpace() * draw_text_scale)))
+        && (word_space_manager.update(state->getWordSpace() * draw_text_scale)))
     {
         new_line_state = max<NewLineState>(new_line_state, NLS_SPAN);
     }
@@ -360,11 +360,11 @@ void HTMLRenderer::check_state_change(GfxState * state)
         {
             GfxRGB new_color;
             state->getFillRGB(&new_color);
-            changed = fill_color_manager.install(new_color);
+            changed = fill_color_manager.update(new_color);
         }
         else
         {
-            changed = fill_color_manager.install_transparent();
+            changed = fill_color_manager.update_transparent();
         }
         if(changed)
             new_line_state = max<NewLineState>(new_line_state, NLS_SPAN);
@@ -384,11 +384,11 @@ void HTMLRenderer::check_state_change(GfxState * state)
         {
             GfxRGB new_color;
             state->getStrokeRGB(&new_color);
-            changed = stroke_color_manager.install(new_color);
+            changed = stroke_color_manager.update(new_color);
         }
         else
         {
-            changed = stroke_color_manager.install_transparent();
+            changed = stroke_color_manager.update_transparent();
         }
         if(changed)
             new_line_state = max<NewLineState>(new_line_state, NLS_SPAN);
@@ -397,7 +397,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
     // rise
     // depends draw_text_scale
     if((all_changed || rise_changed || draw_text_scale_changed)
-        && (rise_manager.install(state->getRise() * draw_text_scale)))
+        && (rise_manager.update(state->getRise() * draw_text_scale)))
     {
         new_line_state = max<NewLineState>(new_line_state, NLS_SPAN);
     }
@@ -416,7 +416,7 @@ void HTMLRenderer::prepare_text_line(GfxState * state)
     {
         close_text_line();
 
-        text_line_buf->reset(state);
+        text_line_buf->set_pos(state);
 
         //resync position
         draw_ty = cur_ty;

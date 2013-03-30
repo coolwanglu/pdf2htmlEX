@@ -164,12 +164,12 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state, XRef * xref)
 
     this->pageNum = pageNum;
 
-    width_manager.install(state->getPageWidth());
-    height_manager.install(state->getPageHeight());
+    long long wid = width_manager.install(state->getPageWidth());
+    long long hid = height_manager.install(state->getPageHeight());
     f_pages.fs 
         << "<div class=\"" << CSS::PAGE_DECORATION_CN 
-            << " " << CSS::WIDTH_CN << width_manager.get_id()
-            << " " << CSS::HEIGHT_CN << height_manager.get_id()
+            << " " << CSS::WIDTH_CN << wid
+            << " " << CSS::HEIGHT_CN << hid
             << "\">"
         << "<div id=\"" << CSS::PAGE_FRAME_CN << pageNum 
             << "\" class=\"" << CSS::PAGE_FRAME_CN

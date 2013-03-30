@@ -29,7 +29,7 @@ using std::endl;
 using std::find;
 using std::abs;
 
-void HTMLRenderer::TextLineBuffer::reset(GfxState * state)
+void HTMLRenderer::TextLineBuffer::set_pos(GfxState * state)
 {
     state->transform(state->getCurX(), state->getCurY(), &x, &y);
     tm_id = renderer->transform_matrix_manager.get_id();
@@ -94,15 +94,15 @@ void HTMLRenderer::TextLineBuffer::flush(void)
     offsets.push_back(Offset({text.size(), 0}));
 
     ostream & out = renderer->f_pages.fs;
-    renderer->height_manager.install(max_ascent);
-    renderer->left_manager  .install(x);
-    renderer->bottom_manager.install(y);
+    long long hid = renderer->height_manager.install(max_ascent);
+    long long lid = renderer->left_manager  .install(x);
+    long long bid = renderer->bottom_manager.install(y);
 
     out << "<div class=\"" << CSS::LINE_CN
         << " "             << CSS::TRANSFORM_MATRIX_CN << tm_id 
-        << " "             << CSS::LEFT_CN             << renderer->left_manager  .get_id()
-        << " "             << CSS::HEIGHT_CN           << renderer->height_manager.get_id()
-        << " "             << CSS::BOTTOM_CN           << renderer->bottom_manager.get_id()
+        << " "             << CSS::LEFT_CN             << lid
+        << " "             << CSS::HEIGHT_CN           << hid
+        << " "             << CSS::BOTTOM_CN           << bid
         << "\">";
 
     auto cur_state_iter = states.begin();
@@ -180,10 +180,7 @@ void HTMLRenderer::TextLineBuffer::flush(void)
 
                 if(!done)
                 {
-                    auto & wm = renderer->whitespace_manager;
-                    wm.install(target);
-                    auto wid = wm.get_id();
-                    actual_offset = wm.get_actual_value();
+                    long long wid = renderer->whitespace_manager.install(target, &actual_offset);
 
                     if(!equal(actual_offset, 0))
                     {
@@ -217,11 +214,9 @@ void HTMLRenderer::TextLineBuffer::flush(void)
 
     out << "</div>";
 
-
     states.clear();
     offsets.clear();
     text.clear();
-
 }
 
 void HTMLRenderer::TextLineBuffer::set_state (State & state)
@@ -242,9 +237,6 @@ void HTMLRenderer::TextLineBuffer::set_state (State & state)
 
 void HTMLRenderer::TextLineBuffer::optimize(void)
 {
-    // need more work
-    return;
-
     assert(!states.empty());
 
     // set proper hash_umask
@@ -291,43 +283,45 @@ void HTMLRenderer::TextLineBuffer::optimize(void)
                     avg_width += iter->width;
                 }
             }
-            avg_width /= posive_offset_count;
 
-            // now check if the width of offsets are close enough
-            // TODO: it might make more sense if the threshold is proportion to the font size
-            bool ok = true;
-            double accum_off = 0;
-            double orig_accum_off = 0;
-            for(auto iter = offsets.begin(); iter != offsets.end(); ++iter)
+            if(posive_offset_count > 0)
             {
-                orig_accum_off += iter->width;
-                accum_off += avg_width;
-                if(is_positive(iter->width) && abs(orig_accum_off - accum_off) >= renderer->param->h_eps)
-                {
-                    ok = false;
-                    break;
-                }
-            }
-            if(ok)
-            {
-                // ok, make all offsets equi-width
+                avg_width /= posive_offset_count;
+
+                // now check if the width of offsets are close enough
+                // TODO: it might make more sense if the threshold is proportion to the font size
+                bool ok = true;
+                double accum_off = 0;
+                double orig_accum_off = 0;
                 for(auto iter = offsets.begin(); iter != offsets.end(); ++iter)
                 {
-                    if(is_positive(iter->width))
-                        iter->width = avg_width;
+                    orig_accum_off += iter->width;
+                    accum_off += avg_width;
+                    if(is_positive(iter->width) && abs(orig_accum_off - accum_off) >= renderer->param->h_eps)
+                    {
+                        ok = false;
+                        break;
+                    }
                 }
-                // set new word_space
-                for(auto iter = states.begin(); iter != states.end(); ++iter)
+                if(ok)
                 {
-                    double new_word_space = avg_width - iter->single_space_offset() + iter->word_space;
+                    // ok, make all offsets equi-width
+                    for(auto iter = offsets.begin(); iter != offsets.end(); ++iter)
+                    {
+                        if(is_positive(iter->width))
+                            iter->width = avg_width;
+                    }
+                    // set new word_space
+                    for(auto iter = states.begin(); iter != states.end(); ++iter)
+                    {
+                        iter->word_space = 0;
+                        double new_word_space = avg_width - iter->single_space_offset();
 
-                    // install new word_space
-                    // we might introduce more variance here
-                    auto & wm = renderer->word_space_manager;
-                    wm.install(new_word_space);
-                    iter->ids[State::WORD_SPACE_ID] = wm.get_id();
-                    iter->word_space = wm.get_actual_value();
-                    iter->hash_umask &= (~word_space_umask);
+                        // install new word_space
+                        // we might introduce more variance here
+                        iter->ids[State::WORD_SPACE_ID] = renderer->word_space_manager.install(new_word_space, &(iter->word_space));
+                        iter->hash_umask &= (~word_space_umask);
+                    }
                 }
             }
         }

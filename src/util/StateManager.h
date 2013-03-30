@@ -38,23 +38,44 @@ public:
 
     // usually called at the beginning of a page
     void reset(void) { 
-        _install(imp->default_value());
+        cur_value = imp->default_value();
+        cur_id = install(cur_value, &cur_actual_value);
     }
 
     /*
-     * install new_value if changed (equal() should be faster than map::lower_bound)
+     * update the current state, which will be installed automatically
      * return if the state has been indeed changed
      */
-    bool install(double new_value) {
-        if(equal(new_value, value))
+    bool update(double new_value) {
+        if(equal(new_value, cur_value))
             return false;
-        _install(new_value);
+        cur_value = new_value;
+        cur_id = install(cur_value, &cur_actual_value);
         return true;
     }
 
-    long long get_id           (void) const { return id;           }
-    double    get_value        (void) const { return value;        }
-    double    get_actual_value (void) const { return actual_value; }
+    // install new_value into the map, but do not update the state
+    // return the corresponding id, and set 
+    long long install(double new_value, double * actual_value_ptr = nullptr) {
+        auto iter = value_map.lower_bound(new_value - eps);
+        if((iter != value_map.end()) && (abs(iter->first - new_value) <= eps)) 
+        {
+            if(actual_value_ptr != nullptr)
+                *actual_value_ptr = iter->first;
+            return iter->second;
+        }
+
+        long long id = value_map.size();
+        double v = value_map.insert(std::make_pair(new_value, id)).first->first;
+        if(actual_value_ptr != nullptr)
+            *actual_value_ptr = v;
+        return id;
+    }
+
+    // get current state
+    long long get_id           (void) const { return cur_id;           }
+    double    get_value        (void) const { return cur_value;        }
+    double    get_actual_value (void) const { return cur_actual_value; }
 
     void dump_css(std::ostream & out) {
         for(auto iter = value_map.begin(); iter != value_map.end(); ++iter)
@@ -75,34 +96,19 @@ public:
     }
 
 protected:
-    // this version of install does not check if value has been updated
-    // return if a new entry has been created
-    bool _install(double new_value) {
-        value = new_value;
-
-        auto iter = value_map.lower_bound(new_value - eps);
-        if((iter != value_map.end()) && (abs(iter->first - value) <= eps)) 
-        {
-            actual_value = iter->first;
-            id = iter->second;
-            return false;
-        }
-
-        id = value_map.size();
-        actual_value = value_map.insert(std::make_pair(new_value, id)).first->first;
-        return true;
-    }
-
     double eps;
     Imp * imp;
 
-    long long id;
-    double value; // the value we are tracking
-    double actual_value; // the value we actually exported to HTML
+    long long cur_id;
+    double cur_value; // the value we are tracking
+    double cur_actual_value; // the value we actually exported to HTML
     std::map<double, long long> value_map;
 };
 
 // Be careful about the mixed usage of Matrix and const double *
+// the input is usually double *, which might be changed, so we have to copy the content out
+// in the map we use Matrix instead of double * such that the array may be automatically release when deconstructign
+// since the address of cur_value.m cannot be changed, we can export double * instead of Matrix
 template <class Imp>
 class StateManager<Matrix, Imp>
 {
@@ -112,21 +118,24 @@ public:
     { }
 
     void reset(void) {
-        _install(imp->default_value());
+        memcpy(cur_value.m, imp->default_value(), sizeof(cur_value.m));
+        cur_id = install(cur_value);
     }
 
     // return if changed
-    bool install(const double * new_value) {
+    bool update(const double * new_value) {
         // For a transform matrix m
         // m[4] & m[5] have been taken care of
-        if(tm_equal(new_value, value.m, 4))
+        if(tm_equal(new_value, cur_value.m, 4))
             return false;
-        _install(new_value);
+
+        memcpy(cur_value.m, new_value, sizeof(cur_value.m));
+        cur_id = install(cur_value);
         return true;
     }
 
-    long long get_id                (void) const { return id;           }
-    const Matrix & get_value        (void) const { return value;        }
+    long long get_id                (void) const { return cur_id;           }
+    const double * get_value        (void) const { return cur_value.m;      }
 
     void dump_css(std::ostream & out) {
         for(auto iter = value_map.begin(); iter != value_map.end(); ++iter)
@@ -140,26 +149,23 @@ public:
     void dump_print_css(std::ostream & out, double scale) {}
 
 protected:
-    // return if a new entry has been created
-    bool _install(const double * new_value) {
-        memcpy(value.m, new_value, sizeof(value.m));
-
-        auto iter = value_map.lower_bound(value);
-        if((iter != value_map.end()) && (tm_equal(value.m, iter->first.m, 4)))
+    // return id
+    long long install(const Matrix & new_value) {
+        auto iter = value_map.lower_bound(new_value);
+        if((iter != value_map.end()) && (tm_equal(new_value.m, iter->first.m, 4)))
         {
-            id = iter->second;
-            return false;
+            return iter->second;
         }
 
-        id = value_map.size();
-        value_map.insert(std::make_pair(value, id));
-        return true;
+        long long id = value_map.size();
+        value_map.insert(std::make_pair(new_value, id));
+        return id;
     }
 
     Imp * imp;
 
-    long long id;
-    Matrix value;
+    long long cur_id;
+    Matrix cur_value;
 
     class Matrix_less
     {
@@ -177,6 +183,7 @@ protected:
             return false;
         }
     };
+
     std::map<Matrix, long long, Matrix_less> value_map;
 };
 
@@ -189,28 +196,31 @@ public:
     { }
 
     void reset(void) {
-        is_transparent = true;
-        id = -1;
+        cur_is_transparent = true;
+        cur_id = -1;
     }
 
-    bool install(const GfxRGB & new_value) {
-        if((!is_transparent) && gfxrgb_equal_obj(new_value, value))
+    bool update(const GfxRGB & new_value) {
+        if((!cur_is_transparent) && gfxrgb_equal_obj(new_value, cur_value))
             return false;
-        _install(new_value);
+        cur_value = new_value;
+        cur_is_transparent = false;
+        cur_id = install(cur_value);
         return true;
     }
 
-    bool install_transparent (void) { 
-        if(is_transparent)
+    bool update_transparent (void) { 
+        if(cur_is_transparent)
             return false;
-        _install_transparent();
+        cur_is_transparent = true;
+        cur_id = -1;
         return true;
     }
 
 
-    long long get_id                (void) const { return id;             }
-    const GfxRGB & get_value        (void) const { return value;          }
-    bool get_is_transparent         (void) const { return is_transparent; }
+    long long get_id                (void) const { return cur_id;             }
+    const GfxRGB & get_value        (void) const { return cur_value;          }
+    bool get_is_transparent         (void) const { return cur_is_transparent; }
 
     void dump_css(std::ostream & out) {
         out << "." << imp->get_css_class_name() << CSS::INVALID_ID << "{";
@@ -228,32 +238,23 @@ public:
     void dump_print_css(std::ostream & out, double scale) {}
 
 protected:
-    bool _install(const GfxRGB & new_value) { 
-        is_transparent = false;
-        value = new_value;
+    long long install(const GfxRGB & new_value) { 
         auto iter = value_map.find(new_value);
         if(iter != value_map.end())
         {
-            id = iter->second;
-            return false;
+            return iter->second;
         }
 
-        id = value_map.size();
-        value_map.insert(std::make_pair(value, id));
-        return true;
-    }
-
-    bool _install_transparent(void) {
-        is_transparent = true;
-        id = -1;
-        return false;
+        long long id = value_map.size();
+        value_map.insert(std::make_pair(new_value, id));
+        return id;
     }
 
     Imp * imp;
 
-    long long id;
-    GfxRGB value;
-    bool is_transparent;
+    long long cur_id;
+    GfxRGB cur_value;
+    bool cur_is_transparent;
 
     class GfxRGB_hash 
     {
