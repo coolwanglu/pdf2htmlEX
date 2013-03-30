@@ -187,7 +187,7 @@ void HTMLRenderer::TextLineBuffer::flush(void)
                         if(is_positive(-actual_offset))
                             last_text_pos_with_negative_offset = cur_text_idx;
 
-                        double threshold = cur_state->draw_font_size * (cur_state->font_info->ascent - cur_state->font_info->descent) * (renderer->param->space_threshold);
+                        double threshold = cur_state->em_size() * (renderer->param->space_threshold);
 
                         out << "<span class=\"" << CSS::WHITESPACE_CN
                             << ' ' << CSS::WHITESPACE_CN << wid << "\">" << (target > (threshold - EPS) ? " " : "") << "</span>";
@@ -268,9 +268,14 @@ void HTMLRenderer::TextLineBuffer::optimize(void)
         while((offset_iter != offsets.end()) && (offset_iter->start_idx < text_idx1))
             ++ offset_iter;
 
+        double threshold = (state_iter1->em_size()) * (renderer->param->space_threshold);
         for(; (offset_iter != offsets.end()) && (offset_iter->start_idx < text_idx2); ++offset_iter)
         {
             double target = offset_iter->width;
+            // we don't want to add spaces for tiny gaps, or even negative shifts
+            if(target < threshold - EPS)
+                continue;
+
             auto iter = width_map.lower_bound(target-EPS);
             if((iter != width_map.end()) && (abs(iter->first - target) <= EPS))
             {
@@ -303,7 +308,6 @@ void HTMLRenderer::TextLineBuffer::optimize(void)
         
         state_iter1->word_space = 0;
         double new_word_space = most_used_width - state_iter1->single_space_offset();
-
         // install new word_space
         state_iter1->ids[State::WORD_SPACE_ID] = renderer->word_space_manager.install(new_word_space, &(state_iter1->word_space));
         // mark that the word_space is not free
@@ -420,6 +424,11 @@ int HTMLRenderer::TextLineBuffer::State::diff(const State & s) const
 double HTMLRenderer::TextLineBuffer::State::single_space_offset(void) const
 {
     return word_space + letter_space + font_info->space_width * draw_font_size;
+}
+
+double HTMLRenderer::TextLineBuffer::State::em_size(void) const
+{
+    return draw_font_size * (font_info->ascent - font_info->descent);
 }
 
 long long HTMLRenderer::TextLineBuffer::State::umask_by_id(int id)
