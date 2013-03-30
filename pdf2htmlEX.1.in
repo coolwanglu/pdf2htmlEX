@@ -176,7 +176,7 @@ Specify the maximum tolerable horizontal/vertical offset (in pixels).
 pdf2htmlEX would try to optimize the generated HTML file moving Text within this distance.
 
 .TP
-.B --space-threshold <ratio> (Default: 1.0/6)
+.B --space-threshold <ratio> (Default: 0.125)
 pdf2htmlEX would insert a whitespace character ' ' if the distance between two consecutive letters in the same line is wider than ratio * font_size.
 
 .TP
