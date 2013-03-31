@@ -525,13 +525,13 @@ const FontInfo * HTMLRenderer::install_font(GfxFont * font)
                 
     long long fn_id = (font == nullptr) ? 0 : hash_ref(font->getID());
 
-    auto iter = font_name_map.find(fn_id);
-    if(iter != font_name_map.end())
+    auto iter = font_info_map.find(fn_id);
+    if(iter != font_info_map.end())
         return &(iter->second);
 
-    long long new_fn_id = font_name_map.size(); 
+    long long new_fn_id = font_info_map.size(); 
 
-    auto cur_info_iter = font_name_map.insert(make_pair(fn_id, FontInfo())).first;
+    auto cur_info_iter = font_info_map.insert(make_pair(fn_id, FontInfo())).first;
 
     FontInfo & new_font_info = cur_info_iter->second;
     new_font_info.id = new_fn_id;

@@ -282,26 +282,6 @@ protected:
     bool stroke_color_changed;
 
 
-    // font & size
-    const FontInfo * cur_font_info;
-
-    // managers store values actually used in HTML (i.e. scaled)
-    ////////////////////////////////////////////////
-    TransformMatrixManager transform_matrix_manager;
-    StrokeColorManager         stroke_color_manager;
-    LetterSpaceManager         letter_space_manager;
-    WhitespaceManager            whitespace_manager;
-    WordSpaceManager             word_space_manager;
-    FillColorManager             fill_color_manager;
-    FontSizeManager               font_size_manager;
-    BottomManager                    bottom_manager;
-    HeightManager                    height_manager;
-    WidthManager                      width_manager;
-    RiseManager                        rise_manager;
-    LeftManager                        left_manager;
-    ////////////////////////////////////////////////
-    BGImageSizeManager         bgimage_size_manager;
-
     // optimize for web
     // we try to render the final font size directly
     // to reduce the effect of ctm as much as possible
@@ -336,7 +316,26 @@ protected:
     // styles & resources
     ////////////////////////////////////////////////////
 
-    std::unordered_map<long long, FontInfo> font_name_map;
+    const FontInfo * cur_font_info;
+    std::unordered_map<long long, FontInfo> font_info_map;
+
+    // managers store values actually used in HTML (i.e. scaled)
+    ////////////////////////////////////////////////
+    TransformMatrixManager transform_matrix_manager;
+    StrokeColorManager         stroke_color_manager;
+    LetterSpaceManager         letter_space_manager;
+    WhitespaceManager            whitespace_manager;
+    WordSpaceManager             word_space_manager;
+    FillColorManager             fill_color_manager;
+    FontSizeManager               font_size_manager;
+    BottomManager                    bottom_manager;
+    HeightManager                    height_manager;
+    WidthManager                      width_manager;
+    RiseManager                        rise_manager;
+    LeftManager                        left_manager;
+    ////////////////////////////////////////////////
+    BGImageSizeManager         bgimage_size_manager;
+
 
     const Param * param;
 
