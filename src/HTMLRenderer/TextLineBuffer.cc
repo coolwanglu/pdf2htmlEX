@@ -121,6 +121,7 @@ void HTMLRenderer::TextLineBuffer::flush(void)
     size_t cur_text_idx = 0;
     while(cur_text_idx < text.size())
     {
+        // TODO: a new state may consume an offset with proper 'margin-left'
         if(cur_text_idx >= cur_state_iter->start_idx)
         {
             // greedy
