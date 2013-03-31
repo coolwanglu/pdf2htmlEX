@@ -1,7 +1,7 @@
 /*
  * HTMLRenderer.h
  *
- * by WangLu
+ * Copyright (C) 2012,2013 Lu Wang <coolwanglu@gmail.com>
  */
 
 #ifndef HTMLRENDERER_H_
@@ -307,7 +307,7 @@ protected:
     // to reduce the effect of ctm as much as possible
     
     // the actual tm used is `real tm in PDF` scaled by 1/draw_text_scale, 
-    // so everything redenered should be multiplied by draw_text_scale
+    // so everything rendered should be multiplied by draw_text_scale
     double draw_text_scale; 
 
     // the position of next char, in text coords
