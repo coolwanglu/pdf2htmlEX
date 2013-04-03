@@ -189,7 +189,9 @@ For some versions of Firefox, however, there will be a problem when the font siz
 
 .TP
 .B --space-as-offset <0|1> (Default: 1)
-If set to 1, space characters will be treated as offsets, which allows a better optimization. Turn it off if space characters are not displayed correctly.
+If set to 1, space characters will be treated as offsets, which allows a better optimization. 
+
+This option may cause problems for PDF files with bad encodings.
 
 .TP
 .B --tounicode <-1|0|1> (Default: 0)

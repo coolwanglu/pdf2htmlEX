@@ -338,7 +338,8 @@ void HTMLRenderer::TextLineBuffer::optimize()
             }
 
             // now we would like to adjust letter space to most_used width
-            if(max_count <= text_count - offset_count)
+            // we shall apply the optimization only when it can significantly reduce the number of elements
+            if(max_count <= text_count / 2)
             { 
                 // the old value is the best
                 // just copy copy offsets
