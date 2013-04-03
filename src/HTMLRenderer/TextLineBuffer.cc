@@ -237,6 +237,9 @@ void HTMLRenderer::TextLineBuffer::set_state (State & state)
 
 void HTMLRenderer::TextLineBuffer::optimize(void)
 {
+    if(!(renderer->param->optimize_text))
+        return;
+
     assert(!states.empty());
 
     auto offset_iter = offsets.begin();

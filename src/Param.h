@@ -51,6 +51,7 @@ struct Param
     double font_size_multiplier;
     int space_as_offset;
     int tounicode;
+    int optimize_text;
     
     // encryption
     std::string owner_password, user_password;
