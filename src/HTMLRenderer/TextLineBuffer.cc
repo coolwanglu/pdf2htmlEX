@@ -243,6 +243,10 @@ void HTMLRenderer::TextLineBuffer::set_state (State & state)
     state.word_space = renderer->word_space_manager.get_actual_value();
 }
 
+/*
+ * Adjust letter space and word space in order to reduce the number of HTML elements
+ * May also unmask word space
+ */
 void HTMLRenderer::TextLineBuffer::optimize()
 {
     if(!(renderer->param->optimize_text))
@@ -250,97 +254,172 @@ void HTMLRenderer::TextLineBuffer::optimize()
 
     assert(!states.empty());
 
+    const long long word_space_umask = State::umask_by_id(State::WORD_SPACE_ID);
+
     // for optimization, we need accurate values
+    auto & ls_manager = renderer->letter_space_manager;
+    double old_ls_eps = ls_manager.get_eps(); 
+    ls_manager.set_eps(EPS);
     auto & ws_manager = renderer->word_space_manager;
     double old_ws_eps = ws_manager.get_eps(); 
     ws_manager.set_eps(EPS);
     
-    auto offset_iter1 = offsets.begin();
+    // statistics of widths
     std::map<double, int> width_map;
+    // store optimized offsets
+    std::vector<Offset> new_offsets;
+    new_offsets.reserve(offsets.size());
 
-    // set proper hash_umask
-    long long word_space_umask = State::umask_by_id(State::WORD_SPACE_ID);
+    auto offset_iter1 = offsets.begin();
     for(auto state_iter2 = states.begin(), state_iter1 = state_iter2++; 
             state_iter1 != states.end(); 
             ++state_iter1, ++state_iter2)
     {
-        size_t text_idx1 = state_iter1->start_idx;
-        size_t text_idx2 = (state_iter2 == states.end()) ? text.size() : state_iter2->start_idx;
+        const size_t text_idx1 = state_iter1->start_idx;
+        const size_t text_idx2 = (state_iter2 == states.end()) ? text.size() : state_iter2->start_idx;
 
         // get the text segment covered by current state (*state_iter1)
-        auto text_iter1 = text.begin() + text_idx1;
-        auto text_iter2 = text.begin() + text_idx2;
+        const auto text_iter1 = text.begin() + text_idx1;
+        const auto text_iter2 = text.begin() + text_idx2;
+        size_t text_count = text_idx2 - text_idx1;
 
         while((offset_iter1 != offsets.end()) && (offset_iter1->start_idx <= text_idx1))
             ++ offset_iter1;
         auto offset_iter2 = offset_iter1;
         for(; (offset_iter2 != offsets.end()) && (offset_iter2->start_idx <= text_idx2); ++offset_iter2) { }
+        // There are `offset_count` <span>'s, the target is to reduce this number
+        size_t offset_count = offset_iter2 - offset_iter1;
+        assert(text_count >= offset_count);
+
+        double letter_space_diff = 0; // will be later used for optimizing word space
+        width_map.clear();
+        // Optimize letter space
 
         // In some PDF files all letter spaces are implemented as position shifts between each letter
         // try to simplify it with a proper letter space
-
-        // In some PDF files all spaces are converted into positionig shift
-        // We may try to change (some of) them to ' ' and adjust word_space accordingly
-        // This can also be applied when param->space_as_offset is set
-        // for now, we cosider only the no-space scenario
-        if(find(text_iter1, text_iter2, ' ') != text_iter2)
-            continue;
-
-        // if there is not any space, we may change the value of word_space arbitrarily
-        // collect widths
-        width_map.clear();
-
-
-        double threshold = (state_iter1->em_size()) * (renderer->param->space_threshold);
-        for(auto off_iter = offset_iter1; off_iter != offset_iter2; ++off_iter)
+        if(offset_count > 0)
         {
-            double target = off_iter->width;
-            // we don't want to add spaces for tiny gaps, or even negative shifts
-            if(target < threshold - EPS)
-                continue;
+            // mark the current letter_space
+            if(text_count > offset_count)
+                width_map.insert(std::make_pair(0, text_count - offset_count));
 
-            auto iter = width_map.lower_bound(target-EPS);
-            if((iter != width_map.end()) && (abs(iter->first - target) <= EPS))
+            for(auto off_iter = offset_iter1; off_iter != offset_iter2; ++off_iter)
             {
-                ++ iter->second;
+                const double target = off_iter->width;
+                auto iter = width_map.lower_bound(target-EPS);
+                if((iter != width_map.end()) && (abs(iter->first - target) <= EPS))
+                {
+                    ++ iter->second;
+                }
+                else
+                {
+                    width_map.insert(iter, std::make_pair(target, 1));
+                }
+            }
+
+            double most_used_width = 0;
+            int max_count = 0;
+            for(auto iter = width_map.begin(); iter != width_map.end(); ++iter)
+            {
+                if(iter->second > max_count)
+                {
+                    most_used_width = iter->first;
+                    max_count = iter->second;
+                }
+            }
+
+            // now we would like to adjust letter space to most_used width
+            if(equal(most_used_width, 0))
+            { 
+                // the old value is the best
+                // just copy copy offsets
+                new_offsets.insert(new_offsets.end(), offset_iter1, offset_iter2);
             }
             else
             {
-                width_map.insert(iter, std::make_pair(target, 1));
+                // install new letter space
+                const double old_ls = state_iter1->letter_space;
+                state_iter1->ids[State::LETTER_SPACE_ID] = ls_manager.install(old_ls + most_used_width, &(state_iter1->letter_space));
+                letter_space_diff = old_ls - state_iter1->letter_space;
+                // update offsets
+                auto off_iter = offset_iter1; 
+                // re-count number of offsets
+                offset_count = 0;
+                for(size_t cur_text_idx = text_idx1; cur_text_idx < text_idx2; ++cur_text_idx)
+                {
+                    double cur_width = 0;
+                    if((off_iter != offset_iter2) && (off_iter->start_idx == cur_text_idx + 1))
+                    {
+                        cur_width = off_iter->width + letter_space_diff;
+                        ++off_iter;
+                    }
+                    else
+                    {
+                        cur_width = letter_space_diff ;
+                    }
+                    if(!equal(cur_width, 0))
+                    {
+                        new_offsets.push_back(Offset({cur_text_idx+1, cur_width}));
+                        ++ offset_count;
+                    }
+                }
             }
-        }
-        if(width_map.empty())
-        {
-            // if there is no offset at all
-            // we just free word_space
-            state_iter1->hash_umask |= word_space_umask;
-            continue;
         }
 
-        // set word_space for the most frequently used offset
-        double most_used_width = 0;
-        int max_count = 0;
-        for(auto iter = width_map.begin(); iter != width_map.end(); ++iter)
-        {
-            if(iter->second > max_count)
-            {
-                max_count = iter->second;
-                most_used_width = iter->first;
-            }
-        }
+        // Optimize word space
         
-        state_iter1->word_space = 0;
-        double new_word_space = most_used_width - state_iter1->single_space_offset();
-        // install new word_space
-        state_iter1->ids[State::WORD_SPACE_ID] = ws_manager.install(new_word_space, &(state_iter1->word_space));
-        // mark that the word_space is not free
-        state_iter1->hash_umask &= (~word_space_umask);
+        // In some PDF files all spaces are converted into positionig shift
+        // We may try to change (some of) them to ' ' by adjusting word_space
+        // for now, we cosider only the no-space scenario
+        // which also includes the case when param->space_as_offset is set
+        if(find(text_iter1, text_iter2, ' ') == text_iter2)
+        {
+            // if there is not any space, we may change the value of word_space arbitrarily
+            // note that we may only change word space, no offset will be affected
+            // The actual effect will emerge during flushing, where it could be detected that an offset can be optimized as a single space character
+            
+            if(offset_count > 0)
+            {
+                double threshold = (state_iter1->em_size()) * (renderer->param->space_threshold);
+                // set word_space for the most frequently used offset
+                double most_used_width = 0;
+                int max_count = 0;
 
+                // if offset_count > 0, we must have updated width_map in the previous step
+                // find the most frequent width, with new letter space applied
+                for(auto iter = width_map.begin(); iter != width_map.end(); ++iter)
+                {
+                    double fixed_width = iter->first + letter_space_diff;
+                    // we don't want to add spaces for tiny gaps, or even negative shifts
+                    if((fixed_width >= threshold - EPS) && (iter->second > max_count))
+                    {
+                        max_count = iter->second;
+                        most_used_width = fixed_width;
+                    }
+                }
 
+                state_iter1->word_space = 0;
+                double new_word_space = most_used_width - state_iter1->single_space_offset();
+                // install new word_space
+                state_iter1->ids[State::WORD_SPACE_ID] = ws_manager.install(new_word_space, &(state_iter1->word_space));
+                // mark that the word_space is not free
+                state_iter1->hash_umask &= (~word_space_umask);
+            }
+            else
+            {
+                // if there is no offset at all
+                // we just free word_space
+                state_iter1->hash_umask |= word_space_umask;
+            }
+        }
         offset_iter1 = offset_iter2;
     } 
+    
+    // apply optimization
+    std::swap(offsets, new_offsets);
 
     // restore old eps
+    ls_manager.set_eps(old_ls_eps);
     ws_manager.set_eps(old_ws_eps);
 }
 
