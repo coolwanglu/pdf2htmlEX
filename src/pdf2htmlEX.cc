@@ -78,7 +78,7 @@ void parse_options (int argc, char **argv)
         .add("fallback", &param.fallback, 0, "output in fallback mode")
         
         // fonts
-        .add("embed-base-font", &param.embed_base_font, 0, "embed local match for standard 14 fonts")
+        .add("embed-base-font", &param.embed_base_font, 1, "embed local match for standard 14 fonts")
         .add("embed-external-font", &param.embed_external_font, 0, "embed local match for external fonts")
         .add("font-suffix", &param.font_suffix, ".ttf", "suffix for embedded font files (.ttf,.otf,.woff,.svg)")
         .add("decompose-ligature", &param.decompose_ligature, 0, "decompose ligatures, such as \uFB01 -> fi")
