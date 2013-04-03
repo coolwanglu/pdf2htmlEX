@@ -255,10 +255,9 @@ void HTMLRenderer::TextLineBuffer::optimize()
     double old_ws_eps = ws_manager.get_eps(); 
     ws_manager.set_eps(EPS);
     
-    auto offset_iter = offsets.begin();
+    auto offset_iter1 = offsets.begin();
     std::map<double, int> width_map;
 
-    // optimize word space
     // set proper hash_umask
     long long word_space_umask = State::umask_by_id(State::WORD_SPACE_ID);
     for(auto state_iter2 = states.begin(), state_iter1 = state_iter2++; 
@@ -272,6 +271,14 @@ void HTMLRenderer::TextLineBuffer::optimize()
         auto text_iter1 = text.begin() + text_idx1;
         auto text_iter2 = text.begin() + text_idx2;
 
+        while((offset_iter1 != offsets.end()) && (offset_iter1->start_idx <= text_idx1))
+            ++ offset_iter1;
+        auto offset_iter2 = offset_iter1;
+        for(; (offset_iter2 != offsets.end()) && (offset_iter2->start_idx <= text_idx2); ++offset_iter2) { }
+
+        // In some PDF files all letter spaces are implemented as position shifts between each letter
+        // try to simplify it with a proper letter space
+
         // In some PDF files all spaces are converted into positionig shift
         // We may try to change (some of) them to ' ' and adjust word_space accordingly
         // This can also be applied when param->space_as_offset is set
@@ -283,13 +290,11 @@ void HTMLRenderer::TextLineBuffer::optimize()
         // collect widths
         width_map.clear();
 
-        while((offset_iter != offsets.end()) && (offset_iter->start_idx <= text_idx1))
-            ++ offset_iter;
 
         double threshold = (state_iter1->em_size()) * (renderer->param->space_threshold);
-        for(; (offset_iter != offsets.end()) && (offset_iter->start_idx <= text_idx2); ++offset_iter)
+        for(auto off_iter = offset_iter1; off_iter != offset_iter2; ++off_iter)
         {
-            double target = offset_iter->width;
+            double target = off_iter->width;
             // we don't want to add spaces for tiny gaps, or even negative shifts
             if(target < threshold - EPS)
                 continue;
@@ -330,6 +335,9 @@ void HTMLRenderer::TextLineBuffer::optimize()
         state_iter1->ids[State::WORD_SPACE_ID] = ws_manager.install(new_word_space, &(state_iter1->word_space));
         // mark that the word_space is not free
         state_iter1->hash_umask &= (~word_space_umask);
+
+
+        offset_iter1 = offset_iter2;
     } 
 
     // restore old eps
