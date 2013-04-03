@@ -1,3 +1,4 @@
+bug: sample1.pdf
 remove unused values in statemanater (due to optimization), probably ref count?
 
 == Future: ==
