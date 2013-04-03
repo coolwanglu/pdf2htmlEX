@@ -1,5 +1,7 @@
-handle large negative letter space
-remove unused values in statemanager (due to optimization), probably ref count?
+ - handle large negative letter space
+ - remove unused values in statemanager (due to optimization), probably ref count?
+ - merge sub/sup into one line
+ - don't dump image when it is empty
 
 == Future: ==
 
@@ -10,8 +12,8 @@ Too difficult/complicated to implement:
  - reflowable text/combine lines/unwrapping
  - multi-thread
 
-Not enough motivated/Lazy
- - argument auto-completion
+Not enough motivation/Lazy
+ - commandline argument auto-completion
  - use absolute positioning for long whitespace
  - detect duplicate base fonts when embedding
  - disable selection if we know unicode is wrong
@@ -19,10 +21,8 @@ Not enough motivated/Lazy
  - position history stack (popstate)
  - draw non-orthogonal lines with CSS
  - rename single-html -> embed-font/image/css ...
- - merge sub/sup into one line
- - precise link dest: zoom
+ - precise link destination: zoom
  - multiple charcode mapped to a same glyph
- - don't dump image when it is empty
  - minimum line width of css drawing
  - ajax in pdf2htmlEX for separated pages
  - separate classes for annotations (such that we don't have to hide all css drawings for printing)
