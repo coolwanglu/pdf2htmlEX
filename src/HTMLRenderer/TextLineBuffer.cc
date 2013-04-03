@@ -284,7 +284,9 @@ void HTMLRenderer::TextLineBuffer::optimize()
         size_t text_count = text_idx2 - text_idx1;
 
         while((offset_iter1 != offsets.end()) && (offset_iter1->start_idx <= text_idx1))
-            ++ offset_iter1;
+        {
+            new_offsets.push_back(*(offset_iter1++));
+        }
         auto offset_iter2 = offset_iter1;
         for(; (offset_iter2 != offsets.end()) && (offset_iter2->start_idx <= text_idx2); ++offset_iter2) { }
         // There are `offset_count` <span>'s, the target is to reduce this number
@@ -329,7 +331,7 @@ void HTMLRenderer::TextLineBuffer::optimize()
             }
 
             // now we would like to adjust letter space to most_used width
-            if(equal(most_used_width, 0))
+            if(max_count <= text_count - offset_count)
             { 
                 // the old value is the best
                 // just copy copy offsets

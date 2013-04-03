@@ -1,4 +1,4 @@
-optimize letter_space
+remove unused values in statemanater (due to optimization), probably ref count?
 
 == Future: ==
 
