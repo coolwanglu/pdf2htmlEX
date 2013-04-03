@@ -26,6 +26,7 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
         return;
 
     auto font = state->getFont();
+    // unscaled
     double cur_letter_space = state->getCharSpace();
     double cur_word_space   = state->getWordSpace();
 

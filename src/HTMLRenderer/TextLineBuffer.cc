@@ -66,7 +66,12 @@ void HTMLRenderer::TextLineBuffer::flush(void)
      * Each Line is an independent absolute positioned block
      * so even we have a few states or offsets, we may omit them
      */
-    if(text.empty()) return;
+    if(text.empty())
+    { 
+        states.clear();
+        offsets.clear();
+        return;
+    }
 
     while((!states.empty()) && (states.back().start_idx >= text.size()))
         states.pop_back();
@@ -74,6 +79,8 @@ void HTMLRenderer::TextLineBuffer::flush(void)
     if(states.empty() || (states[0].start_idx != 0))
     {
         cerr << "Warning: text without a style! Must be a bug in pdf2htmlEX" << endl;
+        text.clear();
+        offsets.clear();
         return;
     }
 
@@ -265,7 +272,7 @@ void HTMLRenderer::TextLineBuffer::optimize()
     ws_manager.set_eps(EPS);
     
     // statistics of widths
-    std::map<double, int> width_map;
+    std::map<double, size_t> width_map;
     // store optimized offsets
     std::vector<Offset> new_offsets;
     new_offsets.reserve(offsets.size());
@@ -320,7 +327,7 @@ void HTMLRenderer::TextLineBuffer::optimize()
             }
 
             double most_used_width = 0;
-            int max_count = 0;
+            size_t max_count = 0;
             for(auto iter = width_map.begin(); iter != width_map.end(); ++iter)
             {
                 if(iter->second > max_count)
@@ -385,7 +392,7 @@ void HTMLRenderer::TextLineBuffer::optimize()
                 double threshold = (state_iter1->em_size()) * (renderer->param->space_threshold);
                 // set word_space for the most frequently used offset
                 double most_used_width = 0;
-                int max_count = 0;
+                size_t max_count = 0;
 
                 // if offset_count > 0, we must have updated width_map in the previous step
                 // find the most frequent width, with new letter space applied
