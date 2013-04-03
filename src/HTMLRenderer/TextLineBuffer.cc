@@ -150,13 +150,14 @@ void HTMLRenderer::TextLineBuffer::flush(void)
 
         size_t text_idx2 = (state_iter2 == states.end()) ? text.size() : state_iter2->start_idx;
 
+        // dump all text and offsets before next state
         while(true)
         {
             if((cur_offset_iter != offsets.end()) && (cur_offset_iter->start_idx <= cur_text_idx))
             {
                 if(cur_offset_iter->start_idx > text_idx2)
                     break;
-
+                // next is offset
                 double target = cur_offset_iter->width + dx;
                 double actual_offset = 0;
 
@@ -202,7 +203,7 @@ void HTMLRenderer::TextLineBuffer::flush(void)
             {
                 if(cur_text_idx >= text_idx2)
                     break;
-
+                // next is text
                 size_t next_text_idx = text_idx2;
                 if((cur_offset_iter != offsets.end()) && (cur_offset_iter->start_idx) < next_text_idx)
                     next_text_idx = cur_offset_iter->start_idx;
@@ -257,6 +258,7 @@ void HTMLRenderer::TextLineBuffer::optimize()
     auto offset_iter = offsets.begin();
     std::map<double, int> width_map;
 
+    // optimize word space
     // set proper hash_umask
     long long word_space_umask = State::umask_by_id(State::WORD_SPACE_ID);
     for(auto state_iter2 = states.begin(), state_iter1 = state_iter2++; 
