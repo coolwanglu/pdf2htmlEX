@@ -42,17 +42,22 @@ void HTMLRenderer::TextLineBuffer::append_unicodes(const Unicode * u, int l)
 
 void HTMLRenderer::TextLineBuffer::append_offset(double width)
 {
+    /*
+     * If the last offset is very thin, we can ignore it and directly use it
+     * But this should not happen often, and we will also filter near-zero offsets when outputting them
+     * So don't check it
+     */
     if((!offsets.empty()) && (offsets.back().start_idx == text.size()))
         offsets.back().width += width;
     else
-        offsets.push_back(Offset({text.size(), width}));
+        offsets.emplace_back(text.size(), width);
 }
 
 void HTMLRenderer::TextLineBuffer::append_state(void)
 {
     if(states.empty() || (states.back().start_idx != text.size()))
     {
-        states.resize(states.size() + 1);
+        states.emplace_back();
         states.back().start_idx = text.size();
         states.back().hash_umask = 0;
     }
@@ -73,6 +78,7 @@ void HTMLRenderer::TextLineBuffer::flush(void)
         return;
     }
 
+    // remove unuseful states in the end
     while((!states.empty()) && (states.back().start_idx >= text.size()))
         states.pop_back();
 
@@ -84,24 +90,27 @@ void HTMLRenderer::TextLineBuffer::flush(void)
         return;
     }
 
+    // optimize before output
     optimize();
 
-    double max_ascent = 0;
-    for(auto iter = states.begin(); iter != states.end(); ++iter)
-    {
-        const auto & s = *iter;
-        max_ascent = max<double>(max_ascent, s.font_info->ascent * s.draw_font_size);
-    }
-
-    for(auto iter = states.begin(); iter != states.end(); ++iter)
-        iter->hash();
-
+    // Start Output
     ostream & out = renderer->f_pages.fs;
     {
+        // max_ascent determines the height of the div
+        double max_ascent = 0;
+        for(auto iter = states.begin(); iter != states.end(); ++iter)
+        {
+            double cur_ascent = iter->font_info->ascent * iter->draw_font_size;
+            if(cur_ascent > max_ascent)
+                max_ascent = cur_ascent;
+            iter->hash();
+        }
+
         long long hid = renderer->height_manager.install(max_ascent);
         long long lid = renderer->left_manager  .install(x);
         long long bid = renderer->bottom_manager.install(y);
 
+        // open <div> for the current text line
         out << "<div class=\"" << CSS::LINE_CN
             << " "             << CSS::TRANSFORM_MATRIX_CN << tm_id 
             << " "             << CSS::LEFT_CN             << lid
@@ -110,6 +119,7 @@ void HTMLRenderer::TextLineBuffer::flush(void)
             << "\">";
     }
 
+    // a special safeguard in the bottom
     stack.clear();
     stack.push_back(nullptr);
 
@@ -151,16 +161,19 @@ void HTMLRenderer::TextLineBuffer::flush(void)
                 if((*iter)->start_idx <= last_text_pos_with_negative_offset)
                     break;
             }
+            // export the diff between *state_iter1 and stack.back()
             state_iter1->begin(out, stack.back());
             stack.push_back(&*state_iter1);
         }
 
+        // [state_iter1->start_idx, text_idx2) are covered by the current state
         size_t text_idx2 = (state_iter2 == states.end()) ? text.size() : state_iter2->start_idx;
 
         // dump all text and offsets before next state
         while(true)
         {
-            if((cur_offset_iter != offsets.end()) && (cur_offset_iter->start_idx <= cur_text_idx))
+            if((cur_offset_iter != offsets.end()) 
+                    && (cur_offset_iter->start_idx <= cur_text_idx))
             {
                 if(cur_offset_iter->start_idx > text_idx2)
                     break;
@@ -168,6 +181,7 @@ void HTMLRenderer::TextLineBuffer::flush(void)
                 double target = cur_offset_iter->width + dx;
                 double actual_offset = 0;
 
+                //ignore near-zero offsets
                 if(abs(target) <= renderer->param->h_eps)
                 {
                     actual_offset = 0;
@@ -175,6 +189,7 @@ void HTMLRenderer::TextLineBuffer::flush(void)
                 else
                 {
                     bool done = false;
+                    // check if the offset is equivalent to a single ' '
                     if(!(state_iter1->hash_umask & State::umask_by_id(State::WORD_SPACE_ID)))
                     {
                         double space_off = state_iter1->single_space_offset();
@@ -187,6 +202,7 @@ void HTMLRenderer::TextLineBuffer::flush(void)
                         }
                     }
 
+                    // finally, just dump it
                     if(!done)
                     {
                         long long wid = renderer->whitespace_manager.install(target, &actual_offset);
@@ -236,6 +252,8 @@ void HTMLRenderer::TextLineBuffer::flush(void)
 
 void HTMLRenderer::TextLineBuffer::set_state (State & state)
 {
+    // TODO: as letter_space and word_space may be modified (optimization)
+    // we should not install them so early
     state.ids[State::FONT_ID] = renderer->cur_font_info->id;
     state.ids[State::FONT_SIZE_ID] = renderer->font_size_manager.get_id();
     state.ids[State::FILL_COLOR_ID] = renderer->fill_color_manager.get_id();
@@ -284,25 +302,28 @@ void HTMLRenderer::TextLineBuffer::optimize()
     {
         const size_t text_idx1 = state_iter1->start_idx;
         const size_t text_idx2 = (state_iter2 == states.end()) ? text.size() : state_iter2->start_idx;
-
-        // get the text segment covered by current state (*state_iter1)
-        const auto text_iter1 = text.begin() + text_idx1;
-        const auto text_iter2 = text.begin() + text_idx2;
         size_t text_count = text_idx2 - text_idx1;
 
-        while((offset_iter1 != offsets.end()) && (offset_iter1->start_idx <= text_idx1))
+        // there might be some offsets before the first state
+        while((offset_iter1 != offsets.end()) 
+                && (offset_iter1->start_idx <= text_idx1))
         {
             new_offsets.push_back(*(offset_iter1++));
         }
+
+        // find the last offset covered by the current state
         auto offset_iter2 = offset_iter1;
         for(; (offset_iter2 != offsets.end()) && (offset_iter2->start_idx <= text_idx2); ++offset_iter2) { }
+
         // There are `offset_count` <span>'s, the target is to reduce this number
         size_t offset_count = offset_iter2 - offset_iter1;
         assert(text_count >= offset_count);
-
-        double letter_space_diff = 0; // will be later used for optimizing word space
-        width_map.clear();
+        
         // Optimize letter space
+        // how much letter_space is changed
+        // will be later used for optimizing word space
+        double letter_space_diff = 0; 
+        width_map.clear();
 
         // In some PDF files all letter spaces are implemented as position shifts between each letter
         // try to simplify it with a proper letter space
@@ -325,7 +346,9 @@ void HTMLRenderer::TextLineBuffer::optimize()
                     width_map.insert(iter, std::make_pair(target, 1));
                 }
             }
-
+            
+            // TODO snapping the widths may result a better result
+            // e.g. for (-0.7 0.6 -0.2 0.3 10 10), 0 is better than 10
             double most_used_width = 0;
             size_t max_count = 0;
             for(auto iter = width_map.begin(); iter != width_map.end(); ++iter)
@@ -342,7 +365,7 @@ void HTMLRenderer::TextLineBuffer::optimize()
             if(max_count <= text_count / 2)
             { 
                 // the old value is the best
-                // just copy copy offsets
+                // just copy old offsets
                 new_offsets.insert(new_offsets.end(), offset_iter1, offset_iter2);
             }
             else
@@ -369,7 +392,7 @@ void HTMLRenderer::TextLineBuffer::optimize()
                     }
                     if(!equal(cur_width, 0))
                     {
-                        new_offsets.push_back(Offset({cur_text_idx+1, cur_width}));
+                        new_offsets.emplace_back(cur_text_idx+1, cur_width);
                         ++ offset_count;
                     }
                 }
@@ -382,6 +405,10 @@ void HTMLRenderer::TextLineBuffer::optimize()
         // We may try to change (some of) them to ' ' by adjusting word_space
         // for now, we cosider only the no-space scenario
         // which also includes the case when param->space_as_offset is set
+
+        // get the text segment covered by current state (*state_iter1)
+        const auto text_iter1 = text.begin() + text_idx1;
+        const auto text_iter2 = text.begin() + text_idx2;
         if(find(text_iter1, text_iter2, ' ') == text_iter2)
         {
             // if there is not any space, we may change the value of word_space arbitrarily
@@ -399,7 +426,7 @@ void HTMLRenderer::TextLineBuffer::optimize()
                 // find the most frequent width, with new letter space applied
                 for(auto iter = width_map.begin(); iter != width_map.end(); ++iter)
                 {
-                    double fixed_width = iter->first + letter_space_diff;
+                    double fixed_width = iter->first + letter_space_diff; // this is the actual offset in HTML
                     // we don't want to add spaces for tiny gaps, or even negative shifts
                     if((fixed_width >= threshold - EPS) && (iter->second > max_count))
                     {
@@ -408,18 +435,14 @@ void HTMLRenderer::TextLineBuffer::optimize()
                     }
                 }
 
-                state_iter1->word_space = 0;
+                state_iter1->word_space = 0; // clear word_space for single_space_offset
                 double new_word_space = most_used_width - state_iter1->single_space_offset();
-                // install new word_space
-                state_iter1->ids[State::WORD_SPACE_ID] = ws_manager.install(new_word_space, &(state_iter1->word_space));
-                // mark that the word_space is not free
-                state_iter1->hash_umask &= (~word_space_umask);
+                state_iter1->ids[State::WORD_SPACE_ID] = ws_manager.install(new_word_space, &(state_iter1->word_space)); // install new word_space
+                state_iter1->hash_umask &= (~word_space_umask); // mark that the word_space is not free
             }
-            else
+            else // there is no offset at all
             {
-                // if there is no offset at all
-                // we just free word_space
-                state_iter1->hash_umask |= word_space_umask;
+                state_iter1->hash_umask |= word_space_umask; // we just free word_space
             }
         }
         offset_iter1 = offset_iter2;

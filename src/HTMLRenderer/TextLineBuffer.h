@@ -67,6 +67,9 @@ public:
 
     class Offset {
     public:
+        Offset(size_t size_idx, double width)
+            :start_idx(size_idx),width(width)
+        { }
         size_t start_idx; // should put this Offset right before text[start_idx];
         double width;
     };

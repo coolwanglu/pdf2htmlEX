@@ -74,8 +74,17 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
         bool is_space = false;
         if (n == 1 && *p == ' ') 
         {
-            ++nSpaces;
+            /*
+             * This is by standard
+             * however some PDF will use ' ' as a normal encoding slot
+             * such that it will be mapped to other unicodes
+             * In that case, when sapce_as_offset is on, we will simply ignore that character...
+             *
+             * Checking mapped unicode may or may not work
+             * There are always ugly PDF files with no usefull info at all.
+             */
             is_space = true;
+            ++nSpaces;
         }
         
         if(is_space && (param->space_as_offset))
