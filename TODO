@@ -1,5 +1,5 @@
-bug: sample1.pdf
-remove unused values in statemanater (due to optimization), probably ref count?
+handle large negative letter space
+remove unused values in statemanager (due to optimization), probably ref count?
 
 == Future: ==
 
