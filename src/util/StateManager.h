@@ -36,6 +36,10 @@ public:
         this->eps = eps; 
     }
 
+    double get_eps (void) const {
+        return eps;
+    }
+
     // usually called at the beginning of a page
     void reset(void) { 
         cur_value = imp->default_value();

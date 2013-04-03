@@ -68,6 +68,9 @@ void HTMLRenderer::TextLineBuffer::flush(void)
      */
     if(text.empty()) return;
 
+    while((!states.empty()) && (states.back().start_idx >= text.size()))
+        states.pop_back();
+
     if(states.empty() || (states[0].start_idx != 0))
     {
         cerr << "Warning: text without a style! Must be a bug in pdf2htmlEX" << endl;
@@ -83,54 +86,47 @@ void HTMLRenderer::TextLineBuffer::flush(void)
         max_ascent = max<double>(max_ascent, s.font_info->ascent * s.draw_font_size);
     }
 
-    // append a dummy state for convenience
-    states.resize(states.size() + 1);
-    states.back().start_idx = text.size();
-    
     for(auto iter = states.begin(); iter != states.end(); ++iter)
         iter->hash();
 
-    // append a dummy offset for convenience
-    offsets.push_back(Offset({text.size(), 0}));
-
     ostream & out = renderer->f_pages.fs;
-    long long hid = renderer->height_manager.install(max_ascent);
-    long long lid = renderer->left_manager  .install(x);
-    long long bid = renderer->bottom_manager.install(y);
+    {
+        long long hid = renderer->height_manager.install(max_ascent);
+        long long lid = renderer->left_manager  .install(x);
+        long long bid = renderer->bottom_manager.install(y);
 
-    out << "<div class=\"" << CSS::LINE_CN
-        << " "             << CSS::TRANSFORM_MATRIX_CN << tm_id 
-        << " "             << CSS::LEFT_CN             << lid
-        << " "             << CSS::HEIGHT_CN           << hid
-        << " "             << CSS::BOTTOM_CN           << bid
-        << "\">";
-
-    auto cur_state_iter = states.begin();
-    auto cur_offset_iter = offsets.begin();
-
-    //accumulated horizontal offset;
-    double dx = 0;
+        out << "<div class=\"" << CSS::LINE_CN
+            << " "             << CSS::TRANSFORM_MATRIX_CN << tm_id 
+            << " "             << CSS::LEFT_CN             << lid
+            << " "             << CSS::HEIGHT_CN           << hid
+            << " "             << CSS::BOTTOM_CN           << bid
+            << "\">";
+    }
 
     stack.clear();
     stack.push_back(nullptr);
 
+    //accumulated horizontal offset;
+    double dx = 0;
+
     // whenever a negative offset appears, we should not pop out that <span>
     // otherwise the effect of negative margin-left would disappear
     size_t last_text_pos_with_negative_offset = 0;
-
     size_t cur_text_idx = 0;
-    while(cur_text_idx < text.size())
+
+    auto cur_offset_iter = offsets.begin();
+    for(auto state_iter2 = states.begin(), state_iter1 = state_iter2++; 
+            state_iter1 != states.end(); 
+            ++state_iter1, ++state_iter2)
     {
-        // TODO: a new state may consume an offset with proper 'margin-left'
-        if(cur_text_idx >= cur_state_iter->start_idx)
-        {
+        // export current state, find a closest parent
+        { 
             // greedy
             int best_cost = State::ID_COUNT;
-            
             // we have a nullptr at the beginning, so no need to check for rend
             for(auto iter = stack.rbegin(); *iter; ++iter)
             {
-                int cost = cur_state_iter->diff(**iter);
+                int cost = state_iter1->diff(**iter);
                 if(cost < best_cost)
                 {
                     while(stack.back() != *iter)
@@ -148,61 +144,72 @@ void HTMLRenderer::TextLineBuffer::flush(void)
                 if((*iter)->start_idx <= last_text_pos_with_negative_offset)
                     break;
             }
-            cur_state_iter->begin(out, stack.back());
-            stack.push_back(&*cur_state_iter);
-
-            ++ cur_state_iter;
+            state_iter1->begin(out, stack.back());
+            stack.push_back(&*state_iter1);
         }
 
-        if(cur_text_idx >= cur_offset_iter->start_idx)
-        {
-            double target = cur_offset_iter->width + dx;
-            double actual_offset = 0;
+        size_t text_idx2 = (state_iter2 == states.end()) ? text.size() : state_iter2->start_idx;
 
-            if(abs(target) <= renderer->param->h_eps)
+        while(true)
+        {
+            if((cur_offset_iter != offsets.end()) && (cur_offset_iter->start_idx <= cur_text_idx))
             {
-                actual_offset = 0;
+                if(cur_offset_iter->start_idx > text_idx2)
+                    break;
+
+                double target = cur_offset_iter->width + dx;
+                double actual_offset = 0;
+
+                if(abs(target) <= renderer->param->h_eps)
+                {
+                    actual_offset = 0;
+                }
+                else
+                {
+                    bool done = false;
+                    if(!(state_iter1->hash_umask & State::umask_by_id(State::WORD_SPACE_ID)))
+                    {
+                        double space_off = state_iter1->single_space_offset();
+                        if(abs(target - space_off) <= renderer->param->h_eps)
+                        {
+                            Unicode u = ' ';
+                            outputUnicodes(out, &u, 1);
+                            actual_offset = space_off;
+                            done = true;
+                        }
+                    }
+
+                    if(!done)
+                    {
+                        long long wid = renderer->whitespace_manager.install(target, &actual_offset);
+
+                        if(!equal(actual_offset, 0))
+                        {
+                            if(is_positive(-actual_offset))
+                                last_text_pos_with_negative_offset = cur_text_idx;
+
+                            double threshold = state_iter1->em_size() * (renderer->param->space_threshold);
+
+                            out << "<span class=\"" << CSS::WHITESPACE_CN
+                                << ' ' << CSS::WHITESPACE_CN << wid << "\">" << (target > (threshold - EPS) ? " " : "") << "</span>";
+                        }
+                    }
+                }
+                dx = target - actual_offset;
+                ++ cur_offset_iter;
             }
             else
             {
-                bool done = false;
-                auto cur_state = stack.back();
-                if(!(cur_state->hash_umask & State::umask_by_id(State::WORD_SPACE_ID)))
-                {
-                    double space_off = cur_state->single_space_offset();
-                    if(abs(target - space_off) <= renderer->param->h_eps)
-                    {
-                        Unicode u = ' ';
-                        outputUnicodes(out, &u, 1);
-                        actual_offset = space_off;
-                        done = true;
-                    }
-                }
+                if(cur_text_idx >= text_idx2)
+                    break;
 
-                if(!done)
-                {
-                    long long wid = renderer->whitespace_manager.install(target, &actual_offset);
-
-                    if(!equal(actual_offset, 0))
-                    {
-                        if(is_positive(-actual_offset))
-                            last_text_pos_with_negative_offset = cur_text_idx;
-
-                        double threshold = cur_state->em_size() * (renderer->param->space_threshold);
-
-                        out << "<span class=\"" << CSS::WHITESPACE_CN
-                            << ' ' << CSS::WHITESPACE_CN << wid << "\">" << (target > (threshold - EPS) ? " " : "") << "</span>";
-                    }
-                }
+                size_t next_text_idx = text_idx2;
+                if((cur_offset_iter != offsets.end()) && (cur_offset_iter->start_idx) < next_text_idx)
+                    next_text_idx = cur_offset_iter->start_idx;
+                outputUnicodes(out, (&text.front()) + cur_text_idx, next_text_idx - cur_text_idx);
+                cur_text_idx = next_text_idx;
             }
-            dx = target - actual_offset;
-            ++ cur_offset_iter;
         }
-
-        size_t next_text_idx = min<size_t>(cur_state_iter->start_idx, cur_offset_iter->start_idx);
-
-        outputUnicodes(out, (&text.front()) + cur_text_idx, next_text_idx - cur_text_idx);
-        cur_text_idx = next_text_idx;
     }
 
     // we have a nullptr in the bottom
@@ -235,13 +242,18 @@ void HTMLRenderer::TextLineBuffer::set_state (State & state)
     state.word_space = renderer->word_space_manager.get_actual_value();
 }
 
-void HTMLRenderer::TextLineBuffer::optimize(void)
+void HTMLRenderer::TextLineBuffer::optimize()
 {
     if(!(renderer->param->optimize_text))
         return;
 
     assert(!states.empty());
 
+    // for optimization, we need accurate values
+    auto & ws_manager = renderer->word_space_manager;
+    double old_ws_eps = ws_manager.get_eps(); 
+    ws_manager.set_eps(EPS);
+    
     auto offset_iter = offsets.begin();
     std::map<double, int> width_map;
 
@@ -269,11 +281,11 @@ void HTMLRenderer::TextLineBuffer::optimize(void)
         // collect widths
         width_map.clear();
 
-        while((offset_iter != offsets.end()) && (offset_iter->start_idx < text_idx1))
+        while((offset_iter != offsets.end()) && (offset_iter->start_idx <= text_idx1))
             ++ offset_iter;
 
         double threshold = (state_iter1->em_size()) * (renderer->param->space_threshold);
-        for(; (offset_iter != offsets.end()) && (offset_iter->start_idx < text_idx2); ++offset_iter)
+        for(; (offset_iter != offsets.end()) && (offset_iter->start_idx <= text_idx2); ++offset_iter)
         {
             double target = offset_iter->width;
             // we don't want to add spaces for tiny gaps, or even negative shifts
@@ -313,10 +325,13 @@ void HTMLRenderer::TextLineBuffer::optimize(void)
         state_iter1->word_space = 0;
         double new_word_space = most_used_width - state_iter1->single_space_offset();
         // install new word_space
-        state_iter1->ids[State::WORD_SPACE_ID] = renderer->word_space_manager.install(new_word_space, &(state_iter1->word_space));
+        state_iter1->ids[State::WORD_SPACE_ID] = ws_manager.install(new_word_space, &(state_iter1->word_space));
         // mark that the word_space is not free
         state_iter1->hash_umask &= (~word_space_umask);
     } 
+
+    // restore old eps
+    ws_manager.set_eps(old_ws_eps);
 }
 
 // this state will be converted to a child node of the node of prev_state
