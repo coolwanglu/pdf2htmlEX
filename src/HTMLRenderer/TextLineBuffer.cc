@@ -283,11 +283,7 @@ void HTMLRenderer::TextLineBuffer::optimize()
 
     // for optimization, we need accurate values
     auto & ls_manager = renderer->letter_space_manager;
-    double old_ls_eps = ls_manager.get_eps(); 
-    ls_manager.set_eps(EPS);
     auto & ws_manager = renderer->word_space_manager;
-    double old_ws_eps = ws_manager.get_eps(); 
-    ws_manager.set_eps(EPS);
     
     // statistics of widths
     std::map<double, size_t> width_map;
@@ -450,10 +446,6 @@ void HTMLRenderer::TextLineBuffer::optimize()
     
     // apply optimization
     std::swap(offsets, new_offsets);
-
-    // restore old eps
-    ls_manager.set_eps(old_ls_eps);
-    ws_manager.set_eps(old_ws_eps);
 }
 
 // this state will be converted to a child node of the node of prev_state
