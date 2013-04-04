@@ -171,6 +171,8 @@ add_executable(pdf2htmlEX
     src/util/ArgParser.cc
     src/util/base64stream.h
     src/util/base64stream.cc
+    src/util/color.h
+    src/util/color.cc
     src/util/const.h
     src/util/const.cc
     src/util/css_const.h

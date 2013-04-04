@@ -90,24 +90,23 @@ void HTMLRenderer::reset_state()
 {
     draw_text_scale = 1.0;
 
-    cur_font_info = install_font(nullptr);
+    cur_html_state.font_info = install_font(nullptr);
 
     cur_font_size = 0.0;
     
     memcpy(cur_text_tm, ID_MATRIX, sizeof(cur_text_tm));
 
-    transform_matrix_manager.reset();
-    letter_space_manager    .reset();
-    stroke_color_manager    .reset();
-    word_space_manager      .reset();
-    whitespace_manager      .reset();
-    fill_color_manager      .reset();
-    font_size_manager       .reset();
-    bottom_manager          .reset();
-    height_manager          .reset();
-    width_manager           .reset();
-    rise_manager            .reset();
-    left_manager            .reset();
+    // reset html_state
+    cur_html_state.font_info = nullptr;
+    cur_html_state.font_size = 0;
+    cur_html_state.fill_color.transparent = true;
+    cur_html_state.stroke_color.transparent = true;
+    cur_html_state.letter_space = 0;
+    cur_html_state.word_space = 0;
+    cur_html_state.rise = 0;
+    cur_html_state.x = 0;
+    cur_html_state.y = 0;
+    memcpy(cur_html_state.transform_matrix, ID_MATRIX, sizeof(cur_html_state.transform_matrix));
 
     cur_tx  = cur_ty  = 0;
     draw_tx = draw_ty = 0;
@@ -156,12 +155,12 @@ void HTMLRenderer::check_state_change(GfxState * state)
     {
         const FontInfo * new_font_info = install_font(state->getFont());
 
-        if(!(new_font_info->id == cur_font_info->id))
+        if(!(new_font_info->id == cur_html_state.font_info->id))
         {
             // The width of the type 3 font text, if shown, is likely to be wrong
             // So we will create separate (absolute positioned) blocks for them, such that it won't affect other text
             // TODO: consider the font matrix and estimate the metrics  
-            if(new_font_info->is_type3 || cur_font_info->is_type3)
+            if(new_font_info->is_type3 || cur_html_state.font_info->is_type3)
             {
                 new_line_state = max<NewLineState>(new_line_state, NLS_DIV);
             }
@@ -169,7 +168,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
             {
                 new_line_state = max<NewLineState>(new_line_state, NLS_SPAN);
             }
-            cur_font_info = new_font_info;
+            cur_html_state.font_info = new_font_info;
         }
 
         double new_font_size = state->getFontSize();
@@ -253,13 +252,16 @@ void HTMLRenderer::check_state_change(GfxState * state)
             draw_text_scale = new_draw_text_scale;
         }
 
-        if(font_size_manager.update(new_draw_font_size))
+        if(!equal(new_draw_font_size, cur_html_state.font_size))
         {
             new_line_state = max<NewLineState>(new_line_state, NLS_SPAN);
+            cur_html_state.font_size = new_draw_font_size;
         }
-        if(transform_matrix_manager.update(new_draw_text_tm))
+
+        if(!tm_equal(new_draw_text_tm, cur_html_state.transform_matrix, 4))
         {
             new_line_state = max<NewLineState>(new_line_state, NLS_DIV);
+            memcpy(cur_html_state.transform_matrix, new_draw_text_tm, sizeof(cur_html_state.transform_matrix));
         }
     }
 
@@ -333,18 +335,26 @@ void HTMLRenderer::check_state_change(GfxState * state)
 
     // letter space
     // depends: draw_text_scale
-    if((all_changed || letter_space_changed || draw_text_scale_changed)
-        && (letter_space_manager.update(state->getCharSpace() * draw_text_scale)))
+    if(all_changed || letter_space_changed || draw_text_scale_changed)
     {
-        new_line_state = max<NewLineState>(new_line_state, NLS_SPAN);
+        double new_letter_space = state->getCharSpace() * draw_text_scale;
+        if(!equal(new_letter_space, cur_html_state.letter_space))
+        {
+            cur_html_state.letter_space = new_letter_space;
+            new_line_state = max<NewLineState>(new_line_state, NLS_SPAN);
+        }
     }
 
     // word space
     // depends draw_text_scale
-    if((all_changed || word_space_changed || draw_text_scale_changed)
-        && (word_space_manager.update(state->getWordSpace() * draw_text_scale)))
+    if(all_changed || word_space_changed || draw_text_scale_changed)
     {
-        new_line_state = max<NewLineState>(new_line_state, NLS_SPAN);
+        double new_word_space = state->getWordSpace() * draw_text_scale;
+        if(!equal(new_word_space, cur_html_state.word_space))
+        {
+            cur_html_state.word_space = new_word_space;
+            new_line_state = max<NewLineState>(new_line_state, NLS_SPAN);
+        }
     }
 
     // fill color
@@ -355,19 +365,21 @@ void HTMLRenderer::check_state_change(GfxState * state)
         
         int idx = state->getRender();
         assert((idx >= 0) && (idx < 8));
-        bool changed = true;
+        Color new_fill_color;
         if(FILL[idx])
         {
-            GfxRGB new_color;
-            state->getFillRGB(&new_color);
-            changed = fill_color_manager.update(new_color);
+            new_fill_color.transparent = false;
+            state->getFillRGB(&new_fill_color.rgb);
         }
         else
         {
-            changed = fill_color_manager.update_transparent();
+            new_fill_color.transparent = true;
         }
-        if(changed)
+        if(!(new_fill_color == cur_html_state.fill_color))
+        {
+            cur_html_state.fill_color = new_fill_color;
             new_line_state = max<NewLineState>(new_line_state, NLS_SPAN);
+        }
     }
 
     // stroke color
@@ -378,28 +390,34 @@ void HTMLRenderer::check_state_change(GfxState * state)
         
         int idx = state->getRender();
         assert((idx >= 0) && (idx < 8));
-        bool changed = true;
+        Color new_stroke_color;
         // stroke
         if(STROKE[idx])
         {
-            GfxRGB new_color;
-            state->getStrokeRGB(&new_color);
-            changed = stroke_color_manager.update(new_color);
+            new_stroke_color.transparent = false;
+            state->getStrokeRGB(&new_stroke_color.rgb);
         }
         else
         {
-            changed = stroke_color_manager.update_transparent();
+            new_stroke_color.transparent = true;
         }
-        if(changed)
+        if(!(new_stroke_color == cur_html_state.stroke_color))
+        {
+            cur_html_state.stroke_color = new_stroke_color;
             new_line_state = max<NewLineState>(new_line_state, NLS_SPAN);
+        }
     }
 
     // rise
     // depends draw_text_scale
-    if((all_changed || rise_changed || draw_text_scale_changed)
-        && (rise_manager.update(state->getRise() * draw_text_scale)))
+    if(all_changed || rise_changed || draw_text_scale_changed)
     {
-        new_line_state = max<NewLineState>(new_line_state, NLS_SPAN);
+        double new_rise = state->getRise() * draw_text_scale;
+        if(!equal(new_rise, cur_html_state.rise))
+        {
+            cur_html_state.rise = new_rise;
+            new_line_state = max<NewLineState>(new_line_state, NLS_SPAN);
+        }
     }
 
     reset_state_change();
@@ -416,7 +434,8 @@ void HTMLRenderer::prepare_text_line(GfxState * state)
     {
         close_text_line();
 
-        text_line_buf->set_pos(state);
+        // update position such that they will be recorded by text_line_buf
+        state->transform(state->getCurX(), state->getCurY(), &cur_html_state.x, &cur_html_state.y);
 
         //resync position
         draw_ty = cur_ty;
@@ -436,7 +455,7 @@ void HTMLRenderer::prepare_text_line(GfxState * state)
 
     if(new_line_state != NLS_NONE)
     {
-        text_line_buf->append_state();
+        text_line_buf->append_state(cur_html_state);
     }
 
     line_opened = true;

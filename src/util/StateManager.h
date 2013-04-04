@@ -15,6 +15,7 @@
 
 #include "util/math.h"
 #include "util/css_const.h"
+#include "util/color.h"
 
 namespace pdf2htmlEX {
 
@@ -27,9 +28,7 @@ public:
     StateManager()
         : eps(0)
         , imp(static_cast<Imp*>(this))
-    { 
-        reset();
-    }
+    { }
 
     // values no farther than eps are treated as equal
     void set_eps (double eps) { 
@@ -40,26 +39,8 @@ public:
         return eps;
     }
 
-    // usually called at the beginning of a page
-    void reset(void) { 
-        cur_value = imp->default_value();
-        cur_id = install(cur_value, &cur_actual_value);
-    }
-
-    /*
-     * update the current state, which will be installed automatically
-     * return if the state has been indeed changed
-     */
-    bool update(double new_value) {
-        if(equal(new_value, cur_value))
-            return false;
-        cur_value = new_value;
-        cur_id = install(cur_value, &cur_actual_value);
-        return true;
-    }
-
-    // install new_value into the map, but do not update the state
-    // return the corresponding id, and set 
+    // install new_value into the map
+    // return the corresponding id
     long long install(double new_value, double * actual_value_ptr = nullptr) {
         auto iter = value_map.lower_bound(new_value - eps);
         if((iter != value_map.end()) && (abs(iter->first - new_value) <= eps)) 
@@ -75,11 +56,6 @@ public:
             *actual_value_ptr = v;
         return id;
     }
-
-    // get current state
-    long long get_id           (void) const { return cur_id;           }
-    double    get_value        (void) const { return cur_value;        }
-    double    get_actual_value (void) const { return cur_actual_value; }
 
     void dump_css(std::ostream & out) {
         for(auto iter = value_map.begin(); iter != value_map.end(); ++iter)
@@ -102,17 +78,12 @@ public:
 protected:
     double eps;
     Imp * imp;
-
-    long long cur_id;
-    double cur_value; // the value we are tracking
-    double cur_actual_value; // the value we actually exported to HTML
     std::map<double, long long> value_map;
 };
 
 // Be careful about the mixed usage of Matrix and const double *
 // the input is usually double *, which might be changed, so we have to copy the content out
 // in the map we use Matrix instead of double * such that the array may be automatically release when deconstructign
-// since the address of cur_value.m cannot be changed, we can export double * instead of Matrix
 template <class Imp>
 class StateManager<Matrix, Imp>
 {
@@ -121,25 +92,20 @@ public:
         : imp(static_cast<Imp*>(this))
     { }
 
-    void reset(void) {
-        memcpy(cur_value.m, imp->default_value(), sizeof(cur_value.m));
-        cur_id = install(cur_value);
+    // return id
+    long long install(const double * new_value) {
+        Matrix m;
+        memcpy(m.m, new_value, sizeof(m.m));
+        auto iter = value_map.lower_bound(m);
+        if((iter != value_map.end()) && (tm_equal(m.m, iter->first.m, 4)))
+        {
+            return iter->second;
+        }
+
+        long long id = value_map.size();
+        value_map.insert(iter, std::make_pair(m, id));
+        return id;
     }
-
-    // return if changed
-    bool update(const double * new_value) {
-        // For a transform matrix m
-        // m[4] & m[5] have been taken care of
-        if(tm_equal(new_value, cur_value.m, 4))
-            return false;
-
-        memcpy(cur_value.m, new_value, sizeof(cur_value.m));
-        cur_id = install(cur_value);
-        return true;
-    }
-
-    long long get_id                (void) const { return cur_id;           }
-    const double * get_value        (void) const { return cur_value.m;      }
 
     void dump_css(std::ostream & out) {
         for(auto iter = value_map.begin(); iter != value_map.end(); ++iter)
@@ -153,23 +119,7 @@ public:
     void dump_print_css(std::ostream & out, double scale) {}
 
 protected:
-    // return id
-    long long install(const Matrix & new_value) {
-        auto iter = value_map.lower_bound(new_value);
-        if((iter != value_map.end()) && (tm_equal(new_value.m, iter->first.m, 4)))
-        {
-            return iter->second;
-        }
-
-        long long id = value_map.size();
-        value_map.insert(iter, std::make_pair(new_value, id));
-        return id;
-    }
-
     Imp * imp;
-
-    long long cur_id;
-    Matrix cur_value;
 
     class Matrix_less
     {
@@ -192,39 +142,24 @@ protected:
 };
 
 template <class Imp>
-class StateManager<GfxRGB, Imp>
+class StateManager<Color, Imp>
 {
 public:
     StateManager()
         : imp(static_cast<Imp*>(this))
     { }
 
-    void reset(void) {
-        cur_is_transparent = true;
-        cur_id = -1;
+    long long install(const Color & new_value) { 
+        auto iter = value_map.find(new_value);
+        if(iter != value_map.end())
+        {
+            return iter->second;
+        }
+
+        long long id = value_map.size();
+        value_map.insert(std::make_pair(new_value, id));
+        return id;
     }
-
-    bool update(const GfxRGB & new_value) {
-        if((!cur_is_transparent) && gfxrgb_equal_obj(new_value, cur_value))
-            return false;
-        cur_value = new_value;
-        cur_is_transparent = false;
-        cur_id = install(cur_value);
-        return true;
-    }
-
-    bool update_transparent (void) { 
-        if(cur_is_transparent)
-            return false;
-        cur_is_transparent = true;
-        cur_id = -1;
-        return true;
-    }
-
-
-    long long get_id                (void) const { return cur_id;             }
-    const GfxRGB & get_value        (void) const { return cur_value;          }
-    bool get_is_transparent         (void) const { return cur_is_transparent; }
 
     void dump_css(std::ostream & out) {
         out << "." << imp->get_css_class_name() << CSS::INVALID_ID << "{";
@@ -242,47 +177,28 @@ public:
     void dump_print_css(std::ostream & out, double scale) {}
 
 protected:
-    long long install(const GfxRGB & new_value) { 
-        auto iter = value_map.find(new_value);
-        if(iter != value_map.end())
-        {
-            return iter->second;
-        }
-
-        long long id = value_map.size();
-        value_map.insert(std::make_pair(new_value, id));
-        return id;
-    }
-
     Imp * imp;
 
-    long long cur_id;
-    GfxRGB cur_value;
-    bool cur_is_transparent;
-
-    class GfxRGB_hash 
+    class Color_hash 
     {
     public:
-        size_t operator () (const GfxRGB & rgb) const
+        size_t operator () (const Color & color) const
         {
-            return ( (((size_t)colToByte(rgb.r)) << 16) 
-                   | (((size_t)colToByte(rgb.g)) << 8) 
-                   | ((size_t)colToByte(rgb.b))
-                   );
+            if(color.transparent)
+            {
+                return (~((size_t)0));
+            }
+            else
+            {
+                return ( ((((size_t)colToByte(color.rgb.r)) & 0xff) << 16) 
+                        | ((((size_t)colToByte(color.rgb.g)) & 0xff) << 8) 
+                        | (((size_t)colToByte(color.rgb.b)) & 0xff)
+                        );
+            }
         }
     };
 
-    class GfxRGB_equal
-    { 
-    public:
-        bool operator ()(const GfxRGB & rgb1, const GfxRGB & rgb2) const
-        {
-            return ((rgb1.r == rgb2.r) && (rgb1.g == rgb2.g) && (rgb1.b == rgb2.b));
-        }
-    };
-
-    GfxRGB_equal gfxrgb_equal_obj;
-    std::unordered_map<GfxRGB, long long, GfxRGB_hash, GfxRGB_equal> value_map;
+    std::unordered_map<Color, long long, Color_hash> value_map;
 };
 
 /////////////////////////////////////
@@ -412,13 +328,12 @@ public:
     }
 };
 
-class FillColorManager : public StateManager<GfxRGB, FillColorManager>
+class FillColorManager : public StateManager<Color, FillColorManager>
 {
 public:
     static const char * get_css_class_name (void) { return CSS::FILL_COLOR_CN; }
     /* override base's method, as we need some workaround in CSS */ 
     void dump_css(std::ostream & out) { 
-        out << "." << get_css_class_name() << CSS::INVALID_ID << "{color:transparent;}" << std::endl;
         for(auto iter = value_map.begin(); iter != value_map.end(); ++iter)
         {
             out << "." << get_css_class_name() << iter->second 
@@ -427,7 +342,7 @@ public:
     }
 };
 
-class StrokeColorManager : public StateManager<GfxRGB, StrokeColorManager>
+class StrokeColorManager : public StateManager<Color, StrokeColorManager>
 {
 public:
     static const char * get_css_class_name (void) { return CSS::STROKE_COLOR_CN; }

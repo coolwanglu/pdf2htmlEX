@@ -372,9 +372,8 @@ void HTMLRenderer::css_draw_rectangle(double x, double y, double w, double h, co
         }
     }
 
-    transform_matrix_manager.update(new_tm);
     f_pages.fs << "<div class=\"" << CSS::CSS_DRAW_CN 
-        << ' ' << CSS::TRANSFORM_MATRIX_CN << transform_matrix_manager.get_id()
+        << ' ' << CSS::TRANSFORM_MATRIX_CN << transform_matrix_manager.install(new_tm)
         << "\" style=\"";
 
     if(line_color)

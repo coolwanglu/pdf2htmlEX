@@ -50,11 +50,7 @@ public:
 
         long long ids[ID_COUNT];
 
-        const FontInfo * font_info;
-        double draw_font_size;
-        double letter_space;
-        double word_space;
-        double rise;
+        HTMLState html_state;
 
         size_t start_idx; // index of the first Text using this state
         // for optimzation
@@ -78,13 +74,10 @@ public:
     void set_pos(GfxState * state);
     void append_unicodes(const Unicode * u, int l);
     void append_offset(double width);
-    void append_state(void);
+    void append_state(const HTMLState & html_state);
     void flush(void);
 
 private:
-    // retrieve state from renderer
-    void set_state(State & state);
-
     void optimize(void);
 
     HTMLRenderer * renderer;

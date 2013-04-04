@@ -100,7 +100,7 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
             }
             else
             {
-                if(cur_font_info->use_tounicode)
+                if(cur_html_state.font_info->use_tounicode)
                 {
                     Unicode uu = check_unicode(u, uLen, code, font);
                     text_line_buf->append_unicodes(&uu, 1);

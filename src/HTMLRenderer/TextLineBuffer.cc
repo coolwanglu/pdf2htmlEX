@@ -32,7 +32,6 @@ using std::abs;
 void HTMLRenderer::TextLineBuffer::set_pos(GfxState * state)
 {
     state->transform(state->getCurX(), state->getCurY(), &x, &y);
-    tm_id = renderer->transform_matrix_manager.get_id();
 }
 
 void HTMLRenderer::TextLineBuffer::append_unicodes(const Unicode * u, int l)
@@ -53,8 +52,15 @@ void HTMLRenderer::TextLineBuffer::append_offset(double width)
         offsets.emplace_back(text.size(), width);
 }
 
-void HTMLRenderer::TextLineBuffer::append_state(void)
+void HTMLRenderer::TextLineBuffer::append_state(const HTMLState & html_state)
 {
+    if(states.empty())
+    {
+        // if this is the first state, update position and matrix
+        x = html_state.x;
+        y = html_state.y;
+        tm_id = renderer->transform_matrix_manager.install(html_state.transform_matrix);
+    }
     if(states.empty() || (states.back().start_idx != text.size()))
     {
         states.emplace_back();
@@ -62,7 +68,7 @@ void HTMLRenderer::TextLineBuffer::append_state(void)
         states.back().hash_umask = 0;
     }
 
-    set_state(states.back());
+    states.back().html_state = html_state;
 }
 
 void HTMLRenderer::TextLineBuffer::flush(void)
@@ -100,9 +106,19 @@ void HTMLRenderer::TextLineBuffer::flush(void)
         double max_ascent = 0;
         for(auto iter = states.begin(); iter != states.end(); ++iter)
         {
-            double cur_ascent = iter->rise + iter->font_info->ascent * iter->draw_font_size;
+            const auto & hs = iter->html_state;
+            double cur_ascent = hs.rise + hs.font_info->ascent * hs.font_size;
             if(cur_ascent > max_ascent)
                 max_ascent = cur_ascent;
+
+            // set id
+            iter->ids[State::FONT_ID] = hs.font_info->id;
+            iter->ids[State::FONT_SIZE_ID] = renderer->font_size_manager.install(hs.font_size);
+            iter->ids[State::FILL_COLOR_ID] = renderer->fill_color_manager.install(hs.fill_color);
+            iter->ids[State::STROKE_COLOR_ID] = renderer->stroke_color_manager.install(hs.stroke_color);
+            iter->ids[State::LETTER_SPACE_ID] = renderer->letter_space_manager.install(hs.letter_space);
+            iter->ids[State::WORD_SPACE_ID] = renderer->word_space_manager.install(hs.word_space);
+            iter->ids[State::RISE_ID] = renderer->rise_manager.install(hs.rise);
             iter->hash();
         }
 
@@ -250,25 +266,6 @@ void HTMLRenderer::TextLineBuffer::flush(void)
     text.clear();
 }
 
-void HTMLRenderer::TextLineBuffer::set_state (State & state)
-{
-    // TODO: as letter_space and word_space may be modified (optimization)
-    // we should not install them so early
-    state.ids[State::FONT_ID] = renderer->cur_font_info->id;
-    state.ids[State::FONT_SIZE_ID] = renderer->font_size_manager.get_id();
-    state.ids[State::FILL_COLOR_ID] = renderer->fill_color_manager.get_id();
-    state.ids[State::STROKE_COLOR_ID] = renderer->stroke_color_manager.get_id();
-    state.ids[State::LETTER_SPACE_ID] = renderer->letter_space_manager.get_id();
-    state.ids[State::WORD_SPACE_ID] = renderer->word_space_manager.get_id();
-    state.ids[State::RISE_ID] = renderer->rise_manager.get_id();
-
-    state.font_info = renderer->cur_font_info;
-    state.draw_font_size = renderer->font_size_manager.get_actual_value();
-    state.letter_space = renderer->letter_space_manager.get_actual_value();
-    state.word_space = renderer->word_space_manager.get_actual_value();
-    state.rise = renderer->rise_manager.get_actual_value();
-}
-
 /*
  * Adjust letter space and word space in order to reduce the number of HTML elements
  * May also unmask word space
@@ -368,9 +365,9 @@ void HTMLRenderer::TextLineBuffer::optimize()
             else
             {
                 // install new letter space
-                const double old_ls = state_iter1->letter_space;
-                state_iter1->ids[State::LETTER_SPACE_ID] = ls_manager.install(old_ls + most_used_width, &(state_iter1->letter_space));
-                letter_space_diff = old_ls - state_iter1->letter_space;
+                const double old_ls = state_iter1->html_state.letter_space;
+                state_iter1->ids[State::LETTER_SPACE_ID] = ls_manager.install(old_ls + most_used_width, &(state_iter1->html_state.letter_space));
+                letter_space_diff = old_ls - state_iter1->html_state.letter_space;
                 // update offsets
                 auto off_iter = offset_iter1; 
                 // re-count number of offsets
@@ -432,9 +429,9 @@ void HTMLRenderer::TextLineBuffer::optimize()
                     }
                 }
 
-                state_iter1->word_space = 0; // clear word_space for single_space_offset
+                state_iter1->html_state.word_space = 0; // clear word_space for single_space_offset
                 double new_word_space = most_used_width - state_iter1->single_space_offset();
-                state_iter1->ids[State::WORD_SPACE_ID] = ws_manager.install(new_word_space, &(state_iter1->word_space)); // install new word_space
+                state_iter1->ids[State::WORD_SPACE_ID] = ws_manager.install(new_word_space, &(state_iter1->html_state.word_space)); // install new word_space
                 state_iter1->hash_umask &= (~word_space_umask); // mark that the word_space is not free
             }
             else // there is no offset at all
@@ -474,16 +471,16 @@ void HTMLRenderer::TextLineBuffer::State::begin (ostream & out, const State * pr
                 switch(i)
                 {
                     case FONT_SIZE_ID:
-                        draw_font_size = prev_state->draw_font_size;
+                        html_state.font_size = prev_state->html_state.font_size;
                         break;
                     case LETTER_SPACE_ID:
-                        letter_space = prev_state->letter_space;
+                        html_state.letter_space = prev_state->html_state.letter_space;
                         break;
                     case WORD_SPACE_ID:
-                        word_space = prev_state->word_space;
+                        html_state.word_space = prev_state->html_state.word_space;
                         break;
                     case RISE_ID:
-                        rise = prev_state->rise;
+                        html_state.rise = prev_state->html_state.rise;
                         break;
                     default:
                         break;
@@ -589,12 +586,12 @@ int HTMLRenderer::TextLineBuffer::State::diff(const State & s) const
 
 double HTMLRenderer::TextLineBuffer::State::single_space_offset(void) const
 {
-    return word_space + letter_space + font_info->space_width * draw_font_size;
+    return html_state.word_space + html_state.letter_space + html_state.font_info->space_width * html_state.font_size;
 }
 
 double HTMLRenderer::TextLineBuffer::State::em_size(void) const
 {
-    return draw_font_size * (font_info->ascent - font_info->descent);
+    return html_state.font_size * (html_state.font_info->ascent - html_state.font_info->descent);
 }
 
 long long HTMLRenderer::TextLineBuffer::State::umask_by_id(int id)

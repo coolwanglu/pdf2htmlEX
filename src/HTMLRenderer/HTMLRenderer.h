@@ -26,19 +26,34 @@
 #include "util/StringFormatter.h"
 #include "util/TmpFiles.h"
 #include "util/misc.h"
+#include "util/color.h"
 #include "util/StateManager.h"
 
 namespace pdf2htmlEX {
 
-class FontInfo
+
+struct FontInfo
 {
-public:
     long long id;
     bool use_tounicode;
     int em_size;
     double space_width;
     double ascent, descent;
     bool is_type3;
+};
+
+struct HTMLState
+{
+    const FontInfo * font_info;
+    double font_size;
+    Color fill_color;
+    Color stroke_color;
+    double letter_space;
+    double word_space;
+    double rise;
+    
+    double x,y;
+    double transform_matrix[4];
 };
 
 class HTMLRenderer : public OutputDev
@@ -316,7 +331,7 @@ protected:
     // styles & resources
     ////////////////////////////////////////////////////
 
-    const FontInfo * cur_font_info;
+    HTMLState cur_html_state;
     std::unordered_map<long long, FontInfo> font_info_map;
 
     // managers store values actually used in HTML (i.e. scaled)
