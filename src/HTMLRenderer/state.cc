@@ -1,7 +1,7 @@
 /*
  * state.cc
  *
- * track current state
+ * track PDF states
  *
  * Copyright (C) 2012,2013 Lu Wang <coolwanglu@gmail.com>
  */

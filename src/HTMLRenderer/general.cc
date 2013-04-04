@@ -237,8 +237,6 @@ void HTMLRenderer::pre_process(PDFDoc * doc)
      * determine scale factors
      */
     {
-        double zoom = 1.0;
-
         vector<double> zoom_factors;
         
         if(is_positive(param->zoom))
@@ -256,14 +254,7 @@ void HTMLRenderer::pre_process(PDFDoc * doc)
             zoom_factors.push_back((param->fit_height) / preprocessor.get_max_height());
         }
 
-        if(zoom_factors.empty())
-        {
-            zoom = 1.0;
-        }
-        else
-        {
-            zoom = *min_element(zoom_factors.begin(), zoom_factors.end());
-        }
+        double zoom = (zoom_factors.empty() ? 1.0 : (*min_element(zoom_factors.begin(), zoom_factors.end())));
         
         text_scale_factor1 = max<double>(zoom, param->font_size_multiplier);  
         text_scale_factor2 = zoom / text_scale_factor1;
