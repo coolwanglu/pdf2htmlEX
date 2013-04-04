@@ -56,12 +56,21 @@ HTMLRenderer::HTMLRenderer(const Param * param)
     cur_mapping2 = new char* [0x100];
     width_list = new int [0x10000];
 
-    font_size_manager   .set_eps(EPS);
-    letter_space_manager.set_eps(EPS);
-    word_space_manager  .set_eps(EPS);
+    /*
+     * For these states, usually the error will not be accumulated
+     * or may be handled well (whitespace_manager)
+     * So we can set a large eps here
+     */
     rise_manager        .set_eps(param->v_eps);
     whitespace_manager  .set_eps(param->h_eps);
     left_manager        .set_eps(param->h_eps);
+    /*
+     * For othere states, we need accurate values
+     * optimization will be done separately
+     */
+    font_size_manager   .set_eps(EPS);
+    letter_space_manager.set_eps(EPS);
+    word_space_manager  .set_eps(EPS);
     height_manager      .set_eps(EPS);
     width_manager       .set_eps(EPS);
     bottom_manager      .set_eps(EPS);
