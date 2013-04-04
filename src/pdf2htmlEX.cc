@@ -93,7 +93,7 @@ void parse_options (int argc, char **argv)
         .add("veps", &param.v_eps, 1.0, "vertical threshold for merging text, in pixels")
         .add("space-threshold", &param.space_threshold, (1.0/8), "word break threshold (threshold * em)")
         .add("font-size-multiplier", &param.font_size_multiplier, 4.0, "a value greater than 1 increases the rendering accuracy")
-        .add("space-as-offset", &param.space_as_offset, 1, "treat space characters as offsets")
+        .add("space-as-offset", &param.space_as_offset, 0, "treat space characters as offsets")
         .add("tounicode", &param.tounicode, 0, "how to handle ToUnicode CMaps (0=auto, 1=force, -1=ignore)")
         .add("optimize-text", &param.optimize_text, 1, "try to reduce the number of HTML elements used for text")
         
