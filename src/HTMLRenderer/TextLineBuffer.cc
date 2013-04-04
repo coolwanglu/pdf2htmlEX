@@ -29,11 +29,6 @@ using std::endl;
 using std::find;
 using std::abs;
 
-void HTMLRenderer::TextLineBuffer::set_pos(GfxState * state)
-{
-    state->transform(state->getCurX(), state->getCurY(), &x, &y);
-}
-
 void HTMLRenderer::TextLineBuffer::append_unicodes(const Unicode * u, int l)
 {
     text.insert(text.end(), u, u+l);

@@ -71,7 +71,6 @@ public:
         double width;
     };
 
-    void set_pos(GfxState * state);
     void append_unicodes(const Unicode * u, int l);
     void append_offset(double width);
     void append_state(const HTMLState & html_state);
