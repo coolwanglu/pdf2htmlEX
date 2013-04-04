@@ -1,3 +1,4 @@
+ - page wise optimization (frequent used states)
  - handle large negative letter space
  - remove unused values in statemanager (due to optimization), probably ref count?
  - merge sub/sup into one line
