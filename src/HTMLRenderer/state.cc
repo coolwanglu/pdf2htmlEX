@@ -427,11 +427,7 @@ void HTMLRenderer::prepare_text_line(GfxState * state)
         // align horizontal position
         // try to merge with the last line if possible
         double target = (cur_tx - draw_tx) * draw_text_scale;
-        if(abs(target) < param->h_eps)
-        {
-            // ignore it
-        }
-        else
+        if(!equal(target, 0))
         {
             text_line_buf->append_offset(target);
             draw_tx += target / draw_text_scale;
