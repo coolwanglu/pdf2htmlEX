@@ -100,7 +100,7 @@ void HTMLRenderer::TextLineBuffer::flush(void)
         double max_ascent = 0;
         for(auto iter = states.begin(); iter != states.end(); ++iter)
         {
-            double cur_ascent = iter->font_info->ascent * iter->draw_font_size;
+            double cur_ascent = iter->rise + iter->font_info->ascent * iter->draw_font_size;
             if(cur_ascent > max_ascent)
                 max_ascent = cur_ascent;
             iter->hash();
@@ -115,8 +115,8 @@ void HTMLRenderer::TextLineBuffer::flush(void)
             << " "             << CSS::TRANSFORM_MATRIX_CN << tm_id 
             << " "             << CSS::LEFT_CN             << lid
             << " "             << CSS::HEIGHT_CN           << hid
-            << " "             << CSS::BOTTOM_CN           << bid
-            << "\">";
+            << " "             << CSS::BOTTOM_CN           << bid;
+        // it will be closed by the first state
     }
 
     // a special safeguard in the bottom
@@ -266,6 +266,7 @@ void HTMLRenderer::TextLineBuffer::set_state (State & state)
     state.draw_font_size = renderer->font_size_manager.get_actual_value();
     state.letter_space = renderer->letter_space_manager.get_actual_value();
     state.word_space = renderer->word_space_manager.get_actual_value();
+    state.rise = renderer->rise_manager.get_actual_value();
 }
 
 /*
@@ -453,14 +454,18 @@ void HTMLRenderer::TextLineBuffer::optimize()
 // also clone corresponding states
 void HTMLRenderer::TextLineBuffer::State::begin (ostream & out, const State * prev_state)
 {
-    long long cur_mask = 0xff;
-    bool first = true;
-    for(int i = 0; i < ID_COUNT; ++i, cur_mask<<=8)
+    if(prev_state)
     {
-        if(hash_umask & cur_mask) // we don't care about this ID
+        long long cur_mask = 0xff;
+        bool first = true;
+        for(int i = 0; i < ID_COUNT; ++i, cur_mask<<=8)
         {
-            if (prev_state && (!(prev_state->hash_umask & cur_mask))) // if prev_state have it set
+            if(hash_umask & cur_mask) // we don't care about this ID
             {
+                if (prev_state->hash_umask & cur_mask) // if prev_state do not care about it either
+                    continue;
+
+                // otherwise
                 // we have to inherit it
                 ids[i] = prev_state->ids[i]; 
                 hash_umask &= (~cur_mask);
@@ -468,53 +473,81 @@ void HTMLRenderer::TextLineBuffer::State::begin (ostream & out, const State * pr
                 //TODO: this is so ugly
                 switch(i)
                 {
-                case FONT_SIZE_ID:
-                    draw_font_size = prev_state->draw_font_size;
-                    break;
-                case LETTER_SPACE_ID:
-                    letter_space = prev_state->letter_space;
-                    break;
-                case WORD_SPACE_ID:
-                    word_space = prev_state->word_space;
-                    break;
-                default:
-                    break;
+                    case FONT_SIZE_ID:
+                        draw_font_size = prev_state->draw_font_size;
+                        break;
+                    case LETTER_SPACE_ID:
+                        letter_space = prev_state->letter_space;
+                        break;
+                    case WORD_SPACE_ID:
+                        word_space = prev_state->word_space;
+                        break;
+                    case RISE_ID:
+                        rise = prev_state->rise;
+                        break;
+                    default:
+                        break;
                 }
             }
-            //anyway we don't have to output it
-            continue;
+
+            // now we care about the ID
+            
+            // if the value from prev_state is the same, we don't need to dump it
+            if((!(prev_state->hash_umask & cur_mask)) && (prev_state->ids[i] == ids[i]))
+                continue;
+
+            // so we have to dump it
+            if(first)
+            { 
+                out << "<span class=\"";
+                first = false;
+            }
+            else
+            {
+                out << ' ';
+            }
+
+            // out should have hex set
+            out << css_class_names[i];
+            if (ids[i] == -1)
+                out << CSS::INVALID_ID;
+            else
+                out << ids[i];
         }
 
-        // now we care about the ID
-        if(prev_state && (!(prev_state->hash_umask & cur_mask)) && (prev_state->ids[i] == ids[i]))
-            continue;
-
-        if(first)
-        { 
-            out << "<span class=\"";
-            first = false;
+        if(first) // we actually just inherit the whole prev_state
+        {
+            need_close = false;
         }
         else
         {
-            out << ' ';
+            out << "\">";
+            need_close = true;
         }
-
-        // out should have hex set
-        out << css_class_names[i];
-        if (ids[i] == -1)
-            out << CSS::INVALID_ID;
-        else
-            out << ids[i];
-    }
-
-    if(first) // we actually just inherit the whole prev_state
-    {
-        need_close = false;
     }
     else
     {
+        // prev_state == nullptr
+        // which means this is the first state of the line
+        // there should be a open pending <div> left there
+        long long cur_mask = 0xff;
+        for(int i = 0; i < ID_COUNT; ++i, cur_mask<<=8)
+        {
+            if(hash_umask & cur_mask) // we don't care about this ID
+                continue;
+
+            // now we care about the ID
+            out << ' '; 
+            // out should have hex set
+            out << css_class_names[i];
+            if (ids[i] == -1)
+                out << CSS::INVALID_ID;
+            else
+                out << ids[i];
+        }
+
         out << "\">";
-        need_close = true;
+        need_close = false;
     }
 }
 

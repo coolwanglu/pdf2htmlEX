@@ -54,6 +54,7 @@ public:
         double draw_font_size;
         double letter_space;
         double word_space;
+        double rise;
 
         size_t start_idx; // index of the first Text using this state
         // for optimzation
