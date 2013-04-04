@@ -457,7 +457,7 @@ void HTMLRenderer::dump_css (void)
     width_manager           .dump_css(f_css.fs);
     rise_manager            .dump_css(f_css.fs);
     left_manager            .dump_css(f_css.fs);
-    bgimage_size_manager.dump_css(f_css.fs);
+    bgimage_size_manager    .dump_css(f_css.fs);
     
     // print css
     double ps = print_scale();
@@ -474,7 +474,7 @@ void HTMLRenderer::dump_css (void)
     width_manager           .dump_print_css(f_css.fs, ps);
     rise_manager            .dump_print_css(f_css.fs, ps);
     left_manager            .dump_print_css(f_css.fs, ps);
-    bgimage_size_manager.dump_print_css(f_css.fs, ps);
+    bgimage_size_manager    .dump_print_css(f_css.fs, ps);
     f_css.fs << "}" << endl;
 }
 
