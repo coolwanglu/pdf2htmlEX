@@ -1,5 +1,12 @@
 Latest v0.8
 
+* HTML optimization (states, space, letter space, word space)
+* --space-as-offset is 1 by default
+* New option --optimize-text
+* Fix missing glyphs in TTF fonts
+* Custom format for page file name [Ryan Morlok]
+* New option --fallback
+
 v0.7
 2013.03.01
 
