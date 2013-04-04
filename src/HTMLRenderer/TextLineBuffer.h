@@ -19,7 +19,7 @@ class HTMLRenderer::TextLineBuffer
 public:
     TextLineBuffer (HTMLRenderer * renderer) : renderer(renderer) { }
 
-    class State {
+    class State : public HTMLState {
     public:
         // before output
         void begin(std::ostream & out, const State * prev_state);
@@ -49,8 +49,6 @@ public:
         static long long umask_by_id(int id);
 
         long long ids[ID_COUNT];
-
-        HTMLState html_state;
 
         size_t start_idx; // index of the first Text using this state
         // for optimzation
