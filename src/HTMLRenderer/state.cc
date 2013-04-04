@@ -90,14 +90,12 @@ void HTMLRenderer::reset_state()
 {
     draw_text_scale = 1.0;
 
-    cur_html_state.font_info = install_font(nullptr);
-
     cur_font_size = 0.0;
     
     memcpy(cur_text_tm, ID_MATRIX, sizeof(cur_text_tm));
 
     // reset html_state
-    cur_html_state.font_info = nullptr;
+    cur_html_state.font_info = install_font(nullptr);
     cur_html_state.font_size = 0;
     cur_html_state.fill_color.transparent = true;
     cur_html_state.stroke_color.transparent = true;
