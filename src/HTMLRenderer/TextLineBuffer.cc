@@ -351,7 +351,7 @@ void HTMLRenderer::TextLineBuffer::optimize()
             }
 
             // negative letter space may cause problems
-            if(!is_positive(state_iter1->letter_space + most_used_width))
+            if((max_count <= text_count / 2) || (!is_positive(state_iter1->letter_space + most_used_width)))
             { 
                 // the old value is the best
                 // just copy old offsets
