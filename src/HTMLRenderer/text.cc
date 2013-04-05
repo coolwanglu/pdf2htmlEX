@@ -107,20 +107,27 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
         dev_total_dx *= text_zoom_factor();
         dev_total_dy *= text_zoom_factor();
         
-        double dev_dx, dev_dy;
-        state->textTransformDelta(dx, dy, &dev_dx, &dev_dy);
-        state->transformDelta(dev_dx, dev_dy, &dev_dx, &dev_dy);
+        double dummy, dev_dx;
+        state->textTransformDelta(dx, 0, &dev_dx, &dummy);
+        state->transformDelta(dev_dx, 0, &dev_dx, &dummy);
         dev_dx *= text_zoom_factor();
-        dev_dy *= text_zoom_factor();
+        
+        double dev_height;
+        state->transformDelta(0, state->getFontSize(), &dummy, &dev_height);
+        dev_height *= text_zoom_factor();
+        
+        double dev_descent = dev_height * font->getDescent();
         
         if(is_space && (param->space_as_offset))
         {
             // ignore horiz_scaling, as it's merged in CTM
             text_line_buf->append_offset((char_dx * state->getFontSize() + state->getCharSpace() + state->getWordSpace()) * draw_text_scale); 
         }
-        else if(x + dev_total_dx + dev_dx < xMin - EPS || x + dev_total_dx > xMax + EPS ||
-                y + dev_total_dy + dev_dy < yMin - EPS || y + dev_total_dy > yMax + EPS) {
-            // the char is entirely outside the clipping rect
+        // check if the char is entirely outside the clipping rect
+        else if(x + dev_total_dx + dev_dx < xMin - EPS ||
+                x + dev_total_dx > xMax + EPS ||
+                y + dev_total_dy - dev_descent + dev_height < yMin - EPS ||
+                y + dev_total_dy - dev_descent > yMax + EPS) {
             // ignore horiz_scaling, as it's merged in CTM
             text_line_buf->append_offset((char_dx * state->getFontSize() + state->getCharSpace()) * draw_text_scale);
         }
