@@ -1,6 +1,9 @@
 Latest v0.8
 
-* HTML optimization (states, space, letter space, word space)
+* HTML optimization 
+ - reduce number of <span> elements
+ - merge lines with different y values 
+ - merge lines with differnt (but proportional) transform matrices
 * New option --optimize-text
 * Fix missing glyphs in TTF fonts
 * Custom format for page file name [Ryan Morlok]
