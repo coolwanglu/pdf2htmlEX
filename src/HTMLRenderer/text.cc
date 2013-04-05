@@ -104,13 +104,17 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
         double dev_total_dx, dev_total_dy;
         state->textTransformDelta(total_dx, total_dy, &dev_total_dx, &dev_total_dy);
         state->transformDelta(dev_total_dx, dev_total_dy, &dev_total_dx, &dev_total_dy);
+        dev_total_dx *= text_zoom_factor();
+        dev_total_dy *= text_zoom_factor();
         
         double dummy, dev_dx;
         state->textTransformDelta(dx, 0, &dev_dx, &dummy);
         state->transformDelta(dev_dx, 0, &dev_dx, &dummy);
+        dev_dx *= text_zoom_factor();
         
         double dev_height;
         state->transformDelta(0, state->getFontSize(), &dummy, &dev_height);
+        dev_height *= text_zoom_factor();
         
         double dev_descent = dev_height * font->getDescent();
         
