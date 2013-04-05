@@ -101,7 +101,7 @@ void HTMLRenderer::reset_state()
     cur_html_state.stroke_color.transparent = true;
     cur_html_state.letter_space = 0;
     cur_html_state.word_space = 0;
-    cur_html_state.rise = 0;
+    cur_html_state.vertical_align = 0;
     cur_html_state.x = 0;
     cur_html_state.y = 0;
     memcpy(cur_html_state.transform_matrix, ID_MATRIX, sizeof(cur_html_state.transform_matrix));
@@ -148,6 +148,9 @@ void HTMLRenderer::check_state_change(GfxState * state)
         need_recheck_position = true;
     }
 
+    // save current info for later use
+    auto old_font_info = cur_html_state.font_info;
+    double old_font_size = cur_html_state.font_size;
     // font name & size
     if(all_changed || font_changed)
     {
@@ -306,10 +309,27 @@ void HTMLRenderer::check_state_change(GfxState * state)
                 inverted[3] =  old_tm[0] / det;
                 dx = inverted[0] * lhs1 + inverted[2] * lhs2;
                 dy = inverted[1] * lhs1 + inverted[3] * lhs2;
-                // currently we merge only text on a same horizontal line
                 if(equal(dy, 0))
                 {
+                    // text on a same horizontal line, we can insert positive or negaive x-offsets
                     merged = true;
+                }
+                else
+                {
+                    // otherwise we merge the lines only when
+                    // - text are not shifted to the left too much
+                    // - text are not moved too high or too low
+                    if((dx * draw_text_scale) >= -(old_font_info->ascent - old_font_info->descent) * old_font_size - EPS)
+                    {
+                        double oldymin = old_font_info->descent * old_font_size;
+                        double oldymax = old_font_info->ascent * old_font_size;
+                        double ymin = dy * draw_text_scale + cur_html_state.font_info->descent * cur_html_state.font_size;
+                        double ymax = dy * draw_text_scale + cur_html_state.font_info->ascent * cur_html_state.font_size;
+                        if((ymin <= oldymax + EPS) && (ymax >= oldymin - EPS))
+                        {
+                            merged = true;
+                        }
+                    }
                 }
             }
             //else no solution
@@ -319,6 +339,15 @@ void HTMLRenderer::check_state_change(GfxState * state)
         if(merged)
         {
             text_line_buf->append_offset(dx * draw_text_scale);
+            if(equal(dy, 0))
+            {
+                cur_html_state.vertical_align = 0;
+            }
+            else
+            {
+                cur_html_state.vertical_align = (dy * draw_text_scale);
+                new_line_state = max<NewLineState>(new_line_state, NLS_SPAN);
+            }
             draw_tx = cur_tx;
             draw_ty = cur_ty;
         }
@@ -419,6 +448,7 @@ void HTMLRenderer::prepare_text_line(GfxState * state)
 
         // update position such that they will be recorded by text_line_buf
         state->transform(state->getCurX(), state->getCurY(), &cur_html_state.x, &cur_html_state.y);
+        cur_html_state.vertical_align = 0;
 
         //resync position
         draw_ty = cur_ty;

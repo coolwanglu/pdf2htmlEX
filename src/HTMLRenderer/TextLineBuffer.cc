@@ -91,22 +91,14 @@ void HTMLRenderer::TextLineBuffer::flush(void)
     ostream & out = renderer->f_pages.fs;
     {
         // max_ascent determines the height of the div
+        double accum_vertical_align = 0; // accumulated
         double max_ascent = 0;
         for(auto iter = states.begin(); iter != states.end(); ++iter)
         {
-            double cur_ascent = iter->rise + iter->font_info->ascent * iter->font_size;
+            accum_vertical_align += iter->vertical_align;
+            double cur_ascent = accum_vertical_align + iter->font_info->ascent * iter->font_size;
             if(cur_ascent > max_ascent)
                 max_ascent = cur_ascent;
-
-            // set id
-            iter->ids[State::FONT_ID] = iter->font_info->id;
-            iter->ids[State::FONT_SIZE_ID]    = renderer->font_size_manager   .install(iter->font_size);
-            iter->ids[State::FILL_COLOR_ID]   = renderer->fill_color_manager  .install(iter->fill_color);
-            iter->ids[State::STROKE_COLOR_ID] = renderer->stroke_color_manager.install(iter->stroke_color);
-            iter->ids[State::LETTER_SPACE_ID] = renderer->letter_space_manager.install(iter->letter_space);
-            iter->ids[State::WORD_SPACE_ID]   = renderer->word_space_manager  .install(iter->word_space);
-            iter->ids[State::RISE_ID]         = renderer->rise_manager        .install(iter->rise);
-            iter->hash();
         }
 
         // open <div> for the current text line
@@ -138,20 +130,36 @@ void HTMLRenderer::TextLineBuffer::flush(void)
     {
         // export current state, find a closest parent
         { 
+            // set id
+            state_iter1->ids[State::FONT_ID] = state_iter1->font_info->id;
+            state_iter1->ids[State::FONT_SIZE_ID]      = renderer->font_size_manager     .install(state_iter1->font_size);
+            state_iter1->ids[State::FILL_COLOR_ID]     = renderer->fill_color_manager    .install(state_iter1->fill_color);
+            state_iter1->ids[State::STROKE_COLOR_ID]   = renderer->stroke_color_manager  .install(state_iter1->stroke_color);
+            state_iter1->ids[State::LETTER_SPACE_ID]   = renderer->letter_space_manager  .install(state_iter1->letter_space);
+            state_iter1->ids[State::WORD_SPACE_ID]     = renderer->word_space_manager    .install(state_iter1->word_space);
+            state_iter1->hash();
+
             // greedy
-            int best_cost = State::ID_COUNT;
+            double vertical_align = state_iter1->vertical_align;
+            int best_cost = State::HASH_ID_COUNT + 1;
             // we have a nullptr at the beginning, so no need to check for rend
             for(auto iter = stack.rbegin(); *iter; ++iter)
             {
                 int cost = state_iter1->diff(**iter);
+                if(!equal(vertical_align,0))
+                    ++cost;
+
                 if(cost < best_cost)
                 {
                     while(stack.back() != *iter)
                     {
+                        state_iter1->vertical_align += stack.back()->vertical_align;
+
                         stack.back()->end(out);
                         stack.pop_back();
                     }
                     best_cost = cost;
+                    state_iter1->vertical_align = vertical_align;
 
                     if(best_cost == 0)
                         break;
@@ -160,7 +168,11 @@ void HTMLRenderer::TextLineBuffer::flush(void)
                 // cannot go further
                 if((*iter)->start_idx <= last_text_pos_with_negative_offset)
                     break;
+
+                vertical_align += (*iter)->vertical_align;
             }
+            // 
+            state_iter1->ids[State::VERTICAL_ALIGN_ID] = renderer->vertical_align_manager.install(state_iter1->vertical_align);
             // export the diff between *state_iter1 and stack.back()
             state_iter1->begin(out, stack.back());
             stack.push_back(&*state_iter1);
@@ -338,9 +350,8 @@ void HTMLRenderer::TextLineBuffer::optimize()
                 }
             }
 
-            // now we would like to adjust letter space to most_used width
-            // we shall apply the optimization only when it can significantly reduce the number of elements
-            if(max_count <= text_count / 2)
+            // negative letter space may cause problems
+            if(!is_positive(state_iter1->letter_space + most_used_width))
             { 
                 // the old value is the best
                 // just copy old offsets
@@ -348,6 +359,8 @@ void HTMLRenderer::TextLineBuffer::optimize()
             }
             else
             {
+                // now we would like to adjust letter space to most_used width
+                
                 // install new letter space
                 const double old_ls = state_iter1->letter_space;
                 state_iter1->ids[State::LETTER_SPACE_ID] = ls_manager.install(old_ls + most_used_width, &(state_iter1->letter_space));
@@ -439,7 +452,7 @@ void HTMLRenderer::TextLineBuffer::State::begin (ostream & out, const State * pr
     {
         long long cur_mask = 0xff;
         bool first = true;
-        for(int i = 0; i < ID_COUNT; ++i, cur_mask<<=8)
+        for(int i = 0; i < HASH_ID_COUNT; ++i, cur_mask<<=8)
         {
             if(hash_umask & cur_mask) // we don't care about this ID
             {
@@ -463,10 +476,8 @@ void HTMLRenderer::TextLineBuffer::State::begin (ostream & out, const State * pr
                     case WORD_SPACE_ID:
                         word_space = prev_state->word_space;
                         break;
-                    case RISE_ID:
-                        rise = prev_state->rise;
-                        break;
                     default:
+                        cerr << "unexpected state mask" << endl;
                         break;
                 }
             }
@@ -495,6 +506,28 @@ void HTMLRenderer::TextLineBuffer::State::begin (ostream & out, const State * pr
             else
                 out << ids[i];
         }
+        // veritcal align
+        if(!equal(vertical_align, 0))
+        {
+            // so we have to dump it
+            if(first)
+            { 
+                out << "<span class=\"";
+                first = false;
+            }
+            else
+            {
+                out << ' ';
+            }
+
+            // out should have hex set
+            out << CSS::VERTICAL_ALIGN_CN;
+            auto id = ids[VERTICAL_ALIGN_ID];
+            if (id == -1)
+                out << CSS::INVALID_ID;
+            else
+                out << id;
+        }
 
         if(first) // we actually just inherit the whole prev_state
         {
@@ -511,8 +544,9 @@ void HTMLRenderer::TextLineBuffer::State::begin (ostream & out, const State * pr
         // prev_state == nullptr
         // which means this is the first state of the line
         // there should be a open pending <div> left there
+        // it is not necessary to output vertical align
         long long cur_mask = 0xff;
-        for(int i = 0; i < ID_COUNT; ++i, cur_mask<<=8)
+        for(int i = 0; i < HASH_ID_COUNT; ++i, cur_mask<<=8)
         {
             if(hash_umask & cur_mask) // we don't care about this ID
                 continue;
@@ -591,7 +625,7 @@ const char * const HTMLRenderer::TextLineBuffer::State::css_class_names [] = {
     CSS::STROKE_COLOR_CN,
     CSS::LETTER_SPACE_CN,
     CSS::WORD_SPACE_CN,
-    CSS::RISE_CN
+    CSS::VERTICAL_ALIGN_CN,
 };
 
 } //namespace pdf2htmlEX

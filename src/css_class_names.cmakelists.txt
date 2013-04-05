@@ -6,29 +6,29 @@
 
 set(CSS_INVALID_ID          "_")
 
-set(CSS_LINE_CN             "t") # text 
-set(CSS_TRANSFORM_MATRIX_CN "m") # matrix
+set(CSS_LINE_CN             "t") # Text 
+set(CSS_TRANSFORM_MATRIX_CN "m") # Matrix
 
-set(CSS_PAGE_DECORATION_CN  "pd") # page decoration
-set(CSS_PAGE_FRAME_CN       "pf") # page frame
-set(CSS_PAGE_CONTENT_BOX_CN "pc") # page content
-set(CSS_PAGE_DATA_CN        "pi") # page info
+set(CSS_PAGE_DECORATION_CN  "pd") # Page Decoration
+set(CSS_PAGE_FRAME_CN       "pf") # Page Frame
+set(CSS_PAGE_CONTENT_BOX_CN "pc") # Page Content
+set(CSS_PAGE_DATA_CN        "pi") # Page Info
 
-set(CSS_BACKGROUND_IMAGE_CN "bi") # background image
+set(CSS_BACKGROUND_IMAGE_CN "bi") # Background Image
 
-set(CSS_FONT_FAMILY_CN      "ff") # font family
-set(CSS_FONT_SIZE_CN        "fs") # font size
+set(CSS_FONT_FAMILY_CN      "ff") # Font Family
+set(CSS_FONT_SIZE_CN        "fs") # Font Size
 
-set(CSS_FILL_COLOR_CN       "fc") # fill color
-set(CSS_STROKE_COLOR_CN     "sc") # stroke color
+set(CSS_FILL_COLOR_CN       "fc") # Fill Color
+set(CSS_STROKE_COLOR_CN     "sc") # Stroke Color
 
-set(CSS_LETTER_SPACE_CN     "ls") # letter space
-set(CSS_WORD_SPACE_CN       "ws") # word space
-set(CSS_RISE_CN             "r") # rise
+set(CSS_LETTER_SPACE_CN     "ls") # Letter Space
+set(CSS_WORD_SPACE_CN       "ws") # Word Space
+set(CSS_VERTICAL_ALIGN_CN   "v") # Vertial align
 set(CSS_WHITESPACE_CN       "_") # whitespace
-set(CSS_LEFT_CN             "x") # x
-set(CSS_HEIGHT_CN           "h") # height
-set(CSS_WIDTH_CN            "w") # width
-set(CSS_BOTTTOM_CN          "y") # y
-set(CSS_CSS_DRAW_CN         "d") # draw
-set(CSS_LINK_CN             "l") # link
+set(CSS_LEFT_CN             "x") # X
+set(CSS_HEIGHT_CN           "h") # Height
+set(CSS_WIDTH_CN            "w") # Width
+set(CSS_BOTTTOM_CN          "y") # Y
+set(CSS_CSS_DRAW_CN         "d") # Draw
+set(CSS_LINK_CN             "l") # Link

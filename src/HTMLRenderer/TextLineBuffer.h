@@ -41,8 +41,9 @@ public:
             STROKE_COLOR_ID,
             LETTER_SPACE_ID,
             WORD_SPACE_ID,
-            RISE_ID,
+            HASH_ID_COUNT,
 
+            VERTICAL_ALIGN_ID = HASH_ID_COUNT,
             ID_COUNT
         };
 

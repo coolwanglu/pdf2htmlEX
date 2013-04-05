@@ -61,9 +61,9 @@ HTMLRenderer::HTMLRenderer(const Param * param)
      * or may be handled well (whitespace_manager)
      * So we can set a large eps here
      */
-    rise_manager        .set_eps(param->v_eps);
-    whitespace_manager  .set_eps(param->h_eps);
-    left_manager        .set_eps(param->h_eps);
+    vertical_align_manager.set_eps(param->v_eps);
+    whitespace_manager    .set_eps(param->h_eps);
+    left_manager          .set_eps(param->h_eps);
     /*
      * For othere states, we need accurate values
      * optimization will be done separately
@@ -446,6 +446,7 @@ void HTMLRenderer::set_stream_flags(std::ostream & out)
 void HTMLRenderer::dump_css (void)
 {
     transform_matrix_manager.dump_css(f_css.fs);
+    vertical_align_manager  .dump_css(f_css.fs);
     letter_space_manager    .dump_css(f_css.fs);
     stroke_color_manager    .dump_css(f_css.fs);
     word_space_manager      .dump_css(f_css.fs);
@@ -455,7 +456,6 @@ void HTMLRenderer::dump_css (void)
     bottom_manager          .dump_css(f_css.fs);
     height_manager          .dump_css(f_css.fs);
     width_manager           .dump_css(f_css.fs);
-    rise_manager            .dump_css(f_css.fs);
     left_manager            .dump_css(f_css.fs);
     bgimage_size_manager    .dump_css(f_css.fs);
     
@@ -463,6 +463,7 @@ void HTMLRenderer::dump_css (void)
     double ps = print_scale();
     f_css.fs << CSS::PRINT_ONLY << "{" << endl;
     transform_matrix_manager.dump_print_css(f_css.fs, ps);
+    vertical_align_manager  .dump_print_css(f_css.fs, ps);
     letter_space_manager    .dump_print_css(f_css.fs, ps);
     stroke_color_manager    .dump_print_css(f_css.fs, ps);
     word_space_manager      .dump_print_css(f_css.fs, ps);
@@ -472,7 +473,6 @@ void HTMLRenderer::dump_css (void)
     bottom_manager          .dump_print_css(f_css.fs, ps);
     height_manager          .dump_print_css(f_css.fs, ps);
     width_manager           .dump_print_css(f_css.fs, ps);
-    rise_manager            .dump_print_css(f_css.fs, ps);
     left_manager            .dump_print_css(f_css.fs, ps);
     bgimage_size_manager    .dump_print_css(f_css.fs, ps);
     f_css.fs << "}" << endl;

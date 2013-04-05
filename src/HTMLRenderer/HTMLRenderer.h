@@ -50,7 +50,9 @@ struct HTMLState
     Color stroke_color;
     double letter_space;
     double word_space;
-    double rise;
+    
+    // relative to the previous state
+    double vertical_align;
     
     double x,y;
     double transform_matrix[4];
@@ -337,6 +339,7 @@ protected:
     // managers store values actually used in HTML (i.e. scaled)
     ////////////////////////////////////////////////
     TransformMatrixManager transform_matrix_manager;
+    VerticalAlignManager     vertical_align_manager;
     StrokeColorManager         stroke_color_manager;
     LetterSpaceManager         letter_space_manager;
     WhitespaceManager            whitespace_manager;
@@ -346,7 +349,6 @@ protected:
     BottomManager                    bottom_manager;
     HeightManager                    height_manager;
     WidthManager                      width_manager;
-    RiseManager                        rise_manager;
     LeftManager                        left_manager;
     ////////////////////////////////////////////////
     BGImageSizeManager         bgimage_size_manager;

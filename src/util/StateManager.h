@@ -231,10 +231,10 @@ public:
     void dump_print_value(std::ostream & out, double value, double scale) { out << "word-spacing:" << round(value*scale) << "pt;"; }
 };
 
-class RiseManager : public StateManager<double, RiseManager>
+class VerticalAlignManager : public StateManager<double, VerticalAlignManager>
 {
 public:
-    static const char * get_css_class_name (void) { return CSS::RISE_CN; }
+    static const char * get_css_class_name (void) { return CSS::VERTICAL_ALIGN_CN; }
     double default_value(void) { return 0; }
     void dump_value(std::ostream & out, double value) { out << "vertical-align:" << round(value) << "px;"; }
     void dump_print_value(std::ostream & out, double value, double scale) { out << "vertical-align:" << round(value*scale) << "pt;"; }
