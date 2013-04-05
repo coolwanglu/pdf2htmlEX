@@ -141,6 +141,12 @@ void HTMLRenderer::check_state_change(GfxState * state)
     bool need_rescale_font = false;
     bool draw_text_scale_changed = false;
 
+    // save current info for later use
+    HTMLState old_html_state = cur_html_state;
+    double old_tm[6];
+    memcpy(old_tm, cur_text_tm, sizeof(old_tm));
+    double old_draw_text_scale = draw_text_scale;
+
     // text position
     // we've been tracking the text position positively in the update*** functions
     if(all_changed || text_pos_changed)
@@ -148,9 +154,6 @@ void HTMLRenderer::check_state_change(GfxState * state)
         need_recheck_position = true;
     }
 
-    // save current info for later use
-    auto old_font_info = cur_html_state.font_info;
-    double old_font_size = cur_html_state.font_size;
     // font name & size
     if(all_changed || font_changed)
     {
@@ -179,10 +182,6 @@ void HTMLRenderer::check_state_change(GfxState * state)
             cur_font_size = new_font_size;
         }
     }  
-
-    // backup the current ctm for need_recheck_position
-    double old_tm[6];
-    memcpy(old_tm, cur_text_tm, sizeof(old_tm));
 
     // ctm & text ctm & hori scale & rise
     if(all_changed || ctm_changed || text_mat_changed || hori_scale_changed || rise_changed)
@@ -276,25 +275,23 @@ void HTMLRenderer::check_state_change(GfxState * state)
         /*
          * CurTM * (cur_tx, cur_ty, 1)^T = OldTM * (draw_tx + dx, draw_ty + dy, 1)^T
          *
-         * the first 4 elements of CurTM and OldTM should be the same
+         * the first 4 elements of CurTM and OldTM should be the proportional
          * otherwise the following text cannot be parallel
          *
-         * CurTM[4] - OldTM[4] = OldTM[0] * (draw_tx + dx - cur_tx) + OldTM[2] * (draw_ty + dy - cur_ty)
-         * CurTM[5] - OldTM[5] = OldTM[1] * (draw_tx + dx - cur_tx) + OldTM[3] * (draw_ty + dy - cur_ty)
-         *
-         * TODO, try to merge when cur_tm and old_tm are proportional
+         * NOTE:
+         * dx,dy are handled by the old state. so they should be multiplied by old_draw_text_scale
          */
 
         bool merged = false;
         double dx = 0;
         double dy = 0;
-        if(tm_equal(old_tm, cur_text_tm, 4))
+        if(tm_equal(old_html_state.transform_matrix, cur_html_state.transform_matrix, 4))
         {
             double det = old_tm[0] * old_tm[3] - old_tm[1] * old_tm[2];
             if(!equal(det, 0))
             {
-                double lhs1 = cur_text_tm[4] - old_tm[4] - old_tm[0] * (draw_tx - cur_tx) - old_tm[2] * (draw_ty - cur_ty);
-                double lhs2 = cur_text_tm[5] - old_tm[5] - old_tm[1] * (draw_tx - cur_tx) - old_tm[3] * (draw_ty - cur_ty);
+                double lhs1 = cur_text_tm[0] * cur_tx + cur_text_tm[2] * cur_ty + cur_text_tm[4] - old_tm[0] * draw_tx - old_tm[2] * draw_ty - old_tm[4];
+                double lhs2 = cur_text_tm[1] * cur_tx + cur_text_tm[3] * cur_ty + cur_text_tm[5] - old_tm[1] * draw_tx - old_tm[3] * draw_ty - old_tm[5];
                 /*
                  * Now the equation system becomes
                  *
@@ -319,12 +316,12 @@ void HTMLRenderer::check_state_change(GfxState * state)
                     // otherwise we merge the lines only when
                     // - text are not shifted to the left too much
                     // - text are not moved too high or too low
-                    if((dx * draw_text_scale) >= -(old_font_info->ascent - old_font_info->descent) * old_font_size - EPS)
+                    if((dx * old_draw_text_scale) >= -(old_html_state.font_info->ascent - old_html_state.font_info->descent) * old_html_state.font_size - EPS)
                     {
-                        double oldymin = old_font_info->descent * old_font_size;
-                        double oldymax = old_font_info->ascent * old_font_size;
-                        double ymin = dy * draw_text_scale + cur_html_state.font_info->descent * cur_html_state.font_size;
-                        double ymax = dy * draw_text_scale + cur_html_state.font_info->ascent * cur_html_state.font_size;
+                        double oldymin = old_html_state.font_info->descent * old_html_state.font_size;
+                        double oldymax = old_html_state.font_info->ascent * old_html_state.font_size;
+                        double ymin = dy * old_draw_text_scale + cur_html_state.font_info->descent * cur_html_state.font_size;
+                        double ymax = dy * old_draw_text_scale + cur_html_state.font_info->ascent * cur_html_state.font_size;
                         if((ymin <= oldymax + EPS) && (ymax >= oldymin - EPS))
                         {
                             merged = true;
@@ -338,14 +335,14 @@ void HTMLRenderer::check_state_change(GfxState * state)
 
         if(merged)
         {
-            text_line_buf->append_offset(dx * draw_text_scale);
+            text_line_buf->append_offset(dx * old_draw_text_scale);
             if(equal(dy, 0))
             {
                 cur_html_state.vertical_align = 0;
             }
             else
             {
-                cur_html_state.vertical_align = (dy * draw_text_scale);
+                cur_html_state.vertical_align = (dy * old_draw_text_scale);
                 new_line_state = max<NewLineState>(new_line_state, NLS_SPAN);
             }
             draw_tx = cur_tx;
