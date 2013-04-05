@@ -82,7 +82,7 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
         
         if (font->getWMode())
         {
-            dx += state->getCharSpace();
+            dy += state->getCharSpace();
             if (n == 1 && *p == ' ')
             {
                 dy += state->getWordSpace();
