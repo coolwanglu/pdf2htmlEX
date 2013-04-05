@@ -113,17 +113,16 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
         dev_dx *= text_zoom_factor();
         dev_dy *= text_zoom_factor();
         
-        // check if char is entirely outside the clipping rect
-        if(x + dev_total_dx + dev_dx < xMin || x + dev_total_dx > xMax ||
-           y + dev_total_dy + dev_dy < yMin || y + dev_total_dy > yMax)
-        {
-            // ignore horiz_scaling, as it's merged in CTM
-            text_line_buf->append_offset((char_dx * state->getFontSize() + state->getCharSpace()) * draw_text_scale);
-        }
-        else if(is_space && (param->space_as_offset))
+        if(is_space && (param->space_as_offset))
         {
             // ignore horiz_scaling, as it's merged in CTM
             text_line_buf->append_offset((char_dx * state->getFontSize() + state->getCharSpace() + state->getWordSpace()) * draw_text_scale); 
+        }
+        else if(x + dev_total_dx + dev_dx < xMin - EPS || x + dev_total_dx > xMax + EPS ||
+                y + dev_total_dy + dev_dy < yMin - EPS || y + dev_total_dy > yMax + EPS) {
+            // the char is entirely outside the clipping rect
+            // ignore horiz_scaling, as it's merged in CTM
+            text_line_buf->append_offset((char_dx * state->getFontSize() + state->getCharSpace()) * draw_text_scale);
         }
         else
         {
