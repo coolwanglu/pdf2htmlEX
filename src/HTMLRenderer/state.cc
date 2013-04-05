@@ -181,18 +181,6 @@ void HTMLRenderer::check_state_change(GfxState * state)
     double old_tm[6];
     memcpy(old_tm, cur_text_tm, sizeof(old_tm));
 
-    // rise
-    // depends draw_text_scale
-    if(all_changed || rise_changed || draw_text_scale_changed)
-    {
-        double new_rise = state->getRise() * draw_text_scale;
-        if(!equal(new_rise, cur_html_state.rise))
-        {
-            cur_html_state.rise = new_rise;
-            new_line_state = max<NewLineState>(new_line_state, NLS_SPAN);
-        }
-    }
-
     // ctm & text ctm & hori scale & rise
     if(all_changed || ctm_changed || text_mat_changed || hori_scale_changed || rise_changed)
     {
