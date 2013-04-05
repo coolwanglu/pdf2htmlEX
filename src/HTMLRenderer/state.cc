@@ -295,32 +295,32 @@ void HTMLRenderer::check_state_change(GfxState * state)
 
         bool merged = false;
         double dx = 0;
+        double dy = 0;
         if(tm_equal(old_tm, cur_text_tm, 4))
         {
-            double lhs1 = cur_text_tm[4] - old_tm[4] - old_tm[2] * (draw_ty - cur_ty) - old_tm[0] * (draw_tx - cur_tx);
-            double lhs2 = cur_text_tm[5] - old_tm[5] - old_tm[3] * (draw_ty - cur_ty) - old_tm[1] * (draw_tx - cur_tx);
+            double lhs1 = cur_text_tm[4] - old_tm[4] - old_tm[0] * (draw_tx - cur_tx) - old_tm[2] * (draw_ty - cur_ty);
+            double lhs2 = cur_text_tm[5] - old_tm[5] - old_tm[1] * (draw_tx - cur_tx) - old_tm[3] * (draw_ty - cur_ty);
 
-            if(equal(old_tm[0] * lhs2, old_tm[1] * lhs1))
+            /*
+             * Now the equation system becomes
+             *
+             * lhs1 = OldTM[0] * dx + OldTM[2] * dy
+             * lhs2 = OldTM[1] * dx + OldTM[3] * dy
+             */
+
+            double det = old_tm[0] * old_tm[3] - old_tm[1] * old_tm[2];
+            if(!equal(det, 0))
             {
-                if(!equal(old_tm[0], 0))
+                double inverted[4];
+                inverted[0] =  old_tm[3] / det;
+                inverted[1] = -old_tm[1] / det;
+                inverted[2] = -old_tm[2] / det;
+                inverted[3] =  old_tm[0] / det;
+                dx = inverted[0] * lhs1 + inverted[2] * lhs2;
+                dy = inverted[1] * lhs1 + inverted[3] * lhs2;
+                if(equal(dy, 0))
                 {
-                    dx = lhs1 / old_tm[0];
                     merged = true;
-                }
-                else if (!equal(old_tm[1], 0))
-                {
-                    dx = lhs2 / old_tm[1];
-                    merged = true;
-                }
-                else
-                {
-                    if((equal(lhs1,0)) && (equal(lhs2,0)))
-                    {
-                        // free
-                        dx = 0;
-                        merged = true;
-                    }
-                    // else fail
                 }
             }
             //else no solution
