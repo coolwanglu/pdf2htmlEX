@@ -26,8 +26,6 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
         return;
 
     auto font = state->getFont();
-    double cur_letter_space = state->getCharSpace();
-    double cur_word_space   = state->getWordSpace();
 
     // Writing mode fonts and Type 3 fonts are rendered as images
     // I don't find a way to display writing mode fonts in HTML except for one div for each character, which is too costly
@@ -48,39 +46,84 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
     // get the unicodes
     char *p = s->getCString();
     int len = s->getLength();
-
-    double dx = 0;
-    double dy = 0;
-    double dx1,dy1;
-    double ox, oy;
-
-    int nChars = 0;
-    int nSpaces = 0;
-    int uLen;
-
-    CharCode code;
-    Unicode *u = nullptr;
-
+    
+    // current clipping rect (in device space)
+    double xMin, yMin, xMax, yMax;
+    state->getClipBBox(&xMin, &yMin, &xMax, &yMax);
+    
+    // current position (in device space)
+    double x, y;
+    state->transform(state->getCurX(), state->getCurY(), &x, &y);
+    
+    // total delta of the string
+    double total_dx = 0;
+    double total_dy = 0;
+    
     while (len > 0) 
     {
-        auto n = font->getNextChar(p, len, &code, &u, &uLen, &dx1, &dy1, &ox, &oy);
-
-        if(!(equal(ox, 0) && equal(oy, 0)))
+        CharCode code; Unicode *u; int uLen;
+        double char_dx, char_dy, origin_x, origin_y;
+        auto n = font->getNextChar(p, len, &code, &u, &uLen, &char_dx, &char_dy, &origin_x, &origin_y);
+        
+        if(!(equal(origin_x, 0) && equal(origin_y, 0)))
         {
             cerr << "TODO: non-zero origins" << endl;
         }
-
-        bool is_space = false;
-        if (n == 1 && *p == ' ') 
-        {
-            ++nSpaces;
-            is_space = true;
-        }
         
-        if(is_space && (param->space_as_offset))
+        // adjust deltas for char space, word space, and horizontal scaling
+        // source: PSOutputDev::drawString
+        double dx = char_dx;
+        double dy = char_dy;
+        
+        bool is_space = false;
+        
+        dx *= state->getFontSize();
+        dy *= state->getFontSize();
+        
+        if (font->getWMode())
+        {
+            dx += state->getCharSpace();
+            if (n == 1 && *p == ' ')
+            {
+                dy += state->getWordSpace();
+                is_space = true;
+            }
+        }
+        else
+        {
+            dx += state->getCharSpace();
+            if (n == 1 && *p == ' ')
+            {
+                dx += state->getWordSpace();
+                is_space = true;
+            }
+        }
+        dx *= state->getHorizScaling();
+        
+        // transform from text space to device space
+        double dev_total_dx, dev_total_dy;
+        state->textTransformDelta(total_dx, total_dy, &dev_total_dx, &dev_total_dy);
+        state->transformDelta(dev_total_dx, dev_total_dy, &dev_total_dx, &dev_total_dy);
+        dev_total_dx *= text_zoom_factor();
+        dev_total_dy *= text_zoom_factor();
+        
+        double dev_dx, dev_dy;
+        state->textTransformDelta(dx, dy, &dev_dx, &dev_dy);
+        state->transformDelta(dev_dx, dev_dy, &dev_dx, &dev_dy);
+        dev_dx *= text_zoom_factor();
+        dev_dy *= text_zoom_factor();
+        
+        // check if char is entirely outside the clipping rect
+        if(x + dev_total_dx + dev_dx < xMin || x + dev_total_dx > xMax ||
+           y + dev_total_dy + dev_dy < yMin || y + dev_total_dy > yMax)
         {
             // ignore horiz_scaling, as it's merged in CTM
-            text_line_buf->append_offset((dx1 * cur_font_size + cur_letter_space + cur_word_space) * draw_text_scale); 
+            text_line_buf->append_offset((char_dx * state->getFontSize() + state->getCharSpace()) * draw_text_scale);
+        }
+        else if(is_space && (param->space_as_offset))
+        {
+            // ignore horiz_scaling, as it's merged in CTM
+            text_line_buf->append_offset((char_dx * state->getFontSize() + state->getCharSpace() + state->getWordSpace()) * draw_text_scale); 
         }
         else
         {
@@ -102,28 +145,19 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
                 }
             }
         }
-
-        dx += dx1;
-        dy += dy1;
-
-        ++nChars;
+        
+        total_dx += dx;
+        total_dy += dy;
+        
         p += n;
         len -= n;
     }
-
-    double hs = state->getHorizScaling();
-
-    // horiz_scaling is merged into ctm now, 
-    // so the coordinate system is ugly
-    dx = (dx * cur_font_size + nChars * cur_letter_space + nSpaces * cur_word_space) * hs;
     
-    dy *= cur_font_size;
-
-    cur_tx += dx;
-    cur_ty += dy;
+    cur_tx += total_dx;
+    cur_ty += total_dx;
         
-    draw_tx += dx;
-    draw_ty += dy;
+    draw_tx += total_dx;
+    draw_ty += total_dx;
 }
 
 } // namespace pdf2htmlEX
