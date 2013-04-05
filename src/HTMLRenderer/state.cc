@@ -298,19 +298,18 @@ void HTMLRenderer::check_state_change(GfxState * state)
         double dy = 0;
         if(tm_equal(old_tm, cur_text_tm, 4))
         {
-            double lhs1 = cur_text_tm[4] - old_tm[4] - old_tm[0] * (draw_tx - cur_tx) - old_tm[2] * (draw_ty - cur_ty);
-            double lhs2 = cur_text_tm[5] - old_tm[5] - old_tm[1] * (draw_tx - cur_tx) - old_tm[3] * (draw_ty - cur_ty);
-
-            /*
-             * Now the equation system becomes
-             *
-             * lhs1 = OldTM[0] * dx + OldTM[2] * dy
-             * lhs2 = OldTM[1] * dx + OldTM[3] * dy
-             */
-
             double det = old_tm[0] * old_tm[3] - old_tm[1] * old_tm[2];
             if(!equal(det, 0))
             {
+                double lhs1 = cur_text_tm[4] - old_tm[4] - old_tm[0] * (draw_tx - cur_tx) - old_tm[2] * (draw_ty - cur_ty);
+                double lhs2 = cur_text_tm[5] - old_tm[5] - old_tm[1] * (draw_tx - cur_tx) - old_tm[3] * (draw_ty - cur_ty);
+                /*
+                 * Now the equation system becomes
+                 *
+                 * lhs1 = OldTM[0] * dx + OldTM[2] * dy
+                 * lhs2 = OldTM[1] * dx + OldTM[3] * dy
+                 */
+
                 double inverted[4];
                 inverted[0] =  old_tm[3] / det;
                 inverted[1] = -old_tm[1] / det;
