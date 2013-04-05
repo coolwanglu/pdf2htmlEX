@@ -280,7 +280,8 @@ void HTMLRenderer::check_state_change(GfxState * state)
     // depends: text position & transformation
     if(need_recheck_position && (new_line_state < NLS_DIV))
     {
-        // try to transform the old origin under the new TM
+        // TM[4] and/or TM[5] have been changed
+        // To find an offset (dx,dy), which would cancel the effect
         /*
          * CurTM * (cur_tx, cur_ty, 1)^T = OldTM * (draw_tx + dx, draw_ty + dy, 1)^T
          *
@@ -317,6 +318,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
                 inverted[3] =  old_tm[0] / det;
                 dx = inverted[0] * lhs1 + inverted[2] * lhs2;
                 dy = inverted[1] * lhs1 + inverted[3] * lhs2;
+                // currently we merge only text on a same horizontal line
                 if(equal(dy, 0))
                 {
                     merged = true;
