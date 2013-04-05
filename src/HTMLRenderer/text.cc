@@ -97,19 +97,27 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
             if((param->decompose_ligature) && (uLen > 1) && all_of(u, u+uLen, isLegalUnicode))
             {
                 text_line_buf->append_unicodes(u, uLen);
+                // TODO: decomposed characters may be not with the same width as the original ligature, need to fix it.
             }
             else
             {
+                Unicode uu;
                 if(cur_html_state.font_info->use_tounicode)
                 {
-                    Unicode uu = check_unicode(u, uLen, code, font);
-                    text_line_buf->append_unicodes(&uu, 1);
+                    uu = check_unicode(u, uLen, code, font);
                 }
                 else
                 {
-                    Unicode uu = unicode_from_font(code, font);
-                    text_line_buf->append_unicodes(&uu, 1);
+                    uu = unicode_from_font(code, font);
                 }
+                text_line_buf->append_unicodes(&uu, 1);
+                /*
+                 * In PDF, word_space is appended if (n == 1 and *p = ' ')
+                 * but in HTML, word_space is appended if (uu == ' ')
+                 */
+                int space_count = (is_space ? 1 : 0) - (uu == ' ' ? 1 : 0);
+                if(space_count != 0)
+                    text_line_buf->append_offset(cur_word_space * draw_text_scale * space_count);
             }
         }
 

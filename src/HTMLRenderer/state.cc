@@ -181,22 +181,34 @@ void HTMLRenderer::check_state_change(GfxState * state)
     double old_tm[6];
     memcpy(old_tm, cur_text_tm, sizeof(old_tm));
 
-    // ctm & text ctm & hori scale
-    if(all_changed || ctm_changed || text_mat_changed || hori_scale_changed)
+    // rise
+    // depends draw_text_scale
+    if(all_changed || rise_changed || draw_text_scale_changed)
+    {
+        double new_rise = state->getRise() * draw_text_scale;
+        if(!equal(new_rise, cur_html_state.rise))
+        {
+            cur_html_state.rise = new_rise;
+            new_line_state = max<NewLineState>(new_line_state, NLS_SPAN);
+        }
+    }
+
+    // ctm & text ctm & hori scale & rise
+    if(all_changed || ctm_changed || text_mat_changed || hori_scale_changed || rise_changed)
     {
         double new_text_tm[6];
 
-        const double * m1 = state->getCTM();
-        const double * m2 = state->getTextMat();
-        double hori_scale = state->getHorizScaling();
+        double m1[6];
+        double m2[6];
 
-        new_text_tm[0] = (m1[0] * m2[0] + m1[2] * m2[1]) * hori_scale;
-        new_text_tm[1] = (m1[1] * m2[0] + m1[3] * m2[1]) * hori_scale;
-        new_text_tm[2] = m1[0] * m2[2] + m1[2] * m2[3];
-        new_text_tm[3] = m1[1] * m2[2] + m1[3] * m2[3];
-        new_text_tm[4] = m1[0] * m2[4] + m1[2] * m2[5] + m1[4]; 
-        new_text_tm[5] = m1[1] * m2[4] + m1[3] * m2[5] + m1[5];
-        //new_text_tm[4] = new_text_tm[5] = 0;
+        //the matrix with horizontal_scale and rise
+        m1[0] = state->getHorizScaling();
+        m1[3] = 1;
+        m1[5] = state->getRise();
+        m1[1] = m1[2] = m1[4] = 0;
+
+        tm_multiply(m2, state->getCTM(), state->getTextMat()); 
+        tm_multiply(new_text_tm, m2, m1);
 
         if(!tm_equal(new_text_tm, cur_text_tm))
         {
@@ -265,7 +277,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
 
     // see if the new line is compatible with the current line with proper position shift
     // don't bother doing the heavy job when (new_line_state == NLS_DIV)
-    // depends: rise & text position & transformation
+    // depends: text position & transformation
     if(need_recheck_position && (new_line_state < NLS_DIV))
     {
         // try to transform the old origin under the new TM
@@ -278,10 +290,6 @@ void HTMLRenderer::check_state_change(GfxState * state)
          * CurTM[4] - OldTM[4] = OldTM[0] * (draw_tx + dx - cur_tx) + OldTM[2] * (draw_ty + dy - cur_ty)
          * CurTM[5] - OldTM[5] = OldTM[1] * (draw_tx + dx - cur_tx) + OldTM[3] * (draw_ty + dy - cur_ty)
          *
-         * For horizontal text, set dy = 0, and try to solve dx
-         * If dx can be solved, we can simply append a x-offset without creating a new line
-         *
-         * TODO, writing mode, set dx = 0 and solve dy
          * TODO, try to merge when cur_tm and old_tm are proportional
          */
 
@@ -402,18 +410,6 @@ void HTMLRenderer::check_state_change(GfxState * state)
         if(!(new_stroke_color == cur_html_state.stroke_color))
         {
             cur_html_state.stroke_color = new_stroke_color;
-            new_line_state = max<NewLineState>(new_line_state, NLS_SPAN);
-        }
-    }
-
-    // rise
-    // depends draw_text_scale
-    if(all_changed || rise_changed || draw_text_scale_changed)
-    {
-        double new_rise = state->getRise() * draw_text_scale;
-        if(!equal(new_rise, cur_html_state.rise))
-        {
-            cur_html_state.rise = new_rise;
             new_line_state = max<NewLineState>(new_line_state, NLS_SPAN);
         }
     }

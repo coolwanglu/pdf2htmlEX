@@ -24,6 +24,16 @@ static inline bool tm_equal(const double * tm1, const double * tm2, int size = 6
             return false;
     return true;
 }
+static inline void tm_multiply(double * result, const double * m1, const double * m2)
+{
+    result[0] = m1[0] * m2[0] + m1[2] * m2[1];
+    result[1] = m1[1] * m2[0] + m1[3] * m2[1];
+    result[2] = m1[0] * m2[2] + m1[2] * m2[3];
+    result[3] = m1[1] * m2[2] + m1[3] * m2[3];
+    result[4] = m1[0] * m2[4] + m1[2] * m2[5] + m1[4];
+    result[5] = m1[1] * m2[4] + m1[3] * m2[5] + m1[5];
+}
+
 static inline double hypot(double x, double y) { return std::sqrt(x*x+y*y); }
 
 void tm_transform(const double * tm, double & x, double & y, bool is_delta = false);
