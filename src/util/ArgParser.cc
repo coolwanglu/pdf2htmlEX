@@ -41,14 +41,6 @@ void dump_value(std::ostream & out, const std::string & v)
     out << '"' << v << '"';
 }
 
-ArgParser::~ArgParser(void)
-{
-    for(auto iter = arg_entries.begin(); iter != arg_entries.end(); ++iter)
-        delete (*iter);
-    for(auto iter = optional_arg_entries.begin(); iter != optional_arg_entries.end(); ++iter)
-        delete (*iter);
-}
-
 ArgParser & ArgParser::add(const char * optname, const char * description, ArgParserCallBack callback)
 {
     return add<char>(optname, nullptr, 0, description, callback, true);
@@ -66,7 +58,7 @@ void ArgParser::parse(int argc, char ** argv) const
 
     for(auto iter = arg_entries.begin(); iter != arg_entries.end(); ++iter)
     {
-        const ArgEntryBase * p = *iter;
+        const auto * p = iter->get();
         if(p->shortname != 0)
         {
             optstring.push_back(p->shortname);

@@ -13,6 +13,7 @@
 #include <vector>
 #include <ostream>
 #include <sstream>
+#include <memory>
 
 #ifndef nullptr
 #define nullptr (NULL)
@@ -42,8 +43,6 @@ extern void dump_value(std::ostream & out, const std::string & v);
 class ArgParser
 {
     public:
-        ~ArgParser(void);
-
         typedef void (*ArgParserCallBack) (const char * arg);
 
         /*
@@ -100,7 +99,7 @@ class ArgParser
                 bool dont_show_default;
         };
 
-        std::vector<ArgEntryBase *> arg_entries, optional_arg_entries;
+        std::vector<std::unique_ptr<ArgEntryBase>> arg_entries, optional_arg_entries;
         static const int arg_col_width;
 };
 
@@ -111,11 +110,11 @@ ArgParser & ArgParser::add(const char * optname, T * location, const Tv & defaul
     if((!optname) || (!optname[0]))
     {
         // when optname is nullptr or "", it's optional, and description is dropped
-        optional_arg_entries.push_back(new ArgEntry<T, Tv>("", location, default_value, callback, "", dont_show_default));
+        optional_arg_entries.emplace_back(new ArgEntry<T, Tv>("", location, default_value, callback, "", dont_show_default));
     }
     else
     {
-        arg_entries.push_back(new ArgEntry<T, Tv>(optname, location, default_value, callback, (description ? description : ""), dont_show_default));
+        arg_entries.emplace_back(new ArgEntry<T, Tv>(optname, location, default_value, callback, (description ? description : ""), dont_show_default));
     }
 
     return *this;
