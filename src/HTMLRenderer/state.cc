@@ -335,7 +335,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
 
         if(merged)
         {
-            text_line_buffers.back()->append_offset(dx * old_draw_text_scale);
+            text_lines.back()->append_offset(dx * old_draw_text_scale);
             if(equal(dy, 0))
             {
                 cur_html_state.vertical_align = 0;
@@ -458,14 +458,14 @@ void HTMLRenderer::prepare_text_line(GfxState * state)
         double target = (cur_tx - draw_tx) * draw_text_scale;
         if(!equal(target, 0))
         {
-            text_line_buffers.back()->append_offset(target);
+            text_lines.back()->append_offset(target);
             draw_tx += target / draw_text_scale;
         }
     }
 
     if(new_line_state != NLS_NONE)
     {
-        text_line_buffers.back()->append_state(cur_html_state);
+        text_lines.back()->append_state(cur_html_state);
     }
 
     line_opened = true;
@@ -476,7 +476,7 @@ void HTMLRenderer::close_text_line()
     if(line_opened)
     {
         line_opened = false;
-        text_line_buffers.emplace_back(new TextLineBuffer(param, all_manager));
+        text_lines.emplace_back(new HTMLTextLine(param, all_manager));
     }
 }
 

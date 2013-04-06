@@ -16,7 +16,7 @@
 
 #include "pdf2htmlEX-config.h"
 #include "HTMLRenderer.h"
-#include "TextLineBuffer.h"
+#include "HTMLTextLine.h"
 #include "BackgroundRenderer/BackgroundRenderer.h"
 #include "Base64Stream.h"
 
@@ -51,7 +51,7 @@ HTMLRenderer::HTMLRenderer(const Param & param)
         globalParams->setErrQuiet(gTrue);
     }
 
-    text_line_buffers.emplace_back(new TextLineBuffer(param, all_manager));
+    text_lines.emplace_back(new HTMLTextLine(param, all_manager));
     ffw_init(param.debug);
     cur_mapping = new int32_t [0x10000];
     cur_mapping2 = new char* [0x100];
@@ -213,7 +213,7 @@ void HTMLRenderer::endPage() {
     close_text_line();
 
     // dump all text
-    for(auto iter = text_line_buffers.begin(); iter != text_line_buffers.end(); ++iter)
+    for(auto iter = text_lines.begin(); iter != text_lines.end(); ++iter)
         (*iter)->flush(f_pages.fs);
 
     // process links before the page is closed

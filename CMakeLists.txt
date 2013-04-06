@@ -188,12 +188,12 @@ add_executable(pdf2htmlEX
     src/Base64Stream.cc
     src/Color.h
     src/Color.cc
+    src/HTMLTextLine.h
+    src/HTMLTextLine.cc
     src/Preprocessor.h
     src/Preprocessor.cc
     src/StringFormatter.h
     src/StringFormatter.cc
-    src/TextLineBuffer.h
-    src/TextLineBuffer.cc
     src/TmpFiles.h
     src/TmpFiles.cc
     )

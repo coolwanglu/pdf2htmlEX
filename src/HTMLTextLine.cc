@@ -1,5 +1,5 @@
 /*
- * TextLineBuffer.cc
+ * HTMLTextLine.cc
  *
  * Generate and optimized HTML for one line
  *
@@ -10,7 +10,7 @@
 #include <cmath>
 #include <algorithm>
 
-#include "TextLineBuffer.h"
+#include "HTMLTextLine.h"
 
 #include "util/namespace.h"
 #include "util/unicode.h"
@@ -29,12 +29,12 @@ using std::endl;
 using std::find;
 using std::abs;
 
-void TextLineBuffer::append_unicodes(const Unicode * u, int l)
+void HTMLTextLine::append_unicodes(const Unicode * u, int l)
 {
     text.insert(text.end(), u, u+l);
 }
 
-void TextLineBuffer::append_offset(double width)
+void HTMLTextLine::append_offset(double width)
 {
     /*
      * If the last offset is very thin, we can ignore it and directly use it
@@ -47,7 +47,7 @@ void TextLineBuffer::append_offset(double width)
         offsets.emplace_back(text.size(), width);
 }
 
-void TextLineBuffer::append_state(const HTMLState & html_state)
+void HTMLTextLine::append_state(const HTMLState & html_state)
 {
     if(states.empty() || (states.back().start_idx != text.size()))
     {
@@ -59,7 +59,7 @@ void TextLineBuffer::append_state(const HTMLState & html_state)
     (HTMLState&)(states.back()) = html_state;
 }
 
-void TextLineBuffer::flush(ostream & out)
+void HTMLTextLine::flush(ostream & out)
 {
     /*
      * Each Line is an independent absolute positioned block
@@ -266,7 +266,7 @@ void TextLineBuffer::flush(ostream & out)
  * Adjust letter space and word space in order to reduce the number of HTML elements
  * May also unmask word space
  */
-void TextLineBuffer::optimize()
+void HTMLTextLine::optimize()
 {
     if(!(param.optimize_text))
         return;
@@ -446,7 +446,7 @@ void TextLineBuffer::optimize()
 // this state will be converted to a child node of the node of prev_state
 // dump the difference between previous state
 // also clone corresponding states
-void TextLineBuffer::State::begin (ostream & out, const State * prev_state)
+void HTMLTextLine::State::begin (ostream & out, const State * prev_state)
 {
     if(prev_state)
     {
@@ -566,13 +566,13 @@ void TextLineBuffer::State::begin (ostream & out, const State * prev_state)
     }
 }
 
-void TextLineBuffer::State::end(ostream & out) const
+void HTMLTextLine::State::end(ostream & out) const
 {
     if(need_close)
         out << "</span>";
 }
 
-void TextLineBuffer::State::hash(void)
+void HTMLTextLine::State::hash(void)
 {
     hash_value = 0;
     for(int i = 0; i < ID_COUNT; ++i)
@@ -581,7 +581,7 @@ void TextLineBuffer::State::hash(void)
     }
 }
 
-int TextLineBuffer::State::diff(const State & s) const
+int HTMLTextLine::State::diff(const State & s) const
 {
     /*
      * A quick check based on hash_value
@@ -602,13 +602,13 @@ int TextLineBuffer::State::diff(const State & s) const
     return d;
 }
 
-long long TextLineBuffer::State::umask_by_id(int id)
+long long HTMLTextLine::State::umask_by_id(int id)
 {
     return (((long long)0xff) << (8*id));
 }
 
 // the order should be the same as in the enum
-const char * const TextLineBuffer::State::css_class_names [] = {
+const char * const HTMLTextLine::State::css_class_names [] = {
     CSS::FONT_FAMILY_CN,
     CSS::FONT_SIZE_CN,
     CSS::FILL_COLOR_CN,

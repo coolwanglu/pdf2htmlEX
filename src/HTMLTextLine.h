@@ -19,10 +19,10 @@ namespace pdf2htmlEX {
  *  - State change
  * within a line
  */
-class TextLineBuffer
+class HTMLTextLine
 {
 public:
-    TextLineBuffer (const Param & param, AllStateManater & all_manager) 
+    HTMLTextLine (const Param & param, AllStateManater & all_manager) 
         : param(param), all_manager(all_manager) { }
 
     class State : public HTMLState {

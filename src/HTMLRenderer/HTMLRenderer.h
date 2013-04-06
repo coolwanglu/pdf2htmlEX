@@ -27,7 +27,7 @@
 #include "TmpFiles.h"
 #include "Color.h"
 #include "StateManager.h"
-#include "TextLineBuffer.h"
+#include "HTMLTextLine.h"
 
 #include "util/const.h"
 #include "util/misc.h"
@@ -291,7 +291,7 @@ protected:
     double draw_tx, draw_ty; 
 
     // some metrics have to be determined after all elements in the lines have been seen
-    std::vector<std::unique_ptr<TextLineBuffer>> text_line_buffers;
+    std::vector<std::unique_ptr<HTMLTextLine>> text_lines;
 
     // for font reencoding
     int32_t * cur_mapping;
