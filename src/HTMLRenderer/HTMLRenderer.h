@@ -291,8 +291,6 @@ protected:
     double draw_tx, draw_ty; 
 
     // some metrics have to be determined after all elements in the lines have been seen
-    // see TextLineBuffer.h
-    friend class TextLineBuffer;
     std::vector<std::unique_ptr<TextLineBuffer>> text_line_buffers;
 
     // for font reencoding
