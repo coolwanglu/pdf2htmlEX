@@ -1,5 +1,4 @@
-/* vim: set shiftwidth=2 tabstop=2 autoindent cindent expandtab: */
-/* -*- Mode: Java; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
+/* vim: set shiftwidth=2 tabstop=2 autoindent cindent expandtab filetype=css: */
 /* Demo CSS for pdf2htmlEX */
 /* Copyright 2012,2013 Lu Wang <coolwanglu@gmail.com> */
 /* Part 1: Web Page Layout: Free to modify, except for a few of them which are required by pdf2htmlEX.js, see the comments */

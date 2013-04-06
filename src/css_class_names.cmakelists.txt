@@ -1,3 +1,4 @@
+# vim: filetype=cmake :
 # CSS class names
 
 # Note
