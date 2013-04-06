@@ -5,7 +5,7 @@
 #ifndef HTMLSTATE_H__
 #define HTMLSTATE_H__
 
-#include "util/color.h"
+#include "Color.h"
 
 namespace pdf2htmlEX {
 

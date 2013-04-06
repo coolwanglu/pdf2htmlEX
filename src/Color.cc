@@ -1,4 +1,5 @@
-#include "util/color.h"
+#include "Color.h"
+
 #include "util/misc.h"
 
 namespace pdf2htmlEX {

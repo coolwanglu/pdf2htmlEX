@@ -13,9 +13,10 @@
 #include <map>
 #include <unordered_map>
 
+#include "Color.h"
+
 #include "util/math.h"
 #include "util/css_const.h"
-#include "util/color.h"
 
 namespace pdf2htmlEX {
 

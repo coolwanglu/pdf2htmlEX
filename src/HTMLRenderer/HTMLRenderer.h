@@ -22,14 +22,15 @@
 #include <Annot.h>
 
 #include "Param.h"
-#include "util/Preprocessor.h"
+#include "Preprocessor.h"
+#include "StringFormatter.h"
+#include "TmpFiles.h"
+#include "Color.h"
+#include "StateManager.h"
+#include "TextLineBuffer.h"
+
 #include "util/const.h"
-#include "util/StringFormatter.h"
-#include "util/TmpFiles.h"
 #include "util/misc.h"
-#include "util/color.h"
-#include "util/StateManager.h"
-#include "util/TextLineBuffer.h"
 
 namespace pdf2htmlEX {
 

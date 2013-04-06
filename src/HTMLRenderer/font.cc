@@ -19,10 +19,11 @@
 
 #include "Param.h"
 #include "HTMLRenderer.h"
+#include "base64stream.h"
+
 #include "util/namespace.h"
 #include "util/math.h"
 #include "util/misc.h"
-#include "util/base64stream.h"
 #include "util/ffw.h"
 #include "util/path.h"
 #include "util/unicode.h"

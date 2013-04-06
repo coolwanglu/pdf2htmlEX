@@ -21,10 +21,11 @@
 #include <PDFDocFactory.h>
 #include <GlobalParams.h>
 
-#include "Param.h"
 #include "pdf2htmlEX-config.h"
+#include "ArgParser.h"
+#include "Param.h"
 #include "HTMLRenderer/HTMLRenderer.h"
-#include "util/ArgParser.h"
+
 #include "util/path.h"
 #include "util/ffw.h"
 

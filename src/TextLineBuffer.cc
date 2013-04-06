@@ -10,8 +10,8 @@
 #include <cmath>
 #include <algorithm>
 
-#include "HTMLRenderer/HTMLRenderer.h"
-#include "util/TextLineBuffer.h"
+#include "TextLineBuffer.h"
+
 #include "util/namespace.h"
 #include "util/unicode.h"
 #include "util/math.h"

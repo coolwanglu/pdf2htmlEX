@@ -165,12 +165,6 @@ add_executable(pdf2htmlEX
     src/BackgroundRenderer/SplashBackgroundRenderer.cc 
     src/BackgroundRenderer/CairoBackgroundRenderer.h 
     src/BackgroundRenderer/CairoBackgroundRenderer.cc 
-    src/util/ArgParser.h
-    src/util/ArgParser.cc
-    src/util/base64stream.h
-    src/util/base64stream.cc
-    src/util/color.h
-    src/util/color.cc
     src/util/const.h
     src/util/const.cc
     src/util/css_const.h
@@ -178,7 +172,6 @@ add_executable(pdf2htmlEX
     src/util/encoding.cc
     src/util/ffw.h
     src/util/ffw.c
-    src/util/HTMLState.h
     src/util/math.h
     src/util/math.cc
     src/util/misc.h
@@ -186,16 +179,23 @@ add_executable(pdf2htmlEX
     src/util/namespace.h
     src/util/path.h
     src/util/path.cc
-    src/util/Preprocessor.h
-    src/util/Preprocessor.cc
-    src/util/StringFormatter.h
-    src/util/StringFormatter.cc
-    src/util/TextLineBuffer.h
-    src/util/TextLineBuffer.cc
-    src/util/TmpFiles.h
-    src/util/TmpFiles.cc
     src/util/unicode.h
     src/util/unicode.cc
+    src/HTMLState.h
+    src/ArgParser.h
+    src/ArgParser.cc
+    src/base64stream.h
+    src/base64stream.cc
+    src/Color.h
+    src/Color.cc
+    src/Preprocessor.h
+    src/Preprocessor.cc
+    src/StringFormatter.h
+    src/StringFormatter.cc
+    src/TextLineBuffer.h
+    src/TextLineBuffer.cc
+    src/TmpFiles.h
+    src/TmpFiles.cc
     )
 target_link_libraries(pdf2htmlEX ${PDF2HTMLEX_LIBS})
 

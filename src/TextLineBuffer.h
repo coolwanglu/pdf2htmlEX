@@ -4,9 +4,11 @@
 #include <iostream>
 #include <vector>
 
+#include <CharTypes.h>
+
 #include "Param.h"
-#include "util/StateManager.h"
-#include "util/HTMLState.h"
+#include "StateManager.h"
+#include "HTMLState.h"
 
 namespace pdf2htmlEX {
 

@@ -10,7 +10,7 @@
 #include <algorithm>
 
 #include "HTMLRenderer.h"
-#include "util/TextLineBuffer.h"
+
 #include "util/namespace.h"
 #include "util/math.h"
 

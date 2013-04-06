@@ -14,13 +14,14 @@
 
 #include <GlobalParams.h>
 
-#include "HTMLRenderer.h"
-#include "util/TextLineBuffer.h"
 #include "pdf2htmlEX-config.h"
+#include "HTMLRenderer.h"
+#include "TextLineBuffer.h"
 #include "BackgroundRenderer/BackgroundRenderer.h"
+#include "base64stream.h"
+
 #include "util/namespace.h"
 #include "util/ffw.h"
-#include "util/base64stream.h"
 #include "util/math.h"
 #include "util/path.h"
 #include "util/css_const.h"
