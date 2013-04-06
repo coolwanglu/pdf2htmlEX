@@ -19,7 +19,7 @@
 
 #include "Param.h"
 #include "HTMLRenderer.h"
-#include "base64stream.h"
+#include "Base64Stream.h"
 
 #include "util/namespace.h"
 #include "util/math.h"
@@ -753,7 +753,7 @@ void HTMLRenderer::export_remote_font(const FontInfo & info, const string & suff
             ifstream fin(path, ifstream::binary);
             if(!fin)
                 throw "Cannot locate font file: " + path;
-            f_css.fs << "'data:" + mime_type + ";base64," << base64stream(fin) << "'";
+            f_css.fs << "'data:" + mime_type + ";base64," << Base64Stream(fin) << "'";
         }
         else
         {

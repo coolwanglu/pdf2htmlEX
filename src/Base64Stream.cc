@@ -1,10 +1,10 @@
-#include "base64stream.h"
+#include "Base64Stream.h"
 
 namespace pdf2htmlEX {
 
 using std::ostream;
 
-ostream & base64stream::dumpto(ostream & out)
+ostream & Base64Stream::dumpto(ostream & out)
 {
     unsigned char buf[3];
     while(in->read((char*)buf, 3))
@@ -37,8 +37,8 @@ ostream & base64stream::dumpto(ostream & out)
     return out;
 }
 
-const char * base64stream::base64_encoding = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+const char * Base64Stream::base64_encoding = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
-ostream & operator << (ostream & out, base64stream bf) { return bf.dumpto(out); }
+ostream & operator << (ostream & out, Base64Stream bf) { return bf.dumpto(out); }
 
 } //namespace pdf2htmlEX

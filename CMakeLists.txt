@@ -184,8 +184,8 @@ add_executable(pdf2htmlEX
     src/HTMLState.h
     src/ArgParser.h
     src/ArgParser.cc
-    src/base64stream.h
-    src/base64stream.cc
+    src/Base64Stream.h
+    src/Base64Stream.cc
     src/Color.h
     src/Color.cc
     src/Preprocessor.h

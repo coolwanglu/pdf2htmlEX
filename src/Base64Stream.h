@@ -12,10 +12,10 @@
 
 namespace pdf2htmlEX {
 
-class base64stream
+class Base64Stream
 {
 public:
-    base64stream(std::istream & in) : in(&in) { }
+    Base64Stream(std::istream & in) : in(&in) { }
 
     std::ostream & dumpto(std::ostream & out);
 
@@ -24,7 +24,7 @@ private:
     static const char * base64_encoding;
 };
 
-std::ostream & operator << (std::ostream & out, base64stream bf);
+std::ostream & operator << (std::ostream & out, Base64Stream bf);
 
 } //namespace pdf2htmlEX
 #endif //BASE64STREAM_H__

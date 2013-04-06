@@ -18,7 +18,7 @@
 #include "HTMLRenderer.h"
 #include "TextLineBuffer.h"
 #include "BackgroundRenderer/BackgroundRenderer.h"
-#include "base64stream.h"
+#include "Base64Stream.h"
 
 #include "util/namespace.h"
 #include "util/ffw.h"
@@ -197,7 +197,7 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state, XRef * xref)
             ifstream fin((char*)path, ifstream::binary);
             if(!fin)
                 throw string("Cannot read background image ") + (char*)path;
-            f_pages.fs << "data:image/png;base64," << base64stream(fin);
+            f_pages.fs << "data:image/png;base64," << Base64Stream(fin);
         }
         else
         {
