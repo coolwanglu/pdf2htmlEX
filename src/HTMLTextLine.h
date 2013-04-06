@@ -26,8 +26,7 @@ public:
     HTMLTextLine (const Param & param, AllStateManater & all_manager) 
         : param(param), all_manager(all_manager) { }
 
-    class State : public HTMLState {
-    public:
+    struct State : public HTMLState {
         // before output
         void begin(std::ostream & out, const State * prev_state);
         // after output
@@ -64,8 +63,7 @@ public:
     };
 
 
-    class Offset {
-    public:
+    struct Offset {
         Offset(size_t size_idx, double width)
             :start_idx(size_idx),width(width)
         { }
