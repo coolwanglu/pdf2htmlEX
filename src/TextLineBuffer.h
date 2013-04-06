@@ -35,10 +35,6 @@ public:
         void hash(void);
         // calculate the difference between another State
         int diff(const State & s) const;
-        // the offset cause by a single ' ' char
-        double single_space_offset(void) const;
-        // calculate em_size of this state
-        double em_size(void) const;
 
         enum {
             FONT_ID,

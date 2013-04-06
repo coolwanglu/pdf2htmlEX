@@ -33,6 +33,15 @@ struct HTMLState
     
     double x,y;
     double transform_matrix[4];
+
+    // the offset cause by a single ' ' char
+    double single_space_offset(void) const {
+        return word_space + letter_space + font_info->space_width * font_size;
+    }
+    // calculate em_size of this state
+    double em_size(void) const {
+        return font_size * (font_info->ascent - font_info->descent);
+    }
 };
 
 } // namespace pdf2htmlEX 
