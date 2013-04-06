@@ -20,6 +20,7 @@ HTMLTextPage::HTMLTextPage(const Param & param, AllStateManater & all_manager)
 
 void HTMLTextPage::dump_text(ostream & out)
 {
+    optimize();
     for(auto iter = text_lines.begin(); iter != text_lines.end(); ++iter)
         (*iter)->dump_text(out);
 }

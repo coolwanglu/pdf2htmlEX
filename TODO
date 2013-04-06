@@ -1,7 +1,3 @@
- - page wise optimization (frequent used states)
- - handle large negative letter space
- - remove unused values in statemanager (due to optimization), probably ref count?
- - merge sub/sup into one line
  - don't dump image when it is empty
 
 == Future: ==
@@ -28,3 +24,5 @@ Not enough motivation/Lazy
  - ajax in pdf2htmlEX for separated pages
  - separate classes for annotations (such that we don't have to hide all css drawings for printing)
  - Widget Annoataion
+ - handle large negative letter space
+ - different optimization levels

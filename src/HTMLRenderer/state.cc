@@ -311,7 +311,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
                     // text on a same horizontal line, we can insert positive or negaive x-offsets
                     merged = true;
                 }
-                else
+                else if(param.optimize_text)
                 {
                     // otherwise we merge the lines only when
                     // - text are not shifted to the left too much
