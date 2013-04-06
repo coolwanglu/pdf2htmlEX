@@ -13,11 +13,12 @@
 namespace pdf2htmlEX {
 
 /*
- * Store a series of 
+ * Store and optimize a line of text in HTML
+ *
+ * contains a series of 
  *  - Text
  *  - Shift
  *  - State change
- * within a line
  */
 class HTMLTextLine
 {
