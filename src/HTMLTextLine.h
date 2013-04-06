@@ -1,5 +1,9 @@
-#ifndef TEXTLINEBUFFER_H__
-#define TEXTLINEBUFFER_H__
+/*
+ * Header file for HTMLTextLine
+ * Copyright (C) 2013 Lu Wang <coolwanglu@gmail.com>
+ */
+#ifndef HTMLTEXTLINE_H__
+#define HTMLTEXTLINE_H__
 
 #include <iostream>
 #include <vector>
@@ -94,4 +98,4 @@ private:
 };
 
 } // namespace pdf2htmlEX
-#endif //TEXTLINEBUFFER_H__
+#endif //HTMLTEXTLINE_H__
