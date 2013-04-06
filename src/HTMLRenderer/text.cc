@@ -87,14 +87,14 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
             ++nSpaces;
         }
         
-        if(is_space && (param->space_as_offset))
+        if(is_space && (param.space_as_offset))
         {
             // ignore horiz_scaling, as it's merged in CTM
             text_line_buffers.back()->append_offset((dx1 * cur_font_size + cur_letter_space + cur_word_space) * draw_text_scale); 
         }
         else
         {
-            if((param->decompose_ligature) && (uLen > 1) && all_of(u, u+uLen, isLegalUnicode))
+            if((param.decompose_ligature) && (uLen > 1) && all_of(u, u+uLen, isLegalUnicode))
             {
                 text_line_buffers.back()->append_unicodes(u, uLen);
                 // TODO: decomposed characters may be not with the same width as the original ligature, need to fix it.

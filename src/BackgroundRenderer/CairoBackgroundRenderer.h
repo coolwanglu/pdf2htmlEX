@@ -19,7 +19,7 @@ namespace pdf2htmlEX {
 class CairoBackgroundRenderer : public CairoOutputDev 
 {
 public:
-  CairoBackgroundRenderer(const Param * param)
+  CairoBackgroundRenderer(const Param & param)
       :CairoOutputDev()
       , param(param)
   { }
@@ -34,7 +34,7 @@ public:
   void render_page(PDFDoc * doc, int pageno, const std::string & filename);
 
 protected:
-  const Param * param;
+  const Param & param;
 };
 
 }

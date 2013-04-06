@@ -22,7 +22,7 @@ namespace pdf2htmlEX {
 class TextLineBuffer
 {
 public:
-    TextLineBuffer (const Param * param, AllStateManater & all_manager) 
+    TextLineBuffer (const Param & param, AllStateManater & all_manager) 
         : param(param), all_manager(all_manager) { }
 
     class State : public HTMLState {
@@ -84,7 +84,7 @@ public:
 private:
     void optimize(void);
 
-    const Param * param;
+    const Param & param;
     AllStateManater & all_manager;
 
     double x, y;

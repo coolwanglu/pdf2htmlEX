@@ -220,7 +220,7 @@ void LinearGradient::dumpto (ostream & out)
 
 GBool HTMLRenderer::axialShadedFill(GfxState *state, GfxAxialShading *shading, double tMin, double tMax)
 {
-    if(!(param->css_draw)) return gFalse;
+    if(!(param.css_draw)) return gFalse;
 
     double x1, y1, x2, y2;
     get_shading_bbox(state, shading, x1, y1, x2, y2);
@@ -240,7 +240,7 @@ GBool HTMLRenderer::axialShadedFill(GfxState *state, GfxAxialShading *shading, d
 //TODO connection style
 bool HTMLRenderer::css_do_path(GfxState *state, bool fill, bool test_only)
 {
-    if(!(param->css_draw)) return false;
+    if(!(param.css_draw)) return false;
 
     GfxPath * path = state->getPath();
     /* 

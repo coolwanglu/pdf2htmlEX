@@ -37,7 +37,7 @@ namespace pdf2htmlEX {
 class HTMLRenderer : public OutputDev
 {
 public:
-    HTMLRenderer(const Param * param);
+    HTMLRenderer(const Param & param);
     virtual ~HTMLRenderer();
 
     void process(PDFDoc * doc);
@@ -64,7 +64,7 @@ public:
     virtual GBool interpretType3Chars() { return gFalse; }
 
     // Does this device need non-text content?
-    virtual GBool needNonText() { return (param->process_nontext) ? gTrue: gFalse; }
+    virtual GBool needNonText() { return (param.process_nontext) ? gTrue: gFalse; }
 
     // Does this device need to clip pages to the crop box even when the
     // box is the crop box?
@@ -316,7 +316,7 @@ protected:
     // managers store values actually used in HTML (i.e. scaled)
     AllStateManater all_manager;
 
-    const Param * param;
+    const Param & param;
 
     struct {
         std::ofstream fs;

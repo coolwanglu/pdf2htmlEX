@@ -38,21 +38,21 @@ using std::abs;
 using std::cerr;
 using std::endl;
 
-HTMLRenderer::HTMLRenderer(const Param * param)
+HTMLRenderer::HTMLRenderer(const Param & param)
     :OutputDev()
     ,line_opened(false)
     ,preprocessor(param)
-	,tmp_files(*param)
+	,tmp_files(param)
     ,param(param)
 {
-    if(!(param->debug))
+    if(!(param.debug))
     {
         //disable error messages of poppler
         globalParams->setErrQuiet(gTrue);
     }
 
     text_line_buffers.emplace_back(new TextLineBuffer(param, all_manager));
-    ffw_init(param->debug);
+    ffw_init(param.debug);
     cur_mapping = new int32_t [0x10000];
     cur_mapping2 = new char* [0x100];
     width_list = new int [0x10000];
@@ -62,9 +62,9 @@ HTMLRenderer::HTMLRenderer(const Param * param)
      * or may be handled well (whitespace_manager)
      * So we can set a large eps here
      */
-    all_manager.vertical_align.set_eps(param->v_eps);
-    all_manager.whitespace    .set_eps(param->h_eps);
-    all_manager.left          .set_eps(param->h_eps);
+    all_manager.vertical_align.set_eps(param.v_eps);
+    all_manager.whitespace    .set_eps(param.h_eps);
+    all_manager.left          .set_eps(param.h_eps);
     /*
      * For othere states, we need accurate values
      * optimization will be done separately
@@ -97,31 +97,31 @@ void HTMLRenderer::process(PDFDoc *doc)
     // Process pages
     
     BackgroundRenderer * bg_renderer = nullptr;
-    if(param->process_nontext)
+    if(param.process_nontext)
     {
         bg_renderer = new BackgroundRenderer(this, param);
         bg_renderer->startDoc(doc);
     }
 
-    int page_count = (param->last_page - param->first_page + 1);
-    for(int i = param->first_page; i <= param->last_page ; ++i) 
+    int page_count = (param.last_page - param.first_page + 1);
+    for(int i = param.first_page; i <= param.last_page ; ++i) 
     {
-        cerr << "Working: " << (i-param->first_page) << "/" << page_count << '\r' << flush;
+        cerr << "Working: " << (i-param.first_page) << "/" << page_count << '\r' << flush;
 
-        if(param->split_pages)
+        if(param.split_pages)
         {
-            auto filled_template_filename = str_fmt(param->output_filename.c_str(), i);
-            auto page_fn = str_fmt("%s/%s", param->dest_dir.c_str(), string((char*)filled_template_filename).c_str());
+            auto filled_template_filename = str_fmt(param.output_filename.c_str(), i);
+            auto page_fn = str_fmt("%s/%s", param.dest_dir.c_str(), string((char*)filled_template_filename).c_str());
             f_pages.fs.open((char*)page_fn, ofstream::binary); 
             if(!f_pages.fs)
                 throw string("Cannot open ") + (char*)page_fn + " for writing";
             set_stream_flags(f_pages.fs);
         }
 
-        if(param->process_nontext)
+        if(param.process_nontext)
         {
-            auto fn = str_fmt("%s/bg%x.png", (param->single_html ? param->tmp_dir : param->dest_dir).c_str(), i);
-            if(param->single_html)
+            auto fn = str_fmt("%s/bg%x.png", (param.single_html ? param.tmp_dir : param.dest_dir).c_str(), i);
+            if(param.single_html)
                 tmp_files.add((char*)fn);
 
             bg_renderer->render_page(doc, i, (char*)fn);
@@ -130,12 +130,12 @@ void HTMLRenderer::process(PDFDoc *doc)
         doc->displayPage(this, i, 
                 text_zoom_factor() * DEFAULT_DPI, text_zoom_factor() * DEFAULT_DPI,
                 0, 
-                (!(param->use_cropbox)),
+                (!(param.use_cropbox)),
                 true,  // crop
                 false, // printing
                 nullptr, nullptr, nullptr, nullptr);
 
-        if(param->split_pages)
+        if(param.split_pages)
         {
             f_pages.fs.close();
         }
@@ -146,7 +146,7 @@ void HTMLRenderer::process(PDFDoc *doc)
 
     ////////////////////////
     // Process Outline
-    if(param->process_outline)
+    if(param.process_outline)
         process_outline(); 
 
     post_process();
@@ -187,13 +187,13 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state, XRef * xref)
             << " " << CSS::PAGE_CONTENT_BOX_CN << pageNum
             << "\">";
 
-    if(param->process_nontext)
+    if(param.process_nontext)
     {
         f_pages.fs << "<img class=\"" << CSS::BACKGROUND_IMAGE_CN 
             << "\" alt=\"\" src=\"";
-        if(param->single_html)
+        if(param.single_html)
         {
-            auto path = str_fmt("%s/bg%x.png", param->tmp_dir.c_str(), pageNum);
+            auto path = str_fmt("%s/bg%x.png", param.tmp_dir.c_str(), pageNum);
             ifstream fin((char*)path, ifstream::binary);
             if(!fin)
                 throw string("Cannot read background image ") + (char*)path;
@@ -252,24 +252,24 @@ void HTMLRenderer::pre_process(PDFDoc * doc)
     {
         vector<double> zoom_factors;
         
-        if(is_positive(param->zoom))
+        if(is_positive(param.zoom))
         {
-            zoom_factors.push_back(param->zoom);
+            zoom_factors.push_back(param.zoom);
         }
 
-        if(is_positive(param->fit_width))
+        if(is_positive(param.fit_width))
         {
-            zoom_factors.push_back((param->fit_width) / preprocessor.get_max_width());
+            zoom_factors.push_back((param.fit_width) / preprocessor.get_max_width());
         }
 
-        if(is_positive(param->fit_height))
+        if(is_positive(param.fit_height))
         {
-            zoom_factors.push_back((param->fit_height) / preprocessor.get_max_height());
+            zoom_factors.push_back((param.fit_height) / preprocessor.get_max_height());
         }
 
         double zoom = (zoom_factors.empty() ? 1.0 : (*min_element(zoom_factors.begin(), zoom_factors.end())));
         
-        text_scale_factor1 = max<double>(zoom, param->font_size_multiplier);  
+        text_scale_factor1 = max<double>(zoom, param.font_size_multiplier);  
         text_scale_factor2 = zoom / text_scale_factor1;
     }
 
@@ -282,17 +282,17 @@ void HTMLRenderer::pre_process(PDFDoc * doc)
          *
          *
          * If single-html && split-page
-         * as there's no place to embed the css file, just leave it alone (into param->dest_dir)
+         * as there's no place to embed the css file, just leave it alone (into param.dest_dir)
          *
          * If !single-html
-         * leave it in param->dest_dir
+         * leave it in param.dest_dir
          */
 
-        auto fn = (param->single_html && (!param->split_pages))
-            ? str_fmt("%s/__css", param->tmp_dir.c_str())
-            : str_fmt("%s/%s", param->dest_dir.c_str(), param->css_filename.c_str());
+        auto fn = (param.single_html && (!param.split_pages))
+            ? str_fmt("%s/__css", param.tmp_dir.c_str())
+            : str_fmt("%s/%s", param.dest_dir.c_str(), param.css_filename.c_str());
 
-        if(param->single_html && (!param->split_pages))
+        if(param.single_html && (!param.split_pages))
             tmp_files.add((char*)fn);
 
         f_css.path = (char*)fn;
@@ -302,17 +302,17 @@ void HTMLRenderer::pre_process(PDFDoc * doc)
         set_stream_flags(f_css.fs);
     }
 
-    if (param->process_outline)
+    if (param.process_outline)
     {
         /*
          * The logic for outline is similar to css
          */
 
-        auto fn = (param->single_html && (!param->split_pages))
-            ? str_fmt("%s/__outline", param->tmp_dir.c_str())
-            : str_fmt("%s/%s", param->dest_dir.c_str(), param->outline_filename.c_str());
+        auto fn = (param.single_html && (!param.split_pages))
+            ? str_fmt("%s/__outline", param.tmp_dir.c_str())
+            : str_fmt("%s/%s", param.dest_dir.c_str(), param.outline_filename.c_str());
 
-        if(param->single_html && (!param->split_pages))
+        if(param.single_html && (!param.split_pages))
             tmp_files.add((char*)fn);
 
         f_outline.path = (char*)fn;
@@ -326,7 +326,7 @@ void HTMLRenderer::pre_process(PDFDoc * doc)
 
     // if split-pages is specified, open & close the file in the process loop
     // if not, open the file here:
-    if(!param->split_pages)
+    if(!param.split_pages)
     {
         /*
          * If single-html
@@ -335,7 +335,7 @@ void HTMLRenderer::pre_process(PDFDoc * doc)
          *
          * Otherwise just generate it 
          */
-        auto fn = str_fmt("%s/__pages", param->tmp_dir.c_str());
+        auto fn = str_fmt("%s/__pages", param.tmp_dir.c_str());
         tmp_files.add((char*)fn);
 
         f_pages.path = (char*)fn;
@@ -351,7 +351,7 @@ void HTMLRenderer::post_process(void)
     dump_css();
     // close files if they opened
     // it's better to brace single liner LLVM complains
-    if (param->process_outline)
+    if (param.process_outline)
     {
         f_outline.fs.close();
     }
@@ -359,12 +359,12 @@ void HTMLRenderer::post_process(void)
     f_css.fs.close();
 
     //only when split-page == 0, do we have some work left to do
-    if(param->split_pages)
+    if(param.split_pages)
         return;
 
     ofstream output;
     {
-        auto fn = str_fmt("%s/%s", param->dest_dir.c_str(), param->output_filename.c_str());
+        auto fn = str_fmt("%s/%s", param.dest_dir.c_str(), param.output_filename.c_str());
         output.open((char*)fn, ofstream::binary);
         if(!output)
             throw string("Cannot open ") + (char*)fn + " for writing";
@@ -372,7 +372,7 @@ void HTMLRenderer::post_process(void)
     }
 
     // apply manifest
-    ifstream manifest_fin((char*)str_fmt("%s/%s", param->data_dir.c_str(), MANIFEST_FILENAME.c_str()), ifstream::binary);
+    ifstream manifest_fin((char*)str_fmt("%s/%s", param.data_dir.c_str(), MANIFEST_FILENAME.c_str()), ifstream::binary);
     if(!manifest_fin)
         throw "Cannot open the manifest file";
 
@@ -400,7 +400,7 @@ void HTMLRenderer::post_process(void)
 
         if(line[0] == '@')
         {
-            embed_file(output, param->data_dir + "/" + line.substr(1), "", true);
+            embed_file(output, param.data_dir + "/" + line.substr(1), "", true);
             continue;
         }
 
@@ -412,7 +412,7 @@ void HTMLRenderer::post_process(void)
             }
             else if (line == "$outline")
             {
-                if (param->process_outline)
+                if (param.process_outline)
                 {
                     ifstream fin(f_outline.path, ifstream::binary);
                     if(!fin)
@@ -487,14 +487,14 @@ void HTMLRenderer::embed_file(ostream & out, const string & path, const string &
     string fn = get_filename(path);
     string suffix = (type == "") ? get_suffix(fn) : type; 
     
-    auto iter = EMBED_STRING_MAP.find(make_pair(suffix, (bool)param->single_html));
+    auto iter = EMBED_STRING_MAP.find(make_pair(suffix, (bool)param.single_html));
     if(iter == EMBED_STRING_MAP.end())
     {
         cerr << "Warning: unknown suffix: " << suffix << endl;
         return;
     }
     
-    if(param->single_html)
+    if(param.single_html)
     {
         ifstream fin(path, ifstream::binary);
         if(!fin)
@@ -515,7 +515,7 @@ void HTMLRenderer::embed_file(ostream & out, const string & path, const string &
             ifstream fin(path, ifstream::binary);
             if(!fin)
                 throw string("Cannot copy file: ") + path;
-            auto out_path = param->dest_dir + "/" + fn;
+            auto out_path = param.dest_dir + "/" + fn;
             ofstream out(out_path, ofstream::binary);
             if(!out)
                 throw string("Cannot open file ") + path + " for embedding";

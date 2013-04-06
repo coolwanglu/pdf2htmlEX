@@ -25,7 +25,7 @@ namespace pdf2htmlEX {
 
 class Preprocessor : public OutputDev {
 public:
-    Preprocessor(const Param * param);
+    Preprocessor(const Param & param);
     virtual ~Preprocessor(void);
 
     void process(PDFDoc * doc);
@@ -51,7 +51,7 @@ public:
     double get_max_height (void) const { return max_height; }
 
 protected:
-    const Param * param;
+    const Param & param;
 
     double max_width, max_height;
 

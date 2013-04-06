@@ -25,7 +25,7 @@ using std::endl;
 using std::flush;
 using std::max;
 
-Preprocessor::Preprocessor(const Param * param)
+Preprocessor::Preprocessor(const Param & param)
     : OutputDev()
     , param(param)
     , max_width(0)
@@ -42,14 +42,14 @@ Preprocessor::~Preprocessor(void)
 
 void Preprocessor::process(PDFDoc * doc)
 {
-    int page_count = (param->last_page - param->first_page + 1);
-    for(int i = param->first_page; i <= param->last_page ; ++i) 
+    int page_count = (param.last_page - param.first_page + 1);
+    for(int i = param.first_page; i <= param.last_page ; ++i) 
     {
-        cerr << "Preprocessing: " << (i-param->first_page) << "/" << page_count << '\r' << flush;
+        cerr << "Preprocessing: " << (i-param.first_page) << "/" << page_count << '\r' << flush;
 
         doc->displayPage(this, i, DEFAULT_DPI, DEFAULT_DPI,
                 0, 
-                (!(param->use_cropbox)),
+                (!(param.use_cropbox)),
                 true,  // crop
                 false, // printing
                 nullptr, nullptr, nullptr, nullptr);

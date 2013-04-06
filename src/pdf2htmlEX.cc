@@ -10,10 +10,11 @@
 #include <string>
 #include <limits>
 #include <iostream>
+#include <memory>
+
 #include <getopt.h>
 
 #include <poppler-config.h>
-
 #include <goo/GooString.h>
 
 #include <Object.h>
@@ -181,7 +182,7 @@ int main(int argc, char **argv)
     // read config file
     globalParams = new GlobalParams();
     // open PDF file
-    PDFDoc *doc = nullptr;
+    PDFDoc * doc = nullptr;
     try
     {
         {
@@ -282,9 +283,7 @@ int main(int argc, char **argv)
 
         }
 
-        HTMLRenderer * htmlOut = new HTMLRenderer(&param);
-        htmlOut->process(doc);
-        delete htmlOut;
+        unique_ptr<HTMLRenderer>(new HTMLRenderer(param))->process(doc);
 
         finished = true;
     }
@@ -298,8 +297,8 @@ int main(int argc, char **argv)
     }
 
     // clean up
-    if(doc) delete doc;
-    if(globalParams) delete globalParams;
+    delete doc;
+    delete globalParams;
 
     // check for memory leaks
     Object::memCheck(stderr);

@@ -135,7 +135,7 @@ string HTMLRenderer::dump_embedded_font (GfxFont * font, long long fn_id)
 
         obj.streamReset();
 
-        filepath = (char*)str_fmt("%s/f%llx%s", param->tmp_dir.c_str(), fn_id, suffix.c_str());
+        filepath = (char*)str_fmt("%s/f%llx%s", param.tmp_dir.c_str(), fn_id, suffix.c_str());
         tmp_files.add(filepath);
 
         ofstream outf(filepath, ofstream::binary);
@@ -169,7 +169,7 @@ string HTMLRenderer::dump_embedded_font (GfxFont * font, long long fn_id)
 
 void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo & info, bool get_metric_only)
 {
-    if(param->debug)
+    if(param.debug)
     {
         cerr << "Embed font: " << filepath << " " << info.id << endl;
     }
@@ -177,9 +177,9 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
     ffw_load_font(filepath.c_str());
     ffw_prepare_font();
 
-    if(param->debug)
+    if(param.debug)
     {
-        auto fn = str_fmt("%s/__raw_font_%llx", param->tmp_dir.c_str(), info.id, param->font_suffix.c_str());
+        auto fn = str_fmt("%s/__raw_font_%llx", param.tmp_dir.c_str(), info.id, param.font_suffix.c_str());
         tmp_files.add((char*)fn);
         ofstream((char*)fn, ofstream::binary) << ifstream(filepath).rdbuf();
     }
@@ -198,7 +198,7 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
     /*
      * if parm->tounicode is 0, try the provided tounicode map first
      */
-    info.use_tounicode = (is_truetype_suffix(suffix) || (param->tounicode >= 0));
+    info.use_tounicode = (is_truetype_suffix(suffix) || (param.tounicode >= 0));
     bool has_space = false;
 
     const char * used_map = nullptr;
@@ -383,7 +383,7 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
             else
             {
                 // collision detected
-                if(param->tounicode == 0)
+                if(param.tounicode == 0)
                 {
                     // in auto mode, just drop the tounicode map
                     if(!retried)
@@ -430,7 +430,7 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
             }
         }
 
-        ffw_set_widths(width_list, max_key + 1, param->stretch_narrow_glyph, param->squeeze_wide_glyph, param->remove_unused_glyph);
+        ffw_set_widths(width_list, max_key + 1, param.stretch_narrow_glyph, param.squeeze_wide_glyph, param.remove_unused_glyph);
         
         ffw_reencode_raw(cur_mapping, max_key + 1, 1);
 
@@ -461,9 +461,9 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
      * Generate the font as desired
      *
      */
-    string cur_tmp_fn = (char*)str_fmt("%s/__tmp_font1%s", param->tmp_dir.c_str(), param->font_suffix.c_str());
+    string cur_tmp_fn = (char*)str_fmt("%s/__tmp_font1%s", param.tmp_dir.c_str(), param.font_suffix.c_str());
     tmp_files.add(cur_tmp_fn);
-    string other_tmp_fn = (char*)str_fmt("%s/__tmp_font2%s", param->tmp_dir.c_str(), param->font_suffix.c_str());
+    string other_tmp_fn = (char*)str_fmt("%s/__tmp_font2%s", param.tmp_dir.c_str(), param.font_suffix.c_str());
     tmp_files.add(other_tmp_fn);
 
     ffw_save(cur_tmp_fn.c_str());
@@ -477,13 +477,13 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
     bool hinted = false;
 
     // Call external hinting program if specified 
-    if(param->external_hint_tool != "")
+    if(param.external_hint_tool != "")
     {
-        hinted = (system((char*)str_fmt("%s \"%s\" \"%s\"", param->external_hint_tool.c_str(), cur_tmp_fn.c_str(), other_tmp_fn.c_str())) == 0);
+        hinted = (system((char*)str_fmt("%s \"%s\" \"%s\"", param.external_hint_tool.c_str(), cur_tmp_fn.c_str(), other_tmp_fn.c_str())) == 0);
     }
 
     // Call internal hinting procedure if specified 
-    if((!hinted) && (param->auto_hint))
+    if((!hinted) && (param.auto_hint))
     {
         ffw_load_font(cur_tmp_fn.c_str());
         ffw_auto_hint();
@@ -505,10 +505,10 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
      * We need to reload in order to retrieve/fix accurate ascent/descent, some info won't be written to the font by fontforge until saved.
      */
     string fn = (char*)str_fmt("%s/f%llx%s", 
-        (param->single_html ? param->tmp_dir : param->dest_dir).c_str(),
-        info.id, param->font_suffix.c_str());
+        (param.single_html ? param.tmp_dir : param.dest_dir).c_str(),
+        info.id, param.font_suffix.c_str());
 
-    if(param->single_html)
+    if(param.single_html)
         tmp_files.add(fn);
 
     ffw_load_font(cur_tmp_fn.c_str());
@@ -554,7 +554,7 @@ const FontInfo * HTMLRenderer::install_font(GfxFont * font)
     new_font_info.descent = font->getDescent();
     new_font_info.is_type3 = (font->getType() == fontType3);
 
-    if(param->debug)
+    if(param.debug)
     {
         cerr << "Install font: (" << (font->getID()->num) << ' ' << (font->getID()->gen) << ") -> " << "f" << hex << new_fn_id << dec << endl;
     }
@@ -605,7 +605,7 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, FontInfo & info)
     if(path != "")
     {
         embed_font(path, font, info);
-        export_remote_font(info, param->font_suffix, font);
+        export_remote_font(info, param.font_suffix, font);
     }
     else
     {
@@ -619,12 +619,12 @@ void HTMLRenderer::install_base_font(GfxFont * font, GfxFontLoc * font_loc, Font
     string basename = psname.substr(0, psname.find('-'));
 
     GfxFontLoc * localfontloc = font->locateFont(xref, gFalse);
-    if(param->embed_base_font)
+    if(param.embed_base_font)
     {
         if(localfontloc != nullptr)
         {
             embed_font(localfontloc->path->getCString(), font, info);
-            export_remote_font(info, param->font_suffix, font);
+            export_remote_font(info, param.font_suffix, font);
             delete localfontloc;
             return;
         }
@@ -676,12 +676,12 @@ void HTMLRenderer::install_external_font(GfxFont * font, FontInfo & info)
 
     GfxFontLoc * localfontloc = font->locateFont(xref, gFalse);
 
-    if(param->embed_external_font)
+    if(param.embed_external_font)
     {
         if(localfontloc != nullptr)
         {
             embed_font(string(localfontloc->path->getCString()), font, info);
-            export_remote_font(info, param->font_suffix, font);
+            export_remote_font(info, param.font_suffix, font);
             delete localfontloc;
             return;
         }
@@ -747,9 +747,9 @@ void HTMLRenderer::export_remote_font(const FontInfo & info, const string & suff
 
     {
         auto fn = str_fmt("f%llx%s", info.id, suffix.c_str());
-        if(param->single_html)
+        if(param.single_html)
         {
-            auto path = param->tmp_dir + "/" + (char*)fn;
+            auto path = param.tmp_dir + "/" + (char*)fn;
             ifstream fin(path, ifstream::binary);
             if(!fin)
                 throw "Cannot locate font file: " + path;

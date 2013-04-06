@@ -24,7 +24,7 @@ void SplashBackgroundRenderer::drawChar(GfxState *state, double x, double y,
     // - OR there is special filling method
     // - OR using a writing mode font
     // - OR using a Type 3 font
-    if((param->fallback)
+    if((param.fallback)
        || ( (state->getFont()) 
             && ( (state->getFont()->getWMode())
                  || (state->getFont()->getType() == fontType3)
@@ -42,15 +42,15 @@ static GBool annot_cb(Annot *, void *) {
 
 void SplashBackgroundRenderer::render_page(PDFDoc * doc, int pageno, const string & filename)
 {
-    doc->displayPage(this, pageno, param->h_dpi, param->v_dpi,
+    doc->displayPage(this, pageno, param.h_dpi, param.v_dpi,
             0, 
-            (!(param->use_cropbox)),
+            (!(param.use_cropbox)),
             false, false,
             nullptr, nullptr, &annot_cb, nullptr);
 
     getBitmap()->writeImgFile(splashFormatPng, 
             (char*)filename.c_str(),
-            param->h_dpi, param->v_dpi);
+            param.h_dpi, param.v_dpi);
 }
 
 } // namespace pdf2htmlEX

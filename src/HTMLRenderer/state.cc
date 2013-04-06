@@ -379,7 +379,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
     }
 
     // fill color
-    if((!(param->fallback)) && (all_changed || fill_color_changed))
+    if((!(param.fallback)) && (all_changed || fill_color_changed))
     {
         // * PDF Spec. Table 106 –Text rendering modes
         static const char FILL[8] = { true, false, true, false, true, false, true, false };
@@ -404,7 +404,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
     }
 
     // stroke color
-    if((!(param->fallback)) && (all_changed || stroke_color_changed))
+    if((!(param.fallback)) && (all_changed || stroke_color_changed))
     {
         // * PDF Spec. Table 106 –  Text rendering modes
         static const char STROKE[8] = { false, true, true, false, false, true, true, false };

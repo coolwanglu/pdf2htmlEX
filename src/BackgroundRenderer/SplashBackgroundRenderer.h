@@ -26,7 +26,7 @@ class SplashBackgroundRenderer : public SplashOutputDev
 public:
   static const SplashColor white;
 
-  SplashBackgroundRenderer(HTMLRenderer * html_renderer, const Param * param)
+  SplashBackgroundRenderer(HTMLRenderer * html_renderer, const Param & param)
       : SplashOutputDev(splashModeRGB8, 4, gFalse, (SplashColorPtr)&white, gTrue, gTrue)
       , html_renderer(html_renderer)
       , param(param)
@@ -53,7 +53,7 @@ public:
 
 protected:
   HTMLRenderer * html_renderer;
-  const Param * param;
+  const Param & param;
 };
 
 } // namespace pdf2htmlEX

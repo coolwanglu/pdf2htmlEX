@@ -194,7 +194,7 @@ void TextLineBuffer::flush(ostream & out)
                 double actual_offset = 0;
 
                 //ignore near-zero offsets
-                if(abs(target) <= param->h_eps)
+                if(abs(target) <= param.h_eps)
                 {
                     actual_offset = 0;
                 }
@@ -205,7 +205,7 @@ void TextLineBuffer::flush(ostream & out)
                     if(!(state_iter1->hash_umask & State::umask_by_id(State::WORD_SPACE_ID)))
                     {
                         double space_off = state_iter1->single_space_offset();
-                        if(abs(target - space_off) <= param->h_eps)
+                        if(abs(target - space_off) <= param.h_eps)
                         {
                             Unicode u = ' ';
                             outputUnicodes(out, &u, 1);
@@ -224,7 +224,7 @@ void TextLineBuffer::flush(ostream & out)
                             if(is_positive(-actual_offset))
                                 last_text_pos_with_negative_offset = cur_text_idx;
 
-                            double threshold = state_iter1->em_size() * (param->space_threshold);
+                            double threshold = state_iter1->em_size() * (param.space_threshold);
 
                             out << "<span class=\"" << CSS::WHITESPACE_CN
                                 << ' ' << CSS::WHITESPACE_CN << wid << "\">" << (target > (threshold - EPS) ? " " : "") << "</span>";
@@ -268,7 +268,7 @@ void TextLineBuffer::flush(ostream & out)
  */
 void TextLineBuffer::optimize()
 {
-    if(!(param->optimize_text))
+    if(!(param.optimize_text))
         return;
 
     assert(!states.empty());
@@ -395,7 +395,7 @@ void TextLineBuffer::optimize()
         // In some PDF files all spaces are converted into positionig shift
         // We may try to change (some of) them to ' ' by adjusting word_space
         // for now, we cosider only the no-space scenario
-        // which also includes the case when param->space_as_offset is set
+        // which also includes the case when param.space_as_offset is set
 
         // get the text segment covered by current state (*state_iter1)
         const auto text_iter1 = text.begin() + text_idx1;
@@ -408,7 +408,7 @@ void TextLineBuffer::optimize()
             
             if(offset_count > 0)
             {
-                double threshold = (state_iter1->em_size()) * (param->space_threshold);
+                double threshold = (state_iter1->em_size()) * (param.space_threshold);
                 // set word_space for the most frequently used offset
                 double most_used_width = 0;
                 size_t max_count = 0;
