@@ -156,8 +156,6 @@ add_executable(pdf2htmlEX
     src/HTMLRenderer/general.cc
     src/HTMLRenderer/image.cc
     src/HTMLRenderer/font.cc
-    src/HTMLRenderer/TextLineBuffer.h
-    src/HTMLRenderer/TextLineBuffer.cc
     src/HTMLRenderer/link.cc
     src/HTMLRenderer/outline.cc
     src/HTMLRenderer/state.cc
@@ -180,6 +178,7 @@ add_executable(pdf2htmlEX
     src/util/encoding.cc
     src/util/ffw.h
     src/util/ffw.c
+    src/util/HTMLState.h
     src/util/math.h
     src/util/math.cc
     src/util/misc.h
@@ -191,6 +190,8 @@ add_executable(pdf2htmlEX
     src/util/Preprocessor.cc
     src/util/StringFormatter.h
     src/util/StringFormatter.cc
+    src/util/TextLineBuffer.h
+    src/util/TextLineBuffer.cc
     src/util/TmpFiles.h
     src/util/TmpFiles.cc
     src/util/unicode.h

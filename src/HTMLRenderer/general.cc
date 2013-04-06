@@ -15,7 +15,7 @@
 #include <GlobalParams.h>
 
 #include "HTMLRenderer.h"
-#include "TextLineBuffer.h"
+#include "util/TextLineBuffer.h"
 #include "pdf2htmlEX-config.h"
 #include "BackgroundRenderer/BackgroundRenderer.h"
 #include "util/namespace.h"
@@ -40,7 +40,6 @@ using std::endl;
 HTMLRenderer::HTMLRenderer(const Param * param)
     :OutputDev()
     ,line_opened(false)
-    ,text_line_buf(new TextLineBuffer(this))
     ,preprocessor(param)
 	,tmp_files(*param)
     ,param(param)
@@ -51,6 +50,7 @@ HTMLRenderer::HTMLRenderer(const Param * param)
         globalParams->setErrQuiet(gTrue);
     }
 
+    text_line_buffers.emplace_back(new TextLineBuffer(param, all_manager));
     ffw_init(param->debug);
     cur_mapping = new int32_t [0x10000];
     cur_mapping2 = new char* [0x100];
@@ -61,24 +61,23 @@ HTMLRenderer::HTMLRenderer(const Param * param)
      * or may be handled well (whitespace_manager)
      * So we can set a large eps here
      */
-    vertical_align_manager.set_eps(param->v_eps);
-    whitespace_manager    .set_eps(param->h_eps);
-    left_manager          .set_eps(param->h_eps);
+    all_manager.vertical_align.set_eps(param->v_eps);
+    all_manager.whitespace    .set_eps(param->h_eps);
+    all_manager.left          .set_eps(param->h_eps);
     /*
      * For othere states, we need accurate values
      * optimization will be done separately
      */
-    font_size_manager   .set_eps(EPS);
-    letter_space_manager.set_eps(EPS);
-    word_space_manager  .set_eps(EPS);
-    height_manager      .set_eps(EPS);
-    width_manager       .set_eps(EPS);
-    bottom_manager      .set_eps(EPS);
+    all_manager.font_size   .set_eps(EPS);
+    all_manager.letter_space.set_eps(EPS);
+    all_manager.word_space  .set_eps(EPS);
+    all_manager.height      .set_eps(EPS);
+    all_manager.width       .set_eps(EPS);
+    all_manager.bottom      .set_eps(EPS);
 }
 
 HTMLRenderer::~HTMLRenderer()
 { 
-    delete text_line_buf;
     ffw_finalize();
     delete [] cur_mapping;
     delete [] cur_mapping2;
@@ -173,8 +172,8 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state, XRef * xref)
 
     this->pageNum = pageNum;
 
-    long long wid = width_manager.install(state->getPageWidth());
-    long long hid = height_manager.install(state->getPageHeight());
+    long long wid = all_manager.width.install(state->getPageWidth());
+    long long hid = all_manager.height.install(state->getPageHeight());
     f_pages.fs 
         << "<div class=\"" << CSS::PAGE_DECORATION_CN 
             << " " << CSS::WIDTH_CN << wid
@@ -211,6 +210,10 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state, XRef * xref)
 
 void HTMLRenderer::endPage() {
     close_text_line();
+
+    // dump all text
+    for(auto iter = text_line_buffers.begin(); iter != text_line_buffers.end(); ++iter)
+        (*iter)->flush(f_pages.fs);
 
     // process links before the page is closed
     cur_doc->processLinks(this, pageNum);
@@ -445,36 +448,36 @@ void HTMLRenderer::set_stream_flags(std::ostream & out)
 
 void HTMLRenderer::dump_css (void)
 {
-    transform_matrix_manager.dump_css(f_css.fs);
-    vertical_align_manager  .dump_css(f_css.fs);
-    letter_space_manager    .dump_css(f_css.fs);
-    stroke_color_manager    .dump_css(f_css.fs);
-    word_space_manager      .dump_css(f_css.fs);
-    whitespace_manager      .dump_css(f_css.fs);
-    fill_color_manager      .dump_css(f_css.fs);
-    font_size_manager       .dump_css(f_css.fs);
-    bottom_manager          .dump_css(f_css.fs);
-    height_manager          .dump_css(f_css.fs);
-    width_manager           .dump_css(f_css.fs);
-    left_manager            .dump_css(f_css.fs);
-    bgimage_size_manager    .dump_css(f_css.fs);
+    all_manager.transform_matrix.dump_css(f_css.fs);
+    all_manager.vertical_align  .dump_css(f_css.fs);
+    all_manager.letter_space    .dump_css(f_css.fs);
+    all_manager.stroke_color    .dump_css(f_css.fs);
+    all_manager.word_space      .dump_css(f_css.fs);
+    all_manager.whitespace      .dump_css(f_css.fs);
+    all_manager.fill_color      .dump_css(f_css.fs);
+    all_manager.font_size       .dump_css(f_css.fs);
+    all_manager.bottom          .dump_css(f_css.fs);
+    all_manager.height          .dump_css(f_css.fs);
+    all_manager.width           .dump_css(f_css.fs);
+    all_manager.left            .dump_css(f_css.fs);
+    all_manager.bgimage_size    .dump_css(f_css.fs);
     
     // print css
     double ps = print_scale();
     f_css.fs << CSS::PRINT_ONLY << "{" << endl;
-    transform_matrix_manager.dump_print_css(f_css.fs, ps);
-    vertical_align_manager  .dump_print_css(f_css.fs, ps);
-    letter_space_manager    .dump_print_css(f_css.fs, ps);
-    stroke_color_manager    .dump_print_css(f_css.fs, ps);
-    word_space_manager      .dump_print_css(f_css.fs, ps);
-    whitespace_manager      .dump_print_css(f_css.fs, ps);
-    fill_color_manager      .dump_print_css(f_css.fs, ps);
-    font_size_manager       .dump_print_css(f_css.fs, ps);
-    bottom_manager          .dump_print_css(f_css.fs, ps);
-    height_manager          .dump_print_css(f_css.fs, ps);
-    width_manager           .dump_print_css(f_css.fs, ps);
-    left_manager            .dump_print_css(f_css.fs, ps);
-    bgimage_size_manager    .dump_print_css(f_css.fs, ps);
+    all_manager.transform_matrix.dump_print_css(f_css.fs, ps);
+    all_manager.vertical_align  .dump_print_css(f_css.fs, ps);
+    all_manager.letter_space    .dump_print_css(f_css.fs, ps);
+    all_manager.stroke_color    .dump_print_css(f_css.fs, ps);
+    all_manager.word_space      .dump_print_css(f_css.fs, ps);
+    all_manager.whitespace      .dump_print_css(f_css.fs, ps);
+    all_manager.fill_color      .dump_print_css(f_css.fs, ps);
+    all_manager.font_size       .dump_print_css(f_css.fs, ps);
+    all_manager.bottom          .dump_print_css(f_css.fs, ps);
+    all_manager.height          .dump_print_css(f_css.fs, ps);
+    all_manager.width           .dump_print_css(f_css.fs, ps);
+    all_manager.left            .dump_print_css(f_css.fs, ps);
+    all_manager.bgimage_size    .dump_print_css(f_css.fs, ps);
     f_css.fs << "}" << endl;
 }
 

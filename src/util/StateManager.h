@@ -410,6 +410,23 @@ private:
     std::unordered_map<int, std::pair<double,double>> value_map; 
 };
 
+struct AllStateManater
+{
+    TransformMatrixManager transform_matrix;
+    VerticalAlignManager     vertical_align;
+    StrokeColorManager         stroke_color;
+    LetterSpaceManager         letter_space;
+    WhitespaceManager            whitespace;
+    WordSpaceManager             word_space;
+    FillColorManager             fill_color;
+    FontSizeManager               font_size;
+    BottomManager                    bottom;
+    HeightManager                    height;
+    WidthManager                      width;
+    LeftManager                        left;
+    BGImageSizeManager         bgimage_size;
+};
+
 } // namespace pdf2htmlEX 
 
 #endif //STATEMANAGER_H__

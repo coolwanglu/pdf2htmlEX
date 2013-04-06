@@ -4,6 +4,10 @@
 #include <iostream>
 #include <vector>
 
+#include "Param.h"
+#include "util/StateManager.h"
+#include "util/HTMLState.h"
+
 namespace pdf2htmlEX {
 
 /*
@@ -13,11 +17,11 @@ namespace pdf2htmlEX {
  *  - State change
  * within a line
  */
-class HTMLRenderer;
-class HTMLRenderer::TextLineBuffer
+class TextLineBuffer
 {
 public:
-    TextLineBuffer (HTMLRenderer * renderer) : renderer(renderer) { }
+    TextLineBuffer (const Param * param, AllStateManater & all_manager) 
+        : param(param), all_manager(all_manager) { }
 
     class State : public HTMLState {
     public:
@@ -73,12 +77,13 @@ public:
     void append_unicodes(const Unicode * u, int l);
     void append_offset(double width);
     void append_state(const HTMLState & html_state);
-    void flush(void);
+    void flush(std::ostream & out);
 
 private:
     void optimize(void);
 
-    HTMLRenderer * renderer;
+    const Param * param;
+    AllStateManater & all_manager;
 
     double x, y;
     long long tm_id;

@@ -206,7 +206,7 @@ void HTMLRenderer::processLink(AnnotLink * al)
     }
 
     f_pages.fs << "<div class=\"" << CSS::CSS_DRAW_CN << ' ' << CSS::TRANSFORM_MATRIX_CN
-        << transform_matrix_manager.install(default_ctm)
+        << all_manager.transform_matrix.install(default_ctm)
         << "\" style=\"";
 
     double x,y,w,h;

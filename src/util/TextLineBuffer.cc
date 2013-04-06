@@ -10,8 +10,8 @@
 #include <cmath>
 #include <algorithm>
 
-#include "HTMLRenderer.h"
-#include "TextLineBuffer.h"
+#include "HTMLRenderer/HTMLRenderer.h"
+#include "util/TextLineBuffer.h"
 #include "util/namespace.h"
 #include "util/unicode.h"
 #include "util/math.h"
@@ -29,12 +29,12 @@ using std::endl;
 using std::find;
 using std::abs;
 
-void HTMLRenderer::TextLineBuffer::append_unicodes(const Unicode * u, int l)
+void TextLineBuffer::append_unicodes(const Unicode * u, int l)
 {
     text.insert(text.end(), u, u+l);
 }
 
-void HTMLRenderer::TextLineBuffer::append_offset(double width)
+void TextLineBuffer::append_offset(double width)
 {
     /*
      * If the last offset is very thin, we can ignore it and directly use it
@@ -47,7 +47,7 @@ void HTMLRenderer::TextLineBuffer::append_offset(double width)
         offsets.emplace_back(text.size(), width);
 }
 
-void HTMLRenderer::TextLineBuffer::append_state(const HTMLState & html_state)
+void TextLineBuffer::append_state(const HTMLState & html_state)
 {
     if(states.empty() || (states.back().start_idx != text.size()))
     {
@@ -59,7 +59,7 @@ void HTMLRenderer::TextLineBuffer::append_state(const HTMLState & html_state)
     (HTMLState&)(states.back()) = html_state;
 }
 
-void HTMLRenderer::TextLineBuffer::flush(void)
+void TextLineBuffer::flush(ostream & out)
 {
     /*
      * Each Line is an independent absolute positioned block
@@ -79,6 +79,7 @@ void HTMLRenderer::TextLineBuffer::flush(void)
     if(states.empty() || (states[0].start_idx != 0))
     {
         cerr << "Warning: text without a style! Must be a bug in pdf2htmlEX" << endl;
+        states.clear();
         text.clear();
         offsets.clear();
         return;
@@ -88,7 +89,6 @@ void HTMLRenderer::TextLineBuffer::flush(void)
     optimize();
 
     // Start Output
-    ostream & out = renderer->f_pages.fs;
     {
         // max_ascent determines the height of the div
         double accum_vertical_align = 0; // accumulated
@@ -103,10 +103,10 @@ void HTMLRenderer::TextLineBuffer::flush(void)
 
         // open <div> for the current text line
         out << "<div class=\"" << CSS::LINE_CN
-            << " "             << CSS::TRANSFORM_MATRIX_CN << renderer->transform_matrix_manager.install(states[0].transform_matrix)
-            << " "             << CSS::LEFT_CN             << renderer->left_manager            .install(states[0].x)
-            << " "             << CSS::HEIGHT_CN           << renderer->height_manager          .install(max_ascent)
-            << " "             << CSS::BOTTOM_CN           << renderer->bottom_manager          .install(states[0].y)
+            << " " << CSS::TRANSFORM_MATRIX_CN << all_manager.transform_matrix.install(states[0].transform_matrix)
+            << " " << CSS::LEFT_CN             << all_manager.left.install(states[0].x)
+            << " " << CSS::HEIGHT_CN           << all_manager.height.install(max_ascent)
+            << " " << CSS::BOTTOM_CN           << all_manager.bottom.install(states[0].y)
             ;
         // it will be closed by the first state
     }
@@ -132,11 +132,11 @@ void HTMLRenderer::TextLineBuffer::flush(void)
         { 
             // set id
             state_iter1->ids[State::FONT_ID] = state_iter1->font_info->id;
-            state_iter1->ids[State::FONT_SIZE_ID]      = renderer->font_size_manager     .install(state_iter1->font_size);
-            state_iter1->ids[State::FILL_COLOR_ID]     = renderer->fill_color_manager    .install(state_iter1->fill_color);
-            state_iter1->ids[State::STROKE_COLOR_ID]   = renderer->stroke_color_manager  .install(state_iter1->stroke_color);
-            state_iter1->ids[State::LETTER_SPACE_ID]   = renderer->letter_space_manager  .install(state_iter1->letter_space);
-            state_iter1->ids[State::WORD_SPACE_ID]     = renderer->word_space_manager    .install(state_iter1->word_space);
+            state_iter1->ids[State::FONT_SIZE_ID]      = all_manager.font_size.install(state_iter1->font_size);
+            state_iter1->ids[State::FILL_COLOR_ID]     = all_manager.fill_color.install(state_iter1->fill_color);
+            state_iter1->ids[State::STROKE_COLOR_ID]   = all_manager.stroke_color.install(state_iter1->stroke_color);
+            state_iter1->ids[State::LETTER_SPACE_ID]   = all_manager.letter_space.install(state_iter1->letter_space);
+            state_iter1->ids[State::WORD_SPACE_ID]     = all_manager.word_space.install(state_iter1->word_space);
             state_iter1->hash();
 
             // greedy
@@ -172,7 +172,7 @@ void HTMLRenderer::TextLineBuffer::flush(void)
                 vertical_align += (*iter)->vertical_align;
             }
             // 
-            state_iter1->ids[State::VERTICAL_ALIGN_ID] = renderer->vertical_align_manager.install(state_iter1->vertical_align);
+            state_iter1->ids[State::VERTICAL_ALIGN_ID] = all_manager.vertical_align.install(state_iter1->vertical_align);
             // export the diff between *state_iter1 and stack.back()
             state_iter1->begin(out, stack.back());
             stack.push_back(&*state_iter1);
@@ -194,7 +194,7 @@ void HTMLRenderer::TextLineBuffer::flush(void)
                 double actual_offset = 0;
 
                 //ignore near-zero offsets
-                if(abs(target) <= renderer->param->h_eps)
+                if(abs(target) <= param->h_eps)
                 {
                     actual_offset = 0;
                 }
@@ -205,7 +205,7 @@ void HTMLRenderer::TextLineBuffer::flush(void)
                     if(!(state_iter1->hash_umask & State::umask_by_id(State::WORD_SPACE_ID)))
                     {
                         double space_off = state_iter1->single_space_offset();
-                        if(abs(target - space_off) <= renderer->param->h_eps)
+                        if(abs(target - space_off) <= param->h_eps)
                         {
                             Unicode u = ' ';
                             outputUnicodes(out, &u, 1);
@@ -217,14 +217,14 @@ void HTMLRenderer::TextLineBuffer::flush(void)
                     // finally, just dump it
                     if(!done)
                     {
-                        long long wid = renderer->whitespace_manager.install(target, &actual_offset);
+                        long long wid = all_manager.whitespace.install(target, &actual_offset);
 
                         if(!equal(actual_offset, 0))
                         {
                             if(is_positive(-actual_offset))
                                 last_text_pos_with_negative_offset = cur_text_idx;
 
-                            double threshold = state_iter1->em_size() * (renderer->param->space_threshold);
+                            double threshold = state_iter1->em_size() * (param->space_threshold);
 
                             out << "<span class=\"" << CSS::WHITESPACE_CN
                                 << ' ' << CSS::WHITESPACE_CN << wid << "\">" << (target > (threshold - EPS) ? " " : "") << "</span>";
@@ -266,9 +266,9 @@ void HTMLRenderer::TextLineBuffer::flush(void)
  * Adjust letter space and word space in order to reduce the number of HTML elements
  * May also unmask word space
  */
-void HTMLRenderer::TextLineBuffer::optimize()
+void TextLineBuffer::optimize()
 {
-    if(!(renderer->param->optimize_text))
+    if(!(param->optimize_text))
         return;
 
     assert(!states.empty());
@@ -276,8 +276,8 @@ void HTMLRenderer::TextLineBuffer::optimize()
     const long long word_space_umask = State::umask_by_id(State::WORD_SPACE_ID);
 
     // for optimization, we need accurate values
-    auto & ls_manager = renderer->letter_space_manager;
-    auto & ws_manager = renderer->word_space_manager;
+    auto & ls_manager = all_manager.letter_space;
+    auto & ws_manager = all_manager.word_space;
     
     // statistics of widths
     std::map<double, size_t> width_map;
@@ -408,7 +408,7 @@ void HTMLRenderer::TextLineBuffer::optimize()
             
             if(offset_count > 0)
             {
-                double threshold = (state_iter1->em_size()) * (renderer->param->space_threshold);
+                double threshold = (state_iter1->em_size()) * (param->space_threshold);
                 // set word_space for the most frequently used offset
                 double most_used_width = 0;
                 size_t max_count = 0;
@@ -446,7 +446,7 @@ void HTMLRenderer::TextLineBuffer::optimize()
 // this state will be converted to a child node of the node of prev_state
 // dump the difference between previous state
 // also clone corresponding states
-void HTMLRenderer::TextLineBuffer::State::begin (ostream & out, const State * prev_state)
+void TextLineBuffer::State::begin (ostream & out, const State * prev_state)
 {
     if(prev_state)
     {
@@ -566,13 +566,13 @@ void HTMLRenderer::TextLineBuffer::State::begin (ostream & out, const State * pr
     }
 }
 
-void HTMLRenderer::TextLineBuffer::State::end(ostream & out) const
+void TextLineBuffer::State::end(ostream & out) const
 {
     if(need_close)
         out << "</span>";
 }
 
-void HTMLRenderer::TextLineBuffer::State::hash(void)
+void TextLineBuffer::State::hash(void)
 {
     hash_value = 0;
     for(int i = 0; i < ID_COUNT; ++i)
@@ -581,7 +581,7 @@ void HTMLRenderer::TextLineBuffer::State::hash(void)
     }
 }
 
-int HTMLRenderer::TextLineBuffer::State::diff(const State & s) const
+int TextLineBuffer::State::diff(const State & s) const
 {
     /*
      * A quick check based on hash_value
@@ -602,23 +602,23 @@ int HTMLRenderer::TextLineBuffer::State::diff(const State & s) const
     return d;
 }
 
-double HTMLRenderer::TextLineBuffer::State::single_space_offset(void) const
+double TextLineBuffer::State::single_space_offset(void) const
 {
     return word_space + letter_space + font_info->space_width * font_size;
 }
 
-double HTMLRenderer::TextLineBuffer::State::em_size(void) const
+double TextLineBuffer::State::em_size(void) const
 {
     return font_size * (font_info->ascent - font_info->descent);
 }
 
-long long HTMLRenderer::TextLineBuffer::State::umask_by_id(int id)
+long long TextLineBuffer::State::umask_by_id(int id)
 {
     return (((long long)0xff) << (8*id));
 }
 
 // the order should be the same as in the enum
-const char * const HTMLRenderer::TextLineBuffer::State::css_class_names [] = {
+const char * const TextLineBuffer::State::css_class_names [] = {
     CSS::FONT_FAMILY_CN,
     CSS::FONT_SIZE_CN,
     CSS::FILL_COLOR_CN,

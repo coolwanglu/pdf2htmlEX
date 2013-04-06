@@ -10,6 +10,7 @@
 #include <unordered_map>
 #include <cstdint>
 #include <fstream>
+#include <memory>
 
 #include <OutputDev.h>
 #include <GfxState.h>
@@ -28,35 +29,9 @@
 #include "util/misc.h"
 #include "util/color.h"
 #include "util/StateManager.h"
+#include "util/TextLineBuffer.h"
 
 namespace pdf2htmlEX {
-
-
-struct FontInfo
-{
-    long long id;
-    bool use_tounicode;
-    int em_size;
-    double space_width;
-    double ascent, descent;
-    bool is_type3;
-};
-
-struct HTMLState
-{
-    const FontInfo * font_info;
-    double font_size;
-    Color fill_color;
-    Color stroke_color;
-    double letter_space;
-    double word_space;
-    
-    // relative to the previous state
-    double vertical_align;
-    
-    double x,y;
-    double transform_matrix[4];
-};
 
 class HTMLRenderer : public OutputDev
 {
@@ -267,7 +242,7 @@ protected:
 
 
     ////////////////////////////////////////////////////
-    // states
+    // PDF states
     ////////////////////////////////////////////////////
     bool line_opened;
     enum NewLineState
@@ -277,7 +252,6 @@ protected:
         NLS_DIV   // has to open a new <div>
     } new_line_state;
     
-
     // track the original (unscaled) values to determine scaling and merge lines
     // current position
     double cur_tx, cur_ty; // real text position, in text coords
@@ -298,6 +272,9 @@ protected:
     bool letter_space_changed;
     bool stroke_color_changed;
 
+    ////////////////////////////////////////////////////
+    // HTML states
+    ////////////////////////////////////////////////////
 
     // optimize for web
     // we try to render the final font size directly
@@ -314,9 +291,8 @@ protected:
 
     // some metrics have to be determined after all elements in the lines have been seen
     // see TextLineBuffer.h
-    class TextLineBuffer;
     friend class TextLineBuffer;
-    TextLineBuffer * text_line_buf;
+    std::vector<std::unique_ptr<TextLineBuffer>> text_line_buffers;
 
     // for font reencoding
     int32_t * cur_mapping;
@@ -337,22 +313,7 @@ protected:
     std::unordered_map<long long, FontInfo> font_info_map;
 
     // managers store values actually used in HTML (i.e. scaled)
-    ////////////////////////////////////////////////
-    TransformMatrixManager transform_matrix_manager;
-    VerticalAlignManager     vertical_align_manager;
-    StrokeColorManager         stroke_color_manager;
-    LetterSpaceManager         letter_space_manager;
-    WhitespaceManager            whitespace_manager;
-    WordSpaceManager             word_space_manager;
-    FillColorManager             fill_color_manager;
-    FontSizeManager               font_size_manager;
-    BottomManager                    bottom_manager;
-    HeightManager                    height_manager;
-    WidthManager                      width_manager;
-    LeftManager                        left_manager;
-    ////////////////////////////////////////////////
-    BGImageSizeManager         bgimage_size_manager;
-
+    AllStateManater all_manager;
 
     const Param * param;
 
