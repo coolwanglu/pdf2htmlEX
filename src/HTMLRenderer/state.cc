@@ -316,7 +316,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
                     // otherwise we merge the lines only when
                     // - text are not shifted to the left too much
                     // - text are not moved too high or too low
-                    if((dx * old_draw_text_scale) >= -(old_html_state.font_info->ascent - old_html_state.font_info->descent) * old_html_state.font_size - EPS)
+                    if((dx * old_draw_text_scale) >= -param.space_threshold * old_html_state.em_size() - EPS)
                     {
                         double oldymin = old_html_state.font_info->descent * old_html_state.font_size;
                         double oldymax = old_html_state.font_info->ascent * old_html_state.font_size;
