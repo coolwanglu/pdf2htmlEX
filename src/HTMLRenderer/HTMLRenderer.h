@@ -10,7 +10,6 @@
 #include <unordered_map>
 #include <cstdint>
 #include <fstream>
-#include <memory>
 
 #include <OutputDev.h>
 #include <GfxState.h>
@@ -27,7 +26,7 @@
 #include "TmpFiles.h"
 #include "Color.h"
 #include "StateManager.h"
-#include "HTMLTextLine.h"
+#include "HTMLTextPage.h"
 
 #include "util/const.h"
 #include "util/misc.h"
@@ -242,17 +241,11 @@ protected:
     double print_scale (void) const { return 96.0 / DEFAULT_DPI / text_zoom_factor(); }
 
 
+    const Param & param;
+
     ////////////////////////////////////////////////////
     // PDF states
     ////////////////////////////////////////////////////
-    bool line_opened;
-    enum NewLineState
-    {
-        NLS_NONE, // stay with the same style
-        NLS_SPAN, // open a new <span> if possible, otherwise a new <div>
-        NLS_DIV   // has to open a new <div>
-    } new_line_state;
-    
     // track the original (unscaled) values to determine scaling and merge lines
     // current position
     double cur_tx, cur_ty; // real text position, in text coords
@@ -290,8 +283,18 @@ protected:
     // also keep in mind that they are not the final position, as they will be transform by CTM (also true for cur_tx/ty)
     double draw_tx, draw_ty; 
 
-    // some metrics have to be determined after all elements in the lines have been seen
-    std::vector<std::unique_ptr<HTMLTextLine>> text_lines;
+    // managers store values actually used in HTML (i.e. scaled)
+    AllStateManater all_manager;
+
+    enum NewLineState
+    {
+        NLS_NONE, // stay with the same style
+        NLS_SPAN, // open a new <span> if possible, otherwise a new <div>
+        NLS_DIV   // has to open a new <div>
+    } new_line_state;
+    
+
+    HTMLTextPage html_text_page;
 
     // for font reencoding
     int32_t * cur_mapping;
@@ -310,11 +313,6 @@ protected:
 
     HTMLState cur_html_state;
     std::unordered_map<long long, FontInfo> font_info_map;
-
-    // managers store values actually used in HTML (i.e. scaled)
-    AllStateManater all_manager;
-
-    const Param & param;
 
     struct {
         std::ofstream fs;

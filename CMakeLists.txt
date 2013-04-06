@@ -181,15 +181,17 @@ add_executable(pdf2htmlEX
     src/util/path.cc
     src/util/unicode.h
     src/util/unicode.cc
-    src/HTMLState.h
     src/ArgParser.h
     src/ArgParser.cc
     src/Base64Stream.h
     src/Base64Stream.cc
     src/Color.h
     src/Color.cc
+    src/HTMLState.h
     src/HTMLTextLine.h
     src/HTMLTextLine.cc
+    src/HTMLTextPage.h
+    src/HTMLTextPage.cc
     src/Preprocessor.h
     src/Preprocessor.cc
     src/StringFormatter.h

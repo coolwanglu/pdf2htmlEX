@@ -40,10 +40,10 @@ using std::endl;
 
 HTMLRenderer::HTMLRenderer(const Param & param)
     :OutputDev()
-    ,line_opened(false)
+    ,param(param)
+    ,html_text_page(param, all_manager)
     ,preprocessor(param)
 	,tmp_files(param)
-    ,param(param)
 {
     if(!(param.debug))
     {
@@ -51,7 +51,6 @@ HTMLRenderer::HTMLRenderer(const Param & param)
         globalParams->setErrQuiet(gTrue);
     }
 
-    text_lines.emplace_back(new HTMLTextLine(param, all_manager));
     ffw_init(param.debug);
     cur_mapping = new int32_t [0x10000];
     cur_mapping2 = new char* [0x100];
@@ -169,8 +168,6 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
 
 void HTMLRenderer::startPage(int pageNum, GfxState *state, XRef * xref) 
 {
-    assert((!line_opened) && "Open line in startPage detected!");
-
     this->pageNum = pageNum;
 
     long long wid = all_manager.width.install(state->getPageWidth());
@@ -213,8 +210,9 @@ void HTMLRenderer::endPage() {
     close_text_line();
 
     // dump all text
-    for(auto iter = text_lines.begin(); iter != text_lines.end(); ++iter)
-        (*iter)->flush(f_pages.fs);
+    html_text_page.dump_text(f_pages.fs);
+    html_text_page.dump_css(f_css.fs);
+    html_text_page.clear();
 
     // process links before the page is closed
     cur_doc->processLinks(this, pageNum);

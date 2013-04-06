@@ -335,7 +335,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
 
         if(merged)
         {
-            text_lines.back()->append_offset(dx * old_draw_text_scale);
+            html_text_page.append_offset(dx * old_draw_text_scale);
             if(equal(dy, 0))
             {
                 cur_html_state.vertical_align = 0;
@@ -434,11 +434,6 @@ void HTMLRenderer::check_state_change(GfxState * state)
 
 void HTMLRenderer::prepare_text_line(GfxState * state)
 {
-    if(!line_opened)
-    {
-        new_line_state = NLS_DIV;
-    }
-    
     if(new_line_state == NLS_DIV)
     {
         close_text_line();
@@ -458,26 +453,20 @@ void HTMLRenderer::prepare_text_line(GfxState * state)
         double target = (cur_tx - draw_tx) * draw_text_scale;
         if(!equal(target, 0))
         {
-            text_lines.back()->append_offset(target);
+            html_text_page.append_offset(target);
             draw_tx += target / draw_text_scale;
         }
     }
 
     if(new_line_state != NLS_NONE)
     {
-        text_lines.back()->append_state(cur_html_state);
+        html_text_page.append_state(cur_html_state);
     }
-
-    line_opened = true;
 }
 
 void HTMLRenderer::close_text_line()
 {
-    if(line_opened)
-    {
-        line_opened = false;
-        text_lines.emplace_back(new HTMLTextLine(param, all_manager));
-    }
+    html_text_page.open_new_line();
 }
 
 } //namespace pdf2htmlEX

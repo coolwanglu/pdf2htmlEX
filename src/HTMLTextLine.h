@@ -27,8 +27,7 @@ namespace pdf2htmlEX {
 class HTMLTextLine
 {
 public:
-    HTMLTextLine (const Param & param, AllStateManater & all_manager) 
-        : param(param), all_manager(all_manager) { }
+    HTMLTextLine (const Param & param, AllStateManater & all_manager);
 
     struct State : public HTMLState {
         // before output
@@ -78,7 +77,10 @@ public:
     void append_unicodes(const Unicode * u, int l);
     void append_offset(double width);
     void append_state(const HTMLState & html_state);
-    void flush(std::ostream & out);
+    void dump_text(std::ostream & out);
+
+    bool empty(void) const { return text.empty(); }
+    void clear(void);
 
 private:
     void optimize(void);

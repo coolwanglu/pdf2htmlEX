@@ -6,17 +6,13 @@
  * Copyright (C) 2012,2013 Lu Wang <coolwanglu@gmail.com>
  */
 
-#include <vector>
 #include <cmath>
 #include <algorithm>
 
 #include "HTMLTextLine.h"
 
-#include "util/namespace.h"
-#include "util/unicode.h"
-#include "util/math.h"
-#include "util/css_const.h"
 #include "util/encoding.h"
+#include "util/css_const.h"
 
 namespace pdf2htmlEX {
 
@@ -28,6 +24,10 @@ using std::cerr;
 using std::endl;
 using std::find;
 using std::abs;
+
+HTMLTextLine::HTMLTextLine (const Param & param, AllStateManater & all_manager) 
+    : param(param), all_manager(all_manager) 
+{ }
 
 void HTMLTextLine::append_unicodes(const Unicode * u, int l)
 {
@@ -59,18 +59,14 @@ void HTMLTextLine::append_state(const HTMLState & html_state)
     (HTMLState&)(states.back()) = html_state;
 }
 
-void HTMLTextLine::flush(ostream & out)
+void HTMLTextLine::dump_text(ostream & out)
 {
     /*
      * Each Line is an independent absolute positioned block
      * so even we have a few states or offsets, we may omit them
      */
     if(text.empty())
-    { 
-        states.clear();
-        offsets.clear();
         return;
-    }
 
     // remove unuseful states in the end
     while((!states.empty()) && (states.back().start_idx >= text.size()))
@@ -79,9 +75,6 @@ void HTMLTextLine::flush(ostream & out)
     if(states.empty() || (states[0].start_idx != 0))
     {
         cerr << "Warning: text without a style! Must be a bug in pdf2htmlEX" << endl;
-        states.clear();
-        text.clear();
-        offsets.clear();
         return;
     }
 
@@ -256,7 +249,10 @@ void HTMLTextLine::flush(ostream & out)
     }
 
     out << "</div>";
+}
 
+void HTMLTextLine::clear(void)
+{
     states.clear();
     offsets.clear();
     text.clear();
