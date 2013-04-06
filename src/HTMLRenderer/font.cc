@@ -244,8 +244,7 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
         if(is_truetype_suffix(suffix))
         {
             ffw_reencode_glyph_order();
-            FoFiTrueType *fftt = nullptr;
-            if((fftt = FoFiTrueType::load((char*)filepath.c_str())) != nullptr)
+            if(FoFiTrueType * fftt = FoFiTrueType::load((char*)filepath.c_str()))
             {
                 code2GID = font_8bit->getCodeToGIDMap(fftt);
                 code2GID_len = 256;
@@ -570,8 +569,7 @@ const FontInfo * HTMLRenderer::install_font(GfxFont * font)
         return &(cur_info_iter->second);
     }
 
-    auto * font_loc = font->locateFont(xref, gTrue);
-    if(font_loc != nullptr)
+    if(auto * font_loc = font->locateFont(xref, gTrue))
     {
         switch(font_loc -> locType)
         {
