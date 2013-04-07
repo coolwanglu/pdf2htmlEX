@@ -5,11 +5,11 @@
  * 2012.09.10
  */
 
-#include <getopt.h>
 #include <iostream>
-#include <vector>
 #include <unordered_map>
 #include <cassert>
+
+#include <getopt.h>
 
 #include "ArgParser.h"
 

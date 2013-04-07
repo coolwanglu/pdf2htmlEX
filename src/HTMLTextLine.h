@@ -5,7 +5,7 @@
 #ifndef HTMLTEXTLINE_H__
 #define HTMLTEXTLINE_H__
 
-#include <iostream>
+#include <ostream>
 #include <vector>
 
 #include <CharTypes.h>
