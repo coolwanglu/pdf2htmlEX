@@ -39,6 +39,4 @@ ostream & Base64Stream::dumpto(ostream & out)
 
 const char * Base64Stream::base64_encoding = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
-ostream & operator << (ostream & out, Base64Stream bf) { return bf.dumpto(out); }
-
 } //namespace pdf2htmlEX

@@ -24,7 +24,11 @@ private:
     static const char * base64_encoding;
 };
 
-std::ostream & operator << (std::ostream & out, Base64Stream bf);
+inline 
+std::ostream & operator << (std::ostream & out, Base64Stream bs)
+{
+    return bs.dumpto(out);
+}
 
 } //namespace pdf2htmlEX
 #endif //BASE64STREAM_H__
