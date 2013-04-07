@@ -284,7 +284,7 @@ protected:
     double draw_tx, draw_ty; 
 
     // managers store values actually used in HTML (i.e. scaled)
-    AllStateManater all_manager;
+    AllStateManager all_manager;
 
     enum NewLineState
     {

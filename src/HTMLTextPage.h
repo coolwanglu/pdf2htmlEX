@@ -26,7 +26,7 @@ namespace pdf2htmlEX {
 class HTMLTextPage
 {
 public:
-    HTMLTextPage (const Param & param, AllStateManater & all_manager);
+    HTMLTextPage (const Param & param, AllStateManager & all_manager);
 
     void append_unicodes(const Unicode * u, int l);
     void append_offset(double offset);
@@ -39,10 +39,11 @@ public:
     void open_new_line(void);
 
 private:
+    void prepare(void);
     void optimize(void);
 
     const Param & param;
-    AllStateManater & all_manager;
+    AllStateManager & all_manager;
     HTMLTextLine * last_line;
     std::vector<std::unique_ptr<HTMLTextLine>> text_lines;
 };

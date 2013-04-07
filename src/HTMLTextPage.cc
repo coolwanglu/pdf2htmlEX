@@ -12,7 +12,7 @@ namespace pdf2htmlEX {
 
 using std::ostream;
 
-HTMLTextPage::HTMLTextPage(const Param & param, AllStateManater & all_manager)
+HTMLTextPage::HTMLTextPage(const Param & param, AllStateManager & all_manager)
     : param(param)
     , all_manager(all_manager)
     , last_line(nullptr)
@@ -20,7 +20,7 @@ HTMLTextPage::HTMLTextPage(const Param & param, AllStateManater & all_manager)
 
 void HTMLTextPage::dump_text(ostream & out)
 {
-    optimize();
+    prepare();
     for(auto iter = text_lines.begin(); iter != text_lines.end(); ++iter)
         (*iter)->dump_text(out);
 }
@@ -69,6 +69,16 @@ void HTMLTextPage::open_new_line(void)
         text_lines.emplace_back(new HTMLTextLine(param, all_manager));
         last_line = text_lines.back().get();
     }
+}
+
+void HTMLTextPage::prepare(void)
+{
+    for(auto iter = text_lines.begin(); iter != text_lines.end(); ++iter)
+    {
+        (*iter)->prepare();
+    }
+    if(param.optimize_text)
+        optimize();
 }
 
 void HTMLTextPage::optimize(void)

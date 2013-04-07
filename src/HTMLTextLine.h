@@ -27,7 +27,7 @@ namespace pdf2htmlEX {
 class HTMLTextLine
 {
 public:
-    HTMLTextLine (const Param & param, AllStateManater & all_manager);
+    HTMLTextLine (const Param & param, AllStateManager & all_manager);
 
     struct State : public HTMLState {
         // before output
@@ -65,7 +65,6 @@ public:
         static const char * const css_class_names []; // class names for each id
     };
 
-
     struct Offset {
         Offset(size_t size_idx, double width)
             :start_idx(size_idx),width(width)
@@ -77,26 +76,33 @@ public:
     void append_unicodes(const Unicode * u, int l);
     void append_offset(double width);
     void append_state(const HTMLState & html_state);
-    void dump_text(std::ostream & out);
+    // return if anything dumped
+    bool dump_text(std::ostream & out);
 
     bool empty(void) const { return text.empty(); }
     void clear(void);
 
+    /*
+     * Optimize and calculate necessary values
+     */
+    void prepare(void);
+
+    double get_ascent (void) const { return ascent; }
+    double get_descent(void) const { return descent; }
 private:
     void optimize(void);
 
     const Param & param;
-    AllStateManater & all_manager;
+    AllStateManager & all_manager;
 
     double x, y;
     long long tm_id;
 
+    double ascent, descent;
+
     std::vector<State> states;
     std::vector<Offset> offsets;
     std::vector<Unicode> text;
-
-    // for flush
-    std::vector<State*> stack;
 };
 
 } // namespace pdf2htmlEX

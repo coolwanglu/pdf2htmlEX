@@ -411,7 +411,7 @@ private:
     std::unordered_map<int, std::pair<double,double>> value_map; 
 };
 
-struct AllStateManater
+struct AllStateManager
 {
     TransformMatrixManager transform_matrix;
     VerticalAlignManager     vertical_align;

@@ -25,7 +25,7 @@ using std::endl;
 using std::find;
 using std::abs;
 
-HTMLTextLine::HTMLTextLine (const Param & param, AllStateManater & all_manager) 
+HTMLTextLine::HTMLTextLine (const Param & param, AllStateManager & all_manager) 
     : param(param), all_manager(all_manager) 
 { }
 
@@ -59,53 +59,35 @@ void HTMLTextLine::append_state(const HTMLState & html_state)
     (HTMLState&)(states.back()) = html_state;
 }
 
-void HTMLTextLine::dump_text(ostream & out)
+bool HTMLTextLine::dump_text(ostream & out)
 {
     /*
      * Each Line is an independent absolute positioned block
      * so even we have a few states or offsets, we may omit them
      */
     if(text.empty())
-        return;
-
-    // remove unuseful states in the end
-    while((!states.empty()) && (states.back().start_idx >= text.size()))
-        states.pop_back();
+        return false;
 
     if(states.empty() || (states[0].start_idx != 0))
     {
         cerr << "Warning: text without a style! Must be a bug in pdf2htmlEX" << endl;
-        return;
+        return false;
     }
-
-    // optimize before output
-    optimize();
 
     // Start Output
     {
-        // max_ascent determines the height of the div
-        double accum_vertical_align = 0; // accumulated
-        double max_ascent = 0;
-        for(auto iter = states.begin(); iter != states.end(); ++iter)
-        {
-            accum_vertical_align += iter->vertical_align;
-            double cur_ascent = accum_vertical_align + iter->font_info->ascent * iter->font_size;
-            if(cur_ascent > max_ascent)
-                max_ascent = cur_ascent;
-        }
-
         // open <div> for the current text line
         out << "<div class=\"" << CSS::LINE_CN
             << " " << CSS::TRANSFORM_MATRIX_CN << all_manager.transform_matrix.install(states[0].transform_matrix)
             << " " << CSS::LEFT_CN             << all_manager.left.install(states[0].x)
-            << " " << CSS::HEIGHT_CN           << all_manager.height.install(max_ascent)
+            << " " << CSS::HEIGHT_CN           << all_manager.height.install(ascent)
             << " " << CSS::BOTTOM_CN           << all_manager.bottom.install(states[0].y)
             ;
         // it will be closed by the first state
     }
 
+    std::vector<State*> stack;
     // a special safeguard in the bottom
-    stack.clear();
     stack.push_back(nullptr);
 
     //accumulated horizontal offset;
@@ -123,15 +105,6 @@ void HTMLTextLine::dump_text(ostream & out)
     {
         // export current state, find a closest parent
         { 
-            // set id
-            state_iter1->ids[State::FONT_ID] = state_iter1->font_info->id;
-            state_iter1->ids[State::FONT_SIZE_ID]      = all_manager.font_size.install(state_iter1->font_size);
-            state_iter1->ids[State::FILL_COLOR_ID]     = all_manager.fill_color.install(state_iter1->fill_color);
-            state_iter1->ids[State::STROKE_COLOR_ID]   = all_manager.stroke_color.install(state_iter1->stroke_color);
-            state_iter1->ids[State::LETTER_SPACE_ID]   = all_manager.letter_space.install(state_iter1->letter_space);
-            state_iter1->ids[State::WORD_SPACE_ID]     = all_manager.word_space.install(state_iter1->word_space);
-            state_iter1->hash();
-
             // greedy
             double vertical_align = state_iter1->vertical_align;
             int best_cost = State::HASH_ID_COUNT + 1;
@@ -249,6 +222,7 @@ void HTMLTextLine::dump_text(ostream & out)
     }
 
     out << "</div>";
+    return true;
 }
 
 void HTMLTextLine::clear(void)
@@ -258,14 +232,46 @@ void HTMLTextLine::clear(void)
     text.clear();
 }
 
+void HTMLTextLine::prepare(void)
+{
+    if(param.optimize_text)
+        optimize();
+
+    // max_ascent determines the height of the div
+    double accum_vertical_align = 0; // accumulated
+    ascent = 0;
+    descent = 0;
+    // note that vertical_align cannot be calculated here
+    for(auto iter = states.begin(); iter != states.end(); ++iter)
+    {
+        iter->ids[State::FONT_ID] = iter->font_info->id;
+        iter->ids[State::FONT_SIZE_ID]      = all_manager.font_size.install(iter->font_size);
+        iter->ids[State::FILL_COLOR_ID]     = all_manager.fill_color.install(iter->fill_color);
+        iter->ids[State::STROKE_COLOR_ID]   = all_manager.stroke_color.install(iter->stroke_color);
+        iter->ids[State::LETTER_SPACE_ID]   = all_manager.letter_space.install(iter->letter_space);
+        iter->ids[State::WORD_SPACE_ID]     = all_manager.word_space.install(iter->word_space);
+        iter->hash();
+
+        accum_vertical_align += iter->vertical_align;
+        double cur_ascent = accum_vertical_align + iter->font_info->ascent * iter->font_size;
+        if(cur_ascent > ascent)
+            ascent = cur_ascent;
+        double cur_descent = accum_vertical_align + iter->font_info->descent * iter->font_size;
+        if(cur_descent < descent)
+            descent = cur_descent;
+    }
+}
+
+
 /*
  * Adjust letter space and word space in order to reduce the number of HTML elements
  * May also unmask word space
  */
 void HTMLTextLine::optimize()
 {
-    if(!(param.optimize_text))
-        return;
+    // remove unuseful states in the end
+    while((!states.empty()) && (states.back().start_idx >= text.size()))
+        states.pop_back();
 
     assert(!states.empty());
 
