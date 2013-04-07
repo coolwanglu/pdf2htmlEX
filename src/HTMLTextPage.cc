@@ -92,6 +92,8 @@ void HTMLTextPage::prepare(void)
 void HTMLTextPage::optimize(void)
 {
     //TODO
+    //group lines with same x-axis
+    //collect common states 
 }
 
 } // namespace pdf2htmlEX
