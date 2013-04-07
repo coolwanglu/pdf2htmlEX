@@ -63,7 +63,7 @@ void HTMLTextPage::clear(void)
 
 void HTMLTextPage::open_new_line(void)
 {
-    if(last_line && (last_line->empty()))
+    if(last_line && (last_line->text_empty()))
     {
         // state and offsets might be nonempty
         last_line->clear();

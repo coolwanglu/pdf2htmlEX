@@ -78,7 +78,7 @@ public:
     void append_state(const HTMLState & html_state);
     void dump_text(std::ostream & out);
 
-    bool empty(void) const { return text.empty(); }
+    bool text_empty(void) const { return text.empty(); }
     void clear(void);
 
     /*
