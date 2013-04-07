@@ -207,8 +207,6 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state, XRef * xref)
 }
 
 void HTMLRenderer::endPage() {
-    close_text_line();
-
     // dump all text
     html_text_page.dump_text(f_pages.fs);
     html_text_page.dump_css(f_css.fs);

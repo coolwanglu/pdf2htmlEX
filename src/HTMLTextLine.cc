@@ -25,8 +25,10 @@ using std::endl;
 using std::find;
 using std::abs;
 
-HTMLTextLine::HTMLTextLine (const Param & param, AllStateManager & all_manager) 
-    : param(param), all_manager(all_manager) 
+HTMLTextLine::HTMLTextLine (const HTMLLineState & line_state, const Param & param, AllStateManager & all_manager) 
+    :param(param)
+    ,all_manager(all_manager) 
+    ,line_state(line_state)
 { }
 
 void HTMLTextLine::append_unicodes(const Unicode * u, int l)
@@ -47,7 +49,7 @@ void HTMLTextLine::append_offset(double width)
         offsets.emplace_back(text.size(), width);
 }
 
-void HTMLTextLine::append_state(const HTMLState & html_state)
+void HTMLTextLine::append_state(const HTMLTextState & text_state)
 {
     if(states.empty() || (states.back().start_idx != text.size()))
     {
@@ -56,7 +58,7 @@ void HTMLTextLine::append_state(const HTMLState & html_state)
         states.back().hash_umask = 0;
     }
 
-    (HTMLState&)(states.back()) = html_state;
+    (HTMLTextState&)(states.back()) = text_state;
 }
 
 void HTMLTextLine::dump_text(ostream & out)
@@ -78,10 +80,10 @@ void HTMLTextLine::dump_text(ostream & out)
     {
         // open <div> for the current text line
         out << "<div class=\"" << CSS::LINE_CN
-            << " " << CSS::TRANSFORM_MATRIX_CN << all_manager.transform_matrix.install(states[0].transform_matrix)
-            << " " << CSS::LEFT_CN             << all_manager.left.install(states[0].x)
+            << " " << CSS::TRANSFORM_MATRIX_CN << all_manager.transform_matrix.install(line_state.transform_matrix)
+            << " " << CSS::LEFT_CN             << all_manager.left.install(line_state.x)
             << " " << CSS::HEIGHT_CN           << all_manager.height.install(ascent)
-            << " " << CSS::BOTTOM_CN           << all_manager.bottom.install(states[0].y)
+            << " " << CSS::BOTTOM_CN           << all_manager.bottom.install(line_state.y)
             ;
         // it will be closed by the first state
     }

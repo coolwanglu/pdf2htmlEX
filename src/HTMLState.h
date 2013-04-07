@@ -19,7 +19,7 @@ struct FontInfo
     bool is_type3;
 };
 
-struct HTMLState
+struct HTMLTextState
 {
     const FontInfo * font_info;
     double font_size;
@@ -31,9 +31,6 @@ struct HTMLState
     // relative to the previous state
     double vertical_align;
     
-    double x,y;
-    double transform_matrix[4];
-
     // the offset cause by a single ' ' char
     double single_space_offset(void) const {
         return word_space + letter_space + font_info->space_width * font_size;
@@ -42,6 +39,17 @@ struct HTMLState
     double em_size(void) const {
         return font_size * (font_info->ascent - font_info->descent);
     }
+};
+
+struct HTMLLineState
+{
+    double x,y;
+    double transform_matrix[4];
+};
+
+struct HTMLClipState
+{
+    double xmin, xmax, ymin, ymax;
 };
 
 } // namespace pdf2htmlEX 

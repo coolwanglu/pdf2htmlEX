@@ -347,8 +347,6 @@ void HTMLRenderer::css_draw_rectangle(double x, double y, double w, double h, co
         const GfxRGB * line_color, const GfxRGB * fill_color, 
         void (*style_function)(void *, ostream &), void * style_function_data)
 {
-    close_text_line();
-
     double new_tm[6];
     memcpy(new_tm, tm, sizeof(new_tm));
 

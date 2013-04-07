@@ -16,7 +16,7 @@ using std::unique_ptr;
 HTMLTextPage::HTMLTextPage(const Param & param, AllStateManager & all_manager)
     : param(param)
     , all_manager(all_manager)
-    , last_line(nullptr)
+    , cur_line(nullptr)
 { } 
 
 void HTMLTextPage::dump_text(ostream & out)
@@ -29,27 +29,6 @@ void HTMLTextPage::dump_text(ostream & out)
         (*iter)->dump_text(out);
 }
 
-void HTMLTextPage::append_unicodes(const Unicode * u, int l)
-{
-    if(!last_line)
-        open_new_line();
-    last_line->append_unicodes(u, l);
-}
-
-void HTMLTextPage::append_offset(double offset)
-{
-    if(!last_line)
-        open_new_line();
-    last_line->append_offset(offset);
-}
-
-void HTMLTextPage::append_state(const HTMLState & state)
-{
-    if(!last_line)
-        open_new_line();
-    last_line->append_state(state);
-}
-
 void HTMLTextPage::dump_css(ostream & out)
 {
     //TODO
@@ -58,21 +37,17 @@ void HTMLTextPage::dump_css(ostream & out)
 void HTMLTextPage::clear(void)
 {
     text_lines.clear();
-    last_line = nullptr;
+    cur_line = nullptr;
 }
 
-void HTMLTextPage::open_new_line(void)
+void HTMLTextPage::open_new_line(const HTMLLineState & line_state)
 {
-    if(last_line && (last_line->text_empty()))
+    if((!text_lines.empty()) && (text_lines.back()->text_empty()))
     {
-        // state and offsets might be nonempty
-        last_line->clear();
+        text_lines.pop_back();
     }
-    else
-    {
-        text_lines.emplace_back(new HTMLTextLine(param, all_manager));
-        last_line = text_lines.back().get();
-    }
+    text_lines.emplace_back(new HTMLTextLine(line_state, param, all_manager));
+    cur_line = text_lines.back().get();
 }
 
 void HTMLTextPage::optimize(void)

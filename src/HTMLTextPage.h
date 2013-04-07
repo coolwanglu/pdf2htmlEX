@@ -28,22 +28,20 @@ class HTMLTextPage
 public:
     HTMLTextPage (const Param & param, AllStateManager & all_manager);
 
-    void append_unicodes(const Unicode * u, int l);
-    void append_offset(double offset);
-    void append_state(const HTMLState & state);
+    HTMLTextLine * get_cur_line(void) const { return cur_line; }
 
     void dump_text(std::ostream & out);
     void dump_css(std::ostream & out);
     void clear(void);
 
-    void open_new_line(void);
+    void open_new_line(const HTMLLineState & line_state);
 
 private:
     void optimize(void);
 
     const Param & param;
     AllStateManager & all_manager;
-    HTMLTextLine * last_line;
+    HTMLTextLine * cur_line;
     std::vector<std::unique_ptr<HTMLTextLine>> text_lines;
 };
 

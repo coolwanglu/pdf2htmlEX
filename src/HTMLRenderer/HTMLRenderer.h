@@ -57,7 +57,6 @@ public:
     // will be reduced to a series of other drawing operations.
     virtual GBool useShadedFills(int type) { return (type == 2) ? gTrue: gFalse; }
 
-
     // Does this device use beginType3Char/endType3Char?  Otherwise,
     // text in Type 3 fonts will be drawn with drawChar/drawString.
     virtual GBool interpretType3Chars() { return gFalse; }
@@ -111,6 +110,10 @@ public:
     /*
      * Rendering
      */
+
+    virtual void clip(GfxState * state);
+    virtual void eoClip(GfxState * state);
+    virtual void clipToStrokePath(GfxState * state);
     
     virtual void drawString(GfxState * state, GooString * s);
 
@@ -186,7 +189,6 @@ protected:
     // prepare the line context, (close old tags, open new tags)
     // make sure the current HTML style consistent with PDF
     void prepare_text_line(GfxState * state);
-    void close_text_line();
 
     ////////////////////////////////////////////////////
     // CSS drawing
@@ -261,6 +263,7 @@ protected:
     bool word_space_changed;
     bool letter_space_changed;
     bool stroke_color_changed;
+    bool clip_changed;
 
     ////////////////////////////////////////////////////
     // HTML states
@@ -279,19 +282,26 @@ protected:
     // also keep in mind that they are not the final position, as they will be transform by CTM (also true for cur_tx/ty)
     double draw_tx, draw_ty; 
 
-    // managers store values actually used in HTML (i.e. scaled)
-    AllStateManager all_manager;
 
-    enum NewLineState
-    {
-        NLS_NONE, // stay with the same style
-        NLS_SPAN, // open a new <span> if possible, otherwise a new <div>
-        NLS_DIV   // has to open a new <div>
-    } new_line_state;
-    
+    ////////////////////////////////////////////////////
+    // styles & resources
+    ////////////////////////////////////////////////////
+    // managers store values actually used in HTML (i.e. scaled)
+    std::unordered_map<long long, FontInfo> font_info_map;
+    AllStateManager all_manager;
+    HTMLTextState cur_text_state;
+    HTMLLineState cur_line_state;
 
     HTMLTextPage html_text_page;
 
+    enum NewLineState
+    {
+        NLS_NONE,
+        NLS_NEWSTATE, 
+        NLS_NEWLINE,
+        NLS_NEWCLIP  
+    } new_line_state;
+    
     // for font reencoding
     int32_t * cur_mapping;
     char ** cur_mapping2;
@@ -302,13 +312,6 @@ protected:
 
     // for string formatting
     StringFormatter str_fmt;
-
-    ////////////////////////////////////////////////////
-    // styles & resources
-    ////////////////////////////////////////////////////
-
-    HTMLState cur_html_state;
-    std::unordered_map<long long, FontInfo> font_info_map;
 
     struct {
         std::ofstream fs;
