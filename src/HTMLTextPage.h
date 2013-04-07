@@ -39,7 +39,6 @@ public:
     void open_new_line(void);
 
 private:
-    void prepare(void);
     void optimize(void);
 
     const Param & param;

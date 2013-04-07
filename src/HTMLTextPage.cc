@@ -6,8 +6,6 @@
  * Copyright (C) 2013 Lu Wang <coolwanglu@gmail.com>
  */
 
-#include <algorithm>
-
 #include "HTMLTextPage.h"
 
 namespace pdf2htmlEX {
@@ -23,7 +21,10 @@ HTMLTextPage::HTMLTextPage(const Param & param, AllStateManager & all_manager)
 
 void HTMLTextPage::dump_text(ostream & out)
 {
-    prepare();
+    for(auto iter = text_lines.begin(); iter != text_lines.end(); ++iter)
+        (*iter)->prepare();
+    if(param.optimize_text)
+        optimize();
     for(auto iter = text_lines.begin(); iter != text_lines.end(); ++iter)
         (*iter)->dump_text(out);
 }
@@ -72,21 +73,6 @@ void HTMLTextPage::open_new_line(void)
         text_lines.emplace_back(new HTMLTextLine(param, all_manager));
         last_line = text_lines.back().get();
     }
-}
-
-static bool is_text_line_empty(const unique_ptr<HTMLTextLine>& p)
-{
-    return p->empty();
-}
-
-void HTMLTextPage::prepare(void)
-{
-    // remove empty lines
-    text_lines.erase(remove_if(text_lines.begin(), text_lines.end(), is_text_line_empty), text_lines.end());
-    for(auto iter = text_lines.begin(); iter != text_lines.end(); ++iter)
-        (*iter)->prepare();
-    if(param.optimize_text)
-        optimize();
 }
 
 void HTMLTextPage::optimize(void)
