@@ -76,8 +76,7 @@ public:
     void append_unicodes(const Unicode * u, int l);
     void append_offset(double width);
     void append_state(const HTMLState & html_state);
-    // return if anything dumped
-    bool dump_text(std::ostream & out);
+    void dump_text(std::ostream & out);
 
     bool empty(void) const { return text.empty(); }
     void clear(void);

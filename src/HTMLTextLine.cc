@@ -59,19 +59,19 @@ void HTMLTextLine::append_state(const HTMLState & html_state)
     (HTMLState&)(states.back()) = html_state;
 }
 
-bool HTMLTextLine::dump_text(ostream & out)
+void HTMLTextLine::dump_text(ostream & out)
 {
     /*
      * Each Line is an independent absolute positioned block
      * so even we have a few states or offsets, we may omit them
      */
     if(text.empty())
-        return false;
+        return;
 
     if(states.empty() || (states[0].start_idx != 0))
     {
         cerr << "Warning: text without a style! Must be a bug in pdf2htmlEX" << endl;
-        return false;
+        return;
     }
 
     // Start Output
@@ -222,7 +222,6 @@ bool HTMLTextLine::dump_text(ostream & out)
     }
 
     out << "</div>";
-    return true;
 }
 
 void HTMLTextLine::clear(void)
