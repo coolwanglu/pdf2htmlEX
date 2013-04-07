@@ -84,10 +84,6 @@ public:
      * We just mark as changed, and recheck if they have been changed when we are about to output a new string
      */
 
-    /*
-     * Ugly implementation of save/restore
-     */
-    virtual void saveState(GfxState * state) { updateAll(state); }
     virtual void restoreState(GfxState * state) { updateAll(state); }
 
     virtual void updateAll(GfxState * state);

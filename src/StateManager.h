@@ -377,8 +377,8 @@ public:
 /////////////////////////////////////
 /*
  * Manage the background image sizes
- * Kind of similar with StateManager, but not exactly the same
- * anyway temporarly leave it here
+ *
+ * We don't merge similar values, since they are bound with PAGE_CONTENT_BOX_number
  */
 class BGImageSizeManager
 {
