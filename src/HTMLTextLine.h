@@ -87,16 +87,11 @@ public:
      */
     void prepare(void);
 
-    double get_ascent (void) const { return ascent; }
-    double get_descent(void) const { return descent; }
 private:
     void optimize(void);
 
     const Param & param;
     AllStateManager & all_manager;
-
-    double x, y;
-    long long tm_id;
 
     double ascent, descent;
 

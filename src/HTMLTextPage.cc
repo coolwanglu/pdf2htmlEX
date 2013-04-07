@@ -6,11 +6,14 @@
  * Copyright (C) 2013 Lu Wang <coolwanglu@gmail.com>
  */
 
+#include <algorithm>
+
 #include "HTMLTextPage.h"
 
 namespace pdf2htmlEX {
 
 using std::ostream;
+using std::unique_ptr;
 
 HTMLTextPage::HTMLTextPage(const Param & param, AllStateManager & all_manager)
     : param(param)
@@ -71,12 +74,17 @@ void HTMLTextPage::open_new_line(void)
     }
 }
 
+static bool is_text_line_empty(const unique_ptr<HTMLTextLine>& p)
+{
+    return p->empty();
+}
+
 void HTMLTextPage::prepare(void)
 {
+    // remove empty lines
+    text_lines.erase(remove_if(text_lines.begin(), text_lines.end(), is_text_line_empty), text_lines.end());
     for(auto iter = text_lines.begin(); iter != text_lines.end(); ++iter)
-    {
         (*iter)->prepare();
-    }
     if(param.optimize_text)
         optimize();
 }
