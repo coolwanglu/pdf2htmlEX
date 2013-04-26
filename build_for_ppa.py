@@ -18,7 +18,7 @@ import time
 print 'Generating version...'
 
 try:
-    rev = open('.git/refs/heads/devv').read()[:5]
+    rev = open('.git/refs/heads/master').read()[:5]
 except:
     print 'Cannot get revision number'
     sys.exit(-1)
