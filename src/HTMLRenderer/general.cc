@@ -109,8 +109,8 @@ void HTMLRenderer::process(PDFDoc *doc)
 
         if(param.split_pages)
         {
-            auto filled_template_filename = str_fmt(param.output_filename.c_str(), i);
-            auto page_fn = str_fmt("%s/%s", param.dest_dir.c_str(), string((char*)filled_template_filename).c_str());
+            string filled_template_filename = (char*)str_fmt(param.output_filename.c_str(), i);
+            auto page_fn = str_fmt("%s/%s", param.dest_dir.c_str(), filled_template_filename.c_str());
             f_pages.fs.open((char*)page_fn, ofstream::binary); 
             if(!f_pages.fs)
                 throw string("Cannot open ") + (char*)page_fn + " for writing";
@@ -198,7 +198,7 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state, XRef * xref)
         }
         else
         {
-            f_pages.fs << str_fmt("bg%x.png", pageNum);
+            f_pages.fs << (char*)str_fmt("bg%x.png", pageNum);
         }
         f_pages.fs << "\"/>";
     }
