@@ -1,3 +1,10 @@
+pdf2htmlex (0.8-1~git201304281550rd5f9c-0ubuntu1) raring; urgency=low
+
+  * Test packaging for multiple distributions
+  * Fix crashing with --split-pages
+
+ -- WANG Lu <coolwanglu@gmail.com>  Sun, 28 Apr 2013 15:39:34 +0800
+
 pdf2htmlex (0.8-1~git201304151420r1da9b-0ubuntu1) quantal; urgency=low
 
   * HTML optimization
