@@ -1,4 +1,4 @@
-// pdftohtmlEX.cc
+// pdf2htmlEX.cc
 //
 // Copyright (C) 2012,2013 Lu Wang <coolwanglu@gmail.com>
 
@@ -45,7 +45,7 @@ void show_usage_and_exit(const char * dummy = nullptr)
 
 void show_version_and_exit(const char * dummy = nullptr)
 {
-    cerr << "pdftohtmlEX version " << PDF2HTMLEX_VERSION << endl;
+    cerr << "pdf2htmlEX version " << PDF2HTMLEX_VERSION << endl;
     cerr << "Copyright 2012,2013 Lu Wang <coolwanglu@gmail.com>" << endl;
     cerr << "Libraries: ";
     cerr << "poppler " << POPPLER_VERSION << ", ";
