@@ -43,7 +43,7 @@ If multiple values are specified, the minimum one will be used.
 If none is specified, pages will be rendered as 72DPI.
 
 .TP
-.B --use-cropbox <0|1> (Default: 0)
+.B --use-cropbox <0|1> (Default: 1)
 Use CropBox instead of MediaBox for output.
 
 .TP
@@ -95,7 +95,7 @@ This switch is useful if you want pages to be loaded separately & dynamically --
 
 .TP
 .B --dest-dir <dir> (Default: .)
-Specify destination folder
+Specify destination folder.
 
 .TP
 .B --css-filename <filename> (Default: <none>)
@@ -110,16 +110,20 @@ Specify the filename of the generated outline file, if not embedded.
 If it's empty, the file name will be determined automatically.
 
 .TP
-.B --fallback <0|1> (Deafult: 0)
-Output in fallback mode, for better accuracy and browser compatibility, but the size becomes larger.
-
-.TP
 .B --process-nontext <0|1> (Default: 1)
 Whether to process non-text objects (as images)
 
 .TP
 .B --process-outline <0|1> (Default: 1)
 Whether to show outline in the generated HTML
+
+.TP
+.B --printing <0|1> (Default: 1)
+Enable printing support. Disabling this option may reduce the size of CSS.
+
+.TP
+.B --fallback <0|1> (Deafult: 0)
+Output in fallback mode, for better accuracy and browser compatibility, but the size becomes larger.
 
 .SS Fonts
 
@@ -147,6 +151,8 @@ Decompose ligatures. For example 'fi' -> 'f''i'.
 .TP
 .B --remove-unused-glyph <0|1> (Default: 1)
 If set to 1, remove unused glyphs in embedded fonts in order to reduce the file size.
+
+Try turning it off if you encounter segmentation fault or debris-like fonts.
 
 .TP
 .B --auto-hint <0|1> (Default: 0)

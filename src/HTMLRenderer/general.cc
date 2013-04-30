@@ -460,22 +460,25 @@ void HTMLRenderer::dump_css (void)
     all_manager.bgimage_size    .dump_css(f_css.fs);
     
     // print css
-    double ps = print_scale();
-    f_css.fs << CSS::PRINT_ONLY << "{" << endl;
-    all_manager.transform_matrix.dump_print_css(f_css.fs, ps);
-    all_manager.vertical_align  .dump_print_css(f_css.fs, ps);
-    all_manager.letter_space    .dump_print_css(f_css.fs, ps);
-    all_manager.stroke_color    .dump_print_css(f_css.fs, ps);
-    all_manager.word_space      .dump_print_css(f_css.fs, ps);
-    all_manager.whitespace      .dump_print_css(f_css.fs, ps);
-    all_manager.fill_color      .dump_print_css(f_css.fs, ps);
-    all_manager.font_size       .dump_print_css(f_css.fs, ps);
-    all_manager.bottom          .dump_print_css(f_css.fs, ps);
-    all_manager.height          .dump_print_css(f_css.fs, ps);
-    all_manager.width           .dump_print_css(f_css.fs, ps);
-    all_manager.left            .dump_print_css(f_css.fs, ps);
-    all_manager.bgimage_size    .dump_print_css(f_css.fs, ps);
-    f_css.fs << "}" << endl;
+    if(param.printing)
+    {
+        double ps = print_scale();
+        f_css.fs << CSS::PRINT_ONLY << "{" << endl;
+        all_manager.transform_matrix.dump_print_css(f_css.fs, ps);
+        all_manager.vertical_align  .dump_print_css(f_css.fs, ps);
+        all_manager.letter_space    .dump_print_css(f_css.fs, ps);
+        all_manager.stroke_color    .dump_print_css(f_css.fs, ps);
+        all_manager.word_space      .dump_print_css(f_css.fs, ps);
+        all_manager.whitespace      .dump_print_css(f_css.fs, ps);
+        all_manager.fill_color      .dump_print_css(f_css.fs, ps);
+        all_manager.font_size       .dump_print_css(f_css.fs, ps);
+        all_manager.bottom          .dump_print_css(f_css.fs, ps);
+        all_manager.height          .dump_print_css(f_css.fs, ps);
+        all_manager.width           .dump_print_css(f_css.fs, ps);
+        all_manager.left            .dump_print_css(f_css.fs, ps);
+        all_manager.bgimage_size    .dump_print_css(f_css.fs, ps);
+        f_css.fs << "}" << endl;
+    }
 }
 
 void HTMLRenderer::embed_file(ostream & out, const string & path, const string & type, bool copy)
