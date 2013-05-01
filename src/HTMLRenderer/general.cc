@@ -25,6 +25,7 @@
 #include "util/math.h"
 #include "util/path.h"
 #include "util/css_const.h"
+#include "util/encoding.h"
 
 namespace pdf2htmlEX {
 
@@ -505,9 +506,9 @@ void HTMLRenderer::embed_file(ostream & out, const string & path, const string &
     }
     else
     {
-        out << iter->second.first
-            << fn
-            << iter->second.second << endl;
+        out << iter->second.first;
+        outputURL(out, fn);
+        out << iter->second.second << endl;
 
         if(copy)
         {

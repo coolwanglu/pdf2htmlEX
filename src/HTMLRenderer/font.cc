@@ -449,6 +449,10 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
                 info.space_width = font_cid->getWidth(buf, 2);
             }
             ffw_add_empty_char((int32_t)' ', (int)floor(info.space_width * info.em_size + 0.5));
+            if(param.debug)
+            {
+                cerr << "Missing space width in font: " << hex << info.id << " set to " << dec << info.space_width << endl;
+            }
         }
 
         if(ctu)

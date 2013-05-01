@@ -403,7 +403,8 @@ void HTMLTextLine::optimize()
         // get the text segment covered by current state (*state_iter1)
         const auto text_iter1 = text.begin() + text_idx1;
         const auto text_iter2 = text.begin() + text_idx2;
-        if(find(text_iter1, text_iter2, ' ') == text_iter2)
+        const static std::vector<Unicode> space_chars = { 0x20, 0xa0 };
+        if(find_first_of(text_iter1, text_iter2, space_chars.begin(), space_chars.end()) == text_iter2)
         {
             // if there is not any space, we may change the value of word_space arbitrarily
             // note that we may only change word space, no offset will be affected
