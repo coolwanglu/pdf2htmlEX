@@ -114,7 +114,7 @@ var pdf2htmlEX = (function(){
 
   $.extend(pdf2htmlEX.Viewer.prototype, {
     /* Constants */
-    render_timeout : 130,
+    render_timeout : 100,
     scale_step : 0.9,
 
     init_before_loading_content : function() {

@@ -24,6 +24,8 @@
 
 # base CSS styles
 @base.css
+# fancy CSS styles
+@fancy.css
 # PDF specific CSS styles
 $css
 # necessary Javascript codes

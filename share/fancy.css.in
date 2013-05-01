@@ -1,0 +1,59 @@
+/* vim: set shiftwidth=2 tabstop=2 autoindent cindent expandtab filetype=css: */
+/* Fancy styles */
+/* Copyright 2013 Lu Wang <coolwanglu@gmail.com> */
+@media screen { 
+  #pdf-outline {
+    background-color:#2f3236;
+    /* modified from http://philbit.com/svgpatterns/#crossstripes */
+    background-image:url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPgo8cmVjdCB3aWR0aD0iNCIgaGVpZ2h0PSI0IiBmaWxsPSIjNDAzYzNmIj48L3JlY3Q+CjxwYXRoIGQ9Ik0wIDBMNCA0Wk00IDBMMCA0WiIgc3Ryb2tlLXdpZHRoPSIxIiBzdHJva2U9IiMxZTI5MmQiPjwvcGF0aD4KPC9zdmc+");
+    font-family: Georgia, serif;
+    font-size:13px;
+    width:243px;
+    padding:0 0 0 7px;
+  }
+  #pdf-outline ul {
+    margin:0 0.5em;
+    padding:0;
+  }
+  #pdf-outline li {
+    list-style-type:none;
+    margin:1em 0;
+  }
+  #pdf-outline li > ul {
+    margin-left: 1em;
+  }
+  #pdf-outline a,
+  #pdf-outline a:visited,
+  #pdf-outline a:hover,
+  #pdf-outline a:active {
+    line-height:1.2;
+    color:#e8e8e8;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    text-decoration:none;
+    display:block;
+    overflow:hidden;
+  }
+  #pdf-outline a:hover {
+    color:rgb(0,204,255);
+  }
+  #pdf-main {
+    background-color:#9e9e9e;
+    /* http://philbit.com/svgpatterns/#thinstripes */
+    background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1IiBoZWlnaHQ9IjUiPgo8cmVjdCB3aWR0aD0iNSIgaGVpZ2h0PSI1IiBmaWxsPSIjOWU5ZTllIj48L3JlY3Q+CjxwYXRoIGQ9Ik0wIDVMNSAwWk02IDRMNCA2Wk0tMSAxTDEgLTFaIiBzdHJva2U9IiM4ODgiIHN0cm9rZS13aWR0aD0iMSI+PC9wYXRoPgo8L3N2Zz4=");
+  }
+  .@CSS_PAGE_DECORATION_CN@ {
+    margin: 13px auto;
+    box-shadow: 1px 1px 3px 1px #333;
+  }
+  @keyframes fadein { from { opacity:0;} to { opacity:1;} }
+  @-moz-keyframes fadein { from { opacity:0;} to { opacity:1;} }
+  @-webkit-keyframes fadein { from { opacity:0;} to { opacity:1;} }
+  @-o-keyframes fadein { from { opacity:0;} to { opacity: 1;} }
+
+  .@CSS_PAGE_CONTENT_BOX_CN@.opened { /* used by pdf2htmlEX.js, to show/hide pages */
+    -moz-animation: fadein 100ms; 
+    -webkit-animation: fadein 100ms;
+    -o-animation: fadein 100ms; 
+  }
+}

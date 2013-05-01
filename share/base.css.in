@@ -7,35 +7,13 @@
   top:0;
   left:0;
   bottom:0;
-  width:193px;
-  overflow:auto;
+  width:250px;
+  padding:0px;
   margin:0px;
-  padding:0 0 0 7px;
-  background-color:#707070;
+  overflow:auto;
   display:none;
 }
-#pdf-outline ul {
-  margin-left:13px;
-  margin-right:3px;
-  padding-left:3px;
-}
-#pdf-outline li {
-  list-style-type:disc;
-  list-style-position:outside;
-}
-#pdf-outline a {
-  font-size:13px;
-  color:#e8e8e8;
-}
-#pdf-outline a:visited {
-  color:#e8e8e8;
-}
-#pdf-outline a:hover{
-  color:#e8e8e8;
-}
-#pdf-outline a:active{
-  color:#e8e8e8;
-}
+
 #pdf-main { /* PDF container */
   position:absolute;
   top:0;
@@ -47,7 +25,7 @@
 @media screen {
   /* for sidebar */
   #pdf-outline.opened { display:block; }
-  #pdf-outline.opened + #pdf-main { left:200px; }
+  #pdf-outline.opened + #pdf-main { left:250px; }
   #pdf-main {
     /* `bottom' and `right' are required for lazy page loading in pdf2htmlEX.js (page visibility test)
      * alternatively you may set width and height
@@ -55,7 +33,6 @@
     bottom:0;
     right:0;
     overflow:auto;
-    background-color:#808080;
   }
 }
 @media print { 
@@ -81,9 +58,7 @@
  */
 .@CSS_PAGE_DECORATION_CN@ { /* page decoration */
   position:relative;
-  margin: 13px auto;
   border-width: 0;
-  box-shadow: 1px 1px 3px 1px #333;
   overflow: hidden;
 }
 .@CSS_PAGE_FRAME_CN@ { /* page */
