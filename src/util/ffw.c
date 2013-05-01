@@ -262,6 +262,7 @@ void ffw_cidflatten(void)
 
 /*
  * There is no check if a glyph with the same unicode exists!
+ * TODO: let FontForge fill in the standard glyph name <- or maybe this might cause collision?
  */
 void ffw_add_empty_char(int32_t unicode, int width)
 {

@@ -78,10 +78,10 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
              * This is by standard
              * however some PDF will use ' ' as a normal encoding slot
              * such that it will be mapped to other unicodes
-             * In that case, when sapce_as_offset is on, we will simply ignore that character...
+             * In that case, when space_as_offset is on, we will simply ignore that character...
              *
              * Checking mapped unicode may or may not work
-             * There are always ugly PDF files with no usefull info at all.
+             * There are always ugly PDF files with no useful info at all.
              */
             is_space = true;
             ++nSpaces;
@@ -113,11 +113,13 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
                 html_text_page.get_cur_line()->append_unicodes(&uu, 1);
                 /*
                  * In PDF, word_space is appended if (n == 1 and *p = ' ')
-                 * but in HTML, word_space is appended if (uu == ' ')
+                 * but in HTML, word_space is appended if (uu == ' ' || 0xa0)
                  */
-                int space_count = (is_space ? 1 : 0) - (uu == ' ' ? 1 : 0);
+                int space_count = (is_space ? 1 : 0) - ((uu == ' ' || uu == 0xa0) ? 1 : 0);
                 if(space_count != 0)
+                {
                     html_text_page.get_cur_line()->append_offset(cur_word_space * draw_text_scale * space_count);
+                }
             }
         }
 
