@@ -7,7 +7,7 @@ A beautiful demo is worth a thousand words:
 - **Typography**: [Default](http://coolwanglu.github.com/pdf2htmlEX/demo/geneve.html) / [MediaFire](http://www.mediafire.com/view/?fqbc2d2o1kdz51a) / [Original](https://github.com/raphink/geneve_1564/raw/master/geneve_1564.pdf)
 - **Formulas**: [Default](http://coolwanglu.github.com/pdf2htmlEX/demo/cheat.html) / [MediaFire](http://www.mediafire.com/view/?84vdgrepkxclbq2) / [Original](http://www.tug.org/texshowcase/cheat.pdf)
 - **Scientific Paper**: [Default](http://coolwanglu.github.com/pdf2htmlEX/demo/demo.html) / [MediaFire](http://www.mediafire.com/view/?6po429kz9czcga2) / [Original](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.148.349&rep=rep1&type=pdf)
-- **Full Circle Magazine**: [Default](http://coolwanglu.github.com/pdf2htmlEX/demo/issue65_en.html) / [MediaFire](http://www.mediafire.com/view/?6hxmt94k2vppnpb) / [Original](http://dl.fullcirclemagazine.org/issue65_en.pdf)   <sub>The 1st link might be slow</sub>
+- **Full Circle Magazine**: [Default](http://coolwanglu.github.com/pdf2htmlEX/demo/issue65_en.html)<sup>might be slow</sup> / [MediaFire](http://www.mediafire.com/view/?6hxmt94k2vppnpb) / [Original](http://dl.fullcirclemagazine.org/issue65_en.pdf)
 - **Chinese**: [Default](http://coolwanglu.github.com/pdf2htmlEX/demo/chn.html) / [MediaFire](http://www.mediafire.com/view/?6550ldag9w0uuq3) / [Original](http://files.cnblogs.com/phphuaibei/git%E6%90%AD%E5%BB%BA.pdf)
 - [Try your own files](https://github.com/coolwanglu/pdf2htmlEX/wiki/UploadDemo)
 
@@ -98,8 +98,8 @@ Thanks to all packagers!
 
 ## LICENSE
 
-GPLv2 & GPLv3 for most part, MIT License for share/\*   
-Read LICENSE for detail.
+GPLv2 & GPLv3 for most part, MIT License for `share/\*`
+Read LICENSE for more detail.
 
 **pdf2htmlEX is totally free, please credit pdf2htmlEX if you use it**  
 **Please consider sponsoring it if you use it for commercial purpose**
