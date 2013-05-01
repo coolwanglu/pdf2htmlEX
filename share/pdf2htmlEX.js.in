@@ -103,9 +103,10 @@ var pdf2htmlEX = (function(){
     }
   });
 
-  pdf2htmlEX.Viewer = function(container_id, outline_id) {
-    this.container_id = container_id;
-    this.outline_id = outline_id;
+  pdf2htmlEX.Viewer = function(config) {
+    this.container_id = config['container_id'];
+    this.sidebar_id = config['sidebar_id'];
+    this.outline_id = config['outline_id'];
     this.init_before_loading_content();
 
     var _ = this;
@@ -123,12 +124,13 @@ var pdf2htmlEX = (function(){
     },
 
     init_after_loading_content : function() {
+      this.sidebar = $('#'+this.sidebar_id);
       this.outline = $('#'+this.outline_id);
       this.container = $('#'+this.container_id);
 
       // Open the outline if nonempty
       if(this.outline.children().length > 0) { 
-        this.outline.addClass('opened');
+        this.sidebar.addClass('opened');
       }
       
       // collect pages

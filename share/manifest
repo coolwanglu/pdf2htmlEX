@@ -35,7 +35,11 @@ $css
 # entry point of pdf2htmlEX
 """
 <script type="text/javascript">
-new pdf2htmlEX.Viewer('pdf-main', 'pdf-outline');
+new pdf2htmlEX.Viewer({
+    container_id : 'page-container', 
+    sidebar_id : 'sidebar',
+    outline_id : 'outline'
+});
 </script>
 """
 
@@ -45,23 +49,28 @@ new pdf2htmlEX.Viewer('pdf-main', 'pdf-outline');
 <body>
 """
 
-# The container of outline
+# The sidbar
 # By default this is hidden, pdf2htmlEX.js will add the 'opened' class if it is not empty
 # You can add a class 'opened' here if you want it always opened or you don't use pdf2htmlEX.js
 # e.g. 
-# <div id="pdf-outline" class="opened">
+# <div id="sidebar" class="opened">
 """
-<div id="pdf-outline">
+<div id="sidebar">
+"""
+# container of outlines
+"""
+<div id="outline">
 """
 $outline
 """
+</div>
 </div>
 """
 
 # The container of PDF pages
 # check base.css for an example and requirements of its CSS styles
 """
-<div id="pdf-main">
+<div id="page-container">
 """
 $pages
 """

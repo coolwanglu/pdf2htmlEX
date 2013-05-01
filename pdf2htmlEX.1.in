@@ -149,10 +149,10 @@ Specify the suffix of fonts extracted from the PDF file.
 Decompose ligatures. For example 'fi' -> 'f''i'.
 
 .TP
-.B --remove-unused-glyph <0|1> (Default: 1)
+.B --remove-unused-glyph <0|1> (Default: 0)
 If set to 1, remove unused glyphs in embedded fonts in order to reduce the file size.
 
-Try turning it off if you encounter segmentation fault or debris-like fonts.
+Currently this option is experimental, turning it on may cause segmentation fault or debris-like fonts.
 
 .TP
 .B --auto-hint <0|1> (Default: 0)

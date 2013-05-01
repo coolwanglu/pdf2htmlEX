@@ -2,7 +2,7 @@
 /* Demo CSS for pdf2htmlEX */
 /* Copyright 2012,2013 Lu Wang <coolwanglu@gmail.com> */
 /* Part 1: Web Page Layout: Free to modify, except for a few of them which are required by pdf2htmlEX.js, see the comments */
-#pdf-outline { /* PDF Outline */
+#sidebar { /* Sidebar */
   position:absolute;
   top:0;
   left:0;
@@ -11,10 +11,12 @@
   padding:0px;
   margin:0px;
   overflow:auto;
-  display:none;
 }
 
-#pdf-main { /* PDF container */
+#outline {
+}
+
+#page-container { /* PDF container */
   position:absolute;
   top:0;
   left:0px;
@@ -24,9 +26,8 @@
 }
 @media screen {
   /* for sidebar */
-  #pdf-outline.opened { display:block; }
-  #pdf-outline.opened + #pdf-main { left:250px; }
-  #pdf-main {
+  #sidebar.opened + #page-container { left:250px; }
+  #page-container {
     /* `bottom' and `right' are required for lazy page loading in pdf2htmlEX.js (page visibility test)
      * alternatively you may set width and height
      */
@@ -42,7 +43,7 @@
     margin:0; 
     -webkit-print-color-adjust:exact; /* enable printing background images for WebKit */
   }
-  #pdf-main {
+  #page-container {
     width:auto;
     height:auto;
     overflow:visible;
@@ -54,7 +55,7 @@
 }
 /* Part 2: Page Elements: Modify with caution
  * The followings are base classes, which are meant to be override by PDF specific classes
- * So do not increase the specificity (e.g. ".classname" -> "#pdf-main .classname")
+ * So do not increase the specificity (e.g. ".classname" -> "#page-container .classname")
  */
 .@CSS_PAGE_DECORATION_CN@ { /* page decoration */
   position:relative;
