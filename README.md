@@ -98,7 +98,7 @@ Thanks to all packagers!
 
 ## LICENSE
 
-GPLv2 & GPLv3 for most part, MIT License for `share/\*`
+GPLv2 & GPLv3 for most part, MIT License for `share/*`
 Read LICENSE for more detail.
 
 **pdf2htmlEX is totally free, please credit pdf2htmlEX if you use it**  
