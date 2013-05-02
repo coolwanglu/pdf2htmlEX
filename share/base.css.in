@@ -12,10 +12,6 @@
   margin:0px;
   overflow:auto;
 }
-
-#outline {
-}
-
 #page-container { /* PDF container */
   position:absolute;
   top:0;
@@ -43,15 +39,14 @@
     margin:0; 
     -webkit-print-color-adjust:exact; /* enable printing background images for WebKit */
   }
+  #sidebar { display:none; }
   #page-container {
     width:auto;
     height:auto;
     overflow:visible;
     background-color:transparent;
   }
-  .@CSS_CSS_DRAW_CN@ {
-    display:none;
-  }
+  .@CSS_CSS_DRAW_CN@ { display:none; }
 }
 /* Part 2: Page Elements: Modify with caution
  * The followings are base classes, which are meant to be override by PDF specific classes
