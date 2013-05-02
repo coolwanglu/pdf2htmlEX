@@ -84,9 +84,18 @@ var pdf2htmlEX = (function(){
       this.p.height(this.b.height() * this.set_r);
       this.p.width(this.b.width() * this.set_r);
     },
+    /* return if any part of this page is shown in the container */
     is_visible : function() {
       var off = this.position();
       return !((off[1] > this.height()) || (off[1] + this.container.height() < 0));
+    },
+    /* return if this page or any neighbor of it is visible */
+    is_nearly_visible : function() {
+      var off = this.position();
+      /* I should use the height of the previous page or the next page here
+       * but since they are not easily available, just use '*2', which should be a good estimate in most cases
+       */
+      return !((off[1] > this.height() * 2) || (off[1] + this.container.height() * 2 < 0));
     },
     /* return the coordinate of the top-left corner of container
      * in our cooridnate system
@@ -199,7 +208,7 @@ var pdf2htmlEX = (function(){
       var pl = this.pages;
       for(var i in pl) {
         var p = pl[i];
-        if(p.is_visible()){
+        if(p.is_nearly_visible()){
           p.show();
         } else {
           p.hide();
