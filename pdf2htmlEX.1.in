@@ -209,7 +209,6 @@ For PDF files with bad encodings, turning on this option may cause losing charac
 .TP
 .B --tounicode <-1|0|1> (Default: 0)
 A ToUnicode map may be provided for each font in PDF which indicates the 'meaning' of the characters. However often there is better "ToUnicode" info in Type 0/1 fonts, and sometimes the ToUnicode map provided is wrong. 
-
 If this value is set to 1, the ToUnicode Map is always applied, if provided in PDF, and characters may not render correctly in HTML if there are collisions.
 
 If set to -1, a customized map is used such that rendering will be correct in HTML (visually the same), but you may not get correct characters by select & copy & paste.
