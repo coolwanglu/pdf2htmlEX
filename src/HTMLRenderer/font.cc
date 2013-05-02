@@ -454,7 +454,7 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
          *
          * TODO: maybe add an option here, but anyway according to the DPF spec, this is implement-dependent
          */
-        if(info.is_embeded)
+       // if(info.is_embeded)
             ffw_reencode_raw(cur_mapping, max_key + 1, 1);
 
         // In some space offsets in HTML, we insert a ' ' there in order to improve text copy&paste
