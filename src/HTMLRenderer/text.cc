@@ -113,9 +113,9 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
                 html_text_page.get_cur_line()->append_unicodes(&uu, 1);
                 /*
                  * In PDF, word_space is appended if (n == 1 and *p = ' ')
-                 * but in HTML, word_space is appended if (uu == ' ' || 0xa0)
+                 * but in HTML, word_space is appended if (uu == ' ')
                  */
-                int space_count = (is_space ? 1 : 0) - ((uu == ' ' || uu == 0xa0) ? 1 : 0);
+                int space_count = (is_space ? 1 : 0) - ((uu == ' ') ? 1 : 0);
                 if(space_count != 0)
                 {
                     html_text_page.get_cur_line()->append_offset(cur_word_space * draw_text_scale * space_count);

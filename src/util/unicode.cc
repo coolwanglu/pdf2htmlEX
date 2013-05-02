@@ -17,8 +17,17 @@ using std::cerr;
 using std::endl;
 using std::ostream;
 
+/* Test legal for HTML */
 bool isLegalUnicode(Unicode u)
 {
+    /*
+     * These characters are interpreted as white-spaces in HTML
+     * `word-spacing` may be applied on them
+     * and the browser may not use the actualy glyphs in the font
+     * So mark them as illegal
+     *
+     * The problem is that the correct value can not be copied out in this way
+     */
     /*
     if((u == 9) || (u == 10) || (u == 13))
         return true;
@@ -27,7 +36,15 @@ bool isLegalUnicode(Unicode u)
     if(u <= 31) 
         return false;
 
-    if((u >= 127) && (u <= 159))
+    /*
+     * 160, or 0xa0 is NBSP, which is legal in HTML
+     * But some browser will use the glyph for ' ' in the font, it there is one, instead of the glyphs for NBSP
+     * Again, `word-spacing` is applied.
+     * So mark it as illegal
+     *
+     * And the same problem as above, this character can no longer be copied out
+     */
+    if((u >= 127) && (u <= 160))
         return false;
 
     if((u >= 0xd800) && (u <= 0xdfff))
