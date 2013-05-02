@@ -148,7 +148,6 @@ string HTMLRenderer::dump_embedded_font (GfxFont * font, long long fn_id)
         {
             outf.write(buf, len);
         }
-        outf.close();
         obj.streamClose();
     }
     catch(int) 
@@ -198,7 +197,7 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
     /*
      * if parm->tounicode is 0, try the provided tounicode map first
      */
-    info.use_tounicode = (is_truetype_suffix(suffix) || (param.tounicode >= 0));
+    info.use_tounicode = (param.tounicode >= 0);
     bool has_space = false;
 
     const char * used_map = nullptr;
@@ -325,6 +324,14 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
 
 
     {
+        ofstream map_outf;
+        if(param.debug)
+        {
+            string fn = (char*)str_fmt("%s/f%llx.map", param.tmp_dir.c_str(), info.id);
+            tmp_files.add(fn);
+            map_outf.open(fn);
+        }
+
         unordered_set<int> codeset;
         bool name_conflict_warned = false;
 
@@ -396,6 +403,10 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
                         memset(cur_mapping, -1, 0x10000 * sizeof(*cur_mapping));
                         memset(width_list, -1, 0x10000 * sizeof(*width_list));
                         cur_code = -1;
+                        if(param.debug)
+                        {
+                            map_outf.seekp(0);
+                        }
                         continue;
                     }
                 }
@@ -427,6 +438,11 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
                     has_space = true;
                     info.space_width = cur_width;
                 }
+            }
+
+            if(param.debug)
+            {
+                map_outf << hex << cur_code << ' ' << mapped_code << ' ' << u << endl;
             }
         }
 
