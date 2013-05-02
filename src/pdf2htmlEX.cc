@@ -74,6 +74,7 @@ void parse_options (int argc, char **argv)
         .add("split-pages", &param.split_pages, 0, "split pages into separate files")
         .add("dest-dir", &param.dest_dir, ".", "specify destination directory")
         .add("css-filename", &param.css_filename, "", "filename of the generated css file")
+        .add("page-filename", &param.page_filename, "", "filename template for splitted pages ")
         .add("outline-filename", &param.outline_filename, "", "filename of the generated outline file")
         .add("process-nontext", &param.process_nontext, 1, "render graphics in addition to text")
         .add("process-outline", &param.process_outline, 1, "show outline in HTML")
@@ -215,43 +216,40 @@ int main(int argc, char **argv)
         if(param.output_filename.empty())
         {
             const string s = get_filename(param.input_filename);
-
             if(get_suffix(param.input_filename) == ".pdf")
             {
-                if(param.split_pages)
-                {
-                    param.output_filename = s.substr(0, s.size() - 4) + "%d.page";
-                    sanitize_filename(param.output_filename);
-                }
-                else
-                {
-                    param.output_filename = s.substr(0, s.size() - 4) + ".html";
-                }
+                param.output_filename = s.substr(0, s.size() - 4) + ".html";
 
             }
             else
             {
-                if(param.split_pages)
-                {
-                    param.output_filename = s + "%d.page";
-                    sanitize_filename(param.output_filename);
-                }
-                else
-                {
-                    param.output_filename = s + ".html";
-                }
-                
+                param.output_filename = s + ".html";
             }
         }
-		else if(param.split_pages)
+
+        if(param.page_filename.empty())
+        {
+            const string s = get_filename(param.input_filename);
+            if(get_suffix(param.input_filename) == ".pdf")
+            {
+                param.page_filename = s.substr(0, s.size() - 4) + "%d.page";
+            }
+            else
+            {
+                param.page_filename = s + "%d.page";
+            }
+            sanitize_filename(param.page_filename);
+        }
+
+		else
         {
             // Need to make sure we have a page number placeholder in the filename
-            if(!sanitize_filename(param.output_filename))
+            if(!sanitize_filename(param.page_filename))
             {
                 // Inject the placeholder just before the file extension
-                const string suffix = get_suffix(param.output_filename);
-                param.output_filename = param.output_filename.substr(0, param.output_filename.size() - suffix.size()) + "%d" + suffix;
-                sanitize_filename(param.output_filename);
+                const string suffix = get_suffix(param.page_filename);
+                param.page_filename = param.page_filename.substr(0, param.page_filename.size() - suffix.size()) + "%d" + suffix;
+                sanitize_filename(param.page_filename);
             }
         }
         if(param.css_filename.empty())

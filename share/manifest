@@ -38,7 +38,12 @@ $css
 new pdf2htmlEX.Viewer({
     container_id : 'page-container', 
     sidebar_id : 'sidebar',
-    outline_id : 'outline'
+    outline_id : 'outline',
+    page_urls : [
+"""
+$page_urls
+"""
+]
 });
 </script>
 """

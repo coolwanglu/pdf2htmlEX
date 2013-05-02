@@ -110,12 +110,14 @@ void HTMLRenderer::process(PDFDoc *doc)
 
         if(param.split_pages)
         {
-            string filled_template_filename = (char*)str_fmt(param.output_filename.c_str(), i);
+            string filled_template_filename = (char*)str_fmt(param.page_filename.c_str(), i);
             auto page_fn = str_fmt("%s/%s", param.dest_dir.c_str(), filled_template_filename.c_str());
             f_pages.fs.open((char*)page_fn, ofstream::binary); 
             if(!f_pages.fs)
                 throw string("Cannot open ") + (char*)page_fn + " for writing";
             set_stream_flags(f_pages.fs);
+
+            page_filenames.push_back(filled_template_filename);
         }
 
         if(param.process_nontext)
@@ -273,23 +275,23 @@ void HTMLRenderer::pre_process(PDFDoc * doc)
     // we may output utf8 characters, so always use binary
     {
         /*
-         * If single-html && !split-pages
+         * If single-html
          * we have to keep the generated css file into a temporary place
          * and embed it into the main html later
          *
          *
-         * If single-html && split-page
+         * If single-html
          * as there's no place to embed the css file, just leave it alone (into param.dest_dir)
          *
          * If !single-html
          * leave it in param.dest_dir
          */
 
-        auto fn = (param.single_html && (!param.split_pages))
+        auto fn = (param.single_html)
             ? str_fmt("%s/__css", param.tmp_dir.c_str())
             : str_fmt("%s/%s", param.dest_dir.c_str(), param.css_filename.c_str());
 
-        if(param.single_html && (!param.split_pages))
+        if(param.single_html)
             tmp_files.add((char*)fn);
 
         f_css.path = (char*)fn;
@@ -305,11 +307,11 @@ void HTMLRenderer::pre_process(PDFDoc * doc)
          * The logic for outline is similar to css
          */
 
-        auto fn = (param.single_html && (!param.split_pages))
+        auto fn = (param.single_html)
             ? str_fmt("%s/__outline", param.tmp_dir.c_str())
             : str_fmt("%s/%s", param.dest_dir.c_str(), param.outline_filename.c_str());
 
-        if(param.single_html && (!param.split_pages))
+        if(param.single_html)
             tmp_files.add((char*)fn);
 
         f_outline.path = (char*)fn;
@@ -355,10 +357,7 @@ void HTMLRenderer::post_process(void)
     f_pages.fs.close(); 
     f_css.fs.close();
 
-    //only when split-page == 0, do we have some work left to do
-    if(param.split_pages)
-        return;
-
+    // build the main HTML file
     ofstream output;
     {
         auto fn = str_fmt("%s/%s", param.dest_dir.c_str(), param.output_filename.c_str());
@@ -375,8 +374,11 @@ void HTMLRenderer::post_process(void)
 
     bool embed_string = false;
     string line;
+    long line_no = 0;
     while(getline(manifest_fin, line))
     {
+        ++line_no;
+
         if(line == "\"\"\"")
         {
             embed_string = !embed_string;
@@ -420,15 +422,29 @@ void HTMLRenderer::post_process(void)
             }
             else if (line == "$pages")
             {
-                ifstream fin(f_pages.path, ifstream::binary);
-                if(!fin)
-                    throw "Cannot open pages for reading";
-                output << fin.rdbuf();
-                output.clear(); // output will set fail big if fin is empty
+                if(!param.split_pages)
+                {
+                    ifstream fin(f_pages.path, ifstream::binary);
+                    if(!fin)
+                        throw "Cannot open pages for reading";
+                    output << fin.rdbuf();
+                    output.clear(); // output will set fail bit if fin is empty
+                }
+            }
+            else if (line == "$page_urls")
+            {
+                for(auto iter = page_filenames.begin(); iter != page_filenames.end(); ++iter)
+                {
+                    if(iter != page_filenames.begin())
+                        output << ",";
+                    output << "'";
+                    outputURL(output, *iter);
+                    output << "'";
+                }
             }
             else
             {
-                cerr << "Warning: unknown line in manifest: " << line << endl;
+                cerr << "Warning: manifest line " << line_no << ": Unknown content \"" << line << "\"" << endl;
             }
             continue;
         }

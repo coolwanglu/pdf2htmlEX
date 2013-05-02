@@ -309,6 +309,8 @@ protected:
 
     Preprocessor preprocessor;
     TmpFiles tmp_files;
+    // for splitted pages
+    std::vector<std::string> page_filenames;
 
     // for string formatting
     StringFormatter str_fmt;

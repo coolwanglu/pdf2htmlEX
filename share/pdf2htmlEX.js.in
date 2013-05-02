@@ -107,6 +107,7 @@ var pdf2htmlEX = (function(){
     this.container_id = config['container_id'];
     this.sidebar_id = config['sidebar_id'];
     this.outline_id = config['outline_id'];
+    this.page_urls = config['page_urls'];
     this.init_before_loading_content();
 
     var _ = this;
@@ -122,7 +123,6 @@ var pdf2htmlEX = (function(){
       /*hide all pages before loading, will reveal only visible ones later */
       this.pre_hide_pages();
     },
-
     init_after_loading_content : function() {
       this.sidebar = $('#'+this.sidebar_id);
       this.outline = $('#'+this.outline_id);
@@ -133,15 +133,7 @@ var pdf2htmlEX = (function(){
         this.sidebar.addClass('opened');
       }
       
-      // collect pages
-      var new_pages = new Array();
-      var pl= $('.'+CSS_CLASS_NAMES['page_frame'], this.container);
-      /* don't use for(..in..) */
-      for(var i = 0, l = pl.length; i < l; ++i) {
-        var p = new Page(pl[i], this.container);
-        new_pages[p.n] = p;
-      }
-      this.pages = new_pages;
+      this.find_pages();
 
       // register schedule rendering
       var _ = this;
@@ -156,6 +148,34 @@ var pdf2htmlEX = (function(){
       $('.'+CSS_CLASS_NAMES['background_image'], this.container).on('dragstart', function(e){return false;});
 
       this.render();
+
+      // load split pages
+      // has no effect if --split-pages is 0
+      this.load_page(0);
+    },
+    find_pages : function() {
+      var new_pages = new Array();
+      var pl= $('.'+CSS_CLASS_NAMES['page_frame'], this.container);
+      /* don't use for(..in..) */
+      for(var i = 0, l = pl.length; i < l; ++i) {
+        var p = new Page(pl[i], this.container);
+        new_pages[p.n] = p;
+      }
+      this.pages = new_pages;
+    },
+    load_page : function(idx) {
+      if(idx < this.page_urls.length){
+        var _ = this;
+        $.ajax({
+          url: this.page_urls[idx],
+          dataType: 'text'
+        }).done(function(data){
+          $('#'+_.container_id).append(data);
+          _.find_pages();
+          _.schedule_render();
+          _.load_page(idx+1);
+        });
+      }
     },
     pre_hide_pages : function() {
       /* pages might have not been loaded yet, so add a CSS rule */
