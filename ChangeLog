@@ -8,6 +8,7 @@ Latest v0.8
 * Custom format for page file name [Ryan Morlok]
 * Workaround for NBSP
 * A default HTML file which load the pages dynamically when split-pages is on
+* New UI style 
 * New options:
  --optimize-text : HTML optimization, see above
  --fallback : the most accurate way, but costy (larger file sizes)
