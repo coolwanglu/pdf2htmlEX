@@ -4,10 +4,20 @@ Latest v0.8
  - reduce number of <span> elements
  - merge lines with different y values 
  - merge lines with differnt (but proportional) transform matrices
-* New option --optimize-text
 * Fix missing glyphs in TTF fonts
 * Custom format for page file name [Ryan Morlok]
-* New option --fallback
+* Workaround for NBSP
+* A default HTML file which load the pages dynamically when split-pages is on
+* New options:
+ --optimize-text : HTML optimization, see above
+ --fallback : the most accurate way, but costy (larger file sizes)
+ --printing : enable or disable CSS for printing
+ --page-file: specify page filenames when split-pages is on
+* New default values:
+ --embed-base-font 1
+ --embed-external-font 1
+ --space-as-offset 0
+ --remove-unused-glyph 0
 
 v0.7
 2013.03.01
