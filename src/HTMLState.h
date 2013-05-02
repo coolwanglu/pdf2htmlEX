@@ -17,6 +17,7 @@ struct FontInfo
     double space_width;
     double ascent, descent;
     bool is_type3;
+    bool is_embeded;
 };
 
 struct HTMLTextState

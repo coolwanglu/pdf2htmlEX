@@ -13,7 +13,7 @@ with open('out.html','w') as outf:
         if not f.lower().endswith('.pdf'):
             continue
         print f
-        if os.system('pdf2htmlEX -l 10 --no-drm 1 --fit-width 1024 --dest-dir html --auto-hint=1 --external-hint-tool="ttfautohint" "%s/%s"' % (DIR,f)) != 0:
+        if os.system('pdf2htmlEX -l 10 --no-drm 1 --fit-width 1024 --dest-dir html --external-hint-tool="ttfautohint" "%s/%s"' % (DIR,f)) != 0:
             print "error on ", f
             sys.exit(-1)
 

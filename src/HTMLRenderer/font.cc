@@ -45,7 +45,7 @@ string HTMLRenderer::dump_embedded_font (GfxFont * font, long long fn_id)
 
     try
     {
-        // mupdf consulted
+        // inspired by mupdf 
         string subtype;
 
         auto * id = font->getID();
@@ -448,7 +448,14 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
 
         ffw_set_widths(width_list, max_key + 1, param.stretch_narrow_glyph, param.squeeze_wide_glyph, param.remove_unused_glyph);
         
-        ffw_reencode_raw(cur_mapping, max_key + 1, 1);
+        /*
+         * Reencoding is not likely to work for external fonts,
+         * Just hope that we can get correct Unicode values, and let the browser choose the correct glyphs
+         *
+         * TODO: maybe add an option here, but anyway according to the DPF spec, this is implement-dependent
+         */
+        if(info.is_embeded)
+            ffw_reencode_raw(cur_mapping, max_key + 1, 1);
 
         // In some space offsets in HTML, we insert a ' ' there in order to improve text copy&paste
         // We need to make sure that ' ' is in the font, otherwise it would be very ugly if you select the text
@@ -467,7 +474,7 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
             ffw_add_empty_char((int32_t)' ', (int)floor(info.space_width * info.em_size + 0.5));
             if(param.debug)
             {
-                cerr << "Missing space width in font: " << hex << info.id << " set to " << dec << info.space_width << endl;
+                cerr << "Missing space width in font " << hex << info.id << ": set to " << dec << info.space_width << endl;
             }
         }
 
@@ -556,6 +563,7 @@ const FontInfo * HTMLRenderer::install_font(GfxFont * font)
     FontInfo & new_font_info = cur_info_iter->second;
     new_font_info.id = new_fn_id;
     new_font_info.use_tounicode = true;
+    new_font_info.is_embeded = false;
 
     if(font == nullptr)
     {
@@ -582,12 +590,12 @@ const FontInfo * HTMLRenderer::install_font(GfxFont * font)
     if(font->getType() == fontType3) {
         cerr << "Type 3 fonts are unsupported and will be rendered as Image" << endl;
         export_remote_default_font(new_fn_id);
-        return &(cur_info_iter->second);
+        return &new_font_info;
     }
     if(font->getWMode()) {
         cerr << "Writing mode is unsupported and will be rendered as Image" << endl;
         export_remote_default_font(new_fn_id);
-        return &(cur_info_iter->second);
+        return &new_font_info;
     }
 
     if(auto * font_loc = font->locateFont(xref, gTrue))
@@ -595,13 +603,16 @@ const FontInfo * HTMLRenderer::install_font(GfxFont * font)
         switch(font_loc -> locType)
         {
             case gfxFontLocEmbedded:
-                install_embedded_font(font, cur_info_iter->second);
+                new_font_info.is_embeded = true;
+                install_embedded_font(font, new_font_info);
                 break;
             case gfxFontLocExternal:
-                install_external_font(font, cur_info_iter->second);
+                new_font_info.is_embeded = false;
+                install_external_font(font, new_font_info);
                 break;
             case gfxFontLocResident:
-                install_base_font(font, font_loc, cur_info_iter->second);
+                new_font_info.is_embeded = false;
+                install_base_font(font, font_loc, new_font_info);
                 break;
             default:
                 cerr << "TODO: other font loc" << endl;
