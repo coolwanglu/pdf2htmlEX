@@ -309,7 +309,7 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
 
             // To locate CID2GID for the font
             // as in CairoFontEngine.cc
-            if(code2GID = _font->getCIDToGID())
+            if((code2GID = _font->getCIDToGID()))
             {
                 // use the mapping stored in _font
                 code2GID_len = _font->getCIDToGIDLen();
