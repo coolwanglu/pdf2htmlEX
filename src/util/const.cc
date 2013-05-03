@@ -14,14 +14,6 @@ using std::string;
 
 const double ID_MATRIX[6] = {1.0, 0.0, 0.0, 1.0, 0.0, 0.0};
 
-const map<string, string> BASE_14_FONT_CSS_FONT_MAP({
-   { "Courier", "Courier,monospace" },
-   { "Helvetica", "Helvetica,Arial,\"Nimbus Sans L\",sans-serif" },
-   { "Times", "Times,\"Time New Roman\",\"Nimbus Roman No9 L\",serif" },
-   { "Symbol", "Symbol,\"Standard Symbols L\"" },
-   { "ZapfDingbats", "ZapfDingbats,\"Dingbats\"" },
-});
-
 const map<string, string> GB_ENCODED_FONT_NAME_MAP({
     {"\xCB\xCE\xCC\xE5", "SimSun"},
     {"\xBA\xDA\xCC\xE5", "SimHei"},

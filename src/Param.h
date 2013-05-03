@@ -37,7 +37,6 @@ struct Param
     int fallback;
     
     // fonts
-    int embed_base_font;
     int embed_external_font;
     std::string font_suffix;
     int decompose_ligature;

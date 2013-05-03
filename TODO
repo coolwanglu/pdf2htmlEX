@@ -1,5 +1,9 @@
+ - dots issue
+  - AdobeXML*.pdf
  - font issue 
   - cjkmix2*.pdf
+ - space issue
+  - python简明*.pdf
  - smarter space-as-offset
  - show hints about possible useful parameters
  - optimization levels

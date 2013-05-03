@@ -326,6 +326,7 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
         }
         else
         {
+            // TODO: add an option to load the table?
             ffw_cidflatten();
         }
     }
@@ -612,7 +613,12 @@ const FontInfo * HTMLRenderer::install_font(GfxFont * font)
         return &new_font_info;
     }
 
-    if(auto * font_loc = font->locateFont(xref, gTrue))
+    /*
+     * The 2nd parameter of locateFont should be true only for PS
+     * which does not make much sense in our case
+     * If we specify gFalse here, font_loc->locaType cannot be gfxFontLocResident
+     */
+    if(auto * font_loc = font->locateFont(xref, gFalse))
     {
         switch(font_loc -> locType)
         {
@@ -620,13 +626,12 @@ const FontInfo * HTMLRenderer::install_font(GfxFont * font)
                 new_font_info.is_embeded = true;
                 install_embedded_font(font, new_font_info);
                 break;
+            case gfxFontLocResident:
+                std::cerr << "Warning: Base 14 fonts should not be specially handled now. Please report a bug!" << std::endl;
+                /* fall through */
             case gfxFontLocExternal:
                 new_font_info.is_embeded = false;
                 install_external_font(font, new_font_info);
-                break;
-            case gfxFontLocResident:
-                new_font_info.is_embeded = false;
-                install_base_font(font, font_loc, new_font_info);
                 break;
             default:
                 cerr << "TODO: other font loc" << endl;
@@ -656,55 +661,6 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, FontInfo & info)
     {
         export_remote_default_font(info.id);
     }
-}
-
-void HTMLRenderer::install_base_font(GfxFont * font, GfxFontLoc * font_loc, FontInfo & info)
-{
-    string psname(font_loc->path->getCString());
-    string basename = psname.substr(0, psname.find('-'));
-
-    GfxFontLoc * localfontloc = font->locateFont(xref, gFalse);
-    if(param.embed_base_font)
-    {
-        if(localfontloc != nullptr)
-        {
-            embed_font(localfontloc->path->getCString(), font, info);
-            export_remote_font(info, param.font_suffix, font);
-            delete localfontloc;
-            return;
-        }
-        else
-        {
-            cerr << "Cannot embed base font: f" << hex << info.id << dec << ' ' << psname << endl;
-            // fallback to exporting by name
-        }
-
-    }
-
-    string cssfont;
-    auto iter = BASE_14_FONT_CSS_FONT_MAP.find(basename);
-    if(iter == BASE_14_FONT_CSS_FONT_MAP.end())
-    {
-        cerr << "PS Font: " << basename << " not found in the base 14 font map" << endl;
-        cssfont = "";
-    }
-    else
-        cssfont = iter->second;
-
-    // still try to get an idea of read ascent/descent
-    if(localfontloc != nullptr)
-    {
-        // fill in ascent/descent only, do not embed
-        embed_font(string(localfontloc->path->getCString()), font, info, true);
-        delete localfontloc;
-    }
-    else
-    {
-        info.ascent = font->getAscent();
-        info.descent = font->getDescent();
-    }
-
-    export_local_font(info, font, psname, cssfont);
 }
 
 void HTMLRenderer::install_external_font(GfxFont * font, FontInfo & info)

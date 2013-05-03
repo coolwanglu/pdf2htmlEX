@@ -134,17 +134,10 @@ Output in fallback mode, for better accuracy and browser compatibility, but the 
 .SS Fonts
 
 .TP
-.B --embed-base-font <0|1> (Default: 1)
-Whether to embed base 14 fonts.
-
-There are several base font defined in PDF standards, which are supposed to be provided by the PDF reader.
-
-If this switch is on, local matched font will be used and embedded; otherwise only font names are exported such that web browsers may try to find proper fonts themselves.
-
-.TP
 .B --embed-external-font <0|1> (Default: 1)
-Similar as `--embed-base-font` but for non-base fonts. If this switch is off, the corresponding fonts must be installed in the client side.
+Specify whether the local matched fonts, for fonts not embedded in PDF, should be embedded into HTML. 
 
+If this switch is off, only font names are exported such that web browsers may try to find proper fonts themselves, and that might cause issues about incorrect font metrics.
 
 .TP
 .B --font-suffix <suffix> (Default: .ttf)

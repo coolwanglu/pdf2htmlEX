@@ -21,8 +21,6 @@ static const double EPS = 1e-6;
 static const double DEFAULT_DPI = 72.0;
 extern const double ID_MATRIX[6];
 
-// PDF base 14 font name -> CSS font name
-extern const std::map<std::string, std::string> BASE_14_FONT_CSS_FONT_MAP;
 // For GB encoded font names
 extern const std::map<std::string, std::string> GB_ENCODED_FONT_NAME_MAP;
 // map to embed files into html
