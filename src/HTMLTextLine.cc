@@ -121,8 +121,6 @@ void HTMLTextLine::dump_text(ostream & out)
                 {
                     while(stack.back() != *iter)
                     {
-                        state_iter1->vertical_align += stack.back()->vertical_align;
-
                         stack.back()->end(out);
                         stack.pop_back();
                     }

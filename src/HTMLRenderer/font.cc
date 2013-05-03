@@ -203,6 +203,12 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
     const char * used_map = nullptr;
 
     info.em_size = ffw_get_em_size();
+
+    if(param.debug)
+    {
+        cerr << "Em size: " << info.em_size << endl;
+    }
+
     info.space_width = 0;
 
     if(!font->isCIDFont())

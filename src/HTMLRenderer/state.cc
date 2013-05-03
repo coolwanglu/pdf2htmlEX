@@ -369,6 +369,11 @@ void HTMLRenderer::check_state_change(GfxState * state)
             new_line_state = max<NewLineState>(new_line_state, NLS_NEWLINE);
         }
     }
+    else
+    {
+        // no vertical shift if no need to check position
+        cur_text_state.vertical_align = 0;
+    }
 
     // letter space
     // depends: draw_text_scale
