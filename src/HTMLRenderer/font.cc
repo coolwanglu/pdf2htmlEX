@@ -236,13 +236,15 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
      * re-encoding the font by glyph names
      *
      * for 8bit + TrueType
-     * sort the glpyhs as the original order, and later will map GID (instead of char code) to Unicode
+     * sort the glpyhs as the original order, and load the code2GID table
+     * later we will map GID (instead of char code) to Unicode
      *
      * for CID + nonTrueType
      * Flatten the font 
      *
      * for CID Truetype
      * same as 8bitTrueType, except for that we have to check 65536 charcodes
+     * use the embedded code2GID table if there is, otherwise use the one in the font
      */
     if(font_8bit)
     {
@@ -305,9 +307,22 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
 
             GfxCIDFont * _font = dynamic_cast<GfxCIDFont*>(font);
 
-            // code2GID has been stored for embedded CID fonts
-            code2GID = _font->getCIDToGID();
-            code2GID_len = _font->getCIDToGIDLen();
+            // To locate CID2GID for the font
+            // as in CairoFontEngine.cc
+            if(code2GID = _font->getCIDToGID())
+            {
+                // use the mapping stored in _font
+                code2GID_len = _font->getCIDToGIDLen();
+            }
+            else
+            {
+                // use the mapping stored in the file
+                if(FoFiTrueType * fftt = FoFiTrueType::load((char*)filepath.c_str()))
+                {
+                    code2GID = _font->getCodeToGIDMap(fftt, &code2GID_len);
+                    delete fftt;
+                }
+            }
         }
         else
         {
@@ -454,14 +469,7 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
 
         ffw_set_widths(width_list, max_key + 1, param.stretch_narrow_glyph, param.squeeze_wide_glyph, param.remove_unused_glyph);
         
-        /*
-         * Reencoding is not likely to work for external fonts,
-         * Just hope that we can get correct Unicode values, and let the browser choose the correct glyphs
-         *
-         * TODO: maybe add an option here, but anyway according to the DPF spec, this is implement-dependent
-         */
-       // if(info.is_embeded)
-            ffw_reencode_raw(cur_mapping, max_key + 1, 1);
+        ffw_reencode_raw(cur_mapping, max_key + 1, 1);
 
         // In some space offsets in HTML, we insert a ' ' there in order to improve text copy&paste
         // We need to make sure that ' ' is in the font, otherwise it would be very ugly if you select the text

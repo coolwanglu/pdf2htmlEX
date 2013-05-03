@@ -1,9 +1,6 @@
  - font issue 
   - cjkmix2*.pdf
- - decision about reencoding external fonts
-  - pc1.pdf
-  - jyb.pdf
-  - SVD.pdf
+ - smarter space-as-offset
  - show hints about possible useful parameters
  - optimization levels
  - don't dump image when it is empty
