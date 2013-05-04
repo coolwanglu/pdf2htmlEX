@@ -493,6 +493,19 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
             }
         }
 
+        if(info.space_width == 0)
+        {
+            /*
+             * Internet Explorer will ignore `word-spacing` if
+             * the width of the 'space' glyph is 0
+             *
+             * usually the em_size is 1000 or 2048,
+             * and space_width==0 often means no spaces are used in the PDF
+             * so setting it to be 1 should be safe
+             */
+            info.space_width = 1;
+        }
+
         if(ctu)
             ctu->decRefCnt();
     }
