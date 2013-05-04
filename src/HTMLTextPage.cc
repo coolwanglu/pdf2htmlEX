@@ -29,10 +29,15 @@ void HTMLTextPage::dump_text(ostream & out)
     if(param.optimize_text)
         optimize();
 
-    //push a dummy entry for convenience
-    clips.emplace_back(HTMLClipState{0, 0, page_width, page_height}, text_lines.size());
+    HTMLClipState page_box;
+    page_box.xmin = page_box.ymin = 0;
+    page_box.xmax = page_width;
+    page_box.ymax = page_height;
 
-    Clip cur_clip(HTMLClipState{0, 0, page_width, page_height}, 0);
+    //push a dummy entry for convenience
+    clips.emplace_back(page_box, text_lines.size());
+
+    Clip cur_clip(page_box, 0);
     bool has_clip = false;
 
     auto text_line_iter = text_lines.begin();
