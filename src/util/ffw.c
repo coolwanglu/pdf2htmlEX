@@ -267,7 +267,11 @@ void ffw_cidflatten(void)
 void ffw_add_empty_char(int32_t unicode, int width)
 {
     SplineChar * sc = SFMakeChar(cur_fv->sf, cur_fv->map, cur_fv->map->enccount);
-    SCSetMetaData(sc, sc->name, unicode, sc->comment);
+    char buffer[400];
+    SCSetMetaData(sc, 
+        strcopy(StdGlyphName(buffer, unicode, 
+                cur_fv->sf->uni_interp, cur_fv->sf->for_new_glyphs)),
+        unicode, sc->comment);
     SCSynchronizeWidth(sc, width, sc->width, cur_fv);
 }
 
