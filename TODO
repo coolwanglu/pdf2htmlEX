@@ -8,6 +8,8 @@
  - show hints about possible useful parameters
  - optimization levels
  - don't dump image when it is empty
+ - spinning icon for dynamic page loading
+ - fix negative word-spacing for IE
 
 == Future: ==
 
