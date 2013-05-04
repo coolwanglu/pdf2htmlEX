@@ -9,6 +9,7 @@ set(CSS_INVALID_ID          "_")
 
 set(CSS_LINE_CN             "t") # Text 
 set(CSS_TRANSFORM_MATRIX_CN "m") # Matrix
+set(CSS_CLIP_CN             "c") # Clip
 
 set(CSS_PAGE_DECORATION_CN  "pd") # Page Decoration
 set(CSS_PAGE_FRAME_CN       "pf") # Page Frame

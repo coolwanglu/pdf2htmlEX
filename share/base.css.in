@@ -49,7 +49,7 @@
   .@CSS_CSS_DRAW_CN@ { display:none; }
 }
 /* Part 2: Page Elements: Modify with caution
- * The followings are base classes, which are meant to be override by PDF specific classes
+ * The followings are base classes, some of which are meant to be override by PDF specific classes
  * So do not increase the specificity (e.g. ".classname" -> "#page-container .classname")
  */
 .@CSS_PAGE_DECORATION_CN@ { /* page decoration */
@@ -71,12 +71,15 @@
 .@CSS_PAGE_CONTENT_BOX_CN@ { /* content of a page */
   position:absolute;
   border-width:0;
+  padding:0;
+  margin:0;
   top:0;
   left:0;
   width:100%;
   height:100%;
   overflow:hidden;
   display:block;
+  /* set transform-origin for scaling */
   transform-origin:0% 0%;
   -ms-transform-origin:0% 0%;
   -moz-transform-origin:0% 0%;
@@ -114,6 +117,14 @@
     .@CSS_PAGE_CONTENT_BOX_CN@ {overflow:visible;}
   }
 }
+.@CSS_CLIP_CN@ { /* clip box */
+  position:absolute;
+  border-width:0;
+  padding:0;
+  margin:0;
+  overflow:hidden;
+  display:block;
+}
 .@CSS_LINE_CN@ { /* text line */
   position:absolute;
   white-space:pre;
@@ -144,7 +155,7 @@ span { /* text blocks within a line */
 .@CSS_PAGE_DATA_CN@ { /* info for Javascript */
   display:none;
 }
-.@CSS_LINE_CN@ { /* annotation links */
+.@CSS_LINK_CN@ { /* annotation links */
 }
 /* transparent color - WebKit */
 .@CSS_CSS_DRAW_CN@ { /* css drawing */

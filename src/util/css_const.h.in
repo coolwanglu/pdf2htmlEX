@@ -26,6 +26,7 @@ const char * const INVALID_ID          = "@CSS_INVALID_ID@";
 
 const char * const LINE_CN             = "@CSS_LINE_CN@";
 const char * const TRANSFORM_MATRIX_CN = "@CSS_TRANSFORM_MATRIX_CN@";
+const char * const CLIP_CN             = "@CSS_CLIP_CN@";
 
 // page_decoration is for shadow etc
 // page_frame cannot have margin or border-width, pdf2htmlEX.js will use it to determine the coordinates

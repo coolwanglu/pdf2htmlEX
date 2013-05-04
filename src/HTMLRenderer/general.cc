@@ -173,8 +173,13 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state, XRef * xref)
 {
     this->pageNum = pageNum;
 
-    long long wid = all_manager.width.install(state->getPageWidth());
-    long long hid = all_manager.height.install(state->getPageHeight());
+    double pageWidth = state->getPageWidth();
+    double pageHeight = state->getPageHeight();
+
+    html_text_page.set_page_size(pageWidth, pageHeight);
+
+    long long wid = all_manager.width.install(pageWidth);
+    long long hid = all_manager.height.install(pageHeight);
     f_pages.fs 
         << "<div class=\"" << CSS::PAGE_DECORATION_CN 
             << " " << CSS::WIDTH_CN << wid

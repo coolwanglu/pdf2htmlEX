@@ -81,6 +81,8 @@ public:
     bool text_empty(void) const { return text.empty(); }
     void clear(void);
 
+    void clip(double x1, double y1, double x2, double y2);
+
     /*
      * Optimize and calculate necessary values
      */
@@ -93,6 +95,7 @@ private:
 
     HTMLLineState line_state;
     double ascent, descent;
+    double clip_x1, clip_y1;
 
     std::vector<State> states;
     std::vector<Offset> offsets;

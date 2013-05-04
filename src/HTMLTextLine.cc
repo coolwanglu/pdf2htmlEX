@@ -29,6 +29,8 @@ HTMLTextLine::HTMLTextLine (const HTMLLineState & line_state, const Param & para
     :param(param)
     ,all_manager(all_manager) 
     ,line_state(line_state)
+    ,clip_x1(0)
+    ,clip_y1(0)
 { }
 
 void HTMLTextLine::append_unicodes(const Unicode * u, int l)
@@ -81,9 +83,9 @@ void HTMLTextLine::dump_text(ostream & out)
         // open <div> for the current text line
         out << "<div class=\"" << CSS::LINE_CN
             << " " << CSS::TRANSFORM_MATRIX_CN << all_manager.transform_matrix.install(line_state.transform_matrix)
-            << " " << CSS::LEFT_CN             << all_manager.left.install(line_state.x)
+            << " " << CSS::LEFT_CN             << all_manager.left.install(line_state.x - clip_x1)
             << " " << CSS::HEIGHT_CN           << all_manager.height.install(ascent)
-            << " " << CSS::BOTTOM_CN           << all_manager.bottom.install(line_state.y)
+            << " " << CSS::BOTTOM_CN           << all_manager.bottom.install(line_state.y - clip_y1)
             ;
         // it will be closed by the first state
     }
@@ -229,6 +231,12 @@ void HTMLTextLine::clear(void)
     states.clear();
     offsets.clear();
     text.clear();
+}
+
+void HTMLTextLine::clip(double x1, double y1, double x2, double y2)
+{
+    clip_x1 = x1;
+    clip_y1 = y1;
 }
 
 void HTMLTextLine::prepare(void)

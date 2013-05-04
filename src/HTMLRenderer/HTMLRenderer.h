@@ -296,8 +296,7 @@ protected:
     {
         NLS_NONE,
         NLS_NEWSTATE, 
-        NLS_NEWLINE,
-        NLS_NEWCLIP  
+        NLS_NEWLINE
     } new_line_state;
     
     // for font reencoding
