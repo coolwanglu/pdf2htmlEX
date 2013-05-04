@@ -17,7 +17,12 @@ using std::cerr;
 using std::endl;
 using std::ostream;
 
-/* Test legal for HTML */
+/* 
+ * Test legal for HTML 
+ * 
+ * A legal unicode character should be accepted by browsers, and displayed correctly.
+ * This function is not complete, just to be improved.
+ */
 bool isLegalUnicode(Unicode u)
 {
     /*
@@ -45,6 +50,13 @@ bool isLegalUnicode(Unicode u)
      * And the same problem as above, this character can no longer be copied out
      */
     if((u >= 127) && (u <= 160))
+        return false;
+
+    /*
+     * 173, or 0xad, is the soft hyphen
+     * which can be ignored by the browser in the middle of a line
+     */
+    if(u == 173)
         return false;
 
     if((u >= 0xd800) && (u <= 0xdfff))
