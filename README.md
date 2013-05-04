@@ -20,18 +20,18 @@ It aims to provide an accuracy rendering, while keeping optimized for Web displa
 
 pdf2htmlEX is best for text-based PDF files, for example scientific papers with complicated formulas and figures.
 Text, fonts and formats are natively perserved in HTML such that you can still search and copy.
-The generated HTML file is static, Javascript is not required.
+The generated HTML file is static, Javascript is optional.
 
 [Learn more](https://github.com/coolwanglu/pdf2htmlEX/wiki/Introduction)
 
 ## Features
 
-* Precise and native text in HTML, which means
+* Precise and native text in HTML
 * Flexible Output
 * Moderate Size
 * More PDF stuffs that you love: links, outlines & printing
 
-[Full list](https://github.com/coolwanglu/pdf2htmlEX/wiki/Feature-List)   
+[Learn more](https://github.com/coolwanglu/pdf2htmlEX/wiki/Feature-List)   
 [Compare with others](https://github.com/coolwanglu/pdf2htmlEX/wiki/Comparison)
 
 ## Get started
@@ -40,7 +40,7 @@ The generated HTML file is static, Javascript is not required.
  
 Thanks to all packagers!
 
-  * [Ubuntu PPA](https://launchpad.net/~coolwanglu/+archive/pdf2htmlex) by Lu Wang <coolwanglu@gmail.com>, not always up-to-date.
+  * [Ubuntu PPA](https://launchpad.net/~coolwanglu/+archive/pdf2htmlex) by Lu Wang <coolwanglu@gmail.com>
   * [ArchLinux AUR](https://aur.archlinux.org/packages.php?ID=62426) by Arthur Titeica <arthur.titeica@gmail.com>
   * [Gentoo Overlay](http://gpo.zugaina.org/app-text/pdf2htmlex), gentoo-zh, mrueg or sunrise, by respective packagers.  
   * [Homebrew Formula](https://github.com/mxcl/homebrew/blob/master/Library/Formula/pdf2htmlex.rb) by Jamie Ly <me@jamie.ly>
