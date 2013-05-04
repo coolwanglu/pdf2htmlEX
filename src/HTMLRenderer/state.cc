@@ -154,9 +154,11 @@ void HTMLRenderer::check_state_change(GfxState * state)
 
     if(all_changed || clip_changed)
     {
+        //TODO: compare with current clip box
         double x1, x2, y1, y2;
         state->getClipBBox(&x1, &y1, &x2, &y2);
         html_text_page.clip(x1, y1, x2, y2);
+        new_line_state = NLS_NEWLINE;
     }
 
     bool need_recheck_position = false;
