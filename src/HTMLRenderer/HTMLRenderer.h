@@ -289,6 +289,7 @@ protected:
     AllStateManager all_manager;
     HTMLTextState cur_text_state;
     HTMLLineState cur_line_state;
+    HTMLClipState cur_clip_state;
 
     HTMLTextPage html_text_page;
 
@@ -296,7 +297,8 @@ protected:
     {
         NLS_NONE,
         NLS_NEWSTATE, 
-        NLS_NEWLINE
+        NLS_NEWLINE,
+        NLS_NEWCLIP
     } new_line_state;
     
     // for font reencoding

@@ -30,39 +30,49 @@ void HTMLTextPage::dump_text(ostream & out)
         optimize();
 
     //push a dummy entry for convenience
-    clip_boxes.emplace_back(0, 0, page_width, page_height, text_lines.size());
+    clips.emplace_back(HTMLClipState{0, 0, page_width, page_height}, text_lines.size());
 
-    ClipBox cur_cb(0, 0, page_width, page_height, 0);
+    Clip cur_clip(HTMLClipState{0, 0, page_width, page_height}, 0);
     bool has_clip = false;
 
     auto text_line_iter = text_lines.begin();
-    for(auto clip_iter = clip_boxes.begin(); clip_iter != clip_boxes.end(); ++clip_iter)
+    for(auto clip_iter = clips.begin(); clip_iter != clips.end(); ++clip_iter)
     {
-        if(has_clip)
-        {
-            out << "<div class=\"" << CSS::CLIP_CN
-                << " " << CSS::LEFT_CN   << all_manager.left.install(cur_cb.x1)
-                << " " << CSS::BOTTOM_CN << all_manager.bottom.install(cur_cb.y1)
-                << " " << CSS::WIDTH_CN  << all_manager.width.install(cur_cb.x2 - cur_cb.x1)
-                << " " << CSS::HEIGHT_CN << all_manager.height.install(cur_cb.y2 - cur_cb.y1)
-                << "\">";
-        }
-
         auto next_text_line_iter = text_lines.begin() + clip_iter->start_idx;
-        while(text_line_iter != next_text_line_iter)
+        if(text_line_iter != next_text_line_iter)
         {
-            (*text_line_iter)->clip(cur_cb.x1, cur_cb.y1, cur_cb.x2, cur_cb.y2);
-            (*text_line_iter)->dump_text(out);
-            ++text_line_iter;
-        }
-        if(has_clip)
-        {
-            out << "</div>";
+            const auto & cs = cur_clip.clip_state;
+            if(has_clip)
+            {
+                out << "<div class=\"" << CSS::CLIP_CN
+                    << " " << CSS::LEFT_CN   << all_manager.left.install(cs.xmin)
+                    << " " << CSS::BOTTOM_CN << all_manager.bottom.install(cs.ymin)
+                    << " " << CSS::WIDTH_CN  << all_manager.width.install(cs.xmax - cs.xmin)
+                    << " " << CSS::HEIGHT_CN << all_manager.height.install(cs.ymax - cs.ymin)
+                    << "\">";
+            }
+
+            while(text_line_iter != next_text_line_iter)
+            {
+                if(has_clip)
+                {
+                    (*text_line_iter)->clip(cs);
+                }
+                (*text_line_iter)->dump_text(out);
+                ++text_line_iter;
+            }
+            if(has_clip)
+            {
+                out << "</div>";
+            }
         }
 
-        cur_cb = *clip_iter;
-        has_clip = !(equal(0, cur_cb.x1) && equal(0, cur_cb.y1) 
-                && equal(page_width, cur_cb.x2) && equal(page_height, cur_cb.y2));
+        {
+            cur_clip = *clip_iter;
+            const auto & cs = cur_clip.clip_state;
+            has_clip = !(equal(0, cs.xmin) && equal(0, cs.ymin)
+                    && equal(page_width, cs.xmax) && equal(page_height, cs.ymax));
+        }
     }
 }
 
@@ -74,7 +84,7 @@ void HTMLTextPage::dump_css(ostream & out)
 void HTMLTextPage::clear(void)
 {
     text_lines.clear();
-    clip_boxes.clear();
+    clips.clear();
     cur_line = nullptr;
 }
 
@@ -94,32 +104,21 @@ void HTMLTextPage::set_page_size(double width, double height)
     page_height = height;
 }
 
-void HTMLTextPage::clip(double x1, double y1, double x2, double y2)
+void HTMLTextPage::clip(const HTMLClipState & clip_state)
 {
-    if(!clip_boxes.empty())
+    if(!clips.empty())
     {
-        auto & cb = clip_boxes.back();
-        if(cb.start_idx == text_lines.size())
+        auto & clip = clips.back();
+        if(clip.start_idx == text_lines.size())
         {
             /*
              * Previous ClipBox is not used
              */
-            cb.x1 = x1;
-            cb.y1 = y1;
-            cb.x2 = x2;
-            cb.y2 = y2;
-            return;
-        }
-        if(equal(cb.x1, x1) && equal(cb.y1, y1)
-                && equal(cb.x2, x2) && equal(cb.y2, y2))
-        {
-            /*
-             * same as previous ClipBox
-             */
+            clip.clip_state = clip_state;
             return;
         }
     }
-    clip_boxes.emplace_back(x1, y1, x2, y2, text_lines.size());
+    clips.emplace_back(clip_state, text_lines.size());
 }
 
 void HTMLTextPage::optimize(void)

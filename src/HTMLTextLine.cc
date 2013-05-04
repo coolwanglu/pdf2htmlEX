@@ -233,10 +233,10 @@ void HTMLTextLine::clear(void)
     text.clear();
 }
 
-void HTMLTextLine::clip(double x1, double y1, double x2, double y2)
+void HTMLTextLine::clip(const HTMLClipState & clip_state)
 {
-    clip_x1 = x1;
-    clip_y1 = y1;
+    clip_x1 = clip_state.xmin;
+    clip_y1 = clip_state.ymin;
 }
 
 void HTMLTextLine::prepare(void)

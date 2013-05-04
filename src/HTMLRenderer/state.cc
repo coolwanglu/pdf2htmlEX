@@ -119,6 +119,11 @@ void HTMLRenderer::reset_state()
     cur_line_state.y = 0;
     memcpy(cur_line_state.transform_matrix, ID_MATRIX, sizeof(cur_line_state.transform_matrix));
 
+    cur_clip_state.xmin = 0;
+    cur_clip_state.xmax = 0;
+    cur_clip_state.ymin = 0;
+    cur_clip_state.ymax = 0;
+
     cur_tx  = cur_ty  = 0;
     draw_tx = draw_ty = 0;
 
@@ -145,6 +150,14 @@ void HTMLRenderer::reset_state_change()
 
     clip_changed = false;
 }
+
+template<class NewLineState>
+void set_line_state(NewLineState & cur_ls, NewLineState new_ls)
+{
+    if(new_ls > cur_ls)
+        cur_ls = new_ls;
+}
+
 void HTMLRenderer::check_state_change(GfxState * state)
 {
     // DEPENDENCY WARNING
@@ -154,11 +167,16 @@ void HTMLRenderer::check_state_change(GfxState * state)
 
     if(all_changed || clip_changed)
     {
-        //TODO: compare with current clip box
-        double x1, x2, y1, y2;
-        state->getClipBBox(&x1, &y1, &x2, &y2);
-        html_text_page.clip(x1, y1, x2, y2);
-        new_line_state = NLS_NEWLINE;
+        HTMLClipState new_clip_state;
+        state->getClipBBox(&new_clip_state.xmin, &new_clip_state.ymin, &new_clip_state.xmax, &new_clip_state.ymax);
+        if(!(equal(cur_clip_state.xmin, new_clip_state.xmin)
+                    && equal(cur_clip_state.xmax, new_clip_state.xmax)
+                    && equal(cur_clip_state.ymin, new_clip_state.ymin)
+                    && equal(cur_clip_state.ymax, new_clip_state.ymax)))
+        {
+            cur_clip_state = new_clip_state;
+            set_line_state(new_line_state, NLS_NEWCLIP);
+        }
     }
 
     bool need_recheck_position = false;
@@ -191,11 +209,11 @@ void HTMLRenderer::check_state_change(GfxState * state)
             // TODO: consider the font matrix and estimate the metrics  
             if(new_font_info->is_type3 || cur_text_state.font_info->is_type3)
             {
-                new_line_state = max<NewLineState>(new_line_state, NLS_NEWLINE);
+                set_line_state(new_line_state, NLS_NEWLINE);
             }
             else
             {
-                new_line_state = max<NewLineState>(new_line_state, NLS_NEWSTATE);
+                set_line_state(new_line_state, NLS_NEWSTATE);
             }
             cur_text_state.font_info = new_font_info;
         }
@@ -279,13 +297,13 @@ void HTMLRenderer::check_state_change(GfxState * state)
 
         if(!equal(new_draw_font_size, cur_text_state.font_size))
         {
-            new_line_state = max<NewLineState>(new_line_state, NLS_NEWSTATE);
+            set_line_state(new_line_state, NLS_NEWSTATE);
             cur_text_state.font_size = new_draw_font_size;
         }
 
         if(!tm_equal(new_draw_text_tm, cur_line_state.transform_matrix, 4))
         {
-            new_line_state = max<NewLineState>(new_line_state, NLS_NEWLINE);
+            set_line_state(new_line_state, NLS_NEWLINE);
             memcpy(cur_line_state.transform_matrix, new_draw_text_tm, sizeof(cur_line_state.transform_matrix));
         }
     }
@@ -368,14 +386,14 @@ void HTMLRenderer::check_state_change(GfxState * state)
             else
             {
                 cur_text_state.vertical_align = (dy * old_draw_text_scale);
-                new_line_state = max<NewLineState>(new_line_state, NLS_NEWSTATE);
+                set_line_state(new_line_state, NLS_NEWSTATE);
             }
             draw_tx = cur_tx;
             draw_ty = cur_ty;
         }
         else
         {
-            new_line_state = max<NewLineState>(new_line_state, NLS_NEWLINE);
+            set_line_state(new_line_state, NLS_NEWLINE);
         }
     }
     else
@@ -392,7 +410,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
         if(!equal(new_letter_space, cur_text_state.letter_space))
         {
             cur_text_state.letter_space = new_letter_space;
-            new_line_state = max<NewLineState>(new_line_state, NLS_NEWSTATE);
+            set_line_state(new_line_state, NLS_NEWSTATE);
         }
     }
 
@@ -404,7 +422,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
         if(!equal(new_word_space, cur_text_state.word_space))
         {
             cur_text_state.word_space = new_word_space;
-            new_line_state = max<NewLineState>(new_line_state, NLS_NEWSTATE);
+            set_line_state(new_line_state, NLS_NEWSTATE);
         }
     }
 
@@ -429,7 +447,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
         if(!(new_fill_color == cur_text_state.fill_color))
         {
             cur_text_state.fill_color = new_fill_color;
-            new_line_state = max<NewLineState>(new_line_state, NLS_NEWSTATE);
+            set_line_state(new_line_state, NLS_NEWSTATE);
         }
     }
 
@@ -455,7 +473,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
         if(!(new_stroke_color == cur_text_state.stroke_color))
         {
             cur_text_state.stroke_color = new_stroke_color;
-            new_line_state = max<NewLineState>(new_line_state, NLS_NEWSTATE);
+            set_line_state(new_line_state, NLS_NEWSTATE);
         }
     }
 
@@ -465,9 +483,14 @@ void HTMLRenderer::check_state_change(GfxState * state)
 void HTMLRenderer::prepare_text_line(GfxState * state)
 {
     if(!(html_text_page.get_cur_line()))
-        new_line_state = NLS_NEWLINE;
+        new_line_state = NLS_NEWCLIP;
 
-    if(new_line_state == NLS_NEWLINE)
+    if(new_line_state >= NLS_NEWCLIP)
+    {
+        html_text_page.clip(cur_clip_state);
+    }
+    
+    if(new_line_state >= NLS_NEWLINE)
     {
         // update position such that they will be recorded by text_line_buf
         state->transform(state->getCurX(), state->getCurY(), &cur_line_state.x, &cur_line_state.y);

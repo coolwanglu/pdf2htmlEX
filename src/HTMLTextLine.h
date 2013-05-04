@@ -81,7 +81,7 @@ public:
     bool text_empty(void) const { return text.empty(); }
     void clear(void);
 
-    void clip(double x1, double y1, double x2, double y2);
+    void clip(const HTMLClipState &);
 
     /*
      * Optimize and calculate necessary values
