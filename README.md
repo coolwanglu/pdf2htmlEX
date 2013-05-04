@@ -22,7 +22,7 @@ pdf2htmlEX is best for text-based PDF files, for example scientific papers with 
 Text, fonts and formats are natively perserved in HTML such that you can still search and copy.
 The generated HTML file is static, Javascript is optional.
 
-[Learn more](https://github.com/coolwanglu/pdf2htmlEX/wiki/Introduction)
+[Learn more about who and why should use pdf2htmlEX](https://github.com/coolwanglu/pdf2htmlEX/wiki/Introduction)
 
 ## Features
 
@@ -67,7 +67,6 @@ Thanks to all packagers!
  * Cygwin 
  * or MinGW, with some modifications to pdf2htmlEX. See [pdf2htmlEX on TeX Wiki](http://oku.edu.mie-u.ac.jp/~okumura/texwiki/?pdf2htmlEX) (in Japanese), special thanks to Haruhiko Okumura
 
-
 #### Compiling
 
     git clone --depth 1 git://github.com/coolwanglu/pdf2htmlEX.git
@@ -97,7 +96,6 @@ Read LICENSE for more detail.
 **Font extraction, conversion or redistribution MAY BE ILLEGAL, please check your local laws**
 
 ## Contribute
-
 
 Consider how much you have to pay for an alternatve with a similar quality, keeping in mind that pdf2htmlEX is maintained by one person in spare time. 
 
