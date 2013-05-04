@@ -26,20 +26,10 @@ The generated HTML file is static, Javascript is not required.
 
 ## Features
 
-* Precise, native text in HTML, which means
-  - You can select & copy & search
-  - Correct font & position & styles
-  - Proper reencoding
-  - Generated HTML file is of similar size as the original (uncompressed) PDF file
-  - Fallback (image + hidden text) - better accuracy and compatibility
-* Output modes
-  - Normal HTML
-  - All-in-one HTML - portable & easy to share
-  - One HTML per page - best for dynamic pages
-* More PDF stuffs that you love
-  - Links
-  - Outline
-  - Printing (experimental)
+* Precise and native text in HTML, which means
+* Flexible Output
+* Moderate Size
+* More PDF stuffs that you love: links, outlines & printing
 
 [Full list](https://github.com/coolwanglu/pdf2htmlEX/wiki/Feature-List)   
 [Compare with others](https://github.com/coolwanglu/pdf2htmlEX/wiki/Comparison)
