@@ -1,14 +1,20 @@
-Latest v0.8
+Developing v0.9
+
+v0.8
+2013.05.05
 
 * HTML optimization 
  - reduce number of <span> elements
  - merge lines with different y values 
  - merge lines with differnt (but proportional) transform matrices
-* Fix missing glyphs in TTF fonts
 * Custom format for page file name [Ryan Morlok]
 * Workaround for NBSP
 * A default HTML file which load the pages dynamically when split-pages is on
-* Fix an issue of unexpected vertical shifts
+* Support simple clippings
+* Bug fixed:
+ -missing glyphs in TTF fonts
+ - unexpected vertical shifts
+ - whitespace lost in IE
 * New UI style 
 * New options:
  --optimize-text : HTML optimization, see above
