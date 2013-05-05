@@ -105,14 +105,18 @@ Consider how much you have to pay for an alternatve with a similar quality, keep
 
 ## Contact
 
-* IRC Channel [irc://irc.freenode.net/pdf2htmlEX](irc://irc.freenode.net/pdf2htmlEX)
 * Mailing list <pdf2htmlex@googlegroups.com>
   * Make sure you have read `man pdf2htmlEX`, [wiki](https://github.com/coolwanglu/pdf2htmlEX/wiki) and [FAQ](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ)
   * Or you may not get any reply.
 
+* [coolwanglu@twitter](https://twitter.com/coolwanglu)
+  * News and announcements
+
 * Lu Wang <coolwanglu@gmail.com>
   * For personal enquiries only
   * Accepting messages in **中文**, **English** or **日本語**.
+
+* IRC Channel [irc://irc.freenode.net/pdf2htmlEX](irc://irc.freenode.net/pdf2htmlEX)
 
 ## Acknowledge
 
