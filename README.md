@@ -38,7 +38,7 @@ The generated HTML file is static, Javascript is optional.
 
 ### Install
  
-Thanks to all packagers!
+Thanks to all the packagers!
 
   * [Ubuntu PPA](https://launchpad.net/~coolwanglu/+archive/pdf2htmlex) by Lu Wang <coolwanglu@gmail.com>
   * [ArchLinux AUR](https://aur.archlinux.org/packages.php?ID=62426) by Arthur Titeica <arthur.titeica@gmail.com>
@@ -106,15 +106,13 @@ Consider how much you have to pay for an alternatve with a similar quality, keep
 ## Contact
 
 * Mailing list <pdf2htmlex@googlegroups.com>
-  * Make sure you have read `man pdf2htmlEX`, [wiki](https://github.com/coolwanglu/pdf2htmlEX/wiki) and [FAQ](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ)
-  * Or you may not get any reply.
-
-* [coolwanglu@twitter](https://twitter.com/coolwanglu)
   * News and announcements
+  * Questions are welcome 
+    * Make sure you have read `man pdf2htmlEX`, [wiki](https://github.com/coolwanglu/pdf2htmlEX/wiki) and [FAQ](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ)
 
-* Lu Wang <coolwanglu@gmail.com>
+* Lu Wang <coolwanglu@gmail.com> or [coolwanglu@twitter](https://twitter.com/coolwanglu)
   * For personal enquiries only
-  * Accepting messages in **中文**, **English** or **日本語**.
+  * Accepting messages in **中文**, **English** or **日本語**
 
 * IRC Channel [irc://irc.freenode.net/pdf2htmlEX](irc://irc.freenode.net/pdf2htmlEX)
 
