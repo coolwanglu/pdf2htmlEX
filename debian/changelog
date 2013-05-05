@@ -1,3 +1,9 @@
+pdf2htmlex (0.8-1~git201305051429r92eab-0ubuntu1) raring; urgency=low
+
+  * v0.8 released, see Changelog 
+
+ -- WANG Lu <coolwanglu@gmail.com>  Sun, 05 May 2013 14:29:07 +0800
+
 pdf2htmlex (0.8-1~git201304281550rd5f9c-0ubuntu1) raring; urgency=low
 
   * Test packaging for multiple distributions
