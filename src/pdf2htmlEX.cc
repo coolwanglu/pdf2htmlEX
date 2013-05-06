@@ -104,7 +104,7 @@ void parse_options (int argc, char **argv)
         .add("font-size-multiplier", &param.font_size_multiplier, 4.0, "a value greater than 1 increases the rendering accuracy")
         .add("space-as-offset", &param.space_as_offset, 0, "treat space characters as offsets")
         .add("tounicode", &param.tounicode, 0, "how to handle ToUnicode CMaps (0=auto, 1=force, -1=ignore)")
-        .add("optimize-text", &param.optimize_text, 1, "try to reduce the number of HTML elements used for text")
+        .add("optimize-text", &param.optimize_text, 0, "try to reduce the number of HTML elements used for text")
         
         // encryption
         .add("owner-password,o", &param.owner_password, "", "owner password (for encrypted files)", nullptr, true)
