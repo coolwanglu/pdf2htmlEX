@@ -103,19 +103,16 @@ Consider how much you have to pay for an alternatve with a similar quality, keep
 * Or you may prefer [making a donation](http://coolwanglu.github.com/pdf2htmlEX/donate.html), the easier way.
 * [Other ways you may help](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ#wiki-help)
 
-## Contact
+## Resources
 
 * Mailing list <pdf2htmlex@googlegroups.com>
-  * Questions are welcome 
-    * Make sure you have read `man pdf2htmlEX`, [wiki](https://github.com/coolwanglu/pdf2htmlEX/wiki) and [FAQ](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ)
-
-* [Blog](http://pdf2htmlex.blogspot.com)
-  * News, announcements and discussions
-  
+  - Questions are welcome 
+  - Make sure you have read `man pdf2htmlEX`, [wiki](https://github.com/coolwanglu/pdf2htmlEX/wiki) and [FAQ](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ)
+* [pdf2htmlEX Blog](http://pdf2htmlex.blogspot.com)
+  - News, announcements and discussions
 * Lu Wang <coolwanglu@gmail.com> or [coolwanglu@twitter](https://twitter.com/coolwanglu)
-  * For personal enquiries only
-  * Accepting messages in **中文**, **English** or **日本語**
-
+  - For personal enquiries only
+  - Accepting messages in **中文**, **English** or **日本語**
 * IRC Channel [irc://irc.freenode.net/pdf2htmlEX](irc://irc.freenode.net/pdf2htmlEX)
 
 ## Acknowledge
