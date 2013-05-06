@@ -152,7 +152,7 @@ var pdf2htmlEX = (function(){
       this.container.add(this.outline).on('click', '.'+CSS_CLASS_NAMES['link'], this, this.link_handler);
 
       // disable background image draging
-      $('.'+CSS_CLASS_NAMES['background_image'], this.container).on('dragstart', function(e){return false;});
+      $('img', this.container).on('dragstart', function(e){return false;});
 
       this.render();
 

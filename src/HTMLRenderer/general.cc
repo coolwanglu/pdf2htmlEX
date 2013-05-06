@@ -192,6 +192,9 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state, XRef * xref)
             << " " << CSS::PAGE_CONTENT_BOX_CN << pageNum
             << "\">";
 
+    /* an empty div to prevent selection blinks */
+    f_pages.fs << "<div></div>";
+
     if(param.process_nontext)
     {
         f_pages.fs << "<img class=\"" << CSS::BACKGROUND_IMAGE_CN 
