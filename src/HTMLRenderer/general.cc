@@ -396,9 +396,23 @@ void HTMLRenderer::post_process(void)
             continue;
         }
 
-        if(line.empty() 
-           || (line.find_first_not_of(' ') == string::npos)
-           || line[0] == '#')
+        // trim space at both sides
+        {
+            static const char * whitespaces = " \t\n\v\f\r";
+            auto idx1 = line.find_first_not_of(whitespaces);
+            if(idx1 == string::npos)
+            {
+                line.clear();
+            }
+            else
+            {
+                auto idx2 = line.find_last_not_of(whitespaces);
+                assert(idx2 >= idx1);
+                line = line.substr(idx1, idx2 - idx1 + 1);
+            }
+        }
+
+        if(line.empty() || line[0] == '#')
             continue;
 
 

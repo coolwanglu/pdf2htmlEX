@@ -346,12 +346,13 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
 
 
     {
+        string map_filename;
         ofstream map_outf;
         if(param.debug)
         {
-            string fn = (char*)str_fmt("%s/f%llx.map", param.tmp_dir.c_str(), info.id);
-            tmp_files.add(fn);
-            map_outf.open(fn);
+            map_filename = (char*)str_fmt("%s/f%llx.map", param.tmp_dir.c_str(), info.id);
+            tmp_files.add(map_filename);
+            map_outf.open(map_filename);
         }
 
         unordered_set<int> codeset;
@@ -427,7 +428,8 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
                         cur_code = -1;
                         if(param.debug)
                         {
-                            map_outf.seekp(0);
+                            map_outf.close();
+                            map_outf.open(map_filename);
                         }
                         continue;
                     }
