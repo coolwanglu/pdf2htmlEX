@@ -127,4 +127,23 @@ void outputURL(ostream & out, const string & s)
     }
 }
 
+void outputJSON(ostream & out, const string & s)
+{
+    for(auto iter = s.begin(); iter != s.end(); ++iter)
+    {
+        switch (*iter) 
+        {
+            case '\\': out << "\\\\"; break;
+            case '"': out << "\\\""; break;
+            case '/': out << "\\/"; break;
+            case '\b': out << "\\b"; break;
+            case '\f': out << "\\f"; break;
+            case '\n': out << "\\n"; break;
+            case '\r': out << "\\r"; break;
+            case '\t': out << "\\t"; break;
+            default: out << *iter; break;
+        }
+    }
+}
+
 } //namespace pdf2htmlEX

@@ -457,7 +457,7 @@ void HTMLRenderer::post_process(void)
                     if(iter != page_filenames.begin())
                         output << ",";
                     output << "'";
-                    outputURL(output, *iter);
+                    outputJSON(output, *iter);
                     output << "'";
                 }
             }
