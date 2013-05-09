@@ -1,8 +1,12 @@
 pdf2htmlEX
 Copyright (c) 2012,2013 Lu Wang <coolwanglu@gmail.com> and other contributors
 
-Please credit pdf2htmlEX if you use it in your work, especially for commercial use.
-Font extraction, conversion or redistribution may be illegal, please check your local laws.
+You are free and welcome to modify pdf2htmlEX.
+
+If you want to use pdf2htmlEX (or your modified version) in your online service,
+you should credit pdf2htmlEX with a proper link to https://github.com/coolwanglu/pdf2htmlEX
+in the homepage of your service, or a page directly accessible from the homepage of the service.
+
 
 Files: *
 Copyright (c) 2012,2013 Lu Wang <coolwanglu@gmail.com> and other contributors

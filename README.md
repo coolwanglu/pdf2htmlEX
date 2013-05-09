@@ -88,13 +88,19 @@ Thanks to all the packagers!
 ## LICENSE
 
 GPLv2 & GPLv3 for most part, MIT License for `share/*`
-Read LICENSE for more detail.
+                                                     
+Read `LICENSE` for more detail.
 
-**pdf2htmlEX is totally free, please credit pdf2htmlEX if you use it**  
-**Please consider sponsoring it if you use it for commercial purpose**
+### For Online Services
 
-**Font extraction, conversion or redistribution MAY BE ILLEGAL, please check your local laws**
+You are free and welcome to modify pdf2htmlEX for your online services, 
+and there is no restriction to publish your modifications.
+But you should credit pdf2htmlEX together with a proper link to https://github.com/coolwanglu/pdf2htmlEX 
+in the homepage of the service, or a page directly accesible from the homepage of the service.
+You are also encouraged to send me a name and a URL for the purpose of statistics.
 
+Read `LICENSE` for more detail.
+                                                    
 ## Contribute
 
 Consider how much you have to pay for an alternatve with a similar quality, keeping in mind that pdf2htmlEX is maintained by one person in spare time. 
