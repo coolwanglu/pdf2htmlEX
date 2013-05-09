@@ -75,7 +75,7 @@ Thanks to all the packagers!
 
 ## Usage
 
-    pdf2htmlEX /path/to/foobar.pdf
+    pdf2htmlEX --zoom 1.33 /path/to/foobar.pdf
 
 [Quick Start](https://github.com/coolwanglu/pdf2htmlEX/wiki/QuickStart)
 
