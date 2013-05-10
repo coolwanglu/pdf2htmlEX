@@ -34,14 +34,13 @@ The generated HTML file is static, Javascript is optional.
 [Learn more](https://github.com/coolwanglu/pdf2htmlEX/wiki/Feature-List)   
 [Compare with others](https://github.com/coolwanglu/pdf2htmlEX/wiki/Comparison)
 
-## Get started
-
 ## Wiki Portals
 
  * [Wiki Home](https://github.com/coolwanglu/pdf2htmlEX/wiki)
  * [Download](https://github.com/coolwanglu/pdf2htmlEX/wiki/Download)
  * [Building](https://github.com/coolwanglu/pdf2htmlEX/wiki/Building)
  * [Quick Start](https://github.com/coolwanglu/pdf2htmlEX/wiki/QuickStart)
+ * [How to contribute](https://github.com/coolwanglu/pdf2htmlEX/wiki/Contribute)
  * [FAQ](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ)
 
 ## LICENSE
@@ -58,14 +57,6 @@ You are also encouraged to send me a name and a URL for the purpose of statistic
 
 Read `LICENSE` for more detail.
                                                     
-## Contribute
-
-Consider how much you have to pay for an alternatve with a similar quality, keeping in mind that pdf2htmlEX is maintained by one person in spare time. 
-
-* Patches are more than welcome.
-* Or you may prefer [making a donation](http://coolwanglu.github.com/pdf2htmlEX/donate.html), the easier way.
-* [Other ways you may help](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ#wiki-help)
-
 ## Resources
 
 * Mailing list <pdf2htmlex@googlegroups.com>
