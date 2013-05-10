@@ -10,6 +10,6 @@ share/base.css
 share/pdf2htmlEX.js
 src/pdf2htmlEX-config.h
 src/util/css_const.h
-test
-wiki
-doc 
+test/*
+wiki/*
+doc/*
