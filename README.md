@@ -94,9 +94,7 @@ Read `LICENSE` for more detail.
 ### For Online Services
 
 You are free and welcome to modify pdf2htmlEX for your online services, 
-but you should credit pdf2htmlEX together with a proper link to https://github.com/coolwanglu/pdf2htmlEX 
-in the page where the result of pdf2htmlEX (or your modified version) is presented, 
-or in the homepage of the service, or a page directly accesible from the homepage of the service.
+but you should credit pdf2htmlEX if your service involves "online conversion" facilitated by pdf2htmlEX.
 You are also encouraged to send me a name and a URL for the purpose of statistics.
 
 Read `LICENSE` for more detail.
