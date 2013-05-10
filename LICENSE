@@ -1,20 +1,25 @@
-pdf2htmlEX
+pdf2htmlEX (https://github.com/coolwanglu/pdf2htmlEX)
 Copyright (c) 2012,2013 Lu Wang <coolwanglu@gmail.com> and other contributors
+
+-----
+TERM OF USE
 
 You are free and welcome to modify pdf2htmlEX.
 
 If you want to use pdf2htmlEX (or your modified version) in your online service,
 through which a user can provide one or more files through a computer network, 
 and view any part of the result produced by pdf2htmlEX (or your modified version) on 
-the file(s) provided by the user, you should credit pdf2htmlEX with a proper link to https://github.com/coolwanglu/pdf2htmlEX in the page where the result is presented, 
-or the homepage of your service, or a page directly accessible from either of these
-two pages.
+the file(s) provided by the user, you should credit pdf2htmlEX with a proper link to 
+https://github.com/coolwanglu/pdf2htmlEX in the page where the result is presented, 
+or the homepage of your service, or a page directly accessible from the homepage of your service.
 
-For example, if pdf2htmlEX (or your modified version) must be called after a user
-upload some files and before the user can see the result of the files, you should 
-credit pdf2htmlEX.
+Any derivate works should also include this term.
 
+For example, you should credit pdf2htlmEX if pdf2htmlEX (or your modified version) 
+must be called after a user upload some files and before the user can see the result 
+of the files, you should credit pdf2htmlEX.
 
+-----
 Files: *
 Copyright (c) 2012,2013 Lu Wang <coolwanglu@gmail.com> and other contributors
 License: GPLv2 and GPLv3
