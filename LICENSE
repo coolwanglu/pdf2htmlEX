@@ -17,7 +17,7 @@ Any derivate works should also include this term.
 
 For example, you should credit pdf2htlmEX if pdf2htmlEX (or your modified version) 
 must be called after a user upload some files and before the user can see the result 
-of the files, you should credit pdf2htmlEX.
+of the files.
 
 -----
 Files: *
