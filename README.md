@@ -13,7 +13,7 @@ A beautiful demo is worth a thousand words:
 
 [Browser requirements](https://github.com/coolwanglu/pdf2htmlEX/wiki/Browser-Requirements)
  
-## Introduction
+### Introduction
 
 pdf2htmlEX renders PDF files in HTML, utilizing modern Web technologies.
 It aims to provide an accuracy rendering, while keeping optimized for Web display.
@@ -24,7 +24,7 @@ The generated HTML file is static, Javascript is optional.
 
 [Learn more about who and why should use pdf2htmlEX](https://github.com/coolwanglu/pdf2htmlEX/wiki/Introduction)
 
-## Features
+### Features
 
 * Precise and native text in HTML
 * Flexible Output
@@ -34,64 +34,22 @@ The generated HTML file is static, Javascript is optional.
 [Learn more](https://github.com/coolwanglu/pdf2htmlEX/wiki/Feature-List)   
 [Compare with others](https://github.com/coolwanglu/pdf2htmlEX/wiki/Comparison)
 
-## Get started
+### Wiki Portals
 
-### Install
- 
-Thanks to all the packagers!
+ * [Wiki Home](https://github.com/coolwanglu/pdf2htmlEX/wiki)
+ * [Download](https://github.com/coolwanglu/pdf2htmlEX/wiki/Download)
+ * [Building](https://github.com/coolwanglu/pdf2htmlEX/wiki/Building)
+ * [Quick Start](https://github.com/coolwanglu/pdf2htmlEX/wiki/QuickStart)
+ * [How to contribute](https://github.com/coolwanglu/pdf2htmlEX/wiki/Contribute)
+ * [FAQ](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ)
 
-  * [Ubuntu PPA](https://launchpad.net/~coolwanglu/+archive/pdf2htmlex) by Lu Wang <coolwanglu@gmail.com>
-  * [ArchLinux AUR](https://aur.archlinux.org/packages.php?ID=62426) by Arthur Titeica <arthur.titeica@gmail.com>
-  * [Gentoo Overlay](http://gpo.zugaina.org/app-text/pdf2htmlex), gentoo-zh, mrueg or sunrise, by respective packagers.  
-  * [Homebrew Formula](https://github.com/mxcl/homebrew/blob/master/Library/Formula/pdf2htmlex.rb) by Jamie Ly <me@jamie.ly>
-  * [Macports (local repo)](https://github.com/iapain/pdf2htmlEX-macport) by Deepak Thukral <iapain@iapa.in>
-  * Windows [N/A](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ#wiki-install-windows)
+### LICENSE
 
-### Build from source
-
-#### Dependency
-
-* CMake, pkg-config
-* GNU Getopt
-* compilers support C++11, for example
- * GCC >= 4.4.6
- * I heard about successful build with Clang 
-* **poppler** with xpdf header >= 0.20.0 (compile with **--enable-xpdf-headers**)
- * Install **libpng** (and headers) BEFORE you compile poppler if you want background images generated
- * Install **poppler-data** if your want CJK support
-* **fontforge** (with header files)
- * git version is recommended to avoid annoying compilation issues
-* [Optional] **ttfautohint**
- * run pdf2htmlEX with **--external-hint-tool=ttfautohint** to enable it
-* [For Windows]
- * Cygwin 
- * or MinGW, with some modifications to pdf2htmlEX. See [pdf2htmlEX on TeX Wiki](http://oku.edu.mie-u.ac.jp/~okumura/texwiki/?pdf2htmlEX) (in Japanese), special thanks to Haruhiko Okumura
-
-#### Compiling
-
-    git clone --depth 1 git://github.com/coolwanglu/pdf2htmlEX.git
-    cd pdf2htmlEX
-    cmake . && make && sudo make install
-
-## Usage
-
-    pdf2htmlEX --zoom 1.33 /path/to/foobar.pdf
-
-[Quick Start](https://github.com/coolwanglu/pdf2htmlEX/wiki/QuickStart)
-
-## FAQ
-
-* [Troubleshooting compilation errors](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ#wiki-compile)
-* [I want more features](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ#wiki-feature_commission)
-* [More...](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ)
-
-## LICENSE
-
-GPLv2 & GPLv3 for most part, MIT License for `share/*`
+GPLv2 & GPLv3 for most parts, MIT License for `share/*`
                                                      
 Read `LICENSE` for more detail.
 
-### For Online Services
+#### For Online Services
 
 You are free and welcome to modify pdf2htmlEX for your online services, 
 but you should credit pdf2htmlEX if your service involves "online conversion" facilitated by pdf2htmlEX.
@@ -99,29 +57,20 @@ You are also encouraged to send me a name and a URL for the purpose of statistic
 
 Read `LICENSE` for more detail.
                                                     
-## Contribute
+### Resources
 
-Consider how much you have to pay for an alternatve with a similar quality, keeping in mind that pdf2htmlEX is maintained by one person in spare time. 
-
-* Patches are more than welcome.
-* Or you may prefer [making a donation](http://coolwanglu.github.com/pdf2htmlEX/donate.html), the easier way.
-* [Other ways you may help](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ#wiki-help)
-
-## Resources
-
-* Mailing list <pdf2htmlex@googlegroups.com>
-  - Questions are welcome 
-  - Make sure you have read `man pdf2htmlEX`, [wiki](https://github.com/coolwanglu/pdf2htmlEX/wiki) and [FAQ](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ)
-  - [Subscribe](https://groups.google.com/forum/#!forum/pdf2htmlex) for announcements and discussions
 * [pdf2htmlEX Blog](http://pdf2htmlex.blogspot.com)
   - News and announcemenst
-  - [Subscribe](http://pdf2htmlex.blogspot.com/feeds/posts/default)
+  - [RSS Subscribe](http://pdf2htmlex.blogspot.com/feeds/posts/default)
+* Mailing list <pdf2htmlex@googlegroups.com>
+  - Questions are welcome, but make sure you have read `man pdf2htmlEX` and [wiki](https://github.com/coolwanglu/pdf2htmlEX/wiki)
+  - [Subscribe](https://groups.google.com/forum/#!forum/pdf2htmlex)
 * Lu Wang <coolwanglu@gmail.com> or [coolwanglu@twitter](https://twitter.com/coolwanglu)
   - For personal enquiries only
   - Accepting messages in **中文**, **English** or **日本語**
 * IRC Channel [irc://irc.freenode.net/pdf2htmlEX](irc://irc.freenode.net/pdf2htmlEX)
 
-## Acknowledge
+### Acknowledgements
 
 pdf2htmlEX is made possible thanks to the following projects:
 
@@ -137,7 +86,7 @@ pdf2htmlEX is inspired by the following projects:
 * Crocodoc
 * Google Doc
 
-### Special Thanks
+#### Special Thanks
 
 * Hongliang Tian
 * Wanmin Liu 
