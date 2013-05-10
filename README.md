@@ -36,54 +36,13 @@ The generated HTML file is static, Javascript is optional.
 
 ## Get started
 
-### Install
- 
-Thanks to all the packagers!
+## Wiki Portals
 
-  * [Ubuntu PPA](https://launchpad.net/~coolwanglu/+archive/pdf2htmlex) by Lu Wang <coolwanglu@gmail.com>
-  * [ArchLinux AUR](https://aur.archlinux.org/packages.php?ID=62426) by Arthur Titeica <arthur.titeica@gmail.com>
-  * [Gentoo Overlay](http://gpo.zugaina.org/app-text/pdf2htmlex), gentoo-zh, mrueg or sunrise, by respective packagers.  
-  * [Homebrew Formula](https://github.com/mxcl/homebrew/blob/master/Library/Formula/pdf2htmlex.rb) by Jamie Ly <me@jamie.ly>
-  * [Macports (local repo)](https://github.com/iapain/pdf2htmlEX-macport) by Deepak Thukral <iapain@iapa.in>
-  * Windows [N/A](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ#wiki-install-windows)
-
-### Build from source
-
-#### Dependency
-
-* CMake, pkg-config
-* GNU Getopt
-* compilers support C++11, for example
- * GCC >= 4.4.6
- * I heard about successful build with Clang 
-* **poppler** with xpdf header >= 0.20.0 (compile with **--enable-xpdf-headers**)
- * Install **libpng** (and headers) BEFORE you compile poppler if you want background images generated
- * Install **poppler-data** if your want CJK support
-* **fontforge** (with header files)
- * git version is recommended to avoid annoying compilation issues
-* [Optional] **ttfautohint**
- * run pdf2htmlEX with **--external-hint-tool=ttfautohint** to enable it
-* [For Windows]
- * Cygwin 
- * or MinGW, with some modifications to pdf2htmlEX. See [pdf2htmlEX on TeX Wiki](http://oku.edu.mie-u.ac.jp/~okumura/texwiki/?pdf2htmlEX) (in Japanese), special thanks to Haruhiko Okumura
-
-#### Compiling
-
-    git clone --depth 1 git://github.com/coolwanglu/pdf2htmlEX.git
-    cd pdf2htmlEX
-    cmake . && make && sudo make install
-
-## Usage
-
-    pdf2htmlEX --zoom 1.33 /path/to/foobar.pdf
-
-[Quick Start](https://github.com/coolwanglu/pdf2htmlEX/wiki/QuickStart)
-
-## FAQ
-
-* [Troubleshooting compilation errors](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ#wiki-compile)
-* [I want more features](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ#wiki-feature_commission)
-* [More...](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ)
+ * [Wiki Home](https://github.com/coolwanglu/pdf2htmlEX/wiki)
+ * [Download](https://github.com/coolwanglu/pdf2htmlEX/wiki/Download)
+ * [Building](https://github.com/coolwanglu/pdf2htmlEX/wiki/Building)
+ * [Quick Start](https://github.com/coolwanglu/pdf2htmlEX/wiki/QuickStart)
+ * [FAQ](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ)
 
 ## LICENSE
 
