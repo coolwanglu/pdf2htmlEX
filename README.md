@@ -114,8 +114,10 @@ Consider how much you have to pay for an alternatve with a similar quality, keep
 * Mailing list <pdf2htmlex@googlegroups.com>
   - Questions are welcome 
   - Make sure you have read `man pdf2htmlEX`, [wiki](https://github.com/coolwanglu/pdf2htmlEX/wiki) and [FAQ](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ)
+  - [Subscribe](https://groups.google.com/forum/#!forum/pdf2htmlex) for announcements and discussions
 * [pdf2htmlEX Blog](http://pdf2htmlex.blogspot.com)
-  - News, announcements and discussions
+  - News and announcemenst
+  - [Subscribe](http://pdf2htmlex.blogspot.com/feeds/posts/default)
 * Lu Wang <coolwanglu@gmail.com> or [coolwanglu@twitter](https://twitter.com/coolwanglu)
   - For personal enquiries only
   - Accepting messages in **中文**, **English** or **日本語**
