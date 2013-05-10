@@ -13,7 +13,7 @@ A beautiful demo is worth a thousand words:
 
 [Browser requirements](https://github.com/coolwanglu/pdf2htmlEX/wiki/Browser-Requirements)
  
-## Introduction
+### Introduction
 
 pdf2htmlEX renders PDF files in HTML, utilizing modern Web technologies.
 It aims to provide an accuracy rendering, while keeping optimized for Web display.
@@ -24,7 +24,7 @@ The generated HTML file is static, Javascript is optional.
 
 [Learn more about who and why should use pdf2htmlEX](https://github.com/coolwanglu/pdf2htmlEX/wiki/Introduction)
 
-## Features
+### Features
 
 * Precise and native text in HTML
 * Flexible Output
@@ -34,7 +34,7 @@ The generated HTML file is static, Javascript is optional.
 [Learn more](https://github.com/coolwanglu/pdf2htmlEX/wiki/Feature-List)   
 [Compare with others](https://github.com/coolwanglu/pdf2htmlEX/wiki/Comparison)
 
-## Wiki Portals
+### Wiki Portals
 
  * [Wiki Home](https://github.com/coolwanglu/pdf2htmlEX/wiki)
  * [Download](https://github.com/coolwanglu/pdf2htmlEX/wiki/Download)
@@ -43,13 +43,13 @@ The generated HTML file is static, Javascript is optional.
  * [How to contribute](https://github.com/coolwanglu/pdf2htmlEX/wiki/Contribute)
  * [FAQ](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ)
 
-## LICENSE
+### LICENSE
 
 GPLv2 & GPLv3 for most part, MIT License for `share/*`
                                                      
 Read `LICENSE` for more detail.
 
-### For Online Services
+#### For Online Services
 
 You are free and welcome to modify pdf2htmlEX for your online services, 
 but you should credit pdf2htmlEX if your service involves "online conversion" facilitated by pdf2htmlEX.
@@ -57,7 +57,7 @@ You are also encouraged to send me a name and a URL for the purpose of statistic
 
 Read `LICENSE` for more detail.
                                                     
-## Resources
+### Resources
 
 * Mailing list <pdf2htmlex@googlegroups.com>
   - Questions are welcome 
@@ -71,7 +71,7 @@ Read `LICENSE` for more detail.
   - Accepting messages in **中文**, **English** or **日本語**
 * IRC Channel [irc://irc.freenode.net/pdf2htmlEX](irc://irc.freenode.net/pdf2htmlEX)
 
-## Acknowledge
+### Acknowledge
 
 pdf2htmlEX is made possible thanks to the following projects:
 
@@ -87,7 +87,7 @@ pdf2htmlEX is inspired by the following projects:
 * Crocodoc
 * Google Doc
 
-### Special Thanks
+#### Special Thanks
 
 * Hongliang Tian
 * Wanmin Liu 
