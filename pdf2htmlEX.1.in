@@ -278,7 +278,7 @@ Convert file.pdf into out/file.html and leave font/image files separated.
 .PP
 Copyright 2012,2013 Lu Wang <coolwanglu@gmail.com>
 
-pdf2htmlEX is GPLv2 & GPLv3 dual licensed
+pdf2htmlEX is licensed under GPLv3 with additional terms, read LICENSE for details.
 
 .SH AUTHOR
 .PP
