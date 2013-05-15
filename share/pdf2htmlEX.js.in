@@ -16,6 +16,9 @@ var pdf2htmlEX = (function(){
     link             : '@CSS_LINK_CN@',
     __dummy__        : 'no comma'
   };
+  var PAGES_TO_PRELOAD = 3;
+
+  var pages_loading = {};
 
   var pdf2htmlEX = new Object();
 
@@ -38,26 +41,35 @@ var pdf2htmlEX = (function(){
   var Page = function(page, container) {
     if(page == undefined) return;
 
+    this.loaded = false;
     this.p = $(page);
+    this.container = container;
     this.n = parseInt(this.p.attr('data-page-no'), 16);
     this.b = $('.'+CSS_CLASS_NAMES['page_content_box'], this.p);
 
-    /*
-     * scale ratios
-     * 
-     * default_r : the first one
-     * set_r : last set 
-     * cur_r : currently using
-     */
-    this.default_r = this.set_r = this.cur_r = this.p.height() / this.b.height();
-
-    this.data = JSON.parse($($('.'+CSS_CLASS_NAMES['page_data'], this.p)[0]).attr('data-data'));
-
-    this.ctm = this.data.ctm;
-    this.ictm = invert(this.ctm);
-    this.container = container;
+    if (this.b[0])
+      this.init();
   };
   $.extend(Page.prototype, {
+    init : function(){
+      this.b = $('.'+CSS_CLASS_NAMES['page_content_box'], this.p);
+
+      /*
+       * scale ratios
+       *
+       * default_r : the first one
+       * set_r : last set
+       * cur_r : currently using
+       */
+      this.default_r = this.set_r = this.cur_r = this.p.height() / this.b.height();
+
+      this.data = JSON.parse($($('.'+CSS_CLASS_NAMES['page_data'], this.p)[0]).attr('data-data'));
+
+      this.ctm = this.data.ctm;
+      this.ictm = invert(this.ctm);
+
+      this.loaded = true;
+    },
     /* hide & show are for contents, the page frame is still there */
     hide : function(){
       this.b.removeClass('opened');
@@ -139,7 +151,7 @@ var pdf2htmlEX = (function(){
       if(this.outline.children().length > 0) { 
         this.sidebar.addClass('opened');
       }
-      
+
       this.find_pages();
 
       // register schedule rendering
@@ -155,33 +167,65 @@ var pdf2htmlEX = (function(){
       $('img', this.container).on('dragstart', function(e){return false;});
 
       this.render();
-
-      // load split pages
-      // has no effect if --split-pages is 0
-      this.load_page(0);
     },
     find_pages : function() {
       var new_pages = new Array();
-      var pl= $('.'+CSS_CLASS_NAMES['page_frame'], this.container);
-      /* don't use for(..in..) */
-      for(var i = 0, l = pl.length; i < l; ++i) {
-        var p = new Page(pl[i], this.container);
-        new_pages[p.n] = p;
+
+      if (this.page_urls.length == 0) {
+        // when --split-pages 0
+        var pl= $('.'+CSS_CLASS_NAMES['page_frame'], this.container);
+        /* don't use for(..in..) */
+        for(var i = 0, l = pl.length; i < l; ++i) {
+          var p = new Page(pl[i], this.container);
+          new_pages[p.n] = p;
+        }
+      } else {
+        // when --split-pages 1, create page frames to allow page lazy loading inside
+        var html = '';
+        for(var i = 0, l = this.page_urls.length; i < l; ++i) {
+          // Create placeholder (they will be replaced when page is loaded)
+          var page_no_hex = (i+1).toString(16);
+          html += '<div class="' + CSS_CLASS_NAMES['page_decoration'] +' w0 h0"><div id="' + CSS_CLASS_NAMES['page_frame'] + page_no_hex + '" class="' + CSS_CLASS_NAMES['page_frame'] + '" data-page-no="' + page_no_hex + '"></div></div>';
+          // TODO: add a spinner in placeholder
+        }
+
+        // Unique append to speed up DOM processing
+        $('#'+this.container_id).append(html);
+
+        for(var i = 0, l = this.page_urls.length; i < l; ++i) {
+          var page_no_hex = (i+1).toString(16);
+          var p = new Page($('#' + CSS_CLASS_NAMES['page_frame'] + page_no_hex), this.container);
+          new_pages[p.n] = p;
+        }
       }
       this.pages = new_pages;
     },
-    load_page : function(idx) {
+    load_page : function(idx, pages_to_preload) {
       if(idx < this.page_urls.length){
         var _ = this;
+
+        if (pages_loading[idx])
+          return;  // Page is already loading
+
+        pages_loading[idx] = true;
         $.ajax({
           url: this.page_urls[idx],
           dataType: 'text'
         }).done(function(data){
-          $('#'+_.container_id).append(data);
-          _.find_pages();
+          _.pages[idx+1].p.parent().replaceWith(data);         // pages index starts from 1
+          var new_el = $('#' + CSS_CLASS_NAMES['page_frame'] + (idx+1).toString(16));
+          _.pages[idx+1] = new Page(new_el, _.pages[idx+1].container);
+          _.pages[idx+1].init();
           _.schedule_render();
-          _.load_page(idx+1);
+          pages_loading[idx] = undefined;
         });
+
+        // Concurrent prefetch of the next pages
+        if (pages_to_preload === undefined)
+          pages_to_preload = PAGES_TO_PRELOAD;
+
+        if (pages_to_preload > 0)
+          _.load_page(idx+1, pages_to_preload-1);
       }
     },
     pre_hide_pages : function() {
@@ -209,7 +253,10 @@ var pdf2htmlEX = (function(){
       for(var i in pl) {
         var p = pl[i];
         if(p.is_nearly_visible()){
-          p.show();
+          if (p.loaded)
+            p.show();
+          else
+            this.load_page(p.n - 1);                 // load_page index starts from 0
         } else {
           p.hide();
         }
