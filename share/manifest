@@ -35,7 +35,7 @@ $css
 # entry point of pdf2htmlEX
 """
 <script type="text/javascript">
-new pdf2htmlEX.Viewer({
+pdf2htmlEX.defaultViewer = new pdf2htmlEX.Viewer({
     container_id : 'page-container', 
     sidebar_id : 'sidebar',
     outline_id : 'outline',
