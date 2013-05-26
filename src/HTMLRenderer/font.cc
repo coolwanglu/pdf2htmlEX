@@ -562,10 +562,10 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
      * We need to reload in order to retrieve/fix accurate ascent/descent, some info won't be written to the font by fontforge until saved.
      */
     string fn = (char*)str_fmt("%s/f%llx%s", 
-        (param.single_html ? param.tmp_dir : param.dest_dir).c_str(),
+        (param.embed_font ? param.tmp_dir : param.dest_dir).c_str(),
         info.id, param.font_suffix.c_str());
 
-    if(param.single_html)
+    if(param.embed_font)
         tmp_files.add(fn);
 
     ffw_load_font(cur_tmp_fn.c_str());
@@ -763,7 +763,7 @@ void HTMLRenderer::export_remote_font(const FontInfo & info, const string & suff
 
     {
         auto fn = str_fmt("f%llx%s", info.id, suffix.c_str());
-        if(param.single_html)
+        if(param.embed_font)
         {
             auto path = param.tmp_dir + "/" + (char*)fn;
             ifstream fin(path, ifstream::binary);

@@ -25,7 +25,11 @@ struct Param
     double h_dpi, v_dpi;
     
     // output 
-    int single_html;
+    int embed_css;
+    int embed_font;
+    int embed_image;
+    int embed_javascript;
+    int embed_outline;
     int split_pages;
     std::string dest_dir;
     std::string css_filename;

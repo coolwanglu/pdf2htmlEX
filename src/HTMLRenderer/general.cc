@@ -122,8 +122,8 @@ void HTMLRenderer::process(PDFDoc *doc)
 
         if(param.process_nontext)
         {
-            auto fn = str_fmt("%s/bg%x.png", (param.single_html ? param.tmp_dir : param.dest_dir).c_str(), i);
-            if(param.single_html)
+            auto fn = str_fmt("%s/bg%x.png", (param.embed_image ? param.tmp_dir : param.dest_dir).c_str(), i);
+            if(param.embed_image)
                 tmp_files.add((char*)fn);
 
             bg_renderer->render_page(doc, i, (char*)fn);
@@ -196,7 +196,7 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state, XRef * xref)
     {
         f_pages.fs << "<img class=\"" << CSS::BACKGROUND_IMAGE_CN 
             << "\" alt=\"\" src=\"";
-        if(param.single_html)
+        if(param.embed_image)
         {
             auto path = str_fmt("%s/bg%x.png", param.tmp_dir.c_str(), pageNum);
             ifstream fin((char*)path, ifstream::binary);
@@ -280,23 +280,19 @@ void HTMLRenderer::pre_process(PDFDoc * doc)
     // we may output utf8 characters, so always use binary
     {
         /*
-         * If single-html
+         * If embed-css
          * we have to keep the generated css file into a temporary place
          * and embed it into the main html later
          *
-         *
-         * If single-html
-         * as there's no place to embed the css file, just leave it alone (into param.dest_dir)
-         *
-         * If !single-html
+         * otherwise
          * leave it in param.dest_dir
          */
 
-        auto fn = (param.single_html)
+        auto fn = (param.embed_css)
             ? str_fmt("%s/__css", param.tmp_dir.c_str())
             : str_fmt("%s/%s", param.dest_dir.c_str(), param.css_filename.c_str());
 
-        if(param.single_html)
+        if(param.embed_css)
             tmp_files.add((char*)fn);
 
         f_css.path = (char*)fn;
@@ -312,11 +308,11 @@ void HTMLRenderer::pre_process(PDFDoc * doc)
          * The logic for outline is similar to css
          */
 
-        auto fn = (param.single_html)
+        auto fn = (param.embed_outline)
             ? str_fmt("%s/__outline", param.tmp_dir.c_str())
             : str_fmt("%s/%s", param.dest_dir.c_str(), param.outline_filename.c_str());
 
-        if(param.single_html)
+        if(param.embed_outline)
             tmp_files.add((char*)fn);
 
         f_outline.path = (char*)fn;
@@ -333,7 +329,6 @@ void HTMLRenderer::pre_process(PDFDoc * doc)
     if(!param.split_pages)
     {
         /*
-         * If single-html
          * we have to keep the html file for pages into a temporary place
          * because we'll have to embed css before it
          *
@@ -430,7 +425,7 @@ void HTMLRenderer::post_process(void)
             }
             else if (line == "$outline")
             {
-                if (param.process_outline)
+                if (param.process_outline && param.embed_outline)
                 {
                     ifstream fin(f_outline.path, ifstream::binary);
                     if(!fin)
@@ -522,28 +517,31 @@ void HTMLRenderer::embed_file(ostream & out, const string & path, const string &
     string fn = get_filename(path);
     string suffix = (type == "") ? get_suffix(fn) : type; 
     
-    auto iter = EMBED_STRING_MAP.find(make_pair(suffix, (bool)param.single_html));
+    // TODO
+    auto iter = EMBED_STRING_MAP.find(suffix);
     if(iter == EMBED_STRING_MAP.end())
     {
         cerr << "Warning: unknown suffix: " << suffix << endl;
         return;
     }
+
+    const auto & entry = iter->second;
     
-    if(param.single_html)
+    if(param.*(entry.embed_flag))
     {
         ifstream fin(path, ifstream::binary);
         if(!fin)
             throw string("Cannot open file ") + path + " for embedding";
-        out << iter->second.first << endl
+        out << entry.prefix_embed << endl
             << fin.rdbuf();
         out.clear(); // out will set fail big if fin is empty
-        out << iter->second.second << endl;
+        out << entry.suffix_embed << endl;
     }
     else
     {
-        out << iter->second.first;
+        out << entry.prefix_external;
         outputURL(out, fn);
-        out << iter->second.second << endl;
+        out << entry.suffix_external << endl;
 
         if(copy)
         {

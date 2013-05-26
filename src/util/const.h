@@ -11,6 +11,8 @@
 #include <map>
 #include <string>
 
+#include "Param.h"
+
 namespace pdf2htmlEX {
 
 #ifndef nullptr
@@ -24,9 +26,17 @@ extern const double ID_MATRIX[6];
 // For GB encoded font names
 extern const std::map<std::string, std::string> GB_ENCODED_FONT_NAME_MAP;
 // map to embed files into html
-// key: (suffix, if_embed_content)
-// value: (prefix string, suffix string)
-extern const std::map<std::pair<std::string, bool>, std::pair<std::string, std::string> > EMBED_STRING_MAP;
+struct EmbedStringEntry
+{
+    int Param::*embed_flag; 
+    // used when *embed_flag == true
+    std::string prefix_embed;
+    std::string suffix_embed;
+    // used when *embed_flag == false
+    std::string prefix_external;
+    std::string suffix_external;
+};
+extern const std::map<std::string, EmbedStringEntry> EMBED_STRING_MAP;
 
 } // namespace pdf2htmlEX
 

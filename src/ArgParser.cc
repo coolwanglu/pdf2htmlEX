@@ -41,9 +41,20 @@ void dump_value(std::ostream & out, const std::string & v)
     out << '"' << v << '"';
 }
 
-ArgParser & ArgParser::add(const char * optname, const char * description, ArgParserCallBack callback)
+ArgParser & ArgParser::add(const char * optname, const char * description, ArgParserCallBack callback, bool need_arg)
 {
-    return add<char>(optname, nullptr, 0, description, callback, true);
+    // ArgEntry does not accept nullptr as optname nor description
+    if((!optname) || (!optname[0]))
+    {
+        // when optname is nullptr or "", it's optional, and description is dropped
+        optional_arg_entries.emplace_back(new ArgEntry<string, string>("", "", callback, need_arg));
+    }
+    else
+    {
+        arg_entries.emplace_back(new ArgEntry<string, string>(optname, (description ? description : ""), callback, need_arg));
+    }
+
+    return *this;
 }
 
 void ArgParser::parse(int argc, char ** argv) const

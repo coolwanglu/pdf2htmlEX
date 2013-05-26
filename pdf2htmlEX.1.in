@@ -35,6 +35,7 @@ Specify the last page to process
 
 .SS Dimensions
 
+.TP
 .B --zoom <ratio>, --fit-width <width>, --fit-height <height>
 --zoom specifies the zoom factor directly; --fit-width/height specifies the maximum width/height of a page, the values are in pixels.
 
@@ -53,16 +54,26 @@ Specify the horizontal and vertical DPI for images
 
 .SS Output 
 
-.TP
-.B --single-html <0|1> (Default: 1)
-Whether to embed everything into one HTML file.
+.B --embed <string>
+.br
+.B --embed-css <0|1> (Default: 1)
+.br
+.B --embed-font <0|1> (Default: 1)
+.br
+.B --embed-image <0|1> (Default: 1)
+.br
+.B --embed-javascript <0|1> (Default: 1)
+.br
+.B --embed-outline <0|1> (Default: 1)
+.RS
+Specify which elements should be embedded into the output HTML file.
 
-If switched off, there will be several files generated along with the HTML file including files for fonts, css, images.
+If switched off, separated files will be generated along with the HTML file for the corresponding elements.
 
-Note that the outline will always be embedded into the main HTML file no matter if this switch is on or not. 
-And only when this switch is off will there be a separate .outline file contains the outline. 
-You need to modify the manifest if you do not want outline embedded.
-
+--embed accepts a string as argument. Each letter of the string must be one of `cCfFiIjJoO`, which corresponds
+to one of the --embed-*** switches. Lower case letters for 0 and upper case letters for 1. For example,
+`--embed cFIJo` means to embed everything but CSS files and outlines.
+.RE
 .TP
 .B --split-pages <0|1> (Default: 0)
 If turned on, the content of each page is stored in a separated file.

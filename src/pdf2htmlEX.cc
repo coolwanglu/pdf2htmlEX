@@ -36,9 +36,9 @@ using namespace pdf2htmlEX;
 Param param;
 ArgParser argparser;
 
-void deprecated_embed_base_font(const char * dummy = nullptr)
+void deprecated_single_html(const char * dummy = nullptr)
 {
-    cerr << "--embed-base-font is deprecated. Use --embed-external-font instead." << endl;
+    cerr << "--single_html is deprecated. Use `--embed CFIJO` instead." << endl;
     exit(EXIT_FAILURE);
 }
 
@@ -60,6 +60,31 @@ void show_version_and_exit(const char * dummy = nullptr)
     exit(EXIT_SUCCESS);
 }
 
+void embed_parser (const char * str)
+{
+    while(true)
+    {
+        switch(*str)
+        {
+            case '\0': return; break;
+            case 'c': param.embed_css = 0; break;
+            case 'C': param.embed_css = 1; break;
+            case 'f': param.embed_font = 0; break;
+            case 'F': param.embed_font = 1; break;
+            case 'i': param.embed_image = 0; break;
+            case 'I': param.embed_image = 1; break;
+            case 'j': param.embed_javascript = 0; break;
+            case 'J': param.embed_javascript = 1; break;
+            case 'o': param.embed_outline = 0; break;
+            case 'O': param.embed_outline = 1; break;
+            default:
+                cerr << "Unknown character `" << (*str) << "` for --embed" << endl;
+                break;
+        }
+        ++ str;
+    }
+}
+
 void parse_options (int argc, char **argv)
 {
     argparser
@@ -68,15 +93,20 @@ void parse_options (int argc, char **argv)
         .add("last-page,l", &param.last_page, numeric_limits<int>::max(), "last page to convert")
         
         // dimensions
-        .add("zoom", &param.zoom, 0, "zoom ratio", nullptr, true)
-        .add("fit-width", &param.fit_width, 0, "fit width to <fp> pixels", nullptr, true) 
-        .add("fit-height", &param.fit_height, 0, "fit height to <fp> pixels", nullptr, true)
+        .add("zoom", &param.zoom, 0, "zoom ratio", true)
+        .add("fit-width", &param.fit_width, 0, "fit width to <fp> pixels", true) 
+        .add("fit-height", &param.fit_height, 0, "fit height to <fp> pixels", true)
         .add("use-cropbox", &param.use_cropbox, 1, "use CropBox instead of MediaBox")
         .add("hdpi", &param.h_dpi, 144.0, "horizontal resolution for graphics in DPI")
         .add("vdpi", &param.v_dpi, 144.0, "vertical resolution for graphics in DPI")
         
         // output files
-        .add("single-html", &param.single_html, 1, "generate a single HTML file")
+        .add("embed", "specify which elements should be embedded into output", embed_parser, true)
+        .add("embed-css", &param.embed_css, 1, "embed CSS files into output")
+        .add("embed-font", &param.embed_font, 1, "embed font files into output")
+        .add("embed-image", &param.embed_image, 1, "embed image files into output")
+        .add("embed-javascript", &param.embed_javascript, 1, "embed JavaScript files into output")
+        .add("embed-outline", &param.embed_outline, 1, "embed outlines into output")
         .add("split-pages", &param.split_pages, 0, "split pages into separate files")
         .add("dest-dir", &param.dest_dir, ".", "specify destination directory")
         .add("css-filename", &param.css_filename, "", "filename of the generated css file")
@@ -107,8 +137,8 @@ void parse_options (int argc, char **argv)
         .add("optimize-text", &param.optimize_text, 0, "try to reduce the number of HTML elements used for text")
         
         // encryption
-        .add("owner-password,o", &param.owner_password, "", "owner password (for encrypted files)", nullptr, true)
-        .add("user-password,u", &param.user_password, "", "user password (for encrypted files)", nullptr, true)
+        .add("owner-password,o", &param.owner_password, "", "owner password (for encrypted files)", true)
+        .add("user-password,u", &param.user_password, "", "user password (for encrypted files)", true)
         .add("no-drm", &param.no_drm, 0, "override document DRM settings")
         
         // misc.
@@ -123,7 +153,7 @@ void parse_options (int argc, char **argv)
         .add("help,h", "print usage information", &show_usage_and_exit)
 
         // deprecated
-        .add("embed-base-font", "", &deprecated_embed_base_font)
+        .add("single-html", "", &deprecated_single_html)
         
         .add("", &param.input_filename, "", "")
         .add("", &param.output_filename, "", "")
