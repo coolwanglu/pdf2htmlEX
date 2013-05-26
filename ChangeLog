@@ -3,6 +3,11 @@ Developing v0.9
 * Licensed changed
  - Additional terms for usage in online services
  - Remove GPLv2
+* New options:
+ --embed
+ --embed-***
+* Deprecated options:
+ --single-html
 
 v0.8
 2013.05.05
@@ -25,8 +30,9 @@ v0.8
  --fallback : the most accurate way, but costy (larger file sizes)
  --printing : enable or disable CSS for printing
  --page-file: specify page filenames when split-pages is on
+* Deprecated options:
+ --embed-base-font 
 * New default values:
- --embed-base-font 1
  --embed-external-font 1
  --space-as-offset 0
  --remove-unused-glyph 0
