@@ -6,6 +6,8 @@
  * Copyright 2012,2013 Lu Wang <coolwanglu@gmail.com>
  */
 
+'use strict';
+
 var pdf2htmlEX = (function(){
   var CSS_CLASS_NAMES = {
     page_frame       : '@CSS_PAGE_FRAME_CN@',
