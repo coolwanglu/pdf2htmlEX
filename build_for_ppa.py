@@ -7,6 +7,9 @@ by WangLu
 
 modified for pdf2htmlEX
 2012.08.28
+
+modified for general git repo
+2013.05.30
 """
 
 
@@ -16,10 +19,18 @@ import re
 import time
 
 package='pdf2htmlex'
-SUPPORTED_DIST=('precise', 'quantal', 'raring')
-dist_pattern=re.compile('|'.join(['\\) '+i for i in SUPPORTED_DIST]))
+ppa_name='pdf2htmlex'
+supported_distributions=('precise', 'quantal', 'raring')
+dist_pattern=re.compile('|'.join(['\\) '+i for i in supported_distributions]))
+archive_cmd='(rm CMakeCache.txt || true) && cmake . && make dist'
+archive_suffix='.tar.bz2'
 
 print 'Generating version...'
+try:
+    version = re.findall(r'set\(PDF2HTMLEX_VERSION\s*"([^"]*)"\)', open('CMakeLists.txt').read())[0]
+except:
+    print 'Cannot get package name and version number'
+    sys.exit(-1)
 
 try:
     rev = open('.git/refs/heads/master').read()[:5]
@@ -27,14 +38,8 @@ except:
     print 'Cannot get revision number'
     sys.exit(-1)
 
-today_timestr = time.strftime('%Y%m%d%H%M')
 projectdir=os.getcwd()
-try:
-    version = re.findall(r'set\(PDF2HTMLEX_VERSION\s*"([^"]*)"\)', open('CMakeLists.txt').read())[0]
-except:
-    print 'Cannot get package name and version number'
-    sys.exit(-1)
-
+today_timestr = time.strftime('%Y%m%d%H%M')
 deb_version = version+'-1~git'+today_timestr+'r'+rev
 full_deb_version = deb_version+'-0ubuntu1'
 
@@ -50,7 +55,8 @@ with open('debian/changelog') as f:
             print 'Failed when updating debian/changelog'
             sys.exit(-1)
 
-    f.seek(0)
+# changelog may have been updated, reopen it
+with open('debian/changelog') as f:
     #check dist mark of changelog
     changelog = f.read()
     m = dist_pattern.search(changelog)
@@ -61,16 +67,16 @@ with open('debian/changelog') as f:
 print
 print 'Preparing build ...'
 # handling files
-if os.system('(rm CMakeCache.txt || true) && cmake . && make dist') != 0:
+if os.system(archive_cmd) != 0:
     print 'Failed in creating tarball'
     sys.exit(-1)
 
-orig_tar_filename = package+'-'+version+'.tar.bz2'
-if os.system('test -e %s && cp %s ../build-area' % (orig_tar_filename, orig_tar_filename)) != 0:
+orig_tar_filename = package+'-'+version+archive_suffix
+if os.system('test -e %s && cp %s ../build-area/' % (orig_tar_filename, orig_tar_filename)) != 0:
     print 'Cannot copy tarball file to build area'
     sys.exit(-1)
 
-deb_orig_tar_filename = package+'_'+deb_version+'.orig.tar.bz2'
+deb_orig_tar_filename = package+'_'+deb_version+'.orig'+archive_suffix
 
 try:
     os.chdir('../build-area')
@@ -93,7 +99,7 @@ except:
 
 os.system('cp -r %s/debian .' % (projectdir,))
 
-for cur_dist in SUPPORTED_DIST:
+for cur_dist in supported_distributions:
     print
     print 'Building for ' + cur_dist + ' ...'
     # substitute distribution name 
@@ -120,7 +126,7 @@ for cur_dist in SUPPORTED_DIST:
     """
 
     print 'Uploading'   
-    if os.system('dput ppa:coolwanglu/%s ../%s' % (package, package+'_'+full_deb_version+'~'+cur_dist+'1_source.changes')) != 0:
+    if os.system('dput %s ../%s' % (ppa_name, package+'_'+full_deb_version+'~'+cur_dist+'1_source.changes')) != 0:
         print 'Failed in uploading by dput'
         sys.exit(-1)
 

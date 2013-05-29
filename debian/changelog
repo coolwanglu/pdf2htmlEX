@@ -1,3 +1,9 @@
+pdf2htmlex (0.9-1~git201305291247rf655a-0ubuntu1) raring; urgency=low
+
+  * Regular upload
+
+ -- WANG Lu <coolwanglu@gmail.com>  Wed, 29 May 2013 12:47:16 +0800
+
 pdf2htmlex (0.8-1~git201305051429r92eab-0ubuntu1) raring; urgency=low
 
   * v0.8 released, see Changelog 
