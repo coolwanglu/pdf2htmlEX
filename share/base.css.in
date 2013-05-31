@@ -134,12 +134,14 @@
   -moz-transform-origin:0% 100%;
   -webkit-transform-origin:0% 100%;
   -o-transform-origin:0% 100%;
+  unicode-bidi:bidi-override; /* For rtl lanauges, e.g. Hebrew, we don't want the default Unicode behaviour */
 }
 span { /* text blocks within a line */
   position:relative;
   vertical-align: baseline;
   /* _<id> for spaces may need display:inline, which will override this */ 
   display:inline-block;
+  unicode-bidi:bidi-override; /* For rtl lanauges, e.g. Hebrew, we don't want the default Unicode behaviour */
 }
 .@CSS_WHITESPACE_CN@ { /* text shift */
   color:transparent;
