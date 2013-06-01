@@ -135,6 +135,7 @@ void outputJSON(ostream & out, const string & s)
         {
             case '\\': out << "\\\\"; break;
             case '"': out << "\\\""; break;
+            case '\'': out << "\\\'"; break;
             case '/': out << "\\/"; break;
             case '\b': out << "\\b"; break;
             case '\f': out << "\\f"; break;
