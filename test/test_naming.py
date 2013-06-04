@@ -108,119 +108,119 @@ class OutputNamingTests(unittest.TestCase):
             '--split-pages', 1,
             path_to_test_file('1-page.pdf')
         ])
-        self.assertEquals(files, sorted(['1-page.css', '1-page.outline', '1-page1.page']))
+        self.assertEquals(files, sorted(['1-page.html', '1-page1.page']))
 
     def test_generate_split_pages_default_name_multiple_pages(self):
         files = execute_pdf2htmlex_and_get_files([
             '--split-pages', 1,
             path_to_test_file('3-pages.pdf')
         ])
-        self.assertEquals(files, sorted(['3-pages.css', '3-pages.outline', '3-pages1.page', '3-pages2.page', '3-pages3.page']))
+        self.assertEquals(files, sorted(['3-pages.html', '3-pages1.page', '3-pages2.page', '3-pages3.page']))
 
     def test_generate_split_pages_specify_name_single_page(self):
         files = execute_pdf2htmlex_and_get_files([
             '--split-pages', 1,
+            '--page-filename', 'foo.xyz',
             path_to_test_file('1-page.pdf'),
-            'foo.xyz'
         ])
-        self.assertEquals(files, sorted(['1-page.css', '1-page.outline', 'foo1.xyz']))
+        self.assertEquals(files, sorted(['1-page.html', 'foo1.xyz']))
 
     def test_generate_split_pages_specify_name_multiple_pages(self):
         files = execute_pdf2htmlex_and_get_files([
             '--split-pages', 1,
+            '--page-filename', 'foo.xyz',
             path_to_test_file('3-pages.pdf'),
-            'foo.xyz'
         ])
-        self.assertEquals(files, sorted(['3-pages.css', '3-pages.outline', 'foo1.xyz', 'foo2.xyz', 'foo3.xyz']))
+        self.assertEquals(files, sorted(['3-pages.html', 'foo1.xyz', 'foo2.xyz', 'foo3.xyz']))
 
     def test_generate_split_pages_specify_name_formatter_multiple_pages(self):
         files = execute_pdf2htmlex_and_get_files([
             '--split-pages', 1,
+            '--page-filename', 'fo%do.xyz',
             path_to_test_file('3-pages.pdf'),
-            'fo%do.xyz'
         ])
-        self.assertEquals(files, sorted(['3-pages.css', '3-pages.outline', 'fo1o.xyz', 'fo2o.xyz', 'fo3o.xyz']))
+        self.assertEquals(files, sorted(['3-pages.html', 'fo1o.xyz', 'fo2o.xyz', 'fo3o.xyz']))
 
     def test_generate_split_pages_specify_name_formatter_with_padded_zeros_multiple_pages(self):
         files = execute_pdf2htmlex_and_get_files([
             '--split-pages', 1,
-            path_to_test_file('3-pages.pdf'),
-            'fo%03do.xyz'
+            '--page-filename', 'fo%03do.xyz',
+            path_to_test_file('3-pages.pdf')
         ])
-        self.assertEquals(files, sorted(['3-pages.css', '3-pages.outline', 'fo001o.xyz', 'fo002o.xyz', 'fo003o.xyz']))
+        self.assertEquals(files, sorted(['3-pages.html', 'fo001o.xyz', 'fo002o.xyz', 'fo003o.xyz']))
 
     def test_generate_split_pages_specify_name_only_first_formatter_gets_taken(self):
         files = execute_pdf2htmlex_and_get_files([
             '--split-pages', 1,
-            path_to_test_file('3-pages.pdf'),
-            'f%do%do.xyz'
+            '--page-filename', 'f%do%do.xyz',
+            path_to_test_file('3-pages.pdf')
         ])
-        self.assertEquals(files, sorted(['3-pages.css', '3-pages.outline', 'f1o%do.xyz', 'f2o%do.xyz', 'f3o%do.xyz']))
+        self.assertEquals(files, sorted(['3-pages.html', 'f1o%do.xyz', 'f2o%do.xyz', 'f3o%do.xyz']))
 
     def test_generate_split_pages_specify_name_only_percent_d_is_used_percent_s(self):
         files = execute_pdf2htmlex_and_get_files([
             '--split-pages', 1,
-            path_to_test_file('3-pages.pdf'),
-            'f%soo.xyz'
+            '--page-filename', 'f%soo.xyz',
+            path_to_test_file('3-pages.pdf')
         ])
-        self.assertEquals(files, sorted(['3-pages.css', '3-pages.outline', 'f%soo1.xyz', 'f%soo2.xyz', 'f%soo3.xyz']))
+        self.assertEquals(files, sorted(['3-pages.html', 'f%soo1.xyz', 'f%soo2.xyz', 'f%soo3.xyz']))
 
     def test_generate_split_pages_specify_name_only_percent_d_is_used_percent_p(self):
         files = execute_pdf2htmlex_and_get_files([
             '--split-pages', 1,
+            '--page-filename', 'f%poo.xyz',
             path_to_test_file('3-pages.pdf'),
-            'f%poo.xyz'
         ])
-        self.assertEquals(files, sorted(['3-pages.css', '3-pages.outline', 'f%poo1.xyz', 'f%poo2.xyz', 'f%poo3.xyz']))
+        self.assertEquals(files, sorted(['3-pages.html', 'f%poo1.xyz', 'f%poo2.xyz', 'f%poo3.xyz']))
 
 
     def test_generate_split_pages_specify_name_only_percent_d_is_used_percent_n(self):
         files = execute_pdf2htmlex_and_get_files([
             '--split-pages', 1,
-            path_to_test_file('3-pages.pdf'),
-            'f%noo.xyz'
+            '--page-filename', 'f%noo.xyz',
+            path_to_test_file('3-pages.pdf')
         ])
-        self.assertEquals(files, sorted(['3-pages.css', '3-pages.outline', 'f%noo1.xyz', 'f%noo2.xyz', 'f%noo3.xyz']))
+        self.assertEquals(files, sorted(['3-pages.html', 'f%noo1.xyz', 'f%noo2.xyz', 'f%noo3.xyz']))
 
     def test_generate_split_pages_specify_name_only_percent_d_is_used_percent_percent(self):
         files = execute_pdf2htmlex_and_get_files([
             '--split-pages', 1,
-            path_to_test_file('3-pages.pdf'),
-            'f%%oo.xyz'
+            '--page-filename', 'f%%oo.xyz',
+            path_to_test_file('3-pages.pdf')
         ])
-        self.assertEquals(files, sorted(['3-pages.css', '3-pages.outline', 'f%%oo1.xyz', 'f%%oo2.xyz', 'f%%oo3.xyz']))
+        self.assertEquals(files, sorted(['3-pages.html', 'f%%oo1.xyz', 'f%%oo2.xyz', 'f%%oo3.xyz']))
 
     def test_generate_split_pages_specify_name_only_percent_d_is_used_percent_percent_with_actual_placeholder(self):
         files = execute_pdf2htmlex_and_get_files([
             '--split-pages', 1,
-            path_to_test_file('3-pages.pdf'),
-            'f%%o%do.xyz'
+            '--page-filename', 'f%%o%do.xyz',
+            path_to_test_file('3-pages.pdf')
         ])
-        self.assertEquals(files, sorted(['3-pages.css', '3-pages.outline', 'f%%o1o.xyz', 'f%%o2o.xyz', 'f%%o3o.xyz']))
+        self.assertEquals(files, sorted(['3-pages.html', 'f%%o1o.xyz', 'f%%o2o.xyz', 'f%%o3o.xyz']))
 
     def test_generate_split_pages_specify_name_only_percent_d_is_used_percent_percent_with_actual_placeholder(self):
         files = execute_pdf2htmlex_and_get_files([
             '--split-pages', 1,
-            path_to_test_file('3-pages.pdf'),
-            'fo%do%%.xyz'
+            '--page-filename', 'fo%do%%.xyz',
+            path_to_test_file('3-pages.pdf')
         ])
-        self.assertEquals(files, sorted(['3-pages.css', '3-pages.outline', 'fo1o%%.xyz', 'fo2o%%.xyz', 'fo3o%%.xyz']))
+        self.assertEquals(files, sorted(['3-pages.html', 'fo1o%%.xyz', 'fo2o%%.xyz', 'fo3o%%.xyz']))
 
     def test_generate_split_pages_specify_name_only_formatter_starts_part_way_through_invalid_formatter(self):
         files = execute_pdf2htmlex_and_get_files([
             '--split-pages', 1,
+            '--page-filename', 'f%02%doo.xyz',
             path_to_test_file('3-pages.pdf'),
-            'f%02%doo.xyz'
         ])
-        self.assertEquals(files, sorted(['3-pages.css', '3-pages.outline', 'f%021oo.xyz', 'f%022oo.xyz', 'f%023oo.xyz']))
+        self.assertEquals(files, sorted(['3-pages.html', 'f%021oo.xyz', 'f%022oo.xyz', 'f%023oo.xyz']))
 
     def test_generate_split_pages_specify_output_filename_no_formatter_no_extension(self):
         files = execute_pdf2htmlex_and_get_files([
             '--split-pages', 1,
+            '--page-filename', 'foo',
             path_to_test_file('1-page.pdf'),
-            'foo'
         ])
-        self.assertEquals(files, sorted(['1-page.css', '1-page.outline', 'foo1']))
+        self.assertEquals(files, sorted(['1-page.html', 'foo1']))
 
     def test_generate_single_html_name_specified_format_characters_percent_d(self):
         files = execute_pdf2htmlex_and_get_files([
