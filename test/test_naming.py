@@ -251,7 +251,8 @@ class OutputNamingTests(unittest.TestCase):
         self.assertEquals(files, ['foo%%.html'])
 
 if __name__=="__main__":
-    if not os.path.isfile(PDF2HTMLEX_PATH) or not os.access(PDF2HTMLEX_PATH, os.X_OK):
+    executable = os.path.abspath(os.path.join(os.path.dirname(__file__), PDF2HTMLEX_PATH))
+    if not os.path.isfile(executable) or not os.access(executable, os.X_OK):
         print >> sys.stderr, "Cannot locate pdf2htmlEX executable. Make sure source was built before running this test."
         exit(1)
 
