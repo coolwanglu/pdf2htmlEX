@@ -8,6 +8,7 @@ before_script:
   - cmake .
 script:
   - make
+  - make test
   - sudo make install
   - /usr/local/bin/pdf2htmlEX -v
 branches:
