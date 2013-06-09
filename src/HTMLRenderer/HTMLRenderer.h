@@ -308,8 +308,6 @@ protected:
 
     Preprocessor preprocessor;
     TmpFiles tmp_files;
-    // for splitted pages
-    std::vector<std::string> page_filenames;
 
     // for string formatting
     StringFormatter str_fmt;
@@ -318,6 +316,8 @@ protected:
         std::ofstream fs;
         std::string path;
     } f_outline, f_pages, f_css;
+    std::ofstream * f_curpage;
+    std::string cur_page_filename;
 
     static const std::string MANIFEST_FILENAME;
 };
