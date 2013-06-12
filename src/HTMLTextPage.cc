@@ -95,10 +95,8 @@ void HTMLTextPage::clear(void)
 
 void HTMLTextPage::open_new_line(const HTMLLineState & line_state)
 {
-    if((!text_lines.empty()) && (text_lines.back()->text_empty()))
-    {
-        text_lines.pop_back();
-    }
+    // do not reused the last text_line even if it's empty
+    // because the clip states may point to the next index
     text_lines.emplace_back(new HTMLTextLine(line_state, param, all_manager));
     cur_line = text_lines.back().get();
 }
