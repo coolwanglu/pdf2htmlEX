@@ -129,9 +129,9 @@ protected:
             // Note that we only care about the first 4 elements
             for(int i = 0; i < 4; ++i)
             {
-                if(m1.m[i] < m2.m[i] - EPS)
+                if(m1.m[i] < m2.m[i])
                     return true;
-                if(m1.m[i] > m2.m[i] + EPS)
+                if(m1.m[i] > m2.m[i])
                     return false;
             }
             return false;
