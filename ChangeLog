@@ -1,5 +1,6 @@
 Developing v0.9
 
+* Lazy loading of entire pages
 * Licensed changed
  - Additional terms for usage in online services
  - Remove GPLv2

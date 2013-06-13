@@ -370,50 +370,50 @@ void HTMLRenderer::css_draw_rectangle(double x, double y, double w, double h, co
         }
     }
 
-    f_pages.fs << "<div class=\"" << CSS::CSS_DRAW_CN 
+    (*f_curpage) << "<div class=\"" << CSS::CSS_DRAW_CN 
         << ' ' << CSS::TRANSFORM_MATRIX_CN << all_manager.transform_matrix.install(new_tm)
         << "\" style=\"";
 
     if(line_color)
     {
-        f_pages.fs << "border-color:" << *line_color << ";";
+        (*f_curpage) << "border-color:" << *line_color << ";";
 
-        f_pages.fs << "border-width:";
+        (*f_curpage) << "border-width:";
         for(int i = 0; i < line_width_count; ++i)
         {
-            if(i > 0) f_pages.fs << ' ';
+            if(i > 0) (*f_curpage) << ' ';
 
             double lw = line_width_array[i] * scale;
-            f_pages.fs << round(lw);
-            if(is_positive(lw)) f_pages.fs << "px";
+            (*f_curpage) << round(lw);
+            if(is_positive(lw)) (*f_curpage) << "px";
         }
-        f_pages.fs << ";";
+        (*f_curpage) << ";";
     }
     else
     {
-        f_pages.fs << "border:none;";
+        (*f_curpage) << "border:none;";
     }
 
     if(fill_color)
     {
-        f_pages.fs << "background-color:" << (*fill_color) << ";";
+        (*f_curpage) << "background-color:" << (*fill_color) << ";";
     }
     else
     {
-        f_pages.fs << "background-color:transparent;";
+        (*f_curpage) << "background-color:transparent;";
     }
 
     if(style_function)
     { 
-        style_function(style_function_data, f_pages.fs);
+        style_function(style_function_data, (*f_curpage));
     }
 
-    f_pages.fs << "bottom:" << round(y) << "px;"
+    (*f_curpage) << "bottom:" << round(y) << "px;"
         << "left:" << round(x) << "px;"
         << "width:" << round(w * scale) << "px;"
         << "height:" << round(h * scale) << "px;";
 
-    f_pages.fs << "\"></div>";
+    (*f_curpage) << "\"></div>";
 }
 
 

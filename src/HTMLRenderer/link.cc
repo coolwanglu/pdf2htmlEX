@@ -195,17 +195,17 @@ void HTMLRenderer::processLink(AnnotLink * al)
 
     if(!dest_str.empty())
     {
-        f_pages.fs << "<a class=\"" << CSS::LINK_CN << "\" href=\"";
-        outputURL(f_pages.fs, dest_str);
-        f_pages.fs << "\"";
+        (*f_curpage) << "<a class=\"" << CSS::LINK_CN << "\" href=\"";
+        outputURL((*f_curpage), dest_str);
+        (*f_curpage) << "\"";
 
         if(!dest_detail_str.empty())
-            f_pages.fs << " data-dest-detail='" << dest_detail_str << "'";
+            (*f_curpage) << " data-dest-detail='" << dest_detail_str << "'";
 
-        f_pages.fs << ">";
+        (*f_curpage) << ">";
     }
 
-    f_pages.fs << "<div class=\"" << CSS::CSS_DRAW_CN << ' ' << CSS::TRANSFORM_MATRIX_CN
+    (*f_curpage) << "<div class=\"" << CSS::CSS_DRAW_CN << ' ' << CSS::TRANSFORM_MATRIX_CN
         << all_manager.transform_matrix.install(default_ctm)
         << "\" style=\"";
 
@@ -232,31 +232,31 @@ void HTMLRenderer::processLink(AnnotLink * al)
                         border_top_bottom_width, border_left_right_width);
 
                 if(abs(border_top_bottom_width - border_left_right_width) < EPS)
-                    f_pages.fs << "border-width:" << round(border_top_bottom_width) << "px;";
+                    (*f_curpage) << "border-width:" << round(border_top_bottom_width) << "px;";
                 else
-                    f_pages.fs << "border-width:" << round(border_top_bottom_width) << "px " << round(border_left_right_width) << "px;";
+                    (*f_curpage) << "border-width:" << round(border_top_bottom_width) << "px " << round(border_left_right_width) << "px;";
             }
             auto style = border->getStyle();
             switch(style)
             {
                 case AnnotBorder::borderSolid:
-                    f_pages.fs << "border-style:solid;";
+                    (*f_curpage) << "border-style:solid;";
                     break;
                 case AnnotBorder::borderDashed:
-                    f_pages.fs << "border-style:dashed;";
+                    (*f_curpage) << "border-style:dashed;";
                     break;
                 case AnnotBorder::borderBeveled:
-                    f_pages.fs << "border-style:outset;";
+                    (*f_curpage) << "border-style:outset;";
                     break;
                 case AnnotBorder::borderInset:
-                    f_pages.fs << "border-style:inset;";
+                    (*f_curpage) << "border-style:inset;";
                     break;
                 case AnnotBorder::borderUnderlined:
-                    f_pages.fs << "border-style:none;border-bottom-style:solid;";
+                    (*f_curpage) << "border-style:none;border-bottom-style:solid;";
                     break;
                 default:
                     cerr << "Warning:Unknown annotation border style: " << style << endl;
-                    f_pages.fs << "border-style:solid;";
+                    (*f_curpage) << "border-style:solid;";
             }
 
 
@@ -274,36 +274,36 @@ void HTMLRenderer::processLink(AnnotLink * al)
                 r = g = b = 0;
             }
 
-            f_pages.fs << "border-color:rgb("
+            (*f_curpage) << "border-color:rgb("
                 << dec << (int)dblToByte(r) << "," << (int)dblToByte(g) << "," << (int)dblToByte(b) << hex
                 << ");";
         }
         else
         {
-            f_pages.fs << "border-style:none;";
+            (*f_curpage) << "border-style:none;";
         }
     }
     else
     {
-        f_pages.fs << "border-style:none;";
+        (*f_curpage) << "border-style:none;";
     }
 
     tm_transform(default_ctm, x, y);
 
-    f_pages.fs << "position:absolute;"
+    (*f_curpage) << "position:absolute;"
         << "left:" << round(x) << "px;"
         << "bottom:" << round(y) << "px;"
         << "width:" << round(w) << "px;"
         << "height:" << round(h) << "px;";
 
     // fix for IE
-    f_pages.fs << "background-color:rgba(255,255,255,0.000001);";
+    (*f_curpage) << "background-color:rgba(255,255,255,0.000001);";
 
-    f_pages.fs << "\"></div>";
+    (*f_curpage) << "\"></div>";
 
     if(dest_str != "")
     {
-        f_pages.fs << "</a>";
+        (*f_curpage) << "</a>";
     }
 }
 

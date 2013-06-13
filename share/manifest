@@ -39,11 +39,6 @@ pdf2htmlEX.defaultViewer = new pdf2htmlEX.Viewer({
     container_id : 'page-container', 
     sidebar_id : 'sidebar',
     outline_id : 'outline',
-    page_urls : [
-"""
-$page_urls
-"""
-]
 });
 </script>
 """
@@ -54,7 +49,7 @@ $page_urls
 <body>
 """
 
-# The sidbar
+# The sidebar
 # By default this is hidden, pdf2htmlEX.js will add the 'opened' class if it is not empty
 # You can add a class 'opened' here if you want it always opened or you don't use pdf2htmlEX.js
 # e.g. 

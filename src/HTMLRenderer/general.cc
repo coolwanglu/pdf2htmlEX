@@ -112,12 +112,12 @@ void HTMLRenderer::process(PDFDoc *doc)
         {
             string filled_template_filename = (char*)str_fmt(param.page_filename.c_str(), i);
             auto page_fn = str_fmt("%s/%s", param.dest_dir.c_str(), filled_template_filename.c_str());
-            f_pages.fs.open((char*)page_fn, ofstream::binary); 
-            if(!f_pages.fs)
+            f_curpage = new ofstream((char*)page_fn, ofstream::binary); 
+            if(!(*f_curpage))
                 throw string("Cannot open ") + (char*)page_fn + " for writing";
-            set_stream_flags(f_pages.fs);
+            set_stream_flags((*f_curpage));
 
-            page_filenames.push_back(filled_template_filename);
+            cur_page_filename = filled_template_filename;
         }
 
         if(param.process_nontext)
@@ -139,7 +139,8 @@ void HTMLRenderer::process(PDFDoc *doc)
 
         if(param.split_pages)
         {
-            f_pages.fs.close();
+            delete f_curpage;
+            f_curpage = nullptr;
         }
     }
     if(page_count >= 0)
@@ -180,7 +181,7 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state, XRef * xref)
 
     long long wid = all_manager.width.install(pageWidth);
     long long hid = all_manager.height.install(pageHeight);
-    f_pages.fs 
+    (*f_curpage)
         << "<div class=\"" << CSS::PAGE_DECORATION_CN 
             << " " << CSS::WIDTH_CN << wid
             << " " << CSS::HEIGHT_CN << hid
@@ -192,9 +193,29 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state, XRef * xref)
             << " " << CSS::PAGE_CONTENT_BOX_CN << pageNum
             << "\">";
 
+    /*
+     * When split_pages is on, f_curpage points to the current page file
+     * and we want to output empty frames in f_pages.fs
+     */
+    if(param.split_pages)
+    {
+        f_pages.fs
+            << "<div class=\"" << CSS::PAGE_DECORATION_CN 
+                << " " << CSS::WIDTH_CN << wid
+                << " " << CSS::HEIGHT_CN << hid
+                << "\">"
+            << "<div id=\"" << CSS::PAGE_FRAME_CN << pageNum 
+                << "\" class=\"" << CSS::PAGE_FRAME_CN
+                << "\" data-page-no=\"" << pageNum 
+                << "\" data-page-url=\"";
+
+        outputURL(f_pages.fs, cur_page_filename);
+        f_pages.fs << "\">";
+    }
+
     if(param.process_nontext)
     {
-        f_pages.fs << "<img class=\"" << CSS::BACKGROUND_IMAGE_CN 
+        (*f_curpage) << "<img class=\"" << CSS::BACKGROUND_IMAGE_CN 
             << "\" alt=\"\" src=\"";
         if(param.embed_image)
         {
@@ -202,13 +223,13 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state, XRef * xref)
             ifstream fin((char*)path, ifstream::binary);
             if(!fin)
                 throw string("Cannot read background image ") + (char*)path;
-            f_pages.fs << "data:image/png;base64," << Base64Stream(fin);
+            (*f_curpage) << "data:image/png;base64," << Base64Stream(fin);
         }
         else
         {
-            f_pages.fs << (char*)str_fmt("bg%x.png", pageNum);
+            (*f_curpage) << (char*)str_fmt("bg%x.png", pageNum);
         }
-        f_pages.fs << "\"/>";
+        (*f_curpage) << "\"/>";
     }
 
     reset_state();
@@ -216,7 +237,7 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state, XRef * xref)
 
 void HTMLRenderer::endPage() {
     // dump all text
-    html_text_page.dump_text(f_pages.fs);
+    html_text_page.dump_text(*f_curpage);
     html_text_page.dump_css(f_css.fs);
     html_text_page.clear();
 
@@ -224,26 +245,31 @@ void HTMLRenderer::endPage() {
     cur_doc->processLinks(this, pageNum);
 
     // close box
-    f_pages.fs << "</div>";
+    (*f_curpage) << "</div>";
 
     // dump info for js
     // TODO: create a function for this
     // BE CAREFUL WITH ESCAPES
-    f_pages.fs << "<div class=\"" << CSS::PAGE_DATA_CN << "\" data-data='{";
+    (*f_curpage) << "<div class=\"" << CSS::PAGE_DATA_CN << "\" data-data='{";
     
     //default CTM
-    f_pages.fs << "\"ctm\":[";
+    (*f_curpage) << "\"ctm\":[";
     for(int i = 0; i < 6; ++i)
     {
-        if(i > 0) f_pages.fs << ",";
-        f_pages.fs << round(default_ctm[i]);
+        if(i > 0) (*f_curpage) << ",";
+        (*f_curpage) << round(default_ctm[i]);
     }
-    f_pages.fs << "]";
+    (*f_curpage) << "]";
 
-    f_pages.fs << "}'></div>";
+    (*f_curpage) << "}'></div>";
     
     // close page
-    f_pages.fs << "</div></div>" << endl;
+    (*f_curpage) << "</div></div>" << endl;
+
+    if(param.split_pages)
+    {
+        f_pages.fs << "</div></div>" << endl;
+    }
 }
 
 void HTMLRenderer::pre_process(PDFDoc * doc)
@@ -324,9 +350,6 @@ void HTMLRenderer::pre_process(PDFDoc * doc)
         set_stream_flags(f_outline.fs);
     }
 
-    // if split-pages is specified, open & close the file in the process loop
-    // if not, open the file here:
-    if(!param.split_pages)
     {
         /*
          * we have to keep the html file for pages into a temporary place
@@ -342,6 +365,15 @@ void HTMLRenderer::pre_process(PDFDoc * doc)
         if(!f_pages.fs)
             throw string("Cannot open ") + (char*)fn + " for writing";
         set_stream_flags(f_pages.fs);
+    }
+
+    if(param.split_pages)
+    {
+        f_curpage = nullptr;
+    }
+    else
+    {
+        f_curpage = &f_pages.fs;
     }
 }
 
@@ -436,25 +468,11 @@ void HTMLRenderer::post_process(void)
             }
             else if (line == "$pages")
             {
-                if(!param.split_pages)
-                {
-                    ifstream fin(f_pages.path, ifstream::binary);
-                    if(!fin)
-                        throw "Cannot open pages for reading";
-                    output << fin.rdbuf();
-                    output.clear(); // output will set fail bit if fin is empty
-                }
-            }
-            else if (line == "$page_urls")
-            {
-                for(auto iter = page_filenames.begin(); iter != page_filenames.end(); ++iter)
-                {
-                    if(iter != page_filenames.begin())
-                        output << ",";
-                    output << "'";
-                    outputJSON(output, *iter);
-                    output << "'";
-                }
+                ifstream fin(f_pages.path, ifstream::binary);
+                if(!fin)
+                    throw "Cannot open pages for reading";
+                output << fin.rdbuf();
+                output.clear(); // output will set fail bit if fin is empty
             }
             else
             {
