@@ -18,6 +18,7 @@ var pdf2htmlEX = (function(){
     link             : '@CSS_LINK_CN@',
     __dummy__        : 'no comma'
   };
+  var DEFAULT_PAGES_TO_PRELOAD = 3;
 
   var pdf2htmlEX = new Object();
 
@@ -40,24 +41,36 @@ var pdf2htmlEX = (function(){
   var Page = function(page, container) {
     if(page == undefined) return;
 
+    this.loaded = false;
     this.p = $(page);
+
+    this.container = container;
+
     this.n = parseInt(this.p.attr('data-page-no'), 16);
     this.b = $('.'+CSS_CLASS_NAMES['page_content_box'], this.p);
+    this.d = this.p.parents('.'+CSS_CLASS_NAMES['page_decoration']);
 
-    /*
-     * scale ratios
-     * 
-     * default_r : the first one
-     * set_r : last set 
-     * cur_r : currently using
-     */
-    this.default_r = this.set_r = this.cur_r = this.p.height() / this.b.height();
+    this.h = this.p.height();     // Need to make rescale work when page_content_box is not loaded, yet
+    this.w = this.p.width();
 
-    this.data = JSON.parse($($('.'+CSS_CLASS_NAMES['page_data'], this.p)[0]).attr('data-data'));
+    // if page is loaded
+    if (this.b[0]) {
+      /*
+       * scale ratios
+       *
+       * default_r : the first one
+       * set_r : last set
+       * cur_r : currently using
+       */
+      this.default_r = this.set_r = this.cur_r = this.p.height() / this.b.height();
 
-    this.ctm = this.data.ctm;
-    this.ictm = invert(this.ctm);
-    this.container = container;
+      this.data = JSON.parse($($('.'+CSS_CLASS_NAMES['page_data'], this.p)[0]).attr('data-data'));
+
+      this.ctm = this.data.ctm;
+      this.ictm = invert(this.ctm);
+
+      this.loaded = true;
+    }
   };
   $.extend(Page.prototype, {
     /* hide & show are for contents, the page frame is still there */
@@ -67,6 +80,7 @@ var pdf2htmlEX = (function(){
     show : function(){
       if(Math.abs(this.set_r - this.cur_r) > EPS) {
         this.cur_r = this.set_r;
+        //TODO make it cross-browser compliant
         this.b.css('transform', 'scale('+this.cur_r.toFixed(3)+')');
       }
       this.b.addClass('opened');
@@ -116,7 +130,8 @@ var pdf2htmlEX = (function(){
     this.container_id = config['container_id'];
     this.sidebar_id = config['sidebar_id'];
     this.outline_id = config['outline_id'];
-    this.page_urls = config['page_urls'];
+    this.pages_to_preload = config['pages_to_preload'] || DEFAULT_PAGES_TO_PRELOAD;
+    this.pages_loading = {};
     this.init_before_loading_content();
 
     var _ = this;
@@ -141,7 +156,7 @@ var pdf2htmlEX = (function(){
       if(this.outline.children().length > 0) { 
         this.sidebar.addClass('opened');
       }
-      
+
       this.find_pages();
 
       // register schedule rendering
@@ -153,14 +168,7 @@ var pdf2htmlEX = (function(){
       // handle links
       this.container.add(this.outline).on('click', '.'+CSS_CLASS_NAMES['link'], this, this.link_handler);
 
-      // disable background image draging
-      $('img', this.container).on('dragstart', function(e){return false;});
-
       this.render();
-
-      // load split pages
-      // has no effect if --split-pages is 0
-      this.load_page(0);
     },
     find_pages : function() {
       var new_pages = new Array();
@@ -172,19 +180,62 @@ var pdf2htmlEX = (function(){
       }
       this.pages = new_pages;
     },
-    load_page : function(idx) {
-      if(idx < this.page_urls.length){
-        var _ = this;
+    load_page : function(idx, pages_to_preload, successCallback, errorCallback) {
+      if (idx >= this.pages.length)
+        return;  // Page does not exist
+
+      if (this.pages[idx].loaded)
+        return;  // Page is loaded
+
+      if (this.pages_loading[idx])
+        return;  // Page is already loading
+
+      var page_no_hex = idx.toString(16);
+      var $pf = this.container.find('#' + CSS_CLASS_NAMES['page_frame'] + page_no_hex);
+      if($pf.length == 0)
+        return;  // Page does not exist
+
+      var _ = this;
+
+      var url = $pf.data('page-url');
+      if (url && url.length > 0) {
+        this.pages_loading[idx] = true;       // Set semaphore
+
         $.ajax({
-          url: this.page_urls[idx],
+          url: url,
           dataType: 'text'
         }).done(function(data){
-          $('#'+_.container_id).append(data);
-          _.find_pages();
-          _.schedule_render();
-          _.load_page(idx+1);
+            _.pages[idx].p.parent().replaceWith(data);
+
+            var $new_pf = _.container.find('#' + CSS_CLASS_NAMES['page_frame'] + page_no_hex);
+            _.pages[idx] = new Page($new_pf, _.container);
+            _.pages[idx].rescale(_.scale);
+            _.schedule_render();
+
+            // disable background image dragging
+            $new_pf.find('.'+CSS_CLASS_NAMES['background_image']).on('dragstart', function(e){return false;});
+
+            // Reset loading token
+            delete _.pages_loading[idx];
+
+            if (successCallback) successCallback();
+          }
+        ).fail(function(jqXHR, textStatus, errorThrown){
+          console.error('error loading page ' + idx + ': ' + textStatus);
+
+          // Reset loading token
+          delete _.pages_loading[idx];
+
+          if (errorCallback) errorCallback();
         });
       }
+      // Concurrent prefetch of the next pages
+      if (pages_to_preload === undefined)
+        pages_to_preload = this.pages_to_preload;
+
+      if (--pages_to_preload > 0)
+        _.load_page(idx+1, pages_to_preload);
+
     },
     pre_hide_pages : function() {
       /* pages might have not been loaded yet, so add a CSS rule */
@@ -211,7 +262,10 @@ var pdf2htmlEX = (function(){
       for(var i in pl) {
         var p = pl[i];
         if(p.is_nearly_visible()){
-          p.show();
+          if (p.loaded) {
+            p.show();
+          } else
+            this.load_page(p.n);
         } else {
           p.hide();
         }
@@ -284,7 +338,6 @@ var pdf2htmlEX = (function(){
     },
 
     link_handler : function (e) {
-      console.log('here');
       var _ = e.data;
       var t = $(e.currentTarget);
 
@@ -345,11 +398,26 @@ var pdf2htmlEX = (function(){
       }
 
       if(ok) {
-        pos = transform(target_page.ctm, pos);
-        if(upside_down) {
-          pos[1] = target_page.height() - pos[1];
+        var transform_and_scroll = function() {
+          pos = transform(target_page.ctm, pos);
+          if(upside_down) {
+            pos[1] = target_page.height() - pos[1];
+          }
+          _.scroll_to(detail[0], pos);
         }
-        _.scroll_to(detail[0], pos);
+
+        if (target_page.loaded) {
+          transform_and_scroll();
+        } else {
+          // Scroll to the exact position once loaded.
+          _.load_page(target_page.n, 1, function() {
+            target_page = _.pages[target_page.n];                   // Refresh reference
+            transform_and_scroll();
+          });
+
+          // In the meantime page gets loaded, scroll approximately position for maximum responsiveness.
+          _.scroll_to(detail[0], [0,0]);
+        }
         e.preventDefault();
       }
     }, 
