@@ -63,7 +63,7 @@ var pdf2htmlEX = (function(){
        */
       this.default_r = this.set_r = this.cur_r = this.$p.height() / this.$b.height();
 
-      this.data = JSON.parse($($('.'+CSS_CLASS_NAMES['page_data'], this.$p)[0]).data('data'));
+      this.data = $($('.'+CSS_CLASS_NAMES['page_data'], this.$p)[0]).data('data');
 
       this.ctm = this.data.ctm;
       this.ictm = invert(this.ctm);
