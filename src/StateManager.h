@@ -122,9 +122,8 @@ public:
 protected:
     Imp * imp;
 
-    class Matrix_less
+    struct Matrix_less
     {
-    public:
         bool operator () (const Matrix & m1, const Matrix & m2) const
         {
             // Note that we only care about the first 4 elements
@@ -180,9 +179,8 @@ public:
 protected:
     Imp * imp;
 
-    class Color_hash 
+    struct Color_hash 
     {
-    public:
         size_t operator () (const Color & color) const
         {
             if(color.transparent)

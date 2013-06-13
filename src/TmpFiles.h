@@ -18,10 +18,8 @@ public:
 private:
 	void clean();
 		
-private:
     const Param& param;
 	std::set<std::string> tmp_files;
-
 };
 
 } // namespace pdf2htmlEX

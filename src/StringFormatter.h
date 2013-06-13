@@ -16,9 +16,8 @@ namespace pdf2htmlEX {
 class StringFormatter
 {
 public:
-    class GuardedPointer
+    struct GuardedPointer
     {
-    public:
         GuardedPointer(StringFormatter * sf) : sf(sf) { ++(sf->buf_cnt); }
         GuardedPointer(const GuardedPointer & gp) : sf(gp.sf) { ++(sf->buf_cnt); }
         ~GuardedPointer(void) { --(sf->buf_cnt); }
