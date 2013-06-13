@@ -169,9 +169,6 @@ var pdf2htmlEX = (function(){
       this.container.add(this.outline).on('click', '.'+CSS_CLASS_NAMES['link'], this, this.link_handler);
 
       this.render();
-
-      // Trigger documentLoaded event
-      this.container.trigger("documentLoaded");
     },
     find_pages : function() {
       var new_pages = new Array();
@@ -214,9 +211,6 @@ var pdf2htmlEX = (function(){
             _.pages[idx] = new Page($new_pf, _.container);
             _.pages[idx].rescale(_.scale);
             _.schedule_render();
-
-            // Event fired when page is loaded. Please notice that it's not necessarily rendered (see event pageShown).
-            _.container.trigger("pageLoaded", idx);
 
             // disable background image dragging
             $new_pf.find('.'+CSS_CLASS_NAMES['background_image']).on('dragstart', function(e){return false;});
@@ -270,7 +264,6 @@ var pdf2htmlEX = (function(){
         if(p.is_nearly_visible()){
           if (p.loaded) {
             p.show();
-            this.container.trigger("pageShown", i);
           } else
             this.load_page(p.n);
         } else {
