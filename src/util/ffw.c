@@ -353,11 +353,9 @@ void ffw_metric(double * ascent, double * descent)
 
 /*
  * TODO:bitmap, reference have not been considered in this function
- * TODO:remove_unused may not be suitable to be done here
  */
 void ffw_set_widths(int * width_list, int mapping_len, 
-        int stretch_narrow, int squeeze_wide,
-        int remove_unused)
+        int stretch_narrow, int squeeze_wide)
 {
     SplineFont * sf = cur_fv->sf;
 
@@ -367,8 +365,6 @@ void ffw_set_widths(int * width_list, int mapping_len,
     {
         printf("TODO: width vs bitmap\n");
     }
-    
-    memset(cur_fv->selected, 0, cur_fv->map->enccount);
 
     EncMap * map = cur_fv->map;
     int i;
@@ -376,11 +372,10 @@ void ffw_set_widths(int * width_list, int mapping_len,
     for(i = 0; i < imax; ++i)
     {
         /*
-         * Do mess with it if the glyphs is not used.
+         * Don't mess with it if the glyphs is not used.
          */
         if(width_list[i] == -1) 
         {
-            cur_fv->selected[i] = 1;
             continue;
         }
 
@@ -405,12 +400,6 @@ void ffw_set_widths(int * width_list, int mapping_len,
 
         SCSynchronizeWidth(sc, width_list[i], sc->width, cur_fv);
     }
-
-    for(; i < map->enccount; ++i)
-        cur_fv->selected[i] = 1;
-
-    if(remove_unused)
-        FVDetachAndRemoveGlyphs(cur_fv);
 }
 
 void ffw_auto_hint(void)

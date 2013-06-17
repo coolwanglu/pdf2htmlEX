@@ -50,8 +50,7 @@ int ffw_get_em_size(void);
 void ffw_metric(double * ascent, double * descent);
 
 void ffw_set_widths(int * width_list, int mapping_len, 
-        int stretch_narrow, int squeeze_wide, 
-        int remove_unused);
+        int stretch_narrow, int squeeze_wide);
 
 ////////////////////////
 // others

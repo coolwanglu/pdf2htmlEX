@@ -42,6 +42,12 @@ void deprecated_single_html(const char * dummy = nullptr)
     exit(EXIT_FAILURE);
 }
 
+void removed_remove_unsed_glyph(const char * dummy = nullptr)
+{
+    cerr << "--remove-unsed-glyph is removed. Use a PDF optimization tool instead." << endl;
+    exit(EXIT_FAILURE);
+}
+
 void show_usage_and_exit(const char * dummy = nullptr)
 {
     cerr << "Usage: pdf2htmlEX [options] <input.pdf> [<output.html>]" << endl;
@@ -121,7 +127,6 @@ void parse_options (int argc, char **argv)
         .add("embed-external-font", &param.embed_external_font, 1, "embed local match for external fonts")
         .add("font-suffix", &param.font_suffix, ".ttf", "suffix for embedded font files (.ttf,.otf,.woff,.svg)")
         .add("decompose-ligature", &param.decompose_ligature, 0, "decompose ligatures, such as \uFB01 -> fi")
-        .add("remove-unused-glyph", &param.remove_unused_glyph, 0, "remove unused glyphs in embedded fonts")
         .add("auto-hint", &param.auto_hint, 0, "use fontforge autohint on fonts without hints")
         .add("external-hint-tool", &param.external_hint_tool, "", "external tool for hinting fonts (overrides --auto-hint)")
         .add("stretch-narrow-glyph", &param.stretch_narrow_glyph, 0, "stretch narrow glyphs instead of padding them")
@@ -154,6 +159,7 @@ void parse_options (int argc, char **argv)
 
         // deprecated
         .add("single-html", "", &deprecated_single_html)
+        .add("remove-unused-glyph", "", &removed_remove_unsed_glyph)
         
         .add("", &param.input_filename, "", "")
         .add("", &param.output_filename, "", "")

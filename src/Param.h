@@ -44,7 +44,6 @@ struct Param
     int embed_external_font;
     std::string font_suffix;
     int decompose_ligature;
-    int remove_unused_glyph;
     int auto_hint;
     std::string external_hint_tool;
     int stretch_narrow_glyph;

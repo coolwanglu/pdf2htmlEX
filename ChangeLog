@@ -7,8 +7,9 @@ Developing v0.9
 * New options:
  --embed
  --embed-***
-* Deprecated options:
+* Deprecated/Removed options:
  --single-html
+ --remove-unused-glyph
 
 v0.8
 2013.05.05
