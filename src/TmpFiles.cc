@@ -8,6 +8,8 @@
  */
 
 #include <iostream>
+#include <cstdio>
+
 #include "TmpFiles.h"
 #include "Param.h"
 
