@@ -134,7 +134,8 @@
   -moz-transform-origin:0% 100%;
   -webkit-transform-origin:0% 100%;
   -o-transform-origin:0% 100%;
-  unicode-bidi:bidi-override; /* For rtl lanauges, e.g. Hebrew, we don't want the default Unicode behaviour */
+  unicode-bidi:bidi-override;/* For rtl lanauges, e.g. Hebrew, we don't want the default Unicode behaviour */
+  -moz-font-feature-settings:"liga" 0;/* We don't want Firefox to recognize ligatures */
 }
 span { /* text blocks within a line */
   position:relative;
