@@ -508,6 +508,11 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
             info.space_width = 1;
         }
 
+        if(param.debug)
+        {
+            cerr << "space width: " << info.space_width << endl;
+        }
+
         if(ctu)
             ctu->decRefCnt();
     }

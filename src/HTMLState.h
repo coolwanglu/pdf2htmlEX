@@ -34,7 +34,8 @@ struct HTMLTextState
     
     // the offset cause by a single ' ' char
     double single_space_offset(void) const {
-        return word_space + letter_space + font_info->space_width * font_size;
+        assert(font_info->em_size != 0);
+        return word_space + letter_space + font_info->space_width / font_info->em_size * font_size;
     }
     // calculate em_size of this state
     double em_size(void) const {
