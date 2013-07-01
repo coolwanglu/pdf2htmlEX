@@ -52,21 +52,21 @@
  * The followings are base classes, some of which are meant to be override by PDF specific classes
  * So do not increase the specificity (e.g. ".classname" -> "#page-container .classname")
  */
-.@CSS_PAGE_DECORATION_CN@ { /* page decoration */
-  position:relative;
-  border: 0;
-  overflow: hidden;
-}
 .@CSS_PAGE_FRAME_CN@ { /* page */
+  position:relative;
+  background-color:white;
+  overflow:visible;
+  margin:0; 
+  border:0;/* required by pdf2htmlEX.js for page visibility test */
+}
+.@CSS_PAGE_DECORATION_CN@ { /* page decoration */
   position:absolute;
+  border:0;/* required by pdf2htmlEX.js for page visibility test */
+  overflow:hidden;
   top:0;
   left:0;
   width:100%;
   height:100%;
-  background-color:white;
-  overflow: hidden;
-  margin:0; 
-  border:0; /* required by pdf2htmlEX.js for page visibility test */
 }
 .@CSS_PAGE_CONTENT_BOX_CN@ { /* content of a page */
   position:absolute;
@@ -101,8 +101,10 @@
   user-select:none;
 }
 @media print {
-  .@CSS_PAGE_DECORATION_CN@ {
+  .@CSS_PAGE_FRAME_CN {
     margin:0;
+  }
+  .@CSS_PAGE_DECORATION_CN@ {
     box-shadow:none;
     page-break-after:always;
     page-break-inside:avoid;

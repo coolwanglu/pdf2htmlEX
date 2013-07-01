@@ -47,8 +47,10 @@
     -o-transition:left 500ms;
     transition:left 500ms:
   }
-  .@CSS_PAGE_DECORATION_CN@ {
+  .@CSS_PAGE_FRAME_CN@ {
     margin: 13px auto;
+  }
+  .@CSS_PAGE_DECORATION_CN@ {
     box-shadow: 1px 1px 3px 1px #333;
   }
   @keyframes fadein { from { opacity:0;} to { opacity:1;} }

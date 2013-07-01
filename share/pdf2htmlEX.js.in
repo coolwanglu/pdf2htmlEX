@@ -11,7 +11,6 @@
 var pdf2htmlEX = (function(){
   var CSS_CLASS_NAMES = {
     page_frame       : '@CSS_PAGE_FRAME_CN@',
-    page_decoration  : '@CSS_PAGE_DECORATION_CN@',
     page_content_box : '@CSS_PAGE_CONTENT_BOX_CN@',
     page_data        : '@CSS_PAGE_DATA_CN@',
     background_image : '@CSS_BACKGROUND_IMAGE_CN@',
@@ -47,7 +46,6 @@ var pdf2htmlEX = (function(){
 
     this.n = parseInt(this.$p.data('page-no'), 16);
     this.$b = $('.'+CSS_CLASS_NAMES['page_content_box'], this.$p);
-    this.$d = this.$p.parents('.'+CSS_CLASS_NAMES['page_decoration']);
 
     this.h = this.$p.height();     // Need to make rescale work when page_content_box is not loaded, yet
     this.w = this.$p.width();
@@ -206,7 +204,7 @@ var pdf2htmlEX = (function(){
           url: url,
           dataType: 'text'
         }).done(function(data){
-            _.pages[idx].$p.parent().replaceWith(data);
+            _.pages[idx].$p.replaceWith(data);
 
             var $new_pf = _.$container.find('#' + CSS_CLASS_NAMES['page_frame'] + page_no_hex);
             _.pages[idx] = new Page($new_pf, _.$container);
