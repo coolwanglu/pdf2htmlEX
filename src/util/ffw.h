@@ -55,6 +55,7 @@ void ffw_set_widths(int * width_list, int mapping_len,
 ////////////////////////
 // others
 void ffw_auto_hint(void);
+void ffw_override_fstype(void);
 
 #ifdef __cplusplus
 }

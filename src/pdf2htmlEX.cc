@@ -131,6 +131,7 @@ void parse_options (int argc, char **argv)
         .add("external-hint-tool", &param.external_hint_tool, "", "external tool for hinting fonts (overrides --auto-hint)")
         .add("stretch-narrow-glyph", &param.stretch_narrow_glyph, 0, "stretch narrow glyphs instead of padding them")
         .add("squeeze-wide-glyph", &param.squeeze_wide_glyph, 1, "shrink wide glyphs instead of truncating them")
+        .add("override-fstype", &param.override_fstype, 0, "clear the fstype bits in TTF/OTF fonts")
         
         // text
         .add("heps", &param.h_eps, 1.0, "horizontal threshold for merging text, in pixels")

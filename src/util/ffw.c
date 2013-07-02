@@ -414,3 +414,10 @@ void ffw_auto_hint(void)
     FVAutoHint(cur_fv);
     FVAutoInstr(cur_fv);
 }
+
+void ffw_override_fstype(void)
+{
+    *(int16 *)(&cur_fv->sf->pfminfo.fstype) = 0;
+    cur_fv->sf->pfminfo.pfmset = true;
+    cur_fv->sf->changed = true;
+}

@@ -48,6 +48,7 @@ struct Param
     std::string external_hint_tool;
     int stretch_narrow_glyph;
     int squeeze_wide_glyph;
+    int override_fstype;
     
     // text
     double h_eps, v_eps;

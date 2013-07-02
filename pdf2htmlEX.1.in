@@ -178,6 +178,12 @@ If set to 1, glyphs narrower than described in PDF will be stretched; otherwise 
 .B --squeeze-wide-glyph <0|1> (Default: 1)
 If set to 1, glyphs wider than described in PDF will be squeezed; otherwise it will be truncated.
 
+.TP
+.B --override-fstype <0|1> (Default: 0)
+Clear the fstype bits in TTF/OTF fonts. 
+
+Turn this on if Internet Explorer complains about 'Permission must be Installable' AND you have permission to do so.
+
 .SS Text
 
 .TP
@@ -230,6 +236,8 @@ Specify user password
 .TP
 .B --no-drm <0|1> (Default: 0)
 Override document DRM settings
+
+Turn this on only when you have permission.
 
 .SS Misc.
 

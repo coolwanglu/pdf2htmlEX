@@ -561,7 +561,7 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
 
     /* 
      * Step 5 
-     * Generate the font and load the metrics
+     * Generate the font, load the metrics and set the embeddig bits (fstype)
      *
      * Ascent/Descent are not used in PDF, and the values in PDF may be wrong or inconsistent (there are 3 sets of them)
      * We need to reload in order to retrieve/fix accurate ascent/descent, some info won't be written to the font by fontforge until saved.
@@ -575,6 +575,8 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
 
     ffw_load_font(cur_tmp_fn.c_str());
     ffw_metric(&info.ascent, &info.descent);
+    if(param.override_fstype)
+        ffw_override_fstype();
     ffw_save(fn.c_str());
 
     ffw_close();
