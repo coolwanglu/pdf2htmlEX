@@ -341,7 +341,6 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
      *   Try to calculate the correct Unicode value from the glyph names, when collision is detected in ToUnicode Map
      * 
      * - Fill in the width_list, and set widths accordingly
-     * - Remove unused glyphs
      */
 
 
