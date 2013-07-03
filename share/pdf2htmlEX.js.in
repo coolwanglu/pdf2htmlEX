@@ -333,17 +333,23 @@ var pdf2htmlEX = (function(){
         switch (e.keyCode) {
         case 33: // Page Down
           _.scroll_to_page(_.get_prev_page());
+          e.preventDefault();
           break;
         case 34: // Page Up
           _.scroll_to_page(_.get_next_page());
+          e.preventDefault();
           break;
         case 35: // End
-          if (e.ctrlKey)
+          if (e.ctrlKey) {
             _.scroll_to_page(_.pages[_.pages.length-1]);
+            e.preventDefault();
+          }
           break;
         case 36: // Home
-          if (e.ctrlKey)
+          if (e.ctrlKey) {
             _.scroll_to_page(_.pages[1]);
+            e.preventDefault();
+          }
           break;
         }
       });
