@@ -331,20 +331,37 @@ var pdf2htmlEX = (function(){
       $(window).on('keydown', function keydown(e) {
 
         switch (e.keyCode) {
-        case 33: // Page Down
-          _.scroll_to_page(_.get_prev_page());
+        case 33: // Page UP:
+          // pageup        -> scroll one screen up
+          // alt-pageup    -> scroll one page up
+          if (e.altKey) {
+            _.scroll_to_page(_.get_prev_page());
+          }
+          else {
+            _.$container.scrollTop(_.$container.scrollTop()-_.$container.height());
+          }
           e.preventDefault();
           break;
-        case 34: // Page Up
-          _.scroll_to_page(_.get_next_page());
+
+        case 34: // Page DOWN
+          // pagedown      -> scroll one screen down
+          // alt-pagedown  -> scroll one page down
+          if (e.altKey) {
+            _.scroll_to_page(_.get_next_page());
+          }
+          else {
+            _.$container.scrollTop(_.$container.scrollTop()+_.$container.height());
+          }
           e.preventDefault();
           break;
+
         case 35: // End
           if (e.ctrlKey) {
             _.scroll_to_page(_.pages[_.pages.length-1]);
             e.preventDefault();
           }
           break;
+
         case 36: // Home
           if (e.ctrlKey) {
             _.scroll_to_page(_.pages[1]);
