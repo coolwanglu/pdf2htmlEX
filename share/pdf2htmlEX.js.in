@@ -164,7 +164,7 @@ var pdf2htmlEX = (function(){
 
       //this.zoom_fixer();
       
-      this.add_key_handler();
+      this.navigation_key_handler();
 
       // handle links
       this.$container.add(this.$outline).on('click', '.'+CSS_CLASS_NAMES['link'], this, this.link_handler);
@@ -325,7 +325,7 @@ var pdf2htmlEX = (function(){
       });
     },
 
-    add_key_handler : function () {
+    navigation_key_handler : function () {
       var _ = this;
 
       $(window).on('keydown', function keydown(e) {
