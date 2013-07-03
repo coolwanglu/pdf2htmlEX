@@ -340,7 +340,6 @@ var pdf2htmlEX = (function(){
           else {
             _.$container.scrollTop(_.$container.scrollTop()-_.$container.height());
           }
-          e.preventDefault();
           break;
 
         case 34: // Page DOWN
@@ -352,23 +351,28 @@ var pdf2htmlEX = (function(){
           else {
             _.$container.scrollTop(_.$container.scrollTop()+_.$container.height());
           }
-          e.preventDefault();
           break;
 
         case 35: // End
           if (e.ctrlKey) {
             _.scroll_to_page(_.pages[_.pages.length-1]);
-            e.preventDefault();
           }
+          else
+            return;
           break;
 
         case 36: // Home
           if (e.ctrlKey) {
             _.scroll_to_page(_.pages[1]);
-            e.preventDefault();
           }
+          else
+            return;
           break;
+
+        default:
+          return;
         }
+        e.preventDefault();
       });
     },
 
