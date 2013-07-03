@@ -363,7 +363,7 @@ var pdf2htmlEX = (function(){
 
         case 36: // Home
           if (e.ctrlKey) {
-            _.scroll_to_page(_.pages[1]);
+            _.$container.scrollTop(0);
           }
           else
             return;
