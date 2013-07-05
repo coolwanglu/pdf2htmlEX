@@ -519,9 +519,13 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
     /*
      * Step 3
      *
+     * Reencode to Unicode Full such that FontForge won't ditch unicode values larger than 0xFFFF
+     *
      * Generate the font as desired
      *
      */
+    ffw_reencode_unicode_full();
+
     string cur_tmp_fn = (char*)str_fmt("%s/__tmp_font1%s", param.tmp_dir.c_str(), param.font_suffix.c_str());
     tmp_files.add(cur_tmp_fn);
     string other_tmp_fn = (char*)str_fmt("%s/__tmp_font2%s", param.tmp_dir.c_str(), param.font_suffix.c_str());

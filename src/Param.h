@@ -67,6 +67,7 @@ struct Param
     std::string data_dir;
     int css_draw;
     int debug;
+    int wa_unicode;
     
     // non-optional
     std::string input_filename, output_filename;

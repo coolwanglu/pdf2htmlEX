@@ -28,6 +28,7 @@ static inline int min(int a, int b)
 
 static FontViewBase * cur_fv = NULL;
 static Encoding * original_enc = NULL;
+static Encoding * unicodefull_enc = NULL;
 static Encoding * enc_head = NULL;
 
 static void err(const char * format, ...)
@@ -68,6 +69,7 @@ void ffw_init(int debug)
     }
 
     original_enc = FindOrMakeEncoding("original");
+    unicodefull_enc = FindOrMakeEncoding("UnicodeFull");
 
     {
         Val v;
@@ -202,6 +204,11 @@ void ffw_reencode_glyph_order(void)
     ffw_do_reencode(original_enc, 0);
 }
 
+void ffw_reencode_unicode_full(void)
+{
+    ffw_do_reencode(unicodefull_enc, 0);
+}
+
 void ffw_reencode(const char * encname, int force)
 {
     Encoding * enc = FindOrMakeEncoding(encname);
@@ -215,8 +222,10 @@ void ffw_reencode_raw(int32 * mapping, int mapping_len, int force)
 {
     Encoding * enc = calloc(1, sizeof(Encoding));
     enc->only_1byte = enc->has_1byte = true;
-    enc->char_cnt = mapping_len;
-    enc->unicode = (int32_t*)malloc(mapping_len * sizeof(int32_t));
+
+    int len = (mapping_len < 256) ? 256 : mapping_len;
+    enc->char_cnt = len;
+    enc->unicode = (int32_t*)malloc(len * sizeof(int32_t));
     memcpy(enc->unicode, mapping, mapping_len * sizeof(int32_t));
     enc->enc_name = strcopy("");
 
