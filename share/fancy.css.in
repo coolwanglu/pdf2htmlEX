@@ -45,7 +45,7 @@
     -moz-transition:left 500ms;
     -webkit-transition:left 500ms;
     -o-transition:left 500ms;
-    transition:left 500ms:
+    transition:left 500ms;
   }
   .@CSS_PAGE_DECORATION_CN@ {
     margin: 13px auto;
