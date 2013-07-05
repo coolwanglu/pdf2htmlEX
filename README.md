@@ -16,11 +16,11 @@ A beautiful demo is worth a thousand words:
 ### Introduction
 
 pdf2htmlEX renders PDF files in HTML, utilizing modern Web technologies.
-It aims to provide an accuracy rendering, while keeping optimized for Web display.
+It aims to provide an accurate rendering, while keeping optimized for Web display.
 
 pdf2htmlEX is best for text-based PDF files, for example scientific papers with complicated formulas and figures.
-Text, fonts and formats are natively perserved in HTML such that you can still search and copy.
-The generated HTML file is static, Javascript is optional.
+Text, fonts and formats are natively preserved in HTML such that you can still search and copy.
+The generated HTML file is static, with optional features powered by JavaScript.
 
 [Learn more about who and why should use pdf2htmlEX](https://github.com/coolwanglu/pdf2htmlEX/wiki/Introduction)
 
@@ -45,7 +45,7 @@ The generated HTML file is static, Javascript is optional.
 
 ### LICENSE
 
-GPLv3 for most parts, MIT License for `share/*`
+GPLv3 with additional terms (see below) for most parts, MIT License for `share/*`
                                                      
 Read `LICENSE` for more detail.
 
@@ -60,7 +60,7 @@ Read `LICENSE` for more detail.
 ### Resources
 
 * [pdf2htmlEX Blog](http://pdf2htmlex.blogspot.com)
-  - News and announcemenst
+  - News and announcements
   - [RSS Subscribe](http://pdf2htmlex.blogspot.com/feeds/posts/default)
 * Mailing list <pdf2htmlex@googlegroups.com>
   - Questions are welcome, but make sure you have read `man pdf2htmlEX` and [wiki](https://github.com/coolwanglu/pdf2htmlEX/wiki)
