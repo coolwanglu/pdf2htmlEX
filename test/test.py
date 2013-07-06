@@ -13,11 +13,10 @@ with open('out.html','w') as outf:
         if not f.lower().endswith('.pdf'):
             continue
         print f
-        if os.system('pdf2htmlEX -l 10 --no-drm 1 --fit-width 1024 --dest-dir html --external-hint-tool="ttfautohint" "%s/%s"' % (DIR,f)) != 0:
+        if os.system('pdf2htmlEX -l 10 --optimize-text 1 --no-drm 1 --fit-width 1024 --dest-dir html --external-hint-tool="ttfautohint" "%s/%s"' % (DIR,f)) != 0:
             print "error on ", f
             sys.exit(-1)
 
-        #os.system('pdf2htmlEX --dest-dir html --process-nontext 0 --css-draw 1 "%s/%s"' % (DIR,f))
         ff = f[:-3]
         outf.write('<a href="html/%shtml" target="pdf">%s</a><br/>' % (ff,ff))
         outf.flush();

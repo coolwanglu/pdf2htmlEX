@@ -36,7 +36,7 @@ struct HTMLTextState
     double single_space_offset(void) const {
         double offset = word_space + letter_space;
         if(font_info->em_size != 0)
-            offset += font_info->space_width / font_info->em_size * font_size;
+            offset += font_info->space_width * font_size;
         return offset;
     }
     // calculate em_size of this state

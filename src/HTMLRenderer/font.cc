@@ -454,13 +454,24 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
                     buf[1] = (cur_code & 0xff);
                     cur_width = font_cid->getWidth(buf, 2) ;
                 }
-                width_list[mapped_code] = (int)floor(cur_width * info.em_size + 0.5);
 
                 if(u == ' ')
                 {
-                    has_space = true;
+                    /*
+                     * Internet Explorer will ignore `word-spacing` if
+                     * the width of the 'space' glyph is 0
+                     *
+                     * space_width==0 often means no spaces are used in the PDF
+                     * so setting it to be 0.001 should be safe
+                     */
+                    if(equal(cur_width, 0))
+                        cur_width = 0.001;
+
                     info.space_width = cur_width;
+                    has_space = true;
                 }
+                
+                width_list[mapped_code] = (int)floor(cur_width * info.em_size + 0.5);
             }
 
             if(param.debug)
@@ -487,24 +498,15 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
                 char buf[2] = {0, ' '};
                 info.space_width = font_cid->getWidth(buf, 2);
             }
+            /* See comments above */
+            if(equal(info.space_width,0))
+                info.space_width = 0.001;
+
             ffw_add_empty_char((int32_t)' ', (int)floor(info.space_width * info.em_size + 0.5));
             if(param.debug)
             {
                 cerr << "Missing space width in font " << hex << info.id << ": set to " << dec << info.space_width << endl;
             }
-        }
-
-        if(info.space_width == 0)
-        {
-            /*
-             * Internet Explorer will ignore `word-spacing` if
-             * the width of the 'space' glyph is 0
-             *
-             * usually the em_size is 1000 or 2048,
-             * and space_width==0 often means no spaces are used in the PDF
-             * so setting it to be 1 should be safe
-             */
-            info.space_width = 1;
         }
 
         if(param.debug)
