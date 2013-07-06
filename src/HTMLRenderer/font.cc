@@ -206,7 +206,7 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
 
     if(param.debug)
     {
-        cerr << "Em size: " << info.em_size << endl;
+        cerr << "em size: " << info.em_size << endl;
     }
 
     info.space_width = 0;
@@ -624,7 +624,10 @@ const FontInfo * HTMLRenderer::install_font(GfxFont * font)
 
     if(param.debug)
     {
-        cerr << "Install font: (" << (font->getID()->num) << ' ' << (font->getID()->gen) << ") -> " << "f" << hex << new_fn_id << dec << endl;
+        cerr << "Install font " << hex << new_fn_id << dec
+            << ": (" << (font->getID()->num) << ' ' << (font->getID()->gen) << ") " 
+            << (font->getName() ? font->getName()->getCString() : "")
+            << endl;
     }
 
     if(font->getType() == fontType3) {
