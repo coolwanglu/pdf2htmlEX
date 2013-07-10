@@ -1,12 +1,19 @@
 Developing v0.9
 
-* Lazy loading of entire pages
+* Lazy loading of pages
+* Show font names in debug messages
 * Licensed changed
  - Additional terms for usage in online services
  - Remove GPLv2
+* Bug fixes:
+ - --optimize-text
+ - Always use Unicode encoding for fonts
+ - space width
+ - disable ligature in Firefox
 * New options:
  --embed
  --embed-***
+ --override-fstype
 * Deprecated/Removed options:
  --single-html
  --remove-unused-glyph
