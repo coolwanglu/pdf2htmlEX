@@ -355,7 +355,7 @@ var pdf2htmlEX = (function(){
 
         case 35: // End
           if (e.ctrlKey) {
-            _.scroll_to_page(_.pages[_.pages.length-1]);
+            _.$container.scrollTop(_.$container[0].scrollHeight);
           }
           else
             return;
