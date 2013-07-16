@@ -42,12 +42,13 @@ var pdf2htmlEX = (function(){
     if(page == undefined) return;
 
     this.loaded = false;
+    this.shown = false;
     this.$p = $(page);
     this.$container = $(container);
 
     this.n = parseInt(this.$p.data('page-no'), 16);
     this.$b = $('.'+CSS_CLASS_NAMES['page_content_box'], this.$p);
-    this.$d = this.$p.parents('.'+CSS_CLASS_NAMES['page_decoration']);
+    this.$d = this.$p.parent('.'+CSS_CLASS_NAMES['page_decoration']);
 
     this.h = this.$p.height();     // Need to make rescale work when page_content_box is not loaded, yet
     this.w = this.$p.width();
@@ -75,28 +76,30 @@ var pdf2htmlEX = (function(){
     /* hide & show are for contents, the page frame is still there */
     hide : function(){
       this.$b.removeClass('opened');
+      this.shown = false;
     },
     show : function(){
       if(Math.abs(this.set_r - this.cur_r) > EPS) {
         this.cur_r = this.set_r;
         this.$b.css('transform', 'scale('+this.cur_r.toFixed(3)+')');
       }
-      this.$b.addClass('opened');
+      if (! this.shown) {
+        this.$b.addClass('opened');
+        this.shown = true;
+      }
     },
-    rescale : function(ratio, is_relative) {
+    rescale : function(ratio) {
       if(ratio == 0) {
         this.set_r = this.default_r;
-      } else if (is_relative) {
-        this.set_r *= ratio;
       } else {
         this.set_r = ratio;
       }
 
       /* wait for redraw */
-      this.hide();
+//      this.hide();
 
-      this.$p.height(this.$b.height() * this.set_r);
-      this.$p.width(this.$b.width() * this.set_r);
+      this.$p.height(this.h * this.set_r);
+      this.$p.width(this.w * this.set_r);
     },
     /* return if any part of this page is shown in the container */
     is_visible : function() {
@@ -140,6 +143,7 @@ var pdf2htmlEX = (function(){
     /* Constants */
     render_timeout : 100,
     scale_step : 0.9,
+    scale : 1,
 
     init_before_loading_content : function() {
       /*hide all pages before loading, will reveal only visible ones later */
@@ -152,7 +156,7 @@ var pdf2htmlEX = (function(){
       this.$container = $('#'+this.container_id);
 
       // Open the outline if nonempty
-      if(this.$outline.children().length > 0) { 
+      if(this.$outline.children().length > 0) {
         this.$sidebar.addClass('opened');
       }
 
@@ -162,14 +166,14 @@ var pdf2htmlEX = (function(){
       var _ = this;
       this.$container.scroll(function(){ _.schedule_render(); });
 
-      //this.zoom_fixer();
+      this.zoom_fixer();
       
       // handle links
       this.$container.add(this.$outline).on('click', '.'+CSS_CLASS_NAMES['link'], this, this.link_handler);
 
       this.render();
     },
-    
+
     find_pages : function() {
       var new_pages = new Array();
       var $pl= $('.'+CSS_CLASS_NAMES['page_frame'], this.$container);
@@ -206,7 +210,7 @@ var pdf2htmlEX = (function(){
           url: url,
           dataType: 'text'
         }).done(function(data){
-            _.pages[idx].$p.parent().replaceWith(data);
+            _.pages[idx].$d.replaceWith(data);
 
             var $new_pf = _.$container.find('#' + CSS_CLASS_NAMES['page_frame'] + page_no_hex);
             _.pages[idx] = new Page($new_pf, _.$container);
@@ -323,13 +327,65 @@ var pdf2htmlEX = (function(){
       });
     },
 
-    rescale : function (ratio, is_relative) {
+    rescale : function (ratio, is_relative, offsetX, offsetY) {
+      if (! offsetX)
+        offsetX = 0;
+      if (! offsetY)
+        offsetY = 0;
+      // Save offset of the active page
+      var active_page = this.get_active_page();
+      var prev_offset = active_page.$p.offset();
+      var old_scale = this.scale;
+
+      // Set new scale
+      if (is_relative)
+        this.scale *= ratio;
+      else
+        this.scale = ratio;
+
+      // Rescale pages
       var pl = this.pages;
       for(var i in pl) {
-        pl[i].rescale(ratio, is_relative);
+        pl[i].rescale(this.scale);
       }
 
+      // Correct container scroll to keep view aligned while zooming
+      var correction_top = active_page.$p.offset().top - prev_offset.top;
+      this.$container.scrollTop( this.$container.scrollTop() + correction_top + offsetY);
+
+      // Take the center of the view as a reference
+      var prev_center_x = this.$container.width() / 2 - prev_offset.left;
+      // Calculate the difference respect the center of the view after the zooming
+      var correction_left = prev_center_x * (this.scale/old_scale - 1) + active_page.$p.offset().left - prev_offset.left;
+      // Scroll the container accordingly to keep alignment to the initial reference
+      this.$container.scrollLeft( this.$container.scrollLeft() + correction_left + offsetX);
+
+      // Delayed rendering
       this.schedule_render();
+    },
+
+    fit_width : function () {
+        var active_page = this.get_active_page();
+
+        this.rescale($(this.$container).width() / active_page.$b.width(), false);
+        this.scroll_to(active_page.n, [0,0]);
+    },
+
+    fit_height : function () {
+      var active_page = this.get_active_page();
+
+      this.rescale($(this.$container).height() / active_page.$b.height(), false);
+      this.scroll_to(active_page.n, [0,0]);
+    },
+
+    get_active_page : function () {
+        // get page that are on the center of the view     //TODO better on top?!
+        var y_center = $(this.$container).offset().top + $(this.$container).height() / 2;
+        for (var i=2; i<this.pages.length; i++) {
+            if (this.pages[i].$p.offset().top > y_center)
+               return this.pages[i-1];
+        }
+        return this.pages[i-1];  // Last page
     },
 
     get_containing_page : function(obj) {
