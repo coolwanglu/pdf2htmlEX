@@ -99,9 +99,10 @@ var pdf2htmlEX = (function(){
         this.set_r = ratio;
       }
 
-      /* wait for redraw */
-      if (! keep_shown)
-        this.hide();
+      if (keep_shown)
+        this.show();    // Refresh content
+      else
+        this.hide();    // Wait for redraw
 
       this.$d.height(this.h * this.set_r);
       this.$d.width(this.w * this.set_r);
@@ -364,11 +365,10 @@ var pdf2htmlEX = (function(){
       // Rescale pages
       var pl = this.pages;
       for(var i in pl) {
-        if (prerendering_enabled && i > min_visible && i < max_visible) {
-          pl[i].rescale(this.scale, true);
-          pl[i].show();                // Force immediate refresh
-        } else
-          pl[i].rescale(this.scale);   // Delayed refresh
+        if (prerendering_enabled && i > min_visible && i < max_visible)
+          pl[i].rescale(this.scale, true);    // Force immediate refresh
+        else
+          pl[i].rescale(this.scale);          // Delayed refresh
       }
 
       // Correct container scroll to keep view aligned while zooming
