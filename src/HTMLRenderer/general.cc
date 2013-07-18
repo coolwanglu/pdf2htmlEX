@@ -245,7 +245,9 @@ void HTMLRenderer::endPage() {
     cur_doc->processLinks(this, pageNum);
 
     // close box
-    (*f_curpage) << "</div>";
+    // NOTE: extra space after </div> it should be preserved
+    // to keep webkit copy paste happy.
+    (*f_curpage) << "</div> ";
 
     // dump info for js
     // TODO: create a function for this
