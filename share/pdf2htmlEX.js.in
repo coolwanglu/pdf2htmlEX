@@ -112,7 +112,7 @@ var pdf2htmlEX = (function(){
       return !((off[1] > this.height() * 2) || (off[1] + this.$container.height() * 2 < 0));
     },
     /* return the coordinate of the top-left corner of container
-     * in our cooridnate system
+     * in our coordinate system
      */
     position : function () {
       var off = this.$p.offset();
