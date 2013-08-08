@@ -47,7 +47,7 @@ var pdf2htmlEX = (function(){
 
     this.n = parseInt(this.$p.data('page-no'), 16);
     this.$b = $('.'+CSS_CLASS_NAMES['page_content_box'], this.$p);
-    this.$d = this.$p.parents('.'+CSS_CLASS_NAMES['page_decoration']);
+    this.$d = this.$p.parent('.'+CSS_CLASS_NAMES['page_decoration']);
 
     this.h = this.$p.height();     // Need to make rescale work when page_content_box is not loaded, yet
     this.w = this.$p.width();
