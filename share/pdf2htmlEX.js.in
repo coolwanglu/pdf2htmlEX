@@ -20,7 +20,8 @@ var pdf2htmlEX = (function(){
   };
   var DEFAULT_PAGES_TO_PRELOAD = 3;
 
-  var NR_PAGES_TO_PRERENDER_ON_ZOOM = 4;   // 0: disable render optimizations (less CPU usage but flickering on zoom)
+  // Smooth zoom is enabled when pages shown are less then SMOOTH_ZOOM_THRESHOLD. Otherwise page content is hidden and redrawn after a delay (function schedule_render).
+  var SMOOTH_ZOOM_THRESHOLD = 4;   // 0: disable smooth zoom optimizations (less CPU usage but flickering on zoom)
 
   var pdf2htmlEX = new Object();
 
@@ -343,7 +344,7 @@ var pdf2htmlEX = (function(){
       var old_scale = this.scale;
 
       var prerendering_enabled = false;
-      if (NR_PAGES_TO_PRERENDER_ON_ZOOM > 0) {
+      if (SMOOTH_ZOOM_THRESHOLD > 0) {
         // Immediate rendering optimizations enabled to improve reactiveness while zooming
         // Find out which pages are visible
         var min_visible, max_visible;
@@ -352,7 +353,7 @@ var pdf2htmlEX = (function(){
         while (max_visible < this.pages.length && this.pages[max_visible].is_visible()) { max_visible++ }
 
         // If less then the threshold, enable prerendering on selected pages
-        if (max_visible - min_visible - 2 < NR_PAGES_TO_PRERENDER_ON_ZOOM)
+        if (max_visible - min_visible - 2 < SMOOTH_ZOOM_THRESHOLD)
           prerendering_enabled = true;
       }
 
