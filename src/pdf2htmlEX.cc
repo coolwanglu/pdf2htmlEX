@@ -21,6 +21,15 @@
 #include <PDFDoc.h>
 #include <PDFDocFactory.h>
 #include <GlobalParams.h>
+#ifndef _PATH_TMP
+#define _PATH_TMP "/tmp"
+#endif
+extern "C" {
+//https://github.com/witwall/mktemp	
+#include <mktemp_config.h>
+#include <mktemp.h>
+}
+#include <libgen.h>
 
 #include "pdf2htmlEX-config.h"
 #include "ArgParser.h"
@@ -30,11 +39,16 @@
 #include "util/path.h"
 #include "util/ffw.h"
 
+
+
+
 using namespace std;
 using namespace pdf2htmlEX;
 
 Param param;
 ArgParser argparser;
+
+std::string data_dir;
 
 void deprecated_single_html(const char * dummy = nullptr)
 {
@@ -62,7 +76,7 @@ void show_version_and_exit(const char * dummy = nullptr)
     cerr << "Libraries: ";
     cerr << "poppler " << POPPLER_VERSION << ", ";
     cerr << "libfontforge " << ffw_get_version() << endl;
-    cerr << "Default data-dir: " << PDF2HTMLEX_DATA_PATH << endl;
+    cerr << "Default data-dir: " << data_dir <<endl;//PDF2HTMLEX_DATA_PATH << endl;
     exit(EXIT_SUCCESS);
 }
 
@@ -149,7 +163,7 @@ void parse_options (int argc, char **argv)
         
         // misc.
         .add("clean-tmp", &param.clean_tmp, 1, "remove temporary files after conversion")
-        .add("data-dir", &param.data_dir, PDF2HTMLEX_DATA_PATH, "specify data directory")
+        .add("data-dir", &param.data_dir, data_dir/*PDF2HTMLEX_DATA_PATH*/, "specify data directory")
         // TODO: css drawings are hidden on print, for annot links, need to fix it for other drawings
 //        .add("css-draw", &param.css_draw, 0, "[experimental and unsupported] CSS drawing")
         .add("debug", &param.debug, 0, "print debugging information")
@@ -194,22 +208,62 @@ void parse_options (int argc, char **argv)
 
 int main(int argc, char **argv)
 {
+
+    std::stringstream ss;
+    ss << dirname(argv[0]) << "\\data";
+    data_dir = ss.str();
+//    cout<<data_dir<<endl;
+
+//    data_dir = argv[0] + "\\data";
     parse_options(argc, argv);
+
     if (param.input_filename == "")
     {
         show_usage_and_exit();
     }
-
-    //prepare the directories
     {
-        char buf[] = "/tmp/pdf2htmlEX-XXXXXX";
-        auto p = mkdtemp(buf);
+	char *cp, *_template ="pdf2htmlEX-XXXXXX", *tempfile, *prefix = _PATH_TMP;
+	char buf [MAX_PATH];
+        char separator='/';
+	#ifdef _WIN32 
+		separator='\\';
+	#endif
+
+        if(GetTempPath (MAX_PATH, buf) ==0)
+		cp=getenv("TMPDIR");
+	else
+		cp=buf;
+
+	//cp = getenv("TMPDIR");
+        //cout <<"TMPDIR"<<cp<<endl;
+	if (cp != NULL && *cp != '\0')
+		prefix = cp;
+
+	int plen = strlen(prefix);
+	while (plen != 0 && prefix[plen - 1] == separator)
+		plen--;
+
+	tempfile = (char *)malloc(plen + 1 + strlen(_template) + 1);
+	if (tempfile == NULL) {
+		//if (!quiet)
+		//	(void)fprintf(stderr,
+		//	    "%s: cannot allocate memory\n", __progname);
+        cerr << argv[0]<<": cannot allocate memory." << endl;
+	exit(EXIT_FAILURE);
+		//exit(1);
+	}
+	(void)memcpy(tempfile, prefix, plen);
+	tempfile[plen] =  separator ;//'/';
+	(void)strcpy(tempfile + plen + 1, _template);	/* SAFE */
+	//cout << tempfile << endl;
+        //char buf[] = "/tmp/pdf2htmlEX-XXXXXX";
+        auto p = priv_mkdtemp(tempfile);
         if(p == nullptr)
         {
             cerr << "Cannot create temp directory" << endl;
             exit(EXIT_FAILURE);
         }
-        param.tmp_dir = buf;
+        param.tmp_dir = tempfile;
     }
 
     if(param.debug)
