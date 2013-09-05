@@ -59,16 +59,18 @@ Read `LICENSE` for more detail.
                                                     
 ### Resources
 
-* [pdf2htmlEX Blog](http://pdf2htmlex.blogspot.com)
+* [pdf2htmlEX Blog](http://pdf2htmlex.blogspot.com) [[RSS Subscribe]](http://pdf2htmlex.blogspot.com/feeds/posts/default)
   - News and announcements
-  - [RSS Subscribe](http://pdf2htmlex.blogspot.com/feeds/posts/default)
-* Mailing list <pdf2htmlex@googlegroups.com>
-  - Questions are welcome, but make sure you have read `man pdf2htmlEX` and [wiki](https://github.com/coolwanglu/pdf2htmlEX/wiki)
-  - [Subscribe](https://groups.google.com/forum/#!forum/pdf2htmlex)
+* Mailing list <pdf2htmlex@googlegroups.com> [[Subscribe]](https://groups.google.com/forum/#!forum/pdf2htmlex)
+  - Before you ask, please read `man pdf2htmlEX` and [wiki](https://github.com/coolwanglu/pdf2htmlEX/wiki)
+  - To report an issue, use the [Issues Page](https://github.com/coolwanglu/pdf2htmlEX/issues) instead for a better tracking
 * Lu Wang <coolwanglu@gmail.com> or [coolwanglu@twitter](https://twitter.com/coolwanglu)
-  - For personal enquiries only
   - Accepting messages in **中文**, **English** or **日本語**
+  - For personal enquiries only
+  - Please expect some delay before I can reply
+<!--
 * IRC Channel [irc://irc.freenode.net/pdf2htmlEX](irc://irc.freenode.net/pdf2htmlEX)
+-->
 
 ### Acknowledgements
 
