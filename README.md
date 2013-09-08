@@ -41,6 +41,7 @@ The generated HTML file is static, with optional features powered by JavaScript.
  * [Building](https://github.com/coolwanglu/pdf2htmlEX/wiki/Building)
  * [Quick Start](https://github.com/coolwanglu/pdf2htmlEX/wiki/QuickStart)
  * [How to contribute](https://github.com/coolwanglu/pdf2htmlEX/wiki/Contribute)
+ * [How to report](https://github.com/coolwanglu/pdf2htmlEX/wiki/How-to-report)
  * [FAQ](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ)
 
 ### LICENSE
@@ -63,11 +64,17 @@ Read `LICENSE` for more detail.
   - News and announcements
 * Mailing list <pdf2htmlex@googlegroups.com> [[Subscribe]](https://groups.google.com/forum/#!forum/pdf2htmlex)
   - Before you ask, please read `man pdf2htmlEX` and [wiki](https://github.com/coolwanglu/pdf2htmlEX/wiki)
-  - To report an issue, use the [Issues Page](https://github.com/coolwanglu/pdf2htmlEX/issues) instead for a better tracking
+  - Do not report issues here, use the above link instead.
+
+
+### Contacts
+
 * Lu Wang <coolwanglu@gmail.com> or [coolwanglu@twitter](https://twitter.com/coolwanglu)
+  - For general and person questions
+    - If you want to report an issue, please refer to [How to report](https://github.com/coolwanglu/pdf2htmlEX/wiki/How-to-report)
   - Accepting messages in **中文**, **English** or **日本語**
-  - For personal enquiries only
-  - Please expect some delay before I can reply
+  - Messages are checked on a regular basis so please expect some delay before I can reply.
+  
 
 <!--
 * IRC Channel [irc://irc.freenode.net/pdf2htmlEX](irc://irc.freenode.net/pdf2htmlEX)
