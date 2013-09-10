@@ -227,6 +227,13 @@ void ffw_reencode_raw(int32 * mapping, int mapping_len, int force)
     enc->char_cnt = len;
     enc->unicode = (int32_t*)malloc(len * sizeof(int32_t));
     memcpy(enc->unicode, mapping, mapping_len * sizeof(int32_t));
+    if(mapping_len < 256)
+    {
+        int i;
+        for(i = mapping_len; i < 256; ++i)
+            enc->unicode[i] = -1;
+    }
+
     enc->enc_name = strcopy("");
 
     enc->next = enc_head;
