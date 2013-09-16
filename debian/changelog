@@ -1,8 +1,8 @@
-pdf2htmlex (0.9-1~git201309161055rf3e1c-0ubuntu1) raring; urgency=low
+pdf2htmlex (0.9-1~git201309161133rd60eb-0ubuntu1) raring; urgency=low
 
   * fix cmake test for packaging
 
- -- WANG Lu <coolwanglu@gmail.com>  Mon, 16 Sep 2013 10:55:04 +0800
+ -- WANG Lu <coolwanglu@gmail.com>  Mon, 16 Sep 2013 11:33:11 +0800
 
 pdf2htmlex (0.9-1~git201309161021rf2993-0ubuntu1) raring; urgency=low
 
