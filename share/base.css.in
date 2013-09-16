@@ -91,6 +91,8 @@
 }
 .@CSS_BACKGROUND_IMAGE_CN@ {
   position:absolute;
+  border:0;
+  margin:0;
   -ms-user-select:none;
   -moz-user-select:none;
   -webkit-user-select:none;
