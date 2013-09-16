@@ -1,4 +1,7 @@
-Developing v0.9
+Developing v0.10
+
+v0.9
+2013.09.16
 
 * Lazy loading of pages
 * Show font names in debug messages
@@ -10,6 +13,7 @@ Developing v0.9
  - Always use Unicode encoding for fonts
  - space width
  - disable ligature in Firefox
+ - Uninitialized memory for encoding
 * New options:
  --embed
  --embed-***
