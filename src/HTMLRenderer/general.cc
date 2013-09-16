@@ -17,8 +17,9 @@
 #include "pdf2htmlEX-config.h"
 #include "HTMLRenderer.h"
 #include "HTMLTextLine.h"
-#include "BackgroundRenderer/BackgroundRenderer.h"
 #include "Base64Stream.h"
+
+#include "BackgroundRenderer/BackgroundRenderer.h"
 
 #include "util/namespace.h"
 #include "util/ffw.h"
@@ -96,7 +97,7 @@ void HTMLRenderer::process(PDFDoc *doc)
     ///////////////////
     // Process pages
     
-    BackgroundRenderer * bg_renderer = nullptr;
+    bg_renderer = nullptr;
     if(param.process_nontext)
     {
         bg_renderer = new BackgroundRenderer(this, param);
@@ -122,11 +123,7 @@ void HTMLRenderer::process(PDFDoc *doc)
 
         if(param.process_nontext)
         {
-            auto fn = str_fmt("%s/bg%x.png", (param.embed_image ? param.tmp_dir : param.dest_dir).c_str(), i);
-            if(param.embed_image)
-                tmp_files.add((char*)fn);
-
-            bg_renderer->render_page(doc, i, (char*)fn);
+            bg_renderer->render_page(doc, i);
         }
 
         doc->displayPage(this, i, 
@@ -155,7 +152,10 @@ void HTMLRenderer::process(PDFDoc *doc)
     post_process();
 
     if(bg_renderer)
+    {
         delete bg_renderer;
+        bg_renderer = nullptr;
+    }
 
     cerr << endl;
 }
@@ -215,21 +215,7 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state, XRef * xref)
 
     if(param.process_nontext)
     {
-        (*f_curpage) << "<img class=\"" << CSS::BACKGROUND_IMAGE_CN 
-            << "\" alt=\"\" src=\"";
-        if(param.embed_image)
-        {
-            auto path = str_fmt("%s/bg%x.png", param.tmp_dir.c_str(), pageNum);
-            ifstream fin((char*)path, ifstream::binary);
-            if(!fin)
-                throw string("Cannot read background image ") + (char*)path;
-            (*f_curpage) << "data:image/png;base64," << Base64Stream(fin);
-        }
-        else
-        {
-            (*f_curpage) << (char*)str_fmt("bg%x.png", pageNum);
-        }
-        (*f_curpage) << "\"/>";
+        bg_renderer->embed_image(pageNum);
     }
 
     reset_state();

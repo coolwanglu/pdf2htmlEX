@@ -28,6 +28,8 @@
 #include "StateManager.h"
 #include "HTMLTextPage.h"
 
+#include "BackgroundRenderer/BackgroundRenderer_forward.h"
+
 #include "util/const.h"
 #include "util/misc.h"
 
@@ -307,10 +309,17 @@ protected:
     int * width_list;
 
     Preprocessor preprocessor;
+
+    // manage temporary files
     TmpFiles tmp_files;
 
     // for string formatting
     StringFormatter str_fmt;
+
+    // render background image
+    friend BackgroundRenderer;
+    BackgroundRenderer * bg_renderer;
+
 
     struct {
         std::ofstream fs;

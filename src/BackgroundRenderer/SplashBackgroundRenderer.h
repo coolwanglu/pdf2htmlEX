@@ -27,12 +27,14 @@ public:
   static const SplashColor white;
 
   SplashBackgroundRenderer(HTMLRenderer * html_renderer, const Param & param)
-      : SplashOutputDev(splashModeRGB8, 4, gFalse, (SplashColorPtr)&white, gTrue, gTrue)
+      : SplashOutputDev(splashModeRGB8, 4, gFalse, (SplashColorPtr)(&white), gTrue, gTrue)
       , html_renderer(html_renderer)
       , param(param)
   { }
 
   virtual ~SplashBackgroundRenderer() { }
+
+  virtual void startPage(int pageNum, GfxState *state, XRef *xrefA);
   
   virtual void drawChar(GfxState *state, double x, double y,
       double dx, double dy,
@@ -49,7 +51,8 @@ public:
           SplashOutputDev::fill(state);
   }
 
-  void render_page(PDFDoc * doc, int pageno, const std::string & filename);
+  void render_page(PDFDoc * doc, int pageno);
+  void embed_image(int pageno);
 
 protected:
   HTMLRenderer * html_renderer;
