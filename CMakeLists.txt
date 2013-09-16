@@ -214,6 +214,5 @@ install (FILES ${datafiles} DESTINATION share/pdf2htmlEX)
 install (FILES pdf2htmlEX.1 DESTINATION share/man/man1)
 
 enable_testing()
-add_test(NAME test_naming 
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-    COMMAND python test/test_naming.py)
+add_test(test_naming 
+    python ${CMAKE_SOURCE_DIR}/test/test_naming.py)
