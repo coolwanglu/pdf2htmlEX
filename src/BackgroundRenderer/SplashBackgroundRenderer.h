@@ -53,6 +53,7 @@ public:
 
   void render_page(PDFDoc * doc, int pageno);
   void embed_image(int pageno);
+  void dump_image(const char * filename, int x1, int y1, int x2, int y2);
 
 protected:
   HTMLRenderer * html_renderer;

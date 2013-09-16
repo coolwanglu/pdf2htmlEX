@@ -5,8 +5,10 @@
  */
 
 #include <fstream>
+#include <vector>
 
 #include <PDFDoc.h>
+#include <goo/PNGWriter.h>
 
 #include "Base64Stream.h"
 
@@ -16,6 +18,7 @@ namespace pdf2htmlEX {
 
 using std::string;
 using std::ifstream;
+using std::vector;
 
 const SplashColor SplashBackgroundRenderer::white = {255,255,255};
 
@@ -67,6 +70,7 @@ void SplashBackgroundRenderer::render_page(PDFDoc * doc, int pageno)
 
 void SplashBackgroundRenderer::embed_image(int pageno)
 {
+    // xmin->xmax is top->bottom
     int xmin, xmax, ymin, ymax;
     getModRegion(&xmin, &ymin, &xmax, &ymax);
 
@@ -78,14 +82,22 @@ void SplashBackgroundRenderer::embed_image(int pageno)
             if(param.embed_image)
                 html_renderer->tmp_files.add((char*)fn);
 
-            getBitmap()->writeImgFile(splashFormatPng, 
-                    (char*)fn,
-                    param.h_dpi, param.v_dpi);
+            dump_image((char*)fn, xmin, ymin, xmax, ymax);
         }
 
+        double h_scale = html_renderer->text_zoom_factor() * DEFAULT_DPI / param.h_dpi;
+        double v_scale = html_renderer->text_zoom_factor() * DEFAULT_DPI / param.v_dpi;
+
         auto & f_page = *(html_renderer->f_curpage);
+        auto & all_manager = html_renderer->all_manager;
+        
         f_page << "<img class=\"" << CSS::BACKGROUND_IMAGE_CN 
+            << " " << CSS::LEFT_CN      << all_manager.left.install(((double)xmin) * h_scale)
+            << " " << CSS::BOTTOM_CN    << all_manager.bottom.install(((double)getBitmapHeight() - 1 - ymax) * v_scale)
+            << " " << CSS::WIDTH_CN     << all_manager.width.install(((double)(xmax - xmin + 1)) * h_scale)
+            << " " << CSS::HEIGHT_CN    << all_manager.height.install(((double)(ymax - ymin + 1)) * v_scale)
             << "\" alt=\"\" src=\"";
+
         if(param.embed_image)
         {
             auto path = html_renderer->str_fmt("%s/bg%x.png", param.tmp_dir.c_str(), pageno);
@@ -100,6 +112,45 @@ void SplashBackgroundRenderer::embed_image(int pageno)
         }
         f_page << "\"/>";
     }
+}
+
+// There will be mem leak when exception is thrown !
+void SplashBackgroundRenderer::dump_image(const char * filename, int x1, int y1, int x2, int y2)
+{
+    int width = x2 - x1 + 1;
+    int height = y2 - y1 + 1;
+    if((width <= 0) || (height <= 0))
+        throw "Bad metric for background image";
+
+    FILE * f = fopen(filename, "wb");
+    if(!f)
+        throw string("Cannot open file for background image " ) + filename;
+
+    ImgWriter * writer = new PNGWriter();
+    if(!writer->init(f, width, height, param.h_dpi, param.v_dpi))
+        throw "Cannot initialize PNGWriter";
+        
+    auto * bitmap = getBitmap();
+    assert(bitmap->getMode() == splashModeRGB8);
+
+    SplashColorPtr data = bitmap->getDataPtr();
+    int row_size = bitmap->getRowSize();
+
+    vector<unsigned char*> pointers;
+    pointers.reserve(height);
+    SplashColorPtr p = data + y1 * row_size + x1 * 3;
+    for(int i = 0; i < height; ++i)
+    {
+        pointers.push_back(p);
+        p += row_size;
+    }
+    
+    if(!writer->writePointers(pointers.data(), height)) {
+        throw "Cannot write background image";
+    }
+
+    delete writer;
+    fclose(f);
 }
 
 } // namespace pdf2htmlEX
