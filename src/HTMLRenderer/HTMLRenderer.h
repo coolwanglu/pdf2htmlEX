@@ -317,7 +317,7 @@ protected:
     StringFormatter str_fmt;
 
     // render background image
-    friend BackgroundRenderer;
+    friend class SplashBackgroundRenderer;
     BackgroundRenderer * bg_renderer;
 
 
