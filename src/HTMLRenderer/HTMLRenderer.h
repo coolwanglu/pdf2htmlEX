@@ -20,6 +20,8 @@
 #include <GfxFont.h>
 #include <Annot.h>
 
+#include "pdf2htmlEX-config.h"
+
 #include "Param.h"
 #include "Preprocessor.h"
 #include "StringFormatter.h"
@@ -73,9 +75,11 @@ public:
     virtual void setDefaultCTM(double *ctm);
 
     // Start a page.
-    // UGLY: These 2 versions are for different versions of poppler
+#if POPPLER_OLDER_THAN_0_23_0
     virtual void startPage(int pageNum, GfxState *state);
+#else
     virtual void startPage(int pageNum, GfxState *state, XRef * xref);
+#endif
 
     // End a page.
     virtual void endPage();

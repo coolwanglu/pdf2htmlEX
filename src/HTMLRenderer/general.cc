@@ -165,12 +165,11 @@ void HTMLRenderer::setDefaultCTM(double *ctm)
     memcpy(default_ctm, ctm, sizeof(default_ctm));
 }
 
-void HTMLRenderer::startPage(int pageNum, GfxState *state) 
-{
-    startPage(pageNum, state, nullptr);
-}
-
+#if POPPLER_OLDER_THAN_0_23_0
+void HTMLRenderer::startPage(int pageNum, GfxState *state)
+#else
 void HTMLRenderer::startPage(int pageNum, GfxState *state, XRef * xref) 
+#endif
 {
     this->pageNum = pageNum;
 

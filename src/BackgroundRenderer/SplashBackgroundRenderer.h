@@ -15,6 +15,8 @@
 #include <splash/SplashBitmap.h>
 #include <SplashOutputDev.h>
 
+#include "pdf2htmlEX-config.h"
+
 #include "Param.h"
 #include "HTMLRenderer/HTMLRenderer.h"
 
@@ -34,7 +36,11 @@ public:
 
   virtual ~SplashBackgroundRenderer() { }
 
+#if POPPLER_OLDER_THAN_0_23_0
+  virtual void startPage(int pageNum, GfxState *state);
+#else
   virtual void startPage(int pageNum, GfxState *state, XRef *xrefA);
+#endif
   
   virtual void drawChar(GfxState *state, double x, double y,
       double dx, double dy,

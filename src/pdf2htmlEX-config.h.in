@@ -11,6 +11,7 @@
 
 #include <string>
 
+#define POPPLER_OLDER_THAN_0_23_0 @POPPLER_OLDER_THAN_0_23_0@
 #define HAVE_CAIRO @HAVE_CAIRO@
 
 namespace pdf2htmlEX {

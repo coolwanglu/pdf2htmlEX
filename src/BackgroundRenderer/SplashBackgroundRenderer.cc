@@ -27,9 +27,17 @@ const SplashColor SplashBackgroundRenderer::white = {255,255,255};
  * And thus have modified region set to the whole page area
  * We do not want that.
  */
+#if POPPLER_OLDER_THAN_0_23_0
+void SplashBackgroundRenderer::startPage(int pageNum, GfxState *state)
+#else
 void SplashBackgroundRenderer::startPage(int pageNum, GfxState *state, XRef *xrefA)
+#endif
 {
+#if POPPLER_OLDER_THAN_0_23_0
+    SplashOutputDev::startPage(pageNum, state);
+#else
     SplashOutputDev::startPage(pageNum, state, xrefA);
+#endif
     clearModRegion();
 }
 
