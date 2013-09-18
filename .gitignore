@@ -1,6 +1,8 @@
 CMakeCache.txt
 CMakeFiles/*
 cmake_install.cmake
+CTestTestfile.cmake
+gmon.out
 Makefile
 install_manifest.txt
 pdf2htmlEX
@@ -11,5 +13,6 @@ share/pdf2htmlEX.js
 src/pdf2htmlEX-config.h
 src/util/css_const.h
 test/*
+Testing/*
 wiki/*
 doc/*
