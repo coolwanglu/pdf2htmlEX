@@ -207,7 +207,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
             // The width of the type 3 font text, if shown, is likely to be wrong
             // So we will create separate (absolute positioned) blocks for them, such that it won't affect other text
             // TODO: consider the font matrix and estimate the metrics  
-            if(new_font_info->is_type3 || cur_text_state.font_info->is_type3)
+            if((new_font_info->is_type3 || cur_text_state.font_info->is_type3) && (!param.process_type3))
             {
                 set_line_state(new_line_state, NLS_NEWLINE);
             }

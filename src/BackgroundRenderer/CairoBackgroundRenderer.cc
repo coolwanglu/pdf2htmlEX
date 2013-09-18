@@ -30,11 +30,11 @@ void CairoBackgroundRenderer::drawChar(GfxState *state, double x, double y,
     // - in fallback mode
     // - OR there is special filling method
     // - OR using a writing mode font
-    // - OR using a Type 3 font
+    // - OR using a Type 3 font while param.process_type3 is not enabled
     if((param.fallback)
        || ( (state->getFont()) 
             && ( (state->getFont()->getWMode())
-                 || (state->getFont()->getType() == fontType3)
+                 || ((state->getFont()->getType() == fontType3) && (!param.process_type3))
                )
           )
       )

@@ -37,6 +37,10 @@ public:
   virtual void render_page(PDFDoc * doc, int pageno);
   virtual void embed_image(int pageno);
 
+  // Does this device use beginType3Char/endType3Char?  Otherwise,
+  // text in Type 3 fonts will be drawn with drawChar/drawString.
+  virtual GBool interpretType3Chars() { return !param.process_type3; }
+
   virtual void drawChar(GfxState *state, double x, double y,
       double dx, double dy,
       double originX, double originY,

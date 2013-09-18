@@ -53,11 +53,11 @@ void SplashBackgroundRenderer::drawChar(GfxState *state, double x, double y,
     // - in fallback mode
     // - OR there is special filling method
     // - OR using a writing mode font
-    // - OR using a Type 3 font
+    // - OR using a Type 3 font while param.process_type3 is not enabled
     if((param.fallback)
        || ( (state->getFont()) 
             && ( (state->getFont()->getWMode())
-                 || (state->getFont()->getType() == fontType3)
+                 || ((state->getFont()->getType() == fontType3) && (!param.process_type3))
                )
           )
       )
@@ -136,7 +136,7 @@ void SplashBackgroundRenderer::embed_image(int pageno)
     }
 }
 
-// There will be mem leak when exception is thrown !
+// There might be mem leak when exception is thrown !
 void SplashBackgroundRenderer::dump_image(const char * filename, int x1, int y1, int x2, int y2)
 {
     int width = x2 - x1 + 1;

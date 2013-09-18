@@ -49,6 +49,7 @@ struct Param
     int stretch_narrow_glyph;
     int squeeze_wide_glyph;
     int override_fstype;
+    int process_type3;
     
     // text
     double h_eps, v_eps;

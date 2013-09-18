@@ -35,7 +35,7 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
     // For type 3 fonts, due to the font matrix, still it's hard to show it on HTML
     if( (font == nullptr) 
         || (font->getWMode())
-//        || (font->getType() == fontType3)
+        || ((font->getType() == fontType3) && (!param.process_type3))
       )
     {
         return;

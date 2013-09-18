@@ -103,6 +103,12 @@ long ffw_get_version(void)
     return library_version_configuration.library_source_versiondate;
 }
 
+void ffw_new_font()
+{
+    assert((cur_fv == NULL) && "Previous font is not destroyed");
+    cur_fv = FVAppend(_FontViewCreate(SplineFontNew()));
+}
+
 void ffw_load_font(const char * filename)
 {
     assert((cur_fv == NULL) && "Previous font is not destroyed");
@@ -416,6 +422,21 @@ void ffw_set_widths(int * width_list, int mapping_len,
 
         SCSynchronizeWidth(sc, width_list[i], sc->width, cur_fv);
     }
+}
+
+void ffw_import_svg_glyph(int code, const char * filename)
+{
+    int enc = SFFindSlot(cur_fv->sf, cur_fv->map, code, "");
+    if(enc == -1)
+        return;
+
+    SFMakeChar(cur_fv->sf, cur_fv->map, enc);
+
+    memset(cur_fv->selected, 0, cur_fv->map->enccount);
+    cur_fv->selected[enc] = 1;
+    int ok = FVImportImages(cur_fv, (char*)filename, fv_svg, 0, -1);
+    if(!ok)
+        err("Import SVG glyph failed");
 }
 
 void ffw_auto_hint(void)

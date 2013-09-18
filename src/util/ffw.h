@@ -27,6 +27,7 @@ long ffw_get_version(void);
 
 ////////////////////////
 // load & save
+void ffw_new_font();
 void ffw_load_font(const char * filename);
 void ffw_prepare_font(void);
 
@@ -55,6 +56,7 @@ void ffw_set_widths(int * width_list, int mapping_len,
 
 ////////////////////////
 // others
+void ffw_import_svg_glyph(int code, const char * filename);
 void ffw_auto_hint(void);
 void ffw_override_fstype(void);
 

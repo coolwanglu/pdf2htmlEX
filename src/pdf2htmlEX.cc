@@ -298,6 +298,9 @@ void check_param()
         cerr << "Image format not supported: " << param.bg_format << endl;
         exit(EXIT_FAILURE);
     }
+
+    //test
+    //param.process_type3 = 1;
 }
 
 int main(int argc, char **argv)
