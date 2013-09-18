@@ -322,6 +322,7 @@ protected:
 
     // render background image
     friend class SplashBackgroundRenderer;
+    friend class CairoBackgroundRenderer;
     BackgroundRenderer * bg_renderer;
 
 

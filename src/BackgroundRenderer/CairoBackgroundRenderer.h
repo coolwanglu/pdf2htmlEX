@@ -9,9 +9,14 @@
 #ifndef CAIRO_BACKGROUND_RENDERER_H__
 #define CAIRO_BACKGROUND_RENDERER_H__
 
-#include <CairoOutputDev.h>
+#include <CairoOutputDev/CairoOutputDev.h>
+#include <cairo.h>
+#include <cairo-svg.h>
+
+#include "pdf2htmlEX-config.h"
 
 #include "Param.h"
+#include "HTMLRenderer/HTMLRenderer.h"
 
 namespace pdf2htmlEX {
 
@@ -19,22 +24,27 @@ namespace pdf2htmlEX {
 class CairoBackgroundRenderer : public CairoOutputDev 
 {
 public:
-  CairoBackgroundRenderer(const Param & param)
-      :CairoOutputDev()
+  CairoBackgroundRenderer(HTMLRenderer * html_renderer, const Param & param)
+      : CairoOutputDev()
+      , html_renderer(html_renderer)
       , param(param)
+      , surface(nullptr)
   { }
 
   virtual ~CairoBackgroundRenderer() { }
-  
+
   virtual void drawChar(GfxState *state, double x, double y,
       double dx, double dy,
       double originX, double originY,
       CharCode code, int nBytes, Unicode *u, int uLen);
 
-  void render_page(PDFDoc * doc, int pageno, const std::string & filename);
+  void render_page(PDFDoc * doc, int pageno);
+  void embed_image(int pageno);
 
 protected:
+  HTMLRenderer * html_renderer;
   const Param & param;
+  cairo_surface_t * surface;
 };
 
 }

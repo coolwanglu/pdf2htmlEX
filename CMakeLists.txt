@@ -26,20 +26,19 @@ include_directories(${POPPLER_INCLUDE_DIRS})
 link_directories(${POPPLER_LIBRARY_DIRS})
 set(PDF2HTMLEX_LIBS ${PDF2HTMLEX_LIBS} ${POPPLER_LIBRARIES})
 
-# disable CAIRO for now
-if(0)
-pkg_check_modules(POPPLER_CAIRO poppler-cairo>=0.20.0)
-if(POPPLER_CAIRO_FOUND)
-    set(HAVE_CAIRO 1)
-    include_directories(${POPPLER_CAIRO_INCLUDE_DIRS})
-    link_directories(${POPPLER_CAIRO_LIBRARY_DIRS})
-    set(PDF2HTMLEX_LIBS ${PDF2HTMLEX_LIBS} ${POPPLER_CAIRO_LIBRARIES})
-else()
-    set(HAVE_CAIRO 0)
-endif()
-else()
-set(HAVE_CAIRO 0)
-endif()
+# for SVG
+set(HAVE_CAIRO 1)
+
+# for Cairo* files
+pkg_check_modules(CAIRO REQUIRED cairo>=1.10.0)
+include_directories(${CAIRO_INCLUDE_DIRS})
+link_directories(${CAIRO_LIBRARY_DIRS})
+set(PDF2HTMLEX_LIBS ${PDF2HTMLEX_LIBS} ${CAIRO_LIBRARIES})
+
+find_package(Freetype REQUIRED)
+include_directories(${FREETYPE_INCLUDE_DIRS})
+link_directories(${FREETYPE_LIBRARY_DIRS})
+set(PDF2HTMLEX_LIBS ${PDF2HTMLEX_LIBS} ${FREETYPE_LIBRARIES})
     
 
 # fontforge starts using pkg-config 'correctly' since 2.0.0
@@ -172,6 +171,12 @@ add_executable(pdf2htmlEX
     src/BackgroundRenderer/SplashBackgroundRenderer.cc 
     src/BackgroundRenderer/CairoBackgroundRenderer.h 
     src/BackgroundRenderer/CairoBackgroundRenderer.cc 
+    src/CairoOutputDev/CairoFontEngine.h
+    src/CairoOutputDev/CairoFontEngine.cc
+    src/CairoOutputDev/CairoRescaleBox.h
+    src/CairoOutputDev/CairoRescaleBox.cc
+    src/CairoOutputDev/CairoOutputDev.h
+    src/CairoOutputDev/CairoOutputDev.cc
     src/util/const.h
     src/util/const.cc
     src/util/css_const.h
