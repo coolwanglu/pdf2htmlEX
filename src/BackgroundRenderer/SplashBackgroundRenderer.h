@@ -2,8 +2,7 @@
  * Splash Background renderer
  * Render all those things not supported as Image, with Splash
  *
- * by WangLu
- * 2012.08.06
+ * Copyright (C) 2012,2013 Lu Wang <coolwanglu@gmail.com>
  */
 
 
@@ -23,7 +22,7 @@
 namespace pdf2htmlEX {
 
 // Based on BackgroundRenderer from poppler
-class SplashBackgroundRenderer : public SplashOutputDev 
+class SplashBackgroundRenderer : public BackgroundRenderer, SplashOutputDev 
 {
 public:
   static const SplashColor white;
@@ -35,6 +34,10 @@ public:
   { }
 
   virtual ~SplashBackgroundRenderer() { }
+
+  virtual void init(PDFDoc * doc);
+  virtual void render_page(PDFDoc * doc, int pageno);
+  virtual void embed_image(int pageno);
 
 #if POPPLER_OLDER_THAN_0_23_0
   virtual void startPage(int pageNum, GfxState *state);
@@ -57,11 +60,8 @@ public:
           SplashOutputDev::fill(state);
   }
 
-  void render_page(PDFDoc * doc, int pageno);
-  void embed_image(int pageno);
-  void dump_image(const char * filename, int x1, int y1, int x2, int y2);
-
 protected:
+  void dump_image(const char * filename, int x1, int y1, int x2, int y2);
   HTMLRenderer * html_renderer;
   const Param & param;
 };

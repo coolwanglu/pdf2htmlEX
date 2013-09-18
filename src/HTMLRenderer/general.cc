@@ -100,8 +100,10 @@ void HTMLRenderer::process(PDFDoc *doc)
     bg_renderer = nullptr;
     if(param.process_nontext)
     {
-        bg_renderer = new BackgroundRenderer(this, param);
-        bg_renderer->startDoc(doc);
+        bg_renderer = BackgroundRenderer::getBackgroundRenderer(param.bg_format, this, param);
+        if(!bg_renderer)
+            throw "Cannot initialize background renderer, unsupported format";
+        bg_renderer->init(doc);
     }
 
     int page_count = (param.last_page - param.first_page + 1);

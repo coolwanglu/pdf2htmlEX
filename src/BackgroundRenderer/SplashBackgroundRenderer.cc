@@ -1,11 +1,12 @@
 /*
  * SplashBackgroundRenderer.cc
  *
- * Copyright (C) 2012 Lu Wang <coolwanglu@gmail.com>
+ * Copyright (C) 2012,2013 Lu Wang <coolwanglu@gmail.com>
  */
 
 #include <fstream>
 #include <vector>
+#include <memory>
 
 #include <PDFDoc.h>
 #include <goo/PNGWriter.h>
@@ -19,6 +20,7 @@ namespace pdf2htmlEX {
 using std::string;
 using std::ifstream;
 using std::vector;
+using std::unique_ptr;
 
 const SplashColor SplashBackgroundRenderer::white = {255,255,255};
 
@@ -61,6 +63,11 @@ void SplashBackgroundRenderer::drawChar(GfxState *state, double x, double y,
     {
         SplashOutputDev::drawChar(state,x,y,dx,dy,originX,originY,code,nBytes,u,uLen);
     }
+}
+
+void SplashBackgroundRenderer::init(PDFDoc * doc)
+{
+    startDoc(doc);
 }
 
 static GBool annot_cb(Annot *, void *) {
@@ -134,7 +141,8 @@ void SplashBackgroundRenderer::dump_image(const char * filename, int x1, int y1,
     if(!f)
         throw string("Cannot open file for background image " ) + filename;
 
-    ImgWriter * writer = new PNGWriter();
+    // use unique_ptr to auto delete the object upon exception
+    auto writer = unique_ptr<ImgWriter>(new PNGWriter);
     if(!writer->init(f, width, height, param.h_dpi, param.v_dpi))
         throw "Cannot initialize PNGWriter";
         
@@ -157,7 +165,6 @@ void SplashBackgroundRenderer::dump_image(const char * filename, int x1, int y1,
         throw "Cannot write background image";
     }
 
-    delete writer;
     fclose(f);
 }
 

@@ -30,7 +30,7 @@
 #include "StateManager.h"
 #include "HTMLTextPage.h"
 
-#include "BackgroundRenderer/BackgroundRenderer_forward.h"
+#include "BackgroundRenderer/BackgroundRenderer.h"
 
 #include "util/const.h"
 #include "util/misc.h"
@@ -321,8 +321,10 @@ protected:
     StringFormatter str_fmt;
 
     // render background image
-    friend class SplashBackgroundRenderer;
-    friend class CairoBackgroundRenderer;
+    friend class SplashBackgroundRenderer; // ugly!
+#if ENABLE_SVG
+    friend class CairoBackgroundRenderer; // ugly!
+#endif
     BackgroundRenderer * bg_renderer;
 
 

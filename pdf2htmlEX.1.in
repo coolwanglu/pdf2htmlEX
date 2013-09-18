@@ -223,6 +223,12 @@ If set to 0, pdf2htmlEX would try its best to balance the two methods above.
 .B --optimize-text <0|1> (Deafult: 0)
 If set to 1, pdf2htmlEX will try to reduce the number of HTML elements used for text. Turn it off if anything goes wrong.
 
+.SS Background Image
+
+.TP
+.B --bg-format <format> (Default: "png")
+Specify the format for background images, currently "png" and "svg" are supported.
+
 .SS PDF Protection
 
 .TP

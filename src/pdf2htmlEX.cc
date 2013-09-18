@@ -36,18 +36,6 @@ using namespace pdf2htmlEX;
 Param param;
 ArgParser argparser;
 
-void deprecated_single_html(const char * dummy = nullptr)
-{
-    cerr << "--single_html is deprecated. Use `--embed CFIJO` instead." << endl;
-    exit(EXIT_FAILURE);
-}
-
-void removed_remove_unsed_glyph(const char * dummy = nullptr)
-{
-    cerr << "--remove-unsed-glyph is removed. Use a PDF optimization tool instead." << endl;
-    exit(EXIT_FAILURE);
-}
-
 void show_usage_and_exit(const char * dummy = nullptr)
 {
     cerr << "Usage: pdf2htmlEX [options] <input.pdf> [<output.html>]" << endl;
@@ -141,6 +129,9 @@ void parse_options (int argc, char **argv)
         .add("space-as-offset", &param.space_as_offset, 0, "treat space characters as offsets")
         .add("tounicode", &param.tounicode, 0, "how to handle ToUnicode CMaps (0=auto, 1=force, -1=ignore)")
         .add("optimize-text", &param.optimize_text, 0, "try to reduce the number of HTML elements used for text")
+
+        // background image
+        .add("bg-format", &param.bg_format, "png", "specify background image format")
         
         // encryption
         .add("owner-password,o", &param.owner_password, "", "owner password (for encrypted files)", true)
@@ -158,10 +149,6 @@ void parse_options (int argc, char **argv)
         .add("version,v", "print copyright and version info", &show_version_and_exit)
         .add("help,h", "print usage information", &show_usage_and_exit)
 
-        // deprecated
-        .add("single-html", "", &deprecated_single_html)
-        .add("remove-unused-glyph", "", &removed_remove_unsed_glyph)
-        
         .add("", &param.input_filename, "", "")
         .add("", &param.output_filename, "", "")
         ;
@@ -192,13 +179,102 @@ void parse_options (int argc, char **argv)
     }
 }
 
-int main(int argc, char **argv)
+void check_param()
 {
-    parse_options(argc, argv);
     if (param.input_filename == "")
     {
         show_usage_and_exit();
     }
+
+    if(param.output_filename.empty())
+    {
+        const string s = get_filename(param.input_filename);
+        if(get_suffix(param.input_filename) == ".pdf")
+        {
+            param.output_filename = s.substr(0, s.size() - 4) + ".html";
+
+        }
+        else
+        {
+            param.output_filename = s + ".html";
+        }
+    }
+
+    if(param.page_filename.empty())
+    {
+        const string s = get_filename(param.input_filename);
+        if(get_suffix(param.input_filename) == ".pdf")
+        {
+            param.page_filename = s.substr(0, s.size() - 4) + "%d.page";
+        }
+        else
+        {
+            param.page_filename = s + "%d.page";
+        }
+        sanitize_filename(param.page_filename);
+    }
+
+    else
+    {
+        // Need to make sure we have a page number placeholder in the filename
+        if(!sanitize_filename(param.page_filename))
+        {
+            // Inject the placeholder just before the file extension
+            const string suffix = get_suffix(param.page_filename);
+            param.page_filename = param.page_filename.substr(0, param.page_filename.size() - suffix.size()) + "%d" + suffix;
+            sanitize_filename(param.page_filename);
+        }
+    }
+    if(param.css_filename.empty())
+    {
+        const string s = get_filename(param.input_filename);
+
+        if(get_suffix(param.input_filename) == ".pdf")
+        {
+            param.css_filename = s.substr(0, s.size() - 4) + ".css";
+        }
+        else
+        {
+            if(!param.split_pages)
+                param.css_filename = s + ".css";
+        }
+    }
+    if(param.outline_filename.empty())
+    {
+        const string s = get_filename(param.input_filename);
+
+        if(get_suffix(param.input_filename) == ".pdf")
+        {
+            param.outline_filename = s.substr(0, s.size() - 4) + ".outline";
+        }
+        else
+        {
+            if(!param.split_pages)
+                param.outline_filename = s + ".outline";
+        }
+    }
+    if(param.bg_format == "svg")
+    {
+#if not ENABLE_SVG
+        cerr << "SVG support is not built" << endl;
+        exit(EXIT_FAILURE);
+#endif
+    }
+    else if (param.bg_format == "png")
+    {
+        // pass
+    }
+    else
+    {
+        cerr << "Unknown format for background: " << param.bg_format << endl;
+        exit(EXIT_FAILURE);
+    }
+}
+
+int main(int argc, char **argv)
+{
+    parse_options(argc, argv);
+    check_param();
 
     //prepare the directories
     {
@@ -243,89 +319,20 @@ int main(int argc, char **argv)
             delete ownerPW;
         }
 
-        if (!doc->isOk()) {
+        if (!doc->isOk()) 
             throw "Cannot read the file";
-        }
 
         // check for copy permission
-        if (!doc->okToCopy()) {
-            if (param.no_drm == 0) {
+        if (!doc->okToCopy()) 
+        {
+            if (param.no_drm == 0)
                 throw "Copying of text from this document is not allowed.";
-            }
             cerr << "Document has copy-protection bit set." << endl;
         }
 
         param.first_page = min<int>(max<int>(param.first_page, 1), doc->getNumPages());
         param.last_page = min<int>(max<int>(param.last_page, param.first_page), doc->getNumPages());
 
-        if(param.output_filename.empty())
-        {
-            const string s = get_filename(param.input_filename);
-            if(get_suffix(param.input_filename) == ".pdf")
-            {
-                param.output_filename = s.substr(0, s.size() - 4) + ".html";
-
-            }
-            else
-            {
-                param.output_filename = s + ".html";
-            }
-        }
-
-        if(param.page_filename.empty())
-        {
-            const string s = get_filename(param.input_filename);
-            if(get_suffix(param.input_filename) == ".pdf")
-            {
-                param.page_filename = s.substr(0, s.size() - 4) + "%d.page";
-            }
-            else
-            {
-                param.page_filename = s + "%d.page";
-            }
-            sanitize_filename(param.page_filename);
-        }
-
-		else
-        {
-            // Need to make sure we have a page number placeholder in the filename
-            if(!sanitize_filename(param.page_filename))
-            {
-                // Inject the placeholder just before the file extension
-                const string suffix = get_suffix(param.page_filename);
-                param.page_filename = param.page_filename.substr(0, param.page_filename.size() - suffix.size()) + "%d" + suffix;
-                sanitize_filename(param.page_filename);
-            }
-        }
-        if(param.css_filename.empty())
-        {
-            const string s = get_filename(param.input_filename);
-
-            if(get_suffix(param.input_filename) == ".pdf")
-            {
-                param.css_filename = s.substr(0, s.size() - 4) + ".css";
-            }
-            else
-            {
-                if(!param.split_pages)
-                    param.css_filename = s + ".css";
-            }
-        }
-        if(param.outline_filename.empty())
-        {
-            const string s = get_filename(param.input_filename);
-
-            if(get_suffix(param.input_filename) == ".pdf")
-            {
-                param.outline_filename = s.substr(0, s.size() - 4) + ".outline";
-            }
-            else
-            {
-                if(!param.split_pages)
-                    param.outline_filename = s + ".outline";
-            }
-
-        }
 
         unique_ptr<HTMLRenderer>(new HTMLRenderer(param))->process(doc);
 

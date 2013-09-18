@@ -2,7 +2,7 @@
  * Cairo Background renderer
  * Render all those things not supported as Image, with Cairo
  *
- * Copyright (C) 2012 Lu Wang <coolwanglu@gmail.com>
+ * Copyright (C) 2012,2013 Lu Wang <coolwanglu@gmail.com>
  */
 
 
@@ -21,7 +21,7 @@
 namespace pdf2htmlEX {
 
 // Based on BackgroundRenderer from poppler
-class CairoBackgroundRenderer : public CairoOutputDev 
+class CairoBackgroundRenderer : public BackgroundRenderer, CairoOutputDev 
 {
 public:
   CairoBackgroundRenderer(HTMLRenderer * html_renderer, const Param & param)
@@ -33,13 +33,14 @@ public:
 
   virtual ~CairoBackgroundRenderer() { }
 
+  virtual void init(PDFDoc * doc);
+  virtual void render_page(PDFDoc * doc, int pageno);
+  virtual void embed_image(int pageno);
+
   virtual void drawChar(GfxState *state, double x, double y,
       double dx, double dy,
       double originX, double originY,
       CharCode code, int nBytes, Unicode *u, int uLen);
-
-  void render_page(PDFDoc * doc, int pageno);
-  void embed_image(int pageno);
 
 protected:
   HTMLRenderer * html_renderer;

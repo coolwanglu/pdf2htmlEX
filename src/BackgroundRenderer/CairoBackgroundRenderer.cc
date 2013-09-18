@@ -1,7 +1,7 @@
 /*
  * CairoBackgroundRenderer.cc
  *
- * Copyright (C) 2012 Lu Wang <coolwanglu@gmail.com>
+ * Copyright (C) 2012,2013 Lu Wang <coolwanglu@gmail.com>
  */
 
 #include <string>
@@ -27,6 +27,11 @@ void CairoBackgroundRenderer::drawChar(GfxState *state, double x, double y,
         CharCode code, int nBytes, Unicode *u, int uLen)
 {
     //    CairoOutputDev::drawChar(state,x,y,dx,dy,originX,originY,code, nBytes, u, uLen);
+}
+
+void CairoBackgroundRenderer::init(PDFDoc * doc)
+{
+    startDoc(doc);
 }
 
 static GBool annot_cb(Annot *, void *) {

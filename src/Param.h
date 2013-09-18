@@ -57,6 +57,9 @@ struct Param
     int space_as_offset;
     int tounicode;
     int optimize_text;
+
+    // background image
+    std::string bg_format;
     
     // encryption
     std::string owner_password, user_password;
@@ -67,9 +70,7 @@ struct Param
     std::string data_dir;
     int css_draw;
     int debug;
-    int wa_unicode;
     
-    // non-optional
     std::string input_filename, output_filename;
 
     // not a paramater
