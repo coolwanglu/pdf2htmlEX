@@ -290,7 +290,7 @@ void check_param()
 #ifdef ENABLE_LIBJPEG
     else if (param.bg_format == "jpg") { }
 #endif
-#if not ENABLE_SVG
+#if ENABLE_SVG
     else if(param.bg_format == "svg") { }
 #endif
     else

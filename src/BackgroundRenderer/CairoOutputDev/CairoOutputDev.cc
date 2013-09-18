@@ -1319,6 +1319,8 @@ void CairoOutputDev::endString(GfxState *state)
 GBool CairoOutputDev::beginType3Char(GfxState *state, double x, double y,
 				      double dx, double dy,
 				      CharCode code, Unicode *u, int uLen) {
+  //debug
+printf("DEBUG: beginType3Char\n");
 
   cairo_save (cairo);
   double *ctm;
