@@ -178,7 +178,7 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
 
     if(param.debug)
     {
-        auto fn = str_fmt("%s/__raw_font_%llx", param.tmp_dir.c_str(), info.id, param.font_suffix.c_str());
+        auto fn = str_fmt("%s/__raw_font_%llx%s", param.tmp_dir.c_str(), info.id, get_suffix(filepath).c_str());
         tmp_files.add((char*)fn);
         ofstream((char*)fn, ofstream::binary) << ifstream(filepath).rdbuf();
     }
@@ -528,9 +528,9 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
      */
     ffw_reencode_unicode_full();
 
-    string cur_tmp_fn = (char*)str_fmt("%s/__tmp_font1%s", param.tmp_dir.c_str(), param.font_suffix.c_str());
+    string cur_tmp_fn = (char*)str_fmt("%s/__tmp_font1.%s", param.tmp_dir.c_str(), param.font_format.c_str());
     tmp_files.add(cur_tmp_fn);
-    string other_tmp_fn = (char*)str_fmt("%s/__tmp_font2%s", param.tmp_dir.c_str(), param.font_suffix.c_str());
+    string other_tmp_fn = (char*)str_fmt("%s/__tmp_font2.%s", param.tmp_dir.c_str(), param.font_format.c_str());
     tmp_files.add(other_tmp_fn);
 
     ffw_save(cur_tmp_fn.c_str());
@@ -571,9 +571,9 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
      * Ascent/Descent are not used in PDF, and the values in PDF may be wrong or inconsistent (there are 3 sets of them)
      * We need to reload in order to retrieve/fix accurate ascent/descent, some info won't be written to the font by fontforge until saved.
      */
-    string fn = (char*)str_fmt("%s/f%llx%s", 
+    string fn = (char*)str_fmt("%s/f%llx.%s", 
         (param.embed_font ? param.tmp_dir : param.dest_dir).c_str(),
-        info.id, param.font_suffix.c_str());
+        info.id, param.font_format.c_str());
 
     if(param.embed_font)
         tmp_files.add(fn);
@@ -685,7 +685,7 @@ void HTMLRenderer::install_embedded_font(GfxFont * font, FontInfo & info)
     if(path != "")
     {
         embed_font(path, font, info);
-        export_remote_font(info, param.font_suffix, font);
+        export_remote_font(info, param.font_format, font);
     }
     else
     {
@@ -712,7 +712,7 @@ void HTMLRenderer::install_external_font(GfxFont * font, FontInfo & info)
         if(localfontloc != nullptr)
         {
             embed_font(string(localfontloc->path->getCString()), font, info);
-            export_remote_font(info, param.font_suffix, font);
+            export_remote_font(info, param.font_format, font);
             delete localfontloc;
             return;
         }
@@ -739,45 +739,46 @@ void HTMLRenderer::install_external_font(GfxFont * font, FontInfo & info)
     export_local_font(info, font, fontname, "");
 }
 
-void HTMLRenderer::export_remote_font(const FontInfo & info, const string & suffix, GfxFont * font)
+void HTMLRenderer::export_remote_font(const FontInfo & info, const string & format, GfxFont * font)
 {
-    string mime_type, format;
-    if(suffix == ".ttf")
+    string css_font_format;
+    if(format == "ttf")
     {
-        format = "truetype";
-        mime_type = "application/x-font-ttf";
+        css_font_format = "truetype";
     }
-    else if(suffix == ".otf")
+    else if(format == "otf")
     {
-        format = "opentype";
-        mime_type = "application/x-font-otf";
+        css_font_format = "opentype";
     }
-    else if(suffix == ".woff")
+    else if(format == "woff")
     {
-        format = "woff";
-        mime_type = "application/font-woff";
+        css_font_format = "woff";
     }
-    else if(suffix == ".eot")
+    else if(format == "eot")
     {
-        format = "embedded-opentype";
-        mime_type = "application/vnd.ms-fontobject";
+        css_font_format = "embedded-opentype";
     }
-    else if(suffix == ".svg")
+    else if(format == "svg")
     {
-        format = "svg";
-        mime_type = "image/svg+xml";
+        css_font_format = "svg";
     }
     else
     {
-        cerr << "Warning: unknown font suffix: " << suffix << endl;
+        throw string("Warning: unknown font format: ") + format;
     }
+    auto iter = FORMAT_MIME_TYPE_MAP.find(format);
+    if(iter == FORMAT_MIME_TYPE_MAP.end())
+    {
+        throw string("Warning: unknown font format: ") + format;
+    }
+    string mime_type = iter->second;
 
     f_css.fs << "@font-face{"
              << "font-family:" << CSS::FONT_FAMILY_CN << info.id << ";"
              << "src:url(";
 
     {
-        auto fn = str_fmt("f%llx%s", info.id, suffix.c_str());
+        auto fn = str_fmt("f%llx.%s", info.id, format.c_str());
         if(param.embed_font)
         {
             auto path = param.tmp_dir + "/" + (char*)fn;
@@ -793,7 +794,7 @@ void HTMLRenderer::export_remote_font(const FontInfo & info, const string & suff
     }
 
     f_css.fs << ")"
-             << "format(\"" << format << "\");"
+             << "format(\"" << css_font_format << "\");"
              << "}" // end of @font-face
              << "." << CSS::FONT_FAMILY_CN << info.id << "{"
              << "font-family:" << CSS::FONT_FAMILY_CN << info.id << ";"

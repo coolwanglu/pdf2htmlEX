@@ -26,7 +26,21 @@ void CairoBackgroundRenderer::drawChar(GfxState *state, double x, double y,
         double originX, double originY,
         CharCode code, int nBytes, Unicode *u, int uLen)
 {
-    //    CairoOutputDev::drawChar(state,x,y,dx,dy,originX,originY,code, nBytes, u, uLen);
+    // draw characters as image when
+    // - in fallback mode
+    // - OR there is special filling method
+    // - OR using a writing mode font
+    // - OR using a Type 3 font
+    if((param.fallback)
+       || ( (state->getFont()) 
+            && ( (state->getFont()->getWMode())
+                 || (state->getFont()->getType() == fontType3)
+               )
+          )
+      )
+    {
+        CairoOutputDev::drawChar(state,x,y,dx,dy,originX,originY,code,nBytes,u,uLen);
+    }
 }
 
 void CairoBackgroundRenderer::init(PDFDoc * doc)
@@ -58,7 +72,7 @@ void CairoBackgroundRenderer::render_page(PDFDoc * doc, int pageno)
         if(param.embed_image)
             html_renderer->tmp_files.add((char*)fn);
 
-        surface = cairo_svg_surface_create((char*)fn, page_width, page_height);
+        surface = cairo_svg_surface_create((char*)fn, page_width * DEFAULT_DPI, page_height * DEFAULT_DPI);
     }
     cairo_svg_surface_restrict_to_version(surface, CAIRO_SVG_VERSION_1_2);
     cairo_surface_set_fallback_resolution(surface, param.h_dpi, param.v_dpi);
@@ -68,7 +82,13 @@ void CairoBackgroundRenderer::render_page(PDFDoc * doc, int pageno)
     setPrinting(false); // TODO, check the parameter
     cairo_save(cr);
 
-    // TODO apply crop box
+    // zoom the image to prevent CairoOutputDev from rounding/increasing thin borders
+    {
+        cairo_matrix_t matrix;
+        cairo_matrix_init_identity(&matrix);
+        cairo_matrix_scale(&matrix, DEFAULT_DPI, DEFAULT_DPI);
+        cairo_transform(cr, &matrix);
+    }
    
     doc->displayPage(this, pageno, DEFAULT_DPI, DEFAULT_DPI,
             0, 

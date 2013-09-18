@@ -42,7 +42,7 @@ struct Param
     
     // fonts
     int embed_external_font;
-    std::string font_suffix;
+    std::string font_format;
     int decompose_ligature;
     int auto_hint;
     std::string external_hint_tool;

@@ -151,8 +151,8 @@ Specify whether the local matched fonts, for fonts not embedded in PDF, should b
 If this switch is off, only font names are exported such that web browsers may try to find proper fonts themselves, and that might cause issues about incorrect font metrics.
 
 .TP
-.B --font-suffix <suffix> (Default: .ttf)
-Specify the suffix of fonts extracted from the PDF file.
+.B --font-format <format> (Default: ttf)
+Specify the format of fonts extracted from the PDF file.
 
 .TP
 .B --decompose-ligature <0|1> (Default: 0)
@@ -227,7 +227,13 @@ If set to 1, pdf2htmlEX will try to reduce the number of HTML elements used for 
 
 .TP
 .B --bg-format <format> (Default: "png")
-Specify the format for background images, currently "png" and "svg" are supported.
+Specify the format for background images, run `pdf2htmlEX -v` to check all supported formats.
+
+.SS Background Image
+
+.TP
+.B --bg-format <format> (Default: png)
+Specify the background image format. Run `pdf2htmlEX -v` to check all supported formats.
 
 .SS PDF Protection
 

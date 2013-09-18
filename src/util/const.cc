@@ -23,15 +23,26 @@ const map<string, string> GB_ENCODED_FONT_NAME_MAP({
 });
 
 const std::map<std::string, EmbedStringEntry> EMBED_STRING_MAP({
-        {".css", {&Param::embed_css, 
-                  "<style type=\"text/css\">", 
-                  "</style>",
-                  "<link rel=\"stylesheet\" type=\"text/css\" href=\"", 
-                  "\"/>" }},
-        {".js", {&Param::embed_javascript,
-                 "<script type=\"text/javascript\">", 
-                 "</script>",
-                 "<script type=\"text/javascript\" src=\"",
-                 "\"></script>" }}
+    {".css", {&Param::embed_css, 
+              "<style type=\"text/css\">", 
+              "</style>",
+              "<link rel=\"stylesheet\" type=\"text/css\" href=\"", 
+              "\"/>" }},
+    {".js", {&Param::embed_javascript,
+             "<script type=\"text/javascript\">", 
+             "</script>",
+             "<script type=\"text/javascript\" src=\"",
+             "\"></script>" }}
 });
+
+const std::map<std::string, std::string> FORMAT_MIME_TYPE_MAP({
+    {"eot", "application/vnd.ms-fontobject"},
+    {"jpg", "image/jpeg"},
+    {"otf", "appilcation/x-font-otf"},
+    {"png", "image/png"},
+    {"svg", "image/svg+xml"},
+    {"ttf", "application/x-font-ttf"},
+    {"woff", "application/font-woff"},
+});
+
 } //namespace pdf2htmlEX

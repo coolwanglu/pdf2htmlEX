@@ -23,6 +23,11 @@
 #include <GlobalParams.h>
 
 #include "pdf2htmlEX-config.h"
+
+#if ENABLE_SVG
+#include <cairo.h>
+#endif
+
 #include "ArgParser.h"
 #include "Param.h"
 #include "HTMLRenderer/HTMLRenderer.h"
@@ -46,11 +51,28 @@ void show_usage_and_exit(const char * dummy = nullptr)
 void show_version_and_exit(const char * dummy = nullptr)
 {
     cerr << "pdf2htmlEX version " << PDF2HTMLEX_VERSION << endl;
-    cerr << "Copyright 2012,2013 Lu Wang <coolwanglu@gmail.com>" << endl;
+    cerr << "Copyright 2012,2013 Lu Wang <coolwanglu@gmail.com> and other contributers" << endl;
+    cerr << endl;
     cerr << "Libraries: ";
     cerr << "poppler " << POPPLER_VERSION << ", ";
     cerr << "libfontforge " << ffw_get_version() << endl;
+#if ENABLE_SVG
+    cerr << "cairo " << cairo_version_string() << endl;
+#endif
+    cerr << endl;
     cerr << "Default data-dir: " << PDF2HTMLEX_DATA_PATH << endl;
+    cerr << "Supported image format:";
+#ifdef ENABLE_LIBPNG
+    cerr << " png";
+#endif
+#ifdef ENABLE_LIBJPEG
+    cerr << " jpg";
+#endif
+#if ENABLE_SVG
+    cerr << " svg";
+#endif
+    cerr << endl;
+    cerr << endl;
     exit(EXIT_SUCCESS);
 }
 
@@ -113,7 +135,7 @@ void parse_options (int argc, char **argv)
         
         // fonts
         .add("embed-external-font", &param.embed_external_font, 1, "embed local match for external fonts")
-        .add("font-suffix", &param.font_suffix, ".ttf", "suffix for embedded font files (.ttf,.otf,.woff,.svg)")
+        .add("font-format", &param.font_format, "ttf", "suffix for embedded font files (ttf,otf,woff,svg)")
         .add("decompose-ligature", &param.decompose_ligature, 0, "decompose ligatures, such as \uFB01 -> fi")
         .add("auto-hint", &param.auto_hint, 0, "use fontforge autohint on fonts without hints")
         .add("external-hint-tool", &param.external_hint_tool, "", "external tool for hinting fonts (overrides --auto-hint)")
@@ -253,20 +275,20 @@ void check_param()
                 param.outline_filename = s + ".outline";
         }
     }
-    if(param.bg_format == "svg")
-    {
-#if not ENABLE_SVG
-        cerr << "SVG support is not built" << endl;
-        exit(EXIT_FAILURE);
+
+    if(false) { }
+#ifdef ENABLE_LIBPNG
+    else if (param.bg_format == "png") { }
 #endif
-    }
-    else if (param.bg_format == "png")
-    {
-        // pass
-    }
+#ifdef ENABLE_LIBJPEG
+    else if (param.bg_format == "jpg") { }
+#endif
+#if not ENABLE_SVG
+    else if(param.bg_format == "svg") { }
+#endif
     else
     {
-        cerr << "Unknown format for background: " << param.bg_format << endl;
+        cerr << "Image format not supported: " << param.bg_format << endl;
         exit(EXIT_FAILURE);
     }
 }

@@ -38,6 +38,8 @@ struct EmbedStringEntry
 };
 extern const std::map<std::string, EmbedStringEntry> EMBED_STRING_MAP;
 
+extern const std::map<std::string, std::string> FORMAT_MIME_TYPE_MAP;
+
 } // namespace pdf2htmlEX
 
 #endif //CONST_H__

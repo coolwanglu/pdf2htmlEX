@@ -5,6 +5,8 @@
  * Copyright (C) 2013 Lu Wang <coolwanglu@gmail.com>
  */
 
+#include <poppler-config.h>
+
 #include "HTMLRenderer/HTMLRenderer.h"
 #include "Param.h"
 
@@ -18,22 +20,26 @@ namespace pdf2htmlEX {
 
 BackgroundRenderer * BackgroundRenderer::getBackgroundRenderer(const std::string & format, HTMLRenderer * html_renderer, const Param & param)
 {
+#ifdef ENABLE_LIBPNG
     if(format == "png")
     {
         return new SplashBackgroundRenderer(html_renderer, param);
     }
-    else if (format == "svg")
+#endif
+#ifdef ENABLE_LIBJPEG
+    if(format == "jpg")
     {
+        return new SplashBackgroundRenderer(html_renderer, param);
+    }
+#endif
 #if ENABLE_SVG
-        return new CairoBackgroundRenderer(html_renderer, param);
-#else
-        return nullptr;
-#endif 
-    }
-    else
+    if (format == "svg")
     {
-        return nullptr;
+        return new CairoBackgroundRenderer(html_renderer, param);
     }
+#endif
+
+    return nullptr;
 }
 
 } // namespace pdf2htmlEX

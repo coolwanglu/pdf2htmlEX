@@ -8,10 +8,13 @@
 #include <vector>
 #include <memory>
 
+#include <poppler-config.h>
 #include <PDFDoc.h>
 #include <goo/PNGWriter.h>
+#include <goo/JpegWriter.h>
 
 #include "Base64Stream.h"
+#include "util/const.h"
 
 #include "SplashBackgroundRenderer.h"
 
@@ -31,13 +34,11 @@ const SplashColor SplashBackgroundRenderer::white = {255,255,255};
  */
 #if POPPLER_OLDER_THAN_0_23_0
 void SplashBackgroundRenderer::startPage(int pageNum, GfxState *state)
-#else
-void SplashBackgroundRenderer::startPage(int pageNum, GfxState *state, XRef *xrefA)
-#endif
 {
-#if POPPLER_OLDER_THAN_0_23_0
     SplashOutputDev::startPage(pageNum, state);
 #else
+void SplashBackgroundRenderer::startPage(int pageNum, GfxState *state, XRef *xrefA)
+{
     SplashOutputDev::startPage(pageNum, state, xrefA);
 #endif
     clearModRegion();
@@ -93,7 +94,7 @@ void SplashBackgroundRenderer::embed_image(int pageno)
     if((xmin <= xmax) && (ymin <= ymax))
     {
         {
-            auto fn = html_renderer->str_fmt("%s/bg%x.png", (param.embed_image ? param.tmp_dir : param.dest_dir).c_str(), pageno);
+            auto fn = html_renderer->str_fmt("%s/bg%x.%s", (param.embed_image ? param.tmp_dir : param.dest_dir).c_str(), pageno, param.bg_format.c_str());
             if(param.embed_image)
                 html_renderer->tmp_files.add((char*)fn);
 
@@ -115,11 +116,17 @@ void SplashBackgroundRenderer::embed_image(int pageno)
 
         if(param.embed_image)
         {
-            auto path = html_renderer->str_fmt("%s/bg%x.png", param.tmp_dir.c_str(), pageno);
+            auto path = html_renderer->str_fmt("%s/bg%x.%s", param.tmp_dir.c_str(), pageno, param.bg_format.c_str());
             ifstream fin((char*)path, ifstream::binary);
             if(!fin)
                 throw string("Cannot read background image ") + (char*)path;
-            f_page << "data:image/png;base64," << Base64Stream(fin);
+
+            auto iter = FORMAT_MIME_TYPE_MAP.find(param.bg_format);
+            if(iter == FORMAT_MIME_TYPE_MAP.end())
+                throw string("Image format not supported: ") + param.bg_format;
+
+            string mime_type = iter->second;
+            f_page << "data:" << mime_type << ";base64," << Base64Stream(fin);
         }
         else
         {
@@ -142,7 +149,26 @@ void SplashBackgroundRenderer::dump_image(const char * filename, int x1, int y1,
         throw string("Cannot open file for background image " ) + filename;
 
     // use unique_ptr to auto delete the object upon exception
-    auto writer = unique_ptr<ImgWriter>(new PNGWriter);
+    unique_ptr<ImgWriter> writer;
+
+    if(false) { }
+#ifdef ENABLE_LIBPNG
+    else if(param.bg_format == "png")
+    {
+        writer = unique_ptr<ImgWriter>(new PNGWriter);
+    }
+#endif
+#ifdef ENABLE_LIBJPEG
+    else if(param.bg_format == "jpg")
+    {
+        writer = unique_ptr<ImgWriter>(new JpegWriter);
+    }
+#endif
+    else
+    {
+        throw string("Image format not supported: ") + param.bg_format;
+    }
+
     if(!writer->init(f, width, height, param.h_dpi, param.v_dpi))
         throw "Cannot initialize PNGWriter";
         
