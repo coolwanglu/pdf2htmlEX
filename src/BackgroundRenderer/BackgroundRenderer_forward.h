@@ -16,13 +16,13 @@
 #include "pdf2htmlEX-config.h"
 
 namespace pdf2htmlEX {
-#if HAVE_CAIRO
+#if ENABLE_SVG
     class CairoBackgroundRenderer;
     typedef CairoBackgroundRenderer BackgroundRenderer;
 #else
     class SplashBackgroundRenderer;
     typedef SplashBackgroundRenderer BackgroundRenderer;
-#endif // HAVE_CAIRO
+#endif // ENABLE_SVG
 }
 
 

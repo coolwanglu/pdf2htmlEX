@@ -19,6 +19,7 @@
 // Copyright (C) 2006, 2007 Jeff Muizelaar <jeff@infidigm.net>
 // Copyright (C) 2006, 2010 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2008 Adrian Johnson <ajohnson@redneon.com>
+// Copyright (C) 2013 Thomas Freitag <Thomas.Freitag@alfa.de>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -32,6 +33,7 @@
 #pragma interface
 #endif
 
+#include "poppler-config.h"
 #include "goo/gtypes.h"
 #include <cairo-ft.h>
 
@@ -85,7 +87,7 @@ class CairoType3Font : public CairoFont {
 public:
   static CairoType3Font *create(GfxFont *gfxFont, PDFDoc *doc,
 				CairoFontEngine *fontEngine,
-				GBool printing);
+				GBool printing, XRef *xref);
   virtual ~CairoType3Font();
 
   virtual GBool matches(Ref &other, GBool printing);
@@ -94,7 +96,7 @@ private:
   CairoType3Font(Ref ref, PDFDoc *doc,
 		 cairo_font_face_t *cairo_font_face,
 		 int *codeToGID, Guint codeToGIDLen,
-		 GBool printing);
+		 GBool printing, XRef *xref);
   PDFDoc *doc;
 };
 
@@ -113,12 +115,18 @@ public:
   CairoFontEngine(FT_Library libA);
   ~CairoFontEngine();
 
-  CairoFont *getFont(GfxFont *gfxFont, PDFDoc *doc, GBool printing);
+  CairoFont *getFont(GfxFont *gfxFont, PDFDoc *doc, GBool printing, XRef *xref);
 
 private:
   CairoFont *fontCache[cairoFontCacheSize];
   FT_Library lib;
   GBool useCIDs;
+/*
+ * multi thread disabled by WangLu
+#if MULTITHREADED
+  GooMutex mutex;
+#endif
+*/
 };
 
 #endif

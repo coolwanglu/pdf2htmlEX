@@ -17,10 +17,10 @@
 // Copyright (C) 2005-2008 Jeff Muizelaar <jeff@infidigm.net>
 // Copyright (C) 2005, 2006 Kristian Høgsberg <krh@redhat.com>
 // Copyright (C) 2005 Nickolay V. Shmyrev <nshmyrev@yandex.ru>
-// Copyright (C) 2006-2011 Carlos Garcia Campos <carlosgc@gnome.org>
-// Copyright (C) 2008, 2009, 2011, 2012 Adrian Johnson <ajohnson@redneon.com>
+// Copyright (C) 2006-2011, 2013 Carlos Garcia Campos <carlosgc@gnome.org>
+// Copyright (C) 2008, 2009, 2011-2013 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2008 Michael Vrable <mvrable@cs.ucsd.edu>
-// Copyright (C) 2010-2012 Thomas Freitag <Thomas.Freitag@alfa.de>
+// Copyright (C) 2010-2013 Thomas Freitag <Thomas.Freitag@alfa.de>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -124,7 +124,7 @@ public:
   //----- initialization and control
 
   // Start a page.
-  virtual void startPage(int pageNum, GfxState *state);
+  virtual void startPage(int pageNum, GfxState *state, XRef *xref);
 
   // End a page.
   virtual void endPage();
@@ -192,7 +192,6 @@ public:
 			       CharCode code, Unicode *u, int uLen);
   virtual void endType3Char(GfxState *state);
   virtual void beginTextObject(GfxState *state);
-  virtual GBool deviceHasTextClip(GfxState *state) { return textClipPath; }
   virtual void endTextObject(GfxState *state);
 
   //----- image drawing
@@ -267,7 +266,8 @@ public:
 protected:
   void doPath(cairo_t *cairo, GfxState *state, GfxPath *path);
   cairo_surface_t *downscaleSurface(cairo_surface_t *orig_surface);
-  void getScaledSize(int orig_width, int orig_height,
+  void getScaledSize(const cairo_matrix_t *matrix,
+                     int orig_width, int orig_height,
 		     int *scaledWidth, int *scaledHeight);
   cairo_filter_t getFilterForSurface(cairo_surface_t *image,
 				     GBool interpolate);
@@ -284,6 +284,7 @@ protected:
   GBool adjusted_stroke_width;
   GBool align_stroke_coords;
   CairoFont *currentFont;
+  XRef *xref;
 
   struct StrokePathClip {
     GfxPath *path;
@@ -319,6 +320,7 @@ protected:
   int utf8Count;
   int utf8Max;
   cairo_path_t *textClipPath;
+  GBool inUncoloredPattern;     // inside a uncolored pattern (PaintType = 2)
   GBool inType3Char;		// inside a Type 3 CharProc
   double t3_glyph_wx, t3_glyph_wy;
   GBool t3_glyph_has_bbox;
@@ -465,6 +467,11 @@ public:
 			       Stream *maskStr,
 			       int maskWidth, int maskHeight,
 			       GBool maskInvert, GBool maskInterpolate);
+  virtual void setSoftMaskFromImageMask(GfxState *state, Object *ref, Stream *str,
+                                        int width, int height, GBool invert,
+                                        GBool inlineImg, double *baseMatrix);
+  virtual void unsetSoftMaskFromImageMask(GfxState *state, double *baseMatrix) {}
+
 
   //----- transparency groups and soft masks
   virtual void beginTransparencyGroup(GfxState * /*state*/, double * /*bbox*/,
@@ -487,6 +494,8 @@ public:
 
 private:
   void saveImage(CairoImage *image);
+  void getBBox(GfxState *state, int width, int height,
+               double *x1, double *y1, double *x2, double *y2);
   
   CairoImage **images;
   int numImages;

@@ -12,7 +12,7 @@
 #include <string>
 
 #define POPPLER_OLDER_THAN_0_23_0 @POPPLER_OLDER_THAN_0_23_0@
-#define HAVE_CAIRO @HAVE_CAIRO@
+#define ENABLE_SVG @ENABLE_SVG@
 
 namespace pdf2htmlEX {
 

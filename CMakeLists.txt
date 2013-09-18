@@ -5,6 +5,8 @@ set(CMAKE_BUILD_TYPE Release CACHE STRING "Build configuration (Debug, Release, 
 project(pdf2htmlEX)
 cmake_minimum_required(VERSION 2.6.0 FATAL_ERROR)
 
+option(ENABLE_SVG "Enable SVG backend" OFF)
+
 include_directories(${CMAKE_SOURCE_DIR}/src)
 
 set(PDF2HTMLEX_VERSION "0.10")
@@ -26,14 +28,27 @@ include_directories(${POPPLER_INCLUDE_DIRS})
 link_directories(${POPPLER_LIBRARY_DIRS})
 set(PDF2HTMLEX_LIBS ${PDF2HTMLEX_LIBS} ${POPPLER_LIBRARIES})
 
-# for SVG
-set(HAVE_CAIRO 1)
-
-# for Cairo* files
-pkg_check_modules(CAIRO REQUIRED cairo>=1.10.0)
-include_directories(${CAIRO_INCLUDE_DIRS})
-link_directories(${CAIRO_LIBRARY_DIRS})
-set(PDF2HTMLEX_LIBS ${PDF2HTMLEX_LIBS} ${CAIRO_LIBRARIES})
+if(ENABLE_SVG)
+    pkg_check_modules(CAIRO REQUIRED cairo>=1.10.0)
+    message("Trying to locate cairo-svg...")
+    find_path(CAIRO_SVG_INCLUDE_PATH cairo-svg.h PATHS ${CAIRO_INCLUDE_DIRS} NO_DEFAULT_PATH)
+    if(CAIRO_SVG_INCLUDE_PATH)
+        include_directories(${CAIRO_INCLUDE_DIRS})
+        link_directories(${CAIRO_LIBRARY_DIRS})
+        set(PDF2HTMLEX_LIBS ${PDF2HTMLEX_LIBS} ${CAIRO_LIBRARIES})
+        set(ENABLE_SVG 1)
+        set(PDF2HTMLEX_SRC ${PDF2HTMLEX_SRC}
+            src/BackgroundRenderer/CairoOutputDev/CairoFontEngine.h
+            src/BackgroundRenderer/CairoOutputDev/CairoFontEngine.cc
+            src/BackgroundRenderer/CairoOutputDev/CairoRescaleBox.h
+            src/BackgroundRenderer/CairoOutputDev/CairoRescaleBox.cc
+            src/BackgroundRenderer/CairoOutputDev/CairoOutputDev.h
+            src/BackgroundRenderer/CairoOutputDev/CairoOutputDev.cc
+        )
+    else()
+        message(FATAL_ERROR "Error: no SVG support found in Cairo")
+    endif()
+endif()
 
 find_package(Freetype REQUIRED)
 include_directories(${FREETYPE_INCLUDE_DIRS})
@@ -66,8 +81,7 @@ else()
     else()
         message(FATAL_ERROR "Error: cannot locate fontforge.h")
     endif()
-    find_path(FF_CONFIG_INCLUDE_PATH config.h PATHS
-      ${FONTFORGE_INCLUDE_DIRS} NO_DEFAULT_PATH)
+    find_path(FF_CONFIG_INCLUDE_PATH config.h PATHS ${FONTFORGE_INCLUDE_DIRS} NO_DEFAULT_PATH)
     if(FF_CONFIG_INCLUDE_PATH)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -include ${FF_CONFIG_INCLUDE_PATH}/config.h")
     message("Found config.h: ${FF_CONFIG_INCLUDE_PATH}/config.h")
@@ -153,7 +167,7 @@ configure_file (${CMAKE_SOURCE_DIR}/share/base.css.in ${CMAKE_SOURCE_DIR}/share/
 configure_file (${CMAKE_SOURCE_DIR}/share/fancy.css.in ${CMAKE_SOURCE_DIR}/share/fancy.css)
 configure_file (${CMAKE_SOURCE_DIR}/share/pdf2htmlEX.js.in ${CMAKE_SOURCE_DIR}/share/pdf2htmlEX.js)
 
-add_executable(pdf2htmlEX 
+set(PDF2HTMLEX_SRC ${PDF2HTMLEX_SRC}
     src/Param.h
     src/pdf2htmlEX-config.h
     src/pdf2htmlEX.cc 
@@ -171,12 +185,6 @@ add_executable(pdf2htmlEX
     src/BackgroundRenderer/SplashBackgroundRenderer.cc 
     src/BackgroundRenderer/CairoBackgroundRenderer.h 
     src/BackgroundRenderer/CairoBackgroundRenderer.cc 
-    src/CairoOutputDev/CairoFontEngine.h
-    src/CairoOutputDev/CairoFontEngine.cc
-    src/CairoOutputDev/CairoRescaleBox.h
-    src/CairoOutputDev/CairoRescaleBox.cc
-    src/CairoOutputDev/CairoOutputDev.h
-    src/CairoOutputDev/CairoOutputDev.cc
     src/util/const.h
     src/util/const.cc
     src/util/css_const.h
@@ -211,6 +219,8 @@ add_executable(pdf2htmlEX
     src/TmpFiles.h
     src/TmpFiles.cc
     )
+
+add_executable(pdf2htmlEX ${PDF2HTMLEX_SRC})
 target_link_libraries(pdf2htmlEX ${PDF2HTMLEX_LIBS})
 
 install (TARGETS pdf2htmlEX DESTINATION bin)

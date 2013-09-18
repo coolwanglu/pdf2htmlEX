@@ -9,7 +9,7 @@
 #ifndef CAIRO_BACKGROUND_RENDERER_H__
 #define CAIRO_BACKGROUND_RENDERER_H__
 
-#include <CairoOutputDev/CairoOutputDev.h>
+#include <BackgroundRenderer/CairoOutputDev/CairoOutputDev.h>
 #include <cairo.h>
 #include <cairo-svg.h>
 

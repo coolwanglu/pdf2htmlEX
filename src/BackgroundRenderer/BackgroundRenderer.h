@@ -11,7 +11,7 @@
 
 #include "pdf2htmlEX-config.h"
 
-#if HAVE_CAIRO
+#if ENABLE_SVG
 
 #include "CairoBackgroundRenderer.h"
 
@@ -27,6 +27,6 @@ namespace pdf2htmlEX {
     typedef SplashBackgroundRenderer BackgroundRenderer;
 }
 
-#endif // HAVE_CAIRO
+#endif // ENABLE_SVG
 
 #endif //BACKGROUND_RENDERER_H__

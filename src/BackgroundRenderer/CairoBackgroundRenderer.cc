@@ -12,7 +12,7 @@
 
 #include "Base64Stream.h"
 
-#if HAVE_CAIRO
+#if ENABLE_SVG
 
 #include "CairoBackgroundRenderer.h"
 
@@ -121,5 +121,5 @@ void CairoBackgroundRenderer::embed_image(int pageno)
 
 } // namespace pdf2htmlEX
 
-#endif // HAVE_CAIRO
+#endif // ENABLE_SVG
 
