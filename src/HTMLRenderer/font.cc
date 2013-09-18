@@ -354,6 +354,13 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
         {
             if(info.is_type3)
             {
+                /*
+                 * Type 3 fonts are saved and converted into ttf fonts
+                 * encoded based on code points instead of GID
+                 *
+                 * I thought code2GID would work but it never works, and I don't know why
+                 * Anyway we can disable code2GID such that the following procedure will be working based on code points instead of GID
+                 */
             }
             else
             {
