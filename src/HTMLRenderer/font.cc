@@ -720,7 +720,7 @@ const FontInfo * HTMLRenderer::install_font(GfxFont * font)
     if(font->getType() == fontType3) 
     {
         //test
-        dump_type3_font(font, new_fn_id);
+        //dump_type3_font(font, new_fn_id);
 
         cerr << "Type 3 fonts are unsupported and will be rendered as Image" << endl;
         export_remote_default_font(new_fn_id);
