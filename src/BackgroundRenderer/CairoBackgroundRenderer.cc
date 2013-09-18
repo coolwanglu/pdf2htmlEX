@@ -35,10 +35,6 @@ static GBool annot_cb(Annot *, void *) {
 
 void CairoBackgroundRenderer::render_page(PDFDoc * doc, int pageno)
 {
-    auto fn = html_renderer->str_fmt("%s/bg%x.svg", (param.embed_image ? param.tmp_dir : param.dest_dir).c_str(), pageno);
-    if(param.embed_image)
-        html_renderer->tmp_files.add((char*)fn);
-
     double page_width;
     double page_height;
     if(param.use_cropbox)
@@ -52,7 +48,13 @@ void CairoBackgroundRenderer::render_page(PDFDoc * doc, int pageno)
         page_height = doc->getPageMediaHeight(pageno);
     }
 
-    surface = cairo_svg_surface_create((char*)fn, page_width, page_height);
+    {
+        auto fn = html_renderer->str_fmt("%s/bg%x.svg", (param.embed_image ? param.tmp_dir : param.dest_dir).c_str(), pageno);
+        if(param.embed_image)
+            html_renderer->tmp_files.add((char*)fn);
+
+        surface = cairo_svg_surface_create((char*)fn, page_width, page_height);
+    }
     cairo_svg_surface_restrict_to_version(surface, CAIRO_SVG_VERSION_1_2);
     cairo_surface_set_fallback_resolution(surface, param.h_dpi, param.v_dpi);
 
