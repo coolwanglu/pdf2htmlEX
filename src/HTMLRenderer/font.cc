@@ -21,6 +21,8 @@
 #include "HTMLRenderer.h"
 #include "Base64Stream.h"
 
+#include "pdf2htmlEX-config.h"
+
 #include "util/namespace.h"
 #include "util/math.h"
 #include "util/misc.h"
@@ -28,6 +30,13 @@
 #include "util/path.h"
 #include "util/unicode.h"
 #include "util/css_const.h"
+
+#if ENABLE_SVG
+#include <cairo.h>
+#include <cairo-ft.h>
+#include <cairo-svg.h>
+#include "BackgroundRenderer/CairoOutputDev/CairoFontEngine.h"
+#endif
 
 namespace pdf2htmlEX {
 
@@ -164,6 +173,83 @@ string HTMLRenderer::dump_embedded_font (GfxFont * font, long long fn_id)
     font_obj.free();
 
     return filepath;
+}
+
+string HTMLRenderer::dump_type3_font (GfxFont * font, long long fn_id)
+{
+    assert(font->getFontType() == fontType3);
+
+#if ENABLE_SVG
+    FT_Library ft_lib;
+    FT_Init_FreeType(&ft_lib);
+    CairoFontEngine font_engine(ft_lib); 
+    auto * cur_font = font_engine.getFont(font, cur_doc, true, xref);
+    auto used_map = preprocessor.get_code_map(hash_ref(font->getID()));
+
+    double * font_bbox = font->getFontBBox();
+    double glyph_width = font_bbox[2] - font_bbox[0];
+    double glyph_height = font_bbox[3] - font_bbox[1];
+
+    glyph_width /= 10;
+    glyph_height /= 10;
+
+    for(int i = 0; i < 256; ++i)
+    {
+        if(!used_map[i]) continue;
+
+        cairo_glyph_t glyph;
+        glyph.index = cur_font->getGlyph(i, nullptr, 0);
+        glyph.x = 0;
+        glyph.y = glyph_height;
+
+        cairo_surface_t * surface = nullptr;
+        {
+            auto fn = str_fmt("/tmp/pdf2htmlEX/f%x-%x.svg", fn_id, i);
+            surface = cairo_svg_surface_create((char*)fn, glyph_height, glyph_width);
+        }
+        cairo_svg_surface_restrict_to_version(surface, CAIRO_SVG_VERSION_1_2);
+        cairo_surface_set_fallback_resolution(surface, param.h_dpi, param.v_dpi);
+        cairo_t * cr = cairo_create(surface);
+
+        // zoom the image to prevent CairoOutputDev from rounding/increasing thin borders
+        //cairo_matrix_t matrix;
+        /*
+        double * font_matrix = font->getFontMatrix();
+        cairo_matrix_init(&matrix, font_matrix[0], font_matrix[1], font_matrix[2], font_matrix[3], font_matrix[4], font_matrix[5]);
+        cairo_set_font_matrix(cr, &matrix);
+        */
+
+        /*
+        cairo_matrix_init_identity(&matrix);
+//        cairo_matrix_scale(&matrix, 10, 10);
+        cairo_transform(cr, &matrix);
+        */
+
+        cairo_set_font_size(cr, 100);
+
+        cairo_set_source_rgb(cr, 0., 0., 0.);
+
+        cairo_set_font_face(cr, cur_font->getFontFace());
+        cairo_show_glyphs(cr, &glyph, 1);
+        {
+            auto status = cairo_status(cr);
+            cairo_destroy(cr);
+            if(status)
+                throw string("Cairo error: ") + cairo_status_to_string(status);
+        }
+        cairo_surface_finish(surface);
+        {
+            auto status = cairo_surface_status(surface);
+            cairo_surface_destroy(surface);
+            surface = nullptr;
+            if(status)
+                throw string("Error in cairo: ") + cairo_status_to_string(status);
+        }
+    }
+    return "";
+#else
+    return "";
+#endif
 }
 
 void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo & info, bool get_metric_only)
@@ -631,7 +717,11 @@ const FontInfo * HTMLRenderer::install_font(GfxFont * font)
             << endl;
     }
 
-    if(font->getType() == fontType3) {
+    if(font->getType() == fontType3) 
+    {
+        //test
+        dump_type3_font(font, new_fn_id);
+
         cerr << "Type 3 fonts are unsupported and will be rendered as Image" << endl;
         export_remote_default_font(new_fn_id);
         return &new_font_info;
