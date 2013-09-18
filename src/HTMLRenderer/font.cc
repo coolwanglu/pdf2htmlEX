@@ -259,7 +259,6 @@ string HTMLRenderer::dump_type3_font (GfxFont * font, long long fn_id)
     ffw_save(font_filename.c_str());
     ffw_close();
 
-    // combine glyphs
     return font_filename;
 #else
     return "";
