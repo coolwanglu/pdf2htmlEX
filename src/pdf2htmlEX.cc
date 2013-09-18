@@ -41,6 +41,12 @@ using namespace pdf2htmlEX;
 Param param;
 ArgParser argparser;
 
+void deprecated_font_suffix(const char * dummy = nullptr)
+{
+    cerr << "--font-suffix is deprecated. Use `--font-format` instead." << endl;
+    exit(EXIT_FAILURE);
+}
+
 void show_usage_and_exit(const char * dummy = nullptr)
 {
     cerr << "Usage: pdf2htmlEX [options] <input.pdf> [<output.html>]" << endl;
@@ -52,14 +58,12 @@ void show_version_and_exit(const char * dummy = nullptr)
 {
     cerr << "pdf2htmlEX version " << PDF2HTMLEX_VERSION << endl;
     cerr << "Copyright 2012,2013 Lu Wang <coolwanglu@gmail.com> and other contributers" << endl;
-    cerr << endl;
-    cerr << "Libraries: ";
-    cerr << "poppler " << POPPLER_VERSION << ", ";
-    cerr << "libfontforge " << ffw_get_version() << endl;
+    cerr << "Libraries: " << endl;
+    cerr << "  poppler " << POPPLER_VERSION << endl;
+    cerr << "  libfontforge " << ffw_get_version() << endl;
 #if ENABLE_SVG
-    cerr << "cairo " << cairo_version_string() << endl;
+    cerr << "  cairo " << cairo_version_string() << endl;
 #endif
-    cerr << endl;
     cerr << "Default data-dir: " << PDF2HTMLEX_DATA_PATH << endl;
     cerr << "Supported image format:";
 #ifdef ENABLE_LIBPNG
@@ -170,6 +174,9 @@ void parse_options (int argc, char **argv)
         // meta
         .add("version,v", "print copyright and version info", &show_version_and_exit)
         .add("help,h", "print usage information", &show_usage_and_exit)
+
+        // deprecated
+        .add("font-suffix", "", &deprecated_font_suffix)
 
         .add("", &param.input_filename, "", "")
         .add("", &param.output_filename, "", "")

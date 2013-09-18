@@ -1,5 +1,14 @@
 Developing v0.10
 
+* Background image optimization
+* Support output background image in JPEG (--bg-format jpg)
+* [Experimental] Support output background image in SVG (--bg-format svg)
+* New options
+ --bg-format
+ --font-format (same as --font-sufix, but without the leading dot)
+* Deprecated options:
+ --font-suffix
+
 v0.9
 2013.09.16
 
