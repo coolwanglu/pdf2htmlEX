@@ -48,13 +48,12 @@ if(ENABLE_SVG)
     else()
         message(FATAL_ERROR "Error: no SVG support found in Cairo")
     endif()
-endif()
 
-find_package(Freetype REQUIRED)
-include_directories(${FREETYPE_INCLUDE_DIRS})
-link_directories(${FREETYPE_LIBRARY_DIRS})
-set(PDF2HTMLEX_LIBS ${PDF2HTMLEX_LIBS} ${FREETYPE_LIBRARIES})
-    
+    find_package(Freetype REQUIRED)
+    include_directories(${FREETYPE_INCLUDE_DIRS})
+    link_directories(${FREETYPE_LIBRARY_DIRS})
+    set(PDF2HTMLEX_LIBS ${PDF2HTMLEX_LIBS} ${FREETYPE_LIBRARIES})
+endif()
 
 # fontforge starts using pkg-config 'correctly' since 2.0.0
 pkg_check_modules(FONTFORGE libfontforge>=2.0.0)
