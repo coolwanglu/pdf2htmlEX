@@ -93,12 +93,6 @@ void CairoBackgroundRenderer::render_page(PDFDoc * doc, int pageno)
 
 void CairoBackgroundRenderer::embed_image(int pageno)
 {
-    {
-        auto fn = html_renderer->str_fmt("%s/bg%x.png", (param.embed_image ? param.tmp_dir : param.dest_dir).c_str(), pageno);
-        if(param.embed_image)
-            html_renderer->tmp_files.add((char*)fn);
-    }
-
     auto & f_page = *(html_renderer->f_curpage);
     
     f_page << "<img class=\"" << CSS::FULL_BACKGROUND_IMAGE_CN 
