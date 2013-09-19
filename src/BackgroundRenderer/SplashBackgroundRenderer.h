@@ -41,7 +41,8 @@ public:
 
   // Does this device use beginType3Char/endType3Char?  Otherwise,
   // text in Type 3 fonts will be drawn with drawChar/drawString.
-  virtual GBool interpretType3Chars() { return !param.process_type3; }
+  // debug
+//  virtual GBool interpretType3Chars() { return !param.process_type3; }
 
 #if POPPLER_OLDER_THAN_0_23_0
   virtual void startPage(int pageNum, GfxState *state);

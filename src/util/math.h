@@ -38,6 +38,7 @@ static inline double hypot(double x, double y) { return std::sqrt(x*x+y*y); }
 
 void tm_transform(const double * tm, double & x, double & y, bool is_delta = false);
 void tm_multiply(double * tm_left, const double * tm_right);
+void tm_transform_bbox(const double * tm, double * bbox);
 
 } //namespace pdf2htmlEX 
 #endif //MATH_H__

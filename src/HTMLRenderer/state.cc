@@ -206,7 +206,6 @@ void HTMLRenderer::check_state_change(GfxState * state)
         {
             // The width of the type 3 font text, if shown, is likely to be wrong
             // So we will create separate (absolute positioned) blocks for them, such that it won't affect other text
-            // TODO: consider the font matrix and estimate the metrics  
             if((new_font_info->is_type3 || cur_text_state.font_info->is_type3) && (!param.process_type3))
             {
                 set_line_state(new_line_state, NLS_NEWLINE);
@@ -217,6 +216,12 @@ void HTMLRenderer::check_state_change(GfxState * state)
             }
             cur_text_state.font_info = new_font_info;
         }
+
+        /*
+         * For Type 3 fonts, we need to take type3_font_size_scale into consideration
+         */
+        if((new_font_info->is_type3 || cur_text_state.font_info->is_type3) && param.process_type3)
+            need_rescale_font = true;
 
         double new_font_size = state->getFontSize();
         if(!equal(cur_font_size, new_font_size))
@@ -268,6 +273,12 @@ void HTMLRenderer::check_state_change(GfxState * state)
         double new_draw_text_scale = 1.0/text_scale_factor2 * hypot(new_draw_text_tm[2], new_draw_text_tm[3]);
 
         double new_draw_font_size = cur_font_size;
+
+        if(cur_text_state.font_info->is_type3 && param.process_type3)
+        {
+            new_draw_font_size *= cur_text_state.font_info->type3_font_size_scale;
+        }
+
         if(is_positive(new_draw_text_scale))
         {
             // scale both font size and matrix 

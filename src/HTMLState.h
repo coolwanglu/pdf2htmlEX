@@ -17,6 +17,18 @@ struct FontInfo
     double space_width;
     double ascent, descent;
     bool is_type3;
+    /*
+     * As Type 3 fonts have a font matrix
+     * a glyph of 1pt can be very large or very small
+     * however it might not be true for other font formats such as ttf
+     *
+     * Therefore when we save a Type 3 font into ttf,
+     * we have to scale the font to about 1,
+     * then apply the scaling when using the font
+     *
+     * The scaling factor is stored as type3_font_size_scale
+     */
+    double type3_font_size_scale;
 };
 
 struct HTMLTextState

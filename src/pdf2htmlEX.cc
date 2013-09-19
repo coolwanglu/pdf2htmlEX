@@ -300,7 +300,7 @@ void check_param()
     }
 
     //test
-    //param.process_type3 = 1;
+    param.process_type3 = 1;
 }
 
 int main(int argc, char **argv)
