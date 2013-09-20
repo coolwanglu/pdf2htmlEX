@@ -306,8 +306,6 @@ void ffw_fix_metric()
 {
     double ascent, descent;
     ffw_get_metric(&ascent, &descent);
-    //debug
-    printf("fix metrix: %lf %lf\n", ascent, descent);
     ffw_set_metric(ascent, descent);
 }
 
@@ -427,7 +425,7 @@ void ffw_set_widths(int * width_list, int mapping_len,
     }
 }
 
-void ffw_import_svg_glyph(int code, const char * filename)
+void ffw_import_svg_glyph(int code, const char * filename, double ox, double oy)
 {
     int enc = SFFindSlot(cur_fv->sf, cur_fv->map, code, "");
     if(enc == -1)
@@ -443,11 +441,14 @@ void ffw_import_svg_glyph(int code, const char * filename)
 
     // correct the origin
     {
+        int a = cur_fv->sf->ascent;
+        int d = cur_fv->sf->descent;
         real transform[6]; 
         transform[0] = 1.0;
         transform[3] = 1.0;
-        transform[1] = transform[2] = transform[4];
-        transform[5] = cur_fv->sf->descent;
+        transform[1] = transform[2] = 0.0;
+        transform[4] = -ox * (a+d);
+        transform[5] = -oy * (a+d) + d;
         FVTrans(cur_fv, sc, transform, NULL, fvt_alllayers | fvt_dontmovewidth);
     }
 }
