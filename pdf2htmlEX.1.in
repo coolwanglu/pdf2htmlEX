@@ -226,12 +226,6 @@ If set to 1, pdf2htmlEX will try to reduce the number of HTML elements used for 
 .SS Background Image
 
 .TP
-.B --bg-format <format> (Default: "png")
-Specify the format for background images, run `pdf2htmlEX -v` to check all supported formats.
-
-.SS Background Image
-
-.TP
 .B --bg-format <format> (Default: png)
 Specify the background image format. Run `pdf2htmlEX -v` to check all supported formats.
 
