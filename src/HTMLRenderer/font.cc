@@ -58,6 +58,7 @@ string HTMLRenderer::dump_embedded_font (GfxFont * font, FontInfo & info)
     string filepath;
 
     long long fn_id = info.id;
+    info.font_size_scale = 1.0;
 
     try
     {
@@ -195,13 +196,17 @@ string HTMLRenderer::dump_type3_font (GfxFont * font, FontInfo & info)
     auto * cur_font = font_engine.getFont(font, cur_doc, true, xref);
     auto used_map = preprocessor.get_code_map(hash_ref(font->getID()));
 
+    //calculate transformed metrics
     double * font_bbox = font->getFontBBox();
     // TODO: font matrix may not exists
     double * font_matrix = font->getFontMatrix();
-
-    //calculate transformations
     double transformed_bbox[4];
     memcpy(transformed_bbox, font_bbox, 4 * sizeof(double));
+    // add the origin to the bbox
+    if(transformed_bbox[0] > 0) transformed_bbox[0] = 0;
+    if(transformed_bbox[1] > 0) transformed_bbox[1] = 0;
+    if(transformed_bbox[2] < 0) transformed_bbox[2] = 0;
+    if(transformed_bbox[3] < 0) transformed_bbox[3] = 0;
     tm_transform_bbox(font_matrix, transformed_bbox);
     double transformed_bbox_width = transformed_bbox[2] - transformed_bbox[0];
     double transformed_bbox_height = transformed_bbox[3] - transformed_bbox[1];
@@ -212,10 +217,10 @@ string HTMLRenderer::dump_type3_font (GfxFont * font, FontInfo & info)
     std::cerr << std::endl;
     // we want the glyphs is rendered in a box of size around 100 x 100
     // for rectangles, the longer edge should be 100
-    info.type3_font_size_scale = std::max(transformed_bbox_width, transformed_bbox_height);
+    info.font_size_scale = std::max(transformed_bbox_width, transformed_bbox_height);
 
     const double GLYPH_DUMP_SIZE = 100.0;
-    double scale = GLYPH_DUMP_SIZE / info.type3_font_size_scale;
+    double scale = GLYPH_DUMP_SIZE / info.font_size_scale;
 
     // determine the position of the origin of the glyph
     double ox, oy;
@@ -224,9 +229,11 @@ string HTMLRenderer::dump_type3_font (GfxFont * font, FontInfo & info)
     ox -= transformed_bbox[0];
     oy -= transformed_bbox[1];
 
-    
-    // dump each glyph into svg and combine them
+    // we choose ttf as it does not use char names
+    // or actually we don't use char names for ttf (see embed_font)
     ffw_new_font();
+    ffw_set_metric(transformed_bbox[3] / transformed_bbox_height, transformed_bbox[1] / transformed_bbox_height);
+    // dump each glyph into svg and combine them
     for(int code = 0; code < 256; ++code)
     {
         if(!used_map[code]) continue;
@@ -331,8 +338,6 @@ string HTMLRenderer::dump_type3_font (GfxFont * font, FontInfo & info)
         ffw_import_svg_glyph(code, glyph_filename.c_str());
     }
 
-    // we choose ttf as it does not use char names
-    // or actually we don't use char names for ttf (see embed_font)
     string font_filename = (char*)str_fmt("%s/f%llx.ttf", param.tmp_dir.c_str(), fn_id);
     tmp_files.add(font_filename);
     ffw_save(font_filename.c_str());
@@ -400,7 +405,8 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
 
     if(get_metric_only)
     {
-        ffw_metric(&info.ascent, &info.descent);
+        ffw_fix_metric();
+        ffw_get_metric(&info.ascent, &info.descent);
         ffw_close();
         return;
     }
@@ -647,8 +653,7 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
                     cur_width = font_cid->getWidth(buf, 2) ;
                 }
 
-                if(info.is_type3)
-                    cur_width /= info.type3_font_size_scale;
+                cur_width /= info.font_size_scale;
 
                 if(u == ' ')
                 {
@@ -693,8 +698,7 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
                 char buf[2] = {0, ' '};
                 info.space_width = font_cid->getWidth(buf, 2);
             }
-            if(info.is_type3)
-                info.space_width /= info.type3_font_size_scale;
+            info.space_width /= info.font_size_scale;
 
             /* See comments above */
             if(equal(info.space_width,0))
@@ -777,7 +781,8 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
         tmp_files.add(fn);
 
     ffw_load_font(cur_tmp_fn.c_str());
-    ffw_metric(&info.ascent, &info.descent);
+    ffw_fix_metric();
+    ffw_get_metric(&info.ascent, &info.descent);
     if(param.override_fstype)
         ffw_override_fstype();
     ffw_save(fn.c_str());

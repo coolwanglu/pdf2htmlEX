@@ -274,11 +274,6 @@ void HTMLRenderer::check_state_change(GfxState * state)
 
         double new_draw_font_size = cur_font_size;
 
-        if(cur_text_state.font_info->is_type3 && param.process_type3)
-        {
-            new_draw_font_size *= cur_text_state.font_info->type3_font_size_scale;
-        }
-
         if(is_positive(new_draw_text_scale))
         {
             // scale both font size and matrix 

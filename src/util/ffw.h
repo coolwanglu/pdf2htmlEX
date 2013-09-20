@@ -48,8 +48,14 @@ void ffw_add_empty_char(int32_t unicode, int width);
 ////////////////////////
 // metrics
 int ffw_get_em_size(void);
-// fix metrics and get them
-void ffw_metric(double * ascent, double * descent);
+// manipulate ascent and descent
+// asscent is between 0 and 1
+// descent is between -1 and 0
+void ffw_fix_metric();
+// get ascent/descent based on the shape
+void ffw_get_metric(double * ascent, double * descent);
+// set corresponding fields
+void ffw_set_metric(double ascent, double descent);
 
 void ffw_set_widths(int * width_list, int mapping_len, 
         int stretch_narrow, int squeeze_wide);

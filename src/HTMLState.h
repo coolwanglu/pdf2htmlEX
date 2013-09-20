@@ -26,9 +26,11 @@ struct FontInfo
      * we have to scale the font to about 1,
      * then apply the scaling when using the font
      *
-     * The scaling factor is stored as type3_font_size_scale
+     * The scaling factor is stored as font_size_scale
+     *
+     * The value is 1 for other fonts
      */
-    double type3_font_size_scale;
+    double font_size_scale;
 };
 
 struct HTMLTextState
