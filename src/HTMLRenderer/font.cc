@@ -241,9 +241,6 @@ string HTMLRenderer::dump_type3_font (GfxFont * font, FontInfo & info)
         cairo_surface_set_fallback_resolution(surface, param.h_dpi, param.v_dpi);
         cairo_t * cr = cairo_create(surface);
 
-        //debug
-        std::cerr << "debug " << code << std::endl;
-        std::cerr << "pdf width " << ((Gfx8BitFont*)font)->getWidth(code) << std::endl;
         /*
         cairo_set_font_size(cr, scale);
         cairo_set_font_face(cr, cur_font->getFontFace());
@@ -254,6 +251,7 @@ string HTMLRenderer::dump_type3_font (GfxFont * font, FontInfo & info)
         double ox, oy;
         ox = oy = 0.0;
 
+        auto glyph_width = ((Gfx8BitFont*)font)->getWidth(code);
         // manually draw the char to get the metrics
         // adapted from _render_type3_glyph of poppler
         {
@@ -285,6 +283,12 @@ string HTMLRenderer::dump_type3_font (GfxFont * font, FontInfo & info)
             // set ctm
             cairo_set_matrix(cr, &ctm);
 
+            // calculate the position of origin
+            cairo_matrix_transform_point(&ctm, &ox, &oy);
+            // calculate glyph width
+            double dummy = 0;
+            cairo_matrix_transform_point(&ctm, &glyph_width, &dummy);
+
             // draw the glyph
             auto output_dev = new CairoOutputDev();
             output_dev->setCairo(cr);
@@ -305,23 +309,6 @@ string HTMLRenderer::dump_type3_font (GfxFont * font, FontInfo & info)
             Object char_proc_obj;
             auto glyph_index = cur_font->getGlyph(code, nullptr, 0);
             gfx->display(char_procs->getVal(glyph_index, &char_proc_obj));
-
-            double wx, wy;
-            output_dev->getType3GlyphWidth(&wx, &wy);
-            cairo_matrix_transform_distance(&m1, &wx, &wy);
-            std::cerr << "wx " << wx << " wy " << wy << std::endl;
-
-            if(output_dev->hasType3GlyphBBox())
-            {
-                double *bbox = output_dev->getType3GlyphBBox();
-
-                cairo_matrix_transform_point (&m1, &bbox[0], &bbox[1]);
-                cairo_matrix_transform_point (&m1, &bbox[2], &bbox[3]);
-                std::cerr << "*bbox";
-                for(int i = 0; i < 4; ++i)
-                    std::cerr << ' ' << bbox[i];
-                std::cerr << std::endl;
-            }
 
             char_proc_obj.free();
             delete gfx;
@@ -345,7 +332,7 @@ string HTMLRenderer::dump_type3_font (GfxFont * font, FontInfo & info)
                 throw string("Error in cairo: ") + cairo_status_to_string(status);
         }
 
-        ffw_import_svg_glyph(code, glyph_filename.c_str(), ox / GLYPH_DUMP_EM_SIZE, oy / GLYPH_DUMP_EM_SIZE);
+        ffw_import_svg_glyph(code, glyph_filename.c_str(), ox / GLYPH_DUMP_EM_SIZE, 1.0 - oy / GLYPH_DUMP_EM_SIZE, glyph_width / GLYPH_DUMP_EM_SIZE);
     }
 
     string font_filename = (char*)str_fmt("%s/f%llx.ttf", param.tmp_dir.c_str(), fn_id);

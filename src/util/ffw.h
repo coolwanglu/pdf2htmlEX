@@ -63,7 +63,8 @@ void ffw_set_widths(int * width_list, int mapping_len,
 ////////////////////////
 // others
 // (ox,oy) is the position of the true origin, fractions related to em_size
-void ffw_import_svg_glyph(int code, const char * filename, double ox, double oy);
+// also true for glyph_width
+void ffw_import_svg_glyph(int code, const char * filename, double ox, double oy, double glyph_width);
 void ffw_auto_hint(void);
 void ffw_override_fstype(void);
 

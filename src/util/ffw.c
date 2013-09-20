@@ -425,7 +425,7 @@ void ffw_set_widths(int * width_list, int mapping_len,
     }
 }
 
-void ffw_import_svg_glyph(int code, const char * filename, double ox, double oy)
+void ffw_import_svg_glyph(int code, const char * filename, double ox, double oy, double width)
 {
     int enc = SFFindSlot(cur_fv->sf, cur_fv->map, code, "");
     if(enc == -1)
@@ -439,7 +439,7 @@ void ffw_import_svg_glyph(int code, const char * filename, double ox, double oy)
     if(!ok)
         err("Import SVG glyph failed");
 
-    // correct the origin
+    // correct origin and width
     {
         int a = cur_fv->sf->ascent;
         int d = cur_fv->sf->descent;
@@ -450,6 +450,8 @@ void ffw_import_svg_glyph(int code, const char * filename, double ox, double oy)
         transform[4] = -ox * (a+d);
         transform[5] = -oy * (a+d) + d;
         FVTrans(cur_fv, sc, transform, NULL, fvt_alllayers | fvt_dontmovewidth);
+
+        SCSynchronizeWidth(sc, floor(width * (a+d) + 0.5), sc->width, cur_fv);
     }
 }
 
