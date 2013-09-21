@@ -5,7 +5,7 @@ set(CMAKE_BUILD_TYPE Release CACHE STRING "Build configuration (Debug, Release, 
 project(pdf2htmlEX)
 cmake_minimum_required(VERSION 2.6.0 FATAL_ERROR)
 
-option(ENABLE_SVG "Enable SVG backend" OFF)
+option(ENABLE_SVG "Enable SVG support, for generating SVG background images and converting Type 3 fonts" OFF)
 
 include_directories(${CMAKE_SOURCE_DIR}/src)
 
