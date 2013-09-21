@@ -146,6 +146,7 @@ void parse_options (int argc, char **argv)
         .add("stretch-narrow-glyph", &param.stretch_narrow_glyph, 0, "stretch narrow glyphs instead of padding them")
         .add("squeeze-wide-glyph", &param.squeeze_wide_glyph, 1, "shrink wide glyphs instead of truncating them")
         .add("override-fstype", &param.override_fstype, 0, "clear the fstype bits in TTF/OTF fonts")
+        .add("process-type3", &param.process_type3, 0, "convert Type 3 fonts for web (experimental)")
         
         // text
         .add("heps", &param.h_eps, 1.0, "horizontal threshold for merging text, in pixels")
@@ -299,8 +300,13 @@ void check_param()
         exit(EXIT_FAILURE);
     }
 
-    //test
-    param.process_type3 = 1;
+#if not ENABLE_SVG
+    if(param.process_type3)
+    {
+        cerr << "process-type3 is enabled, however SVG support is not built in this version of pdf2htmlEX." << endl;
+        exit(EXIT_FAILURE);
+    }
+#endif
 }
 
 int main(int argc, char **argv)

@@ -210,10 +210,10 @@ string HTMLRenderer::dump_type3_font (GfxFont * font, FontInfo & info)
     tm_transform_bbox(font_matrix, transformed_bbox);
     double transformed_bbox_width = transformed_bbox[2] - transformed_bbox[0];
     double transformed_bbox_height = transformed_bbox[3] - transformed_bbox[1];
-    // we want the glyphs is rendered in a box of size around 100 x 100
-    // for rectangles, the longer edge should be 100
     info.font_size_scale = std::max(transformed_bbox_width, transformed_bbox_height);
 
+    // we want the glyphs is rendered in a box of size around GLYPH_DUMP_EM_SIZE x GLYPH_DUMP_EM_SIZE
+    // for rectangles, the longer edge should be GLYPH_DUMP_EM_SIZE
     const double GLYPH_DUMP_EM_SIZE = 100.0;
     double scale = GLYPH_DUMP_EM_SIZE / info.font_size_scale;
 
@@ -242,6 +242,7 @@ string HTMLRenderer::dump_type3_font (GfxFont * font, FontInfo & info)
 
         auto glyph_width = ((Gfx8BitFont*)font)->getWidth(code);
 
+#if 1
         {
             // pain the glyph
             cairo_set_font_face(cr, cur_font->getFontFace());
@@ -273,8 +274,7 @@ string HTMLRenderer::dump_type3_font (GfxFont * font, FontInfo & info)
             double dummy = 0;
             cairo_matrix_transform_distance(&m2, &glyph_width, &dummy);
         }
-        
-        /*
+#else
         {
             // manually draw the char to get the metrics
             // adapted from _render_type3_glyph of poppler
@@ -308,6 +308,7 @@ string HTMLRenderer::dump_type3_font (GfxFont * font, FontInfo & info)
 
             // calculate the position of origin
             cairo_matrix_transform_point(&ctm, &ox, &oy);
+            oy -= transformed_bbox_height * scale;
             // calculate glyph width
             double dummy = 0;
             cairo_matrix_transform_distance(&ctm, &glyph_width, &dummy);
@@ -337,7 +338,7 @@ string HTMLRenderer::dump_type3_font (GfxFont * font, FontInfo & info)
             delete gfx;
             delete output_dev;
         }
-        */
+#endif
 
         {
             auto status = cairo_status(cr);
