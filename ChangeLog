@@ -39,13 +39,13 @@ v0.8
 * HTML optimization 
  - reduce number of <span> elements
  - merge lines with different y values 
- - merge lines with differnt (but proportional) transform matrices
+ - merge lines with different (but proportional) transform matrices
 * Custom format for page file name [Ryan Morlok]
 * Workaround for NBSP
 * A default HTML file which load the pages dynamically when split-pages is on
 * Support simple clippings
 * Bug fixed:
- -missing glyphs in TTF fonts
+ - missing glyphs in TTF fonts
  - unexpected vertical shifts
  - whitespace lost in IE
 * New UI style 
@@ -92,8 +92,7 @@ v0.5
 * Fixed glyph width adjusting 
 * Fixed a memory issue
 * Working on css-draw
-* Working on integrating background-renderer, preparing for svg renderer in
-the future
+* Working on integrating background-renderer, preparing for svg renderer in the future
 
 v0.4
 2012.09.26
