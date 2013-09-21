@@ -184,6 +184,13 @@ Clear the fstype bits in TTF/OTF fonts.
 
 Turn this on if Internet Explorer complains about 'Permission must be Installable' AND you have permission to do so.
 
+.TP
+.B --process-type3 <0|1> (Default: 0)
+If turned on, pdf2htmlEX will try to convert Type 3 fonts such that text can be rendered natively in HTML.
+Otherwise all text with Type 3 fonts will be rendered as image.
+
+This feature is highly experimental.
+
 .SS Text
 
 .TP

@@ -60,7 +60,10 @@ void HTMLTextLine::append_state(const HTMLTextState & text_state)
         states.back().hash_umask = 0;
     }
 
-    (HTMLTextState&)(states.back()) = text_state;
+    HTMLTextState & last_state = states.back();
+    last_state = text_state;
+    //apply font scale
+    last_state.font_size *= last_state.font_info->font_size_scale;
 }
 
 void HTMLTextLine::dump_text(ostream & out)
@@ -251,7 +254,8 @@ void HTMLTextLine::prepare(void)
     // note that vertical_align cannot be calculated here
     for(auto iter = states.begin(); iter != states.end(); ++iter)
     {
-        iter->ids[State::FONT_ID] = iter->font_info->id;
+        auto font_info = iter->font_info;
+        iter->ids[State::FONT_ID] = font_info->id;
         iter->ids[State::FONT_SIZE_ID]      = all_manager.font_size.install(iter->font_size);
         iter->ids[State::FILL_COLOR_ID]     = all_manager.fill_color.install(iter->fill_color);
         iter->ids[State::STROKE_COLOR_ID]   = all_manager.stroke_color.install(iter->stroke_color);
@@ -260,10 +264,10 @@ void HTMLTextLine::prepare(void)
         iter->hash();
 
         accum_vertical_align += iter->vertical_align;
-        double cur_ascent = accum_vertical_align + iter->font_info->ascent * iter->font_size;
+        double cur_ascent = accum_vertical_align + font_info->ascent * iter->font_size;
         if(cur_ascent > ascent)
             ascent = cur_ascent;
-        double cur_descent = accum_vertical_align + iter->font_info->descent * iter->font_size;
+        double cur_descent = accum_vertical_align + font_info->descent * iter->font_size;
         if(cur_descent < descent)
             descent = cur_descent;
     }
