@@ -36,6 +36,8 @@
 #include <cairo-ft.h>
 #include <cairo-svg.h>
 #include "BackgroundRenderer/CairoOutputDev/CairoFontEngine.h"
+#include "BackgroundRenderer/CairoOutputDev/CairoOutputDev.h"
+#include <Gfx.h>
 #endif
 
 namespace pdf2htmlEX {
@@ -45,15 +47,17 @@ using std::unordered_set;
 using std::cerr;
 using std::endl;
 
-string HTMLRenderer::dump_embedded_font (GfxFont * font, long long fn_id)
+string HTMLRenderer::dump_embedded_font (GfxFont * font, FontInfo & info)
 {
-    if(font->getType() == fontType3)
-        return dump_type3_font(font, fn_id);
+    if(info.is_type3)
+        return dump_type3_font(font, info);
 
     Object obj, obj1, obj2;
     Object font_obj, font_obj2, fontdesc_obj;
     string suffix;
     string filepath;
+
+    long long fn_id = info.id;
 
     try
     {
@@ -178,62 +182,164 @@ string HTMLRenderer::dump_embedded_font (GfxFont * font, long long fn_id)
     return filepath;
 }
 
-string HTMLRenderer::dump_type3_font (GfxFont * font, long long fn_id)
+string HTMLRenderer::dump_type3_font (GfxFont * font, FontInfo & info)
 {
-    assert(font->getFontType() == fontType3);
+    assert(info.is_type3);
 
 #if ENABLE_SVG
+    long long fn_id = info.id;
+
     FT_Library ft_lib;
     FT_Init_FreeType(&ft_lib);
     CairoFontEngine font_engine(ft_lib); 
     auto * cur_font = font_engine.getFont(font, cur_doc, true, xref);
     auto used_map = preprocessor.get_code_map(hash_ref(font->getID()));
 
+    //calculate transformed metrics
     double * font_bbox = font->getFontBBox();
-    double glyph_width = font_bbox[2] - font_bbox[0];
-    double glyph_height = font_bbox[3] - font_bbox[1];
+    double * font_matrix = font->getFontMatrix();
+    double transformed_bbox[4];
+    memcpy(transformed_bbox, font_bbox, 4 * sizeof(double));
+    /*
+    // add the origin to the bbox
+    if(transformed_bbox[0] > 0) transformed_bbox[0] = 0;
+    if(transformed_bbox[1] > 0) transformed_bbox[1] = 0;
+    if(transformed_bbox[2] < 0) transformed_bbox[2] = 0;
+    if(transformed_bbox[3] < 0) transformed_bbox[3] = 0;
+    */
+    tm_transform_bbox(font_matrix, transformed_bbox);
+    double transformed_bbox_width = transformed_bbox[2] - transformed_bbox[0];
+    double transformed_bbox_height = transformed_bbox[3] - transformed_bbox[1];
+    info.font_size_scale = std::max(transformed_bbox_width, transformed_bbox_height);
 
- //   glyph_width /= 10;
- //   glyph_height /= 10;
+    // we want the glyphs is rendered in a box of size around GLYPH_DUMP_EM_SIZE x GLYPH_DUMP_EM_SIZE
+    // for rectangles, the longer edge should be GLYPH_DUMP_EM_SIZE
+    const double GLYPH_DUMP_EM_SIZE = 100.0;
+    double scale = GLYPH_DUMP_EM_SIZE / info.font_size_scale;
 
-    // dumpy each glyph into svg and combine them
+    // we choose ttf as it does not use char names
+    // or actually we don't use char names for ttf (see embed_font)
     ffw_new_font();
+    // dump each glyph into svg and combine them
     for(int code = 0; code < 256; ++code)
     {
         if(!used_map[code]) continue;
-
-        cairo_glyph_t glyph;
-        glyph.index = cur_font->getGlyph(code, nullptr, 0);
-        glyph.x = 0;
-        glyph.y = glyph_height;
 
         cairo_surface_t * surface = nullptr;
 
         string glyph_filename = (char*)str_fmt("%s/f%llx-%x.svg", param.tmp_dir.c_str(), fn_id, code);
         tmp_files.add(glyph_filename);
-        surface = cairo_svg_surface_create(glyph_filename.c_str(), glyph_height, glyph_width);
+
+        surface = cairo_svg_surface_create(glyph_filename.c_str(), transformed_bbox_width * scale, transformed_bbox_height * scale);
 
         cairo_svg_surface_restrict_to_version(surface, CAIRO_SVG_VERSION_1_2);
         cairo_surface_set_fallback_resolution(surface, param.h_dpi, param.v_dpi);
         cairo_t * cr = cairo_create(surface);
 
-        // zoom the image to prevent CairoOutputDev from rounding/increasing thin borders
-        //cairo_matrix_t matrix;
-        /*
-        double * font_matrix = font->getFontMatrix();
-        cairo_matrix_init(&matrix, font_matrix[0], font_matrix[1], font_matrix[2], font_matrix[3], font_matrix[4], font_matrix[5]);
-        cairo_set_font_matrix(cr, &matrix);
-        cairo_matrix_init_identity(&matrix);
-//        cairo_matrix_scale(&matrix, 10, 10);
-        cairo_transform(cr, &matrix);
-        */
+        // track the positio of the origin
+        double ox, oy;
+        ox = oy = 0.0;
 
-        cairo_set_font_size(cr, 1000);
+        auto glyph_width = ((Gfx8BitFont*)font)->getWidth(code);
 
-//        cairo_set_source_rgb(cr, 0., 0., 0.);
+#if 1
+        {
+            // pain the glyph
+            cairo_set_font_face(cr, cur_font->getFontFace());
 
-        cairo_set_font_face(cr, cur_font->getFontFace());
-        cairo_show_glyphs(cr, &glyph, 1);
+            cairo_matrix_t m1, m2, m3;
+            // set up m1
+            // m1 shift the bottom-left corner of the glyph bbox to the origin
+            // also set font size to scale
+            cairo_matrix_init_translate(&m1, -transformed_bbox[0], transformed_bbox[1]);
+            cairo_matrix_init_scale(&m2, scale, scale);
+            cairo_matrix_multiply(&m1, &m1, &m2);
+            cairo_set_font_matrix(cr, &m1);
+
+            cairo_glyph_t glyph;
+            glyph.index = cur_font->getGlyph(code, nullptr, 0);
+            glyph.x = 0;
+            glyph.y = GLYPH_DUMP_EM_SIZE;
+            cairo_show_glyphs(cr, &glyph, 1);
+
+
+            // apply the type 3 font's font matrix before m1
+            // such that we got the mapping from type 3 font space to user space, then we will be able to calculate mapped position for ox,oy and glyph_width
+            cairo_matrix_init(&m2, font_matrix[0], font_matrix[1], font_matrix[2], font_matrix[3], font_matrix[4], font_matrix[5]);
+            cairo_matrix_init_scale(&m3, 1, -1);
+            cairo_matrix_multiply(&m2, &m2, &m3);
+            cairo_matrix_multiply(&m2, &m2, &m1);
+
+            cairo_matrix_transform_point(&m2, &ox, &oy);
+            double dummy = 0;
+            cairo_matrix_transform_distance(&m2, &glyph_width, &dummy);
+        }
+#else
+        {
+            // manually draw the char to get the metrics
+            // adapted from _render_type3_glyph of poppler
+            cairo_matrix_t ctm, m, m1;
+            cairo_matrix_init_identity(&ctm);
+
+            // apply font-matrix
+            cairo_matrix_init(&m, font_matrix[0], font_matrix[1], font_matrix[2], font_matrix[3], font_matrix[4], font_matrix[5]);
+            cairo_matrix_multiply(&ctm, &ctm, &m);
+
+            // shift origin
+            cairo_matrix_init_translate(&m1, -transformed_bbox[0], -transformed_bbox[1]);
+            cairo_matrix_multiply(&ctm, &ctm, &m1);
+
+            // make it upside down since the difference between the glyph coordination and cairo coordination
+            cairo_matrix_init_scale(&m1, 1, -1);
+            cairo_matrix_multiply(&ctm, &ctm, &m1);
+            // save m*m1 to m1 for later use
+            cairo_matrix_multiply(&m1, &m, &m1);
+
+            // shift up to the bounding box
+            cairo_matrix_init_translate(&m, 0.0, transformed_bbox_height);
+            cairo_matrix_multiply(&ctm, &ctm, &m);
+
+            // scale up 
+            cairo_matrix_init_scale(&m, scale, scale);
+            cairo_matrix_multiply(&ctm, &ctm, &m);
+
+            // set ctm
+            cairo_set_matrix(cr, &ctm);
+
+            // calculate the position of origin
+            cairo_matrix_transform_point(&ctm, &ox, &oy);
+            oy -= transformed_bbox_height * scale;
+            // calculate glyph width
+            double dummy = 0;
+            cairo_matrix_transform_distance(&ctm, &glyph_width, &dummy);
+
+            // draw the glyph
+            auto output_dev = new CairoOutputDev();
+            output_dev->setCairo(cr);
+            output_dev->setPrinting(true);
+
+            PDFRectangle box;
+            box.x1 = font_bbox[0];
+            box.y1 = font_bbox[1];
+            box.x2 = font_bbox[2];
+            box.y2 = font_bbox[3];
+            auto gfx = new Gfx(cur_doc, output_dev, 
+                    ((Gfx8BitFont*)font)->getResources(),
+                    &box, nullptr);
+            output_dev->startDoc(cur_doc, &font_engine);
+            output_dev->startPage(1, gfx->getState(), gfx->getXRef());
+            output_dev->setInType3Char(gTrue);
+            auto char_procs = ((Gfx8BitFont*)font)->getCharProcs();
+            Object char_proc_obj;
+            auto glyph_index = cur_font->getGlyph(code, nullptr, 0);
+            gfx->display(char_procs->getVal(glyph_index, &char_proc_obj));
+
+            char_proc_obj.free();
+            delete gfx;
+            delete output_dev;
+        }
+#endif
+
         {
             auto status = cairo_status(cr);
             cairo_destroy(cr);
@@ -249,11 +355,9 @@ string HTMLRenderer::dump_type3_font (GfxFont * font, long long fn_id)
                 throw string("Error in cairo: ") + cairo_status_to_string(status);
         }
 
-        ffw_import_svg_glyph(code, glyph_filename.c_str());
+        ffw_import_svg_glyph(code, glyph_filename.c_str(), ox / GLYPH_DUMP_EM_SIZE, -oy / GLYPH_DUMP_EM_SIZE, glyph_width / GLYPH_DUMP_EM_SIZE);
     }
 
-    // we choose ttf as it does not use char names
-    // or actually we don't use char names for ttf (see embed_font)
     string font_filename = (char*)str_fmt("%s/f%llx.ttf", param.tmp_dir.c_str(), fn_id);
     tmp_files.add(font_filename);
     ffw_save(font_filename.c_str());
@@ -321,7 +425,8 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
 
     if(get_metric_only)
     {
-        ffw_metric(&info.ascent, &info.descent);
+        ffw_fix_metric();
+        ffw_get_metric(&info.ascent, &info.descent);
         ffw_close();
         return;
     }
@@ -568,6 +673,8 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
                     cur_width = font_cid->getWidth(buf, 2) ;
                 }
 
+                cur_width /= info.font_size_scale;
+
                 if(u == ' ')
                 {
                     /*
@@ -611,6 +718,8 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
                 char buf[2] = {0, ' '};
                 info.space_width = font_cid->getWidth(buf, 2);
             }
+            info.space_width /= info.font_size_scale;
+
             /* See comments above */
             if(equal(info.space_width,0))
                 info.space_width = 0.001;
@@ -692,7 +801,8 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
         tmp_files.add(fn);
 
     ffw_load_font(cur_tmp_fn.c_str());
-    ffw_metric(&info.ascent, &info.descent);
+    ffw_fix_metric();
+    ffw_get_metric(&info.ascent, &info.descent);
     if(param.override_fstype)
         ffw_override_fstype();
     ffw_save(fn.c_str());
@@ -718,6 +828,7 @@ const FontInfo * HTMLRenderer::install_font(GfxFont * font)
     FontInfo & new_font_info = cur_info_iter->second;
     new_font_info.id = new_fn_id;
     new_font_info.use_tounicode = true;
+    new_font_info.font_size_scale = 1.0;
 
     if(font == nullptr)
     {
@@ -802,7 +913,7 @@ const FontInfo * HTMLRenderer::install_font(GfxFont * font)
 
 void HTMLRenderer::install_embedded_font(GfxFont * font, FontInfo & info)
 {
-    auto path = dump_embedded_font(font, info.id);
+    auto path = dump_embedded_font(font, info);
 
     if(path != "")
     {

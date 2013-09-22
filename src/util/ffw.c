@@ -302,28 +302,19 @@ int ffw_get_em_size(void)
     return cur_fv->sf->ascent + cur_fv->sf->descent;
 }
 
-void ffw_metric(double * ascent, double * descent)
+void ffw_fix_metric()
+{
+    double ascent, descent;
+    ffw_get_metric(&ascent, &descent);
+    ffw_set_metric(ascent, descent);
+}
+
+void ffw_get_metric(double * ascent, double * descent)
 {
     SplineFont * sf = cur_fv->sf;
-    struct pfminfo * info = &sf->pfminfo;
-
-    SFDefaultOS2Info(info, sf, sf->fontname);
-    info->pfmset = 1;
-    sf->changed = 1;
 
     DBounds bb;
     SplineFontFindBounds(sf, &bb);
-
-    /*
-    printf("bb %lf %lf\n", bb.maxy, bb.miny);
-    printf("_ %d %d\n", sf->ascent, sf->descent);
-    printf("win %d %d\n", info->os2_winascent, info->os2_windescent);
-    printf("%d %d\n", info->winascent_add, info->windescent_add);
-    printf("typo %d %d\n", info->os2_typoascent, info->os2_typodescent);
-    printf("%d %d\n", info->typoascent_add, info->typodescent_add);
-    printf("hhead %d %d\n", info->hhead_ascent, info->hhead_descent);
-    printf("%d %d\n", info->hheadascent_add, info->hheaddescent_add);
-    */
 
     int em = sf->ascent + sf->descent;
 
@@ -336,10 +327,21 @@ void ffw_metric(double * ascent, double * descent)
     {
         *ascent = *descent = 0;
     }
+}
 
-    int a = floor(bb.maxy + 0.5);
-    int d = floor(bb.miny + 0.5);
-    
+void ffw_set_metric(double ascent, double descent)
+{
+    SplineFont * sf = cur_fv->sf;
+    struct pfminfo * info = &sf->pfminfo;
+
+    SFDefaultOS2Info(info, sf, sf->fontname);
+    info->pfmset = 1;
+    sf->changed = 1;
+
+    int em = sf->ascent + sf->descent;
+    int a = floor(ascent * em + 0.5);
+    int d = floor(descent * em + 0.5);
+
     if(a < 0) a = 0;
     if(d > 0) d = 0;
 
@@ -354,7 +356,6 @@ void ffw_metric(double * ascent, double * descent)
      * But have to unify them, for different browsers on different platforms
      * Things may become easier when there are CSS rules for baseline-based positioning.
      */
-
     info->os2_winascent = a;
     info->os2_typoascent = a;
     info->hhead_ascent = a;
@@ -424,19 +425,34 @@ void ffw_set_widths(int * width_list, int mapping_len,
     }
 }
 
-void ffw_import_svg_glyph(int code, const char * filename)
+void ffw_import_svg_glyph(int code, const char * filename, double ox, double oy, double width)
 {
     int enc = SFFindSlot(cur_fv->sf, cur_fv->map, code, "");
     if(enc == -1)
         return;
 
-    SFMakeChar(cur_fv->sf, cur_fv->map, enc);
+    SplineChar * sc = SFMakeChar(cur_fv->sf, cur_fv->map, enc);
 
     memset(cur_fv->selected, 0, cur_fv->map->enccount);
     cur_fv->selected[enc] = 1;
     int ok = FVImportImages(cur_fv, (char*)filename, fv_svg, 0, -1);
     if(!ok)
         err("Import SVG glyph failed");
+
+    // correct origin and width
+    {
+        int a = cur_fv->sf->ascent;
+        int d = cur_fv->sf->descent;
+        real transform[6]; 
+        transform[0] = 1.0;
+        transform[3] = 1.0;
+        transform[1] = transform[2] = 0.0;
+        transform[4] = -ox * (a+d);
+        transform[5] = -oy * (a+d) + d;
+        FVTrans(cur_fv, sc, transform, NULL, fvt_alllayers | fvt_dontmovewidth);
+
+        SCSynchronizeWidth(sc, floor(width * (a+d) + 0.5), sc->width, cur_fv);
+    }
 }
 
 void ffw_auto_hint(void)

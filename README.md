@@ -30,6 +30,7 @@ The generated HTML file is static, with optional features powered by JavaScript.
 * Flexible Output
 * Moderate Size
 * More PDF stuffs that you love: links, outlines & printing
+* Experimental: SVG background output & Type 3 font conversion
 
 [Learn more](https://github.com/coolwanglu/pdf2htmlEX/wiki/Feature-List)   
 [Compare with others](https://github.com/coolwanglu/pdf2htmlEX/wiki/Comparison)
