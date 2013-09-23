@@ -192,7 +192,11 @@ string HTMLRenderer::dump_type3_font (GfxFont * font, FontInfo & info)
     FT_Library ft_lib;
     FT_Init_FreeType(&ft_lib);
     CairoFontEngine font_engine(ft_lib); 
+#if POPPLER_OLDER_THAN_0_23_0
+    auto * cur_font = font_engine.getFont(font, cur_doc, true);
+#else
     auto * cur_font = font_engine.getFont(font, cur_doc, true, xref);
+#endif
     auto used_map = preprocessor.get_code_map(hash_ref(font->getID()));
 
     //calculate transformed metrics
