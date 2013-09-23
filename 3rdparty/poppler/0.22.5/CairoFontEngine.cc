@@ -32,9 +32,8 @@
 //
 //========================================================================
 
-#include <config.h>
+#include <poppler-config.h>
 
-#include "config.h"
 #include <string.h>
 #include "CairoFontEngine.h"
 #include "CairoOutputDev.h"

@@ -34,7 +34,7 @@
 //
 //========================================================================
 
-#include <config.h>
+#include <poppler-config.h>
 
 #ifdef USE_GCC_PRAGMAS
 #pragma implementation
@@ -44,9 +44,9 @@
 #include <math.h>
 #include <assert.h>
 #include <cairo.h>
+#include <stdint.h>
 
 #include "goo/gfile.h"
-#include "goo/gtypes_p.h"
 #include "GlobalParams.h"
 #include "Error.h"
 #include "Object.h"
