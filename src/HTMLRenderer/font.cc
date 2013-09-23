@@ -35,8 +35,8 @@
 #include <cairo.h>
 #include <cairo-ft.h>
 #include <cairo-svg.h>
-#include "BackgroundRenderer/CairoOutputDev/CairoFontEngine.h"
-#include "BackgroundRenderer/CairoOutputDev/CairoOutputDev.h"
+#include "CairoFontEngine.h"
+#include "CairoOutputDev.h"
 #include <Gfx.h>
 #endif
 

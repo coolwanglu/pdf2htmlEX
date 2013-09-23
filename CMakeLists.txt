@@ -37,13 +37,19 @@ if(ENABLE_SVG)
         link_directories(${CAIRO_LIBRARY_DIRS})
         set(PDF2HTMLEX_LIBS ${PDF2HTMLEX_LIBS} ${CAIRO_LIBRARIES})
         set(ENABLE_SVG 1)
+        if(POPPLER_OLDER_THAN_0_23_0)
+            set(CAIROOUTPUTDEV_PATH src/BackgroundRenderer/CairoOutputDev/0.22.5)
+        else()
+            set(CAIROOUTPUTDEV_PATH src/BackgroundRenderer/CairoOutputDev/git)
+        endif()
+        include_directories(${CAIROOUTPUTDEV_PATH})
         set(PDF2HTMLEX_SRC ${PDF2HTMLEX_SRC}
-            src/BackgroundRenderer/CairoOutputDev/CairoFontEngine.h
-            src/BackgroundRenderer/CairoOutputDev/CairoFontEngine.cc
-            src/BackgroundRenderer/CairoOutputDev/CairoRescaleBox.h
-            src/BackgroundRenderer/CairoOutputDev/CairoRescaleBox.cc
-            src/BackgroundRenderer/CairoOutputDev/CairoOutputDev.h
-            src/BackgroundRenderer/CairoOutputDev/CairoOutputDev.cc
+            ${CAIROOUTPUTDEV_PATH}/CairoFontEngine.h
+            ${CAIROOUTPUTDEV_PATH}/CairoFontEngine.cc
+            ${CAIROOUTPUTDEV_PATH}/CairoRescaleBox.h
+            ${CAIROOUTPUTDEV_PATH}/CairoRescaleBox.cc
+            ${CAIROOUTPUTDEV_PATH}/CairoOutputDev.h
+            ${CAIROOUTPUTDEV_PATH}/CairoOutputDev.cc
         )
     else()
         message(FATAL_ERROR "Error: no SVG support found in Cairo")
