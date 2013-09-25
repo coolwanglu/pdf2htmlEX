@@ -10,6 +10,7 @@
 
 #include <poppler-config.h>
 #include <PDFDoc.h>
+#include <goo/ImgWriter.h>
 #include <goo/PNGWriter.h>
 #include <goo/JpegWriter.h>
 
