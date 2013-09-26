@@ -487,5 +487,6 @@ footer a:hover {
     width:1em;
     height:1em;
     position:relative;
-    top:.2em;
+    top:.3em;
+    margin:.1em;
 }
