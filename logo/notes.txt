@@ -1,0 +1,3 @@
+crop canvas
+update metadata
+save as optimized svg
