@@ -188,8 +188,14 @@ void SplashBackgroundRenderer::dump_image(const char * filename, int x1, int y1,
         p += row_size;
     }
     
-    if(!writer->writePointers(pointers.data(), height)) {
+    if(!writer->writePointers(pointers.data(), height)) 
+    {
         throw "Cannot write background image";
+    }
+
+    if(!writer->close())
+    {
+        throw "Cannot finish background image";
     }
 
     fclose(f);
