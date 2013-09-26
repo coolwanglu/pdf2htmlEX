@@ -483,3 +483,9 @@ footer a:hover {
 #socialbuttons { font-size:1px; }
 #socialbuttons iframe { vertical-align:middle; }
 #socialbuttons > div { margin:3px;height:20px; vertical-align:middle; }
+.logo{
+    width:1em;
+    height:1em;
+    position:relative;
+    top:.2em;
+}
