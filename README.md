@@ -61,7 +61,7 @@ Read `LICENSE` for more detail.
                                                     
 ### Resources
 
-* [pdf2htmlEX Blog](http://pdf2htmlex.blogspot.com) [[RSS Subscribe]](http://pdf2htmlex.blogspot.com/feeds/posts/default)
+* Blog <http://pdf2htmlex.blogspot.com> [[RSS]](http://pdf2htmlex.blogspot.com/feeds/posts/default)
   - News and announcements
 * Mailing list <pdf2htmlex@googlegroups.com> [[Subscribe]](https://groups.google.com/forum/#!forum/pdf2htmlex)
   - Discussions and announcements
