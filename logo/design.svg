@@ -16,6 +16,8 @@
    version="1.1"
    inkscape:version="0.48.4 r9939"
    sodipodi:docname="design.svg">
+  <title
+     id="title3050">pdf2htmlEX logo design</title>
   <sodipodi:namedview
      id="base"
      pagecolor="#ffffff"
@@ -24,15 +26,15 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.85575991"
-     inkscape:cx="-22.296221"
+     inkscape:cx="-226.20855"
      inkscape:cy="575.04503"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
      inkscape:window-width="1845"
      inkscape:window-height="1177"
-     inkscape:window-x="0"
-     inkscape:window-y="23"
+     inkscape:window-x="8"
+     inkscape:window-y="31"
      inkscape:window-maximized="0" />
   <defs
      id="defs4">
@@ -104,8 +106,29 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title>pdf2htmlEX logo design</dc:title>
+        <cc:license
+           rdf:resource="http://creativecommons.org/licenses/by/3.0/" />
+        <dc:date>2013-09-27</dc:date>
+        <dc:creator>
+          <cc:Agent>
+            <dc:title>Lu Wang &lt;coolwanglu@gmail.com&gt;</dc:title>
+          </cc:Agent>
+        </dc:creator>
       </cc:Work>
+      <cc:License
+         rdf:about="http://creativecommons.org/licenses/by/3.0/">
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Reproduction" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Distribution" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#Notice" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#Attribution" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#DerivativeWorks" />
+      </cc:License>
     </rdf:RDF>
   </metadata>
   <g

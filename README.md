@@ -47,7 +47,7 @@ The generated HTML file is static, with optional features powered by JavaScript.
 
 ### LICENSE
 
-GPLv3 with additional terms (see below) for most parts, MIT License for `share/*`
+GPLv3 with additional terms (see below) for *most parts*.
                                                      
 Read `LICENSE` for more detail.
 
