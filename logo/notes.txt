@@ -1,3 +1,5 @@
+logo memo
+
 convert everything to path
 ungroup everything
 union everything
