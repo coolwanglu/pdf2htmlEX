@@ -77,17 +77,6 @@ $pages
 </div>
 """
 
-# pdf2htmlEX logo for loading
-"""
-<div id="pdf2htmlEX-logo">
-"""
-@pdf2htmlEX-shadow-64x64.png
-@pdf2htmlEX-plain-62x62.png
-"""
-</div>
-"""
-
- 
 """
 </body>
 </html>
