@@ -537,8 +537,16 @@ void HTMLRenderer::embed_file(ostream & out, const string & path, const string &
         ifstream fin(path, ifstream::binary);
         if(!fin)
             throw string("Cannot open file ") + path + " for embedding";
-        out << entry.prefix_embed << endl
-            << fin.rdbuf();
+        out << entry.prefix_embed;
+       
+        if(entry.base64_encode)
+        {
+            out << Base64Stream(fin);
+        }
+        else
+        {
+            out << endl << fin.rdbuf();
+        }
         out.clear(); // out will set fail big if fin is empty
         out << entry.suffix_embed << endl;
     }

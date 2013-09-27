@@ -25,14 +25,19 @@ const map<string, string> GB_ENCODED_FONT_NAME_MAP({
 const std::map<std::string, EmbedStringEntry> EMBED_STRING_MAP({
     {".css", {&Param::embed_css, 
               "<style type=\"text/css\">", 
-              "</style>",
+              "</style>", false,
               "<link rel=\"stylesheet\" type=\"text/css\" href=\"", 
               "\"/>" }},
     {".js", {&Param::embed_javascript,
              "<script type=\"text/javascript\">", 
-             "</script>",
+             "</script>", false,
              "<script type=\"text/javascript\" src=\"",
-             "\"></script>" }}
+             "\"></script>" }},
+    {".png", {&Param::embed_image,
+             "<img alt=\"\" src=\"data:image/png;base64,", 
+             "\">", true,
+             "<img alt=\"\" src=\"",
+             "\">" }}
 });
 
 const std::map<std::string, std::string> FORMAT_MIME_TYPE_MAP({

@@ -174,8 +174,8 @@ configure_file (${CMAKE_SOURCE_DIR}/share/pdf2htmlEX.js.in ${CMAKE_SOURCE_DIR}/s
 
 set(PDF2HTMLEX_SRC ${PDF2HTMLEX_SRC}
     src/Param.h
-    src/pdf2htmlEX-config.h
     src/pdf2htmlEX.cc 
+    src/pdf2htmlEX-config.h
     src/HTMLRenderer/HTMLRenderer.h 
     src/HTMLRenderer/draw.cc
     src/HTMLRenderer/general.cc
@@ -234,8 +234,10 @@ file (GLOB datafiles
     share/base.css
     share/fancy.css
     share/jquery.js
-    share/pdf2htmlEX.js
     share/manifest
+    share/pdf2htmlEX.js
+    share/pdf2htmlEX-plain-62x62.png
+    share/pdf2htmlEX-shadow-64x64.png
     )
 install (FILES ${datafiles} DESTINATION share/pdf2htmlEX)
 install (FILES pdf2htmlEX.1 DESTINATION share/man/man1)

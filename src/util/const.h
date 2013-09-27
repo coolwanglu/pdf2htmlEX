@@ -32,6 +32,7 @@ struct EmbedStringEntry
     // used when *embed_flag == true
     std::string prefix_embed;
     std::string suffix_embed;
+    bool base64_encode;
     // used when *embed_flag == false
     std::string prefix_external;
     std::string suffix_external;

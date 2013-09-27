@@ -61,5 +61,30 @@
     -o-animation: fadein 100ms; 
     animation: fadein 100ms; 
   }
+  @-moz-keyframes rotate {
+    from { -moz-transform: rotate(0deg); }
+    to { -moz-transform: rotate(360deg); }
+  }
+  @-webkit-keyframes rotate {
+    from { -webkit-transform: rotate(0deg); }
+    to { -webkit-transform: rotate(360deg); }
+  }
+  #pdf2htmlEX-logo {
+    position:absolute;
+    display:block;
+    height:64px;
+    width:64px;
+    top:50%;
+    left:50%;
+    margin-top:-32px;
+    margin-left:-32px;
+  }
+  #pdf2htmlEX-logo img{
+    position:absolute;
+    top:0;
+    left:0;
+    -moz-animation: rotate 18s linear 0s infinite;
+    -webkit-animation: rotate 18s linear 0 infinite;
+  }
 }
 /* Fancy CSS END */

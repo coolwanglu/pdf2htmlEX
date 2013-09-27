@@ -180,4 +180,7 @@ span { /* text blocks within a line */
   -webkit-transform-origin:0% 100%;
   -o-transform-origin:0% 100%;
 }
+#pdf2htmlEX-logo {
+  display:none;
+}
 /* Base CSS END */

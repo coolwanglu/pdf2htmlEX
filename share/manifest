@@ -6,7 +6,7 @@
 # Empty lines are ignored
 #
 # # - comment
-# @ - embed or link to a file from data dir, depending on the value of --single-html
+# @ - embed or link to a file from data dir, depending on the values of --embed-*** options
 # $ - special use for pdf2htmlEX
 #
 # Special
@@ -73,6 +73,16 @@ $outline
 <div id="page-container">
 """
 $pages
+"""
+</div>
+"""
+
+# pdf2htmlEX logo for loading
+"""
+<div id="pdf2htmlEX-logo">
+"""
+@pdf2htmlEX-shadow-64x64.png
+@pdf2htmlEX-plain-62x62.png
 """
 </div>
 """
