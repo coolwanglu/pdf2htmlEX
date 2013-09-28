@@ -31,7 +31,7 @@
     right:0;
     overflow:auto;
   }
-  #loading-indicator {
+  .loading-indicator {
     display:none;
     position:absolute;
     width:64px;
@@ -41,7 +41,7 @@
     margin-top:-32px;
     margin-left:-32px;
   }
-  #loading-indicator img {
+  .loading-indicator img {
     position:absolute;
     top:0;
     left:0;

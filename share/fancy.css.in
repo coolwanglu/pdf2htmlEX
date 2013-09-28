@@ -1,6 +1,20 @@
 /* vim: set shiftwidth=2 tabstop=2 autoindent cindent expandtab filetype=css: */
 /* Fancy styles */
 /* Copyright 2013 Lu Wang <coolwanglu@gmail.com> */
+@keyframes fadein { from { opacity:0;} to { opacity:1;} }
+@-webkit-keyframes fadein { from { opacity:0;} to { opacity:1;} }
+@keyframes swing {
+  0%  { transform: rotate(0deg); }
+  10% { transform: rotate(0deg); }
+  90% { transform: rotate(720deg); }
+  100%{ transform: rotate(720deg); }
+}
+@-webkit-keyframes swing {
+  0%  { -webkit-transform: rotate(0deg); }
+  10% { -webkit-transform: rotate(0deg); }
+  90% { -webkit-transform: rotate(720deg); }
+  100%{ -webkit-transform: rotate(720deg); }
+}
 @media screen { 
   #sidebar {
     background-color:#2f3236;
@@ -49,25 +63,11 @@
     margin: 13px auto;
     box-shadow: 1px 1px 3px 1px #333;
   }
-  @keyframes fadein { from { opacity:0;} to { opacity:1;} }
-  @-webkit-keyframes fadein { from { opacity:0;} to { opacity:1;} }
   .@CSS_PAGE_CONTENT_BOX_CN@.opened { /* used by pdf2htmlEX.js, to show/hide pages */
     -webkit-animation: fadein 100ms;
     animation: fadein 100ms; 
   }
-  @keyframes swing {
-    0%  { transform: rotate(0deg); }
-    10% { transform: rotate(0deg); }
-    90% { transform: rotate(720deg); }
-    100%{ transform: rotate(720deg); }
-  }
-  @-webkit-keyframes swing {
-    0%  { -webkit-transform: rotate(0deg); }
-    10% { -webkit-transform: rotate(0deg); }
-    90% { -webkit-transform: rotate(720deg); }
-    100%{ -webkit-transform: rotate(720deg); }
-  }
-  #loading-indicator {
+  .loading-indicator {
     animation: swing 1.5s ease-in-out 0s infinite alternate none;
     -webkit-animation: swing 1.5s ease-in-out 0s infinite alternate none;
   }
