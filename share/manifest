@@ -39,6 +39,7 @@ pdf2htmlEX.defaultViewer = new pdf2htmlEX.Viewer({
     container_id : 'page-container', 
     sidebar_id : 'sidebar',
     outline_id : 'outline',
+    indicator_id : 'loading-indicator',
 });
 </script>
 """
@@ -73,6 +74,15 @@ $outline
 <div id="page-container">
 """
 $pages
+"""
+</div>
+"""
+
+# shown when loading a page via ajax
+"""
+<div id="loading-indicator">
+"""
+@pdf2htmlEX-64x64.png
 """
 </div>
 """

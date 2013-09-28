@@ -31,6 +31,22 @@
     right:0;
     overflow:auto;
   }
+  #loading-indicator {
+    position:absolute;
+    width:64px;
+    height:64px;
+    top:50%;
+    left:50%;
+    margin-top:-32px;
+    margin-left:-32px;
+  }
+  #loading-indicator img {
+    position:absolute;
+    top:0;
+    left:0;
+    bottom:0;
+    right:0;
+  }
 }
 @media print { 
   @page { margin:0; }
@@ -82,9 +98,7 @@
   /* set transform-origin for scaling */
   transform-origin:0% 0%;
   -ms-transform-origin:0% 0%;
-  -moz-transform-origin:0% 0%;
   -webkit-transform-origin:0% 0%;
-  -o-transform-origin:0% 0%;
 }
 .@CSS_PAGE_CONTENT_BOX_CN@.opened { /* used by pdf2htmlEX.js, to show/hide pages */
   display:block;
@@ -142,9 +156,7 @@
   font-size:1px;
   transform-origin:0% 100%;
   -ms-transform-origin:0% 100%;
-  -moz-transform-origin:0% 100%;
   -webkit-transform-origin:0% 100%;
-  -o-transform-origin:0% 100%;
   unicode-bidi:bidi-override;/* For rtl lanauges, e.g. Hebrew, we don't want the default Unicode behaviour */
   -moz-font-feature-settings:"liga" 0;/* We don't want Firefox to recognize ligatures */
 }
@@ -176,8 +188,6 @@ span { /* text blocks within a line */
   position:absolute;
   transform-origin:0% 100%;
   -ms-transform-origin:0% 100%;
-  -moz-transform-origin:0% 100%;
   -webkit-transform-origin:0% 100%;
-  -o-transform-origin:0% 100%;
 }
 /* Base CSS END */

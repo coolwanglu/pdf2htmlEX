@@ -206,7 +206,7 @@ LinearGradient::LinearGradient (GfxAxialShading * shading,
 
 void LinearGradient::dumpto (ostream & out)
 {
-    auto prefixes = {"", "-ms-", "-moz-", "-webkit-", "-o-"};
+    auto prefixes = {"", "-ms-", "-webkit-"};
     for(auto iter = prefixes.begin(); iter != prefixes.end(); ++iter)
     {
         out << "background-image:" << (*iter) << "linear-gradient(" << round(angle) << "rad";

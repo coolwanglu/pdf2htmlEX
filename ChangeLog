@@ -1,5 +1,7 @@
 Developing v0.10
 
+* Add a logo
+* Remove Opera prefix (-o-)
 * Background image optimization
 * Support output background image in JPEG (--bg-format jpg)
 * [Experimental] Support output background image in SVG (--bg-format svg)

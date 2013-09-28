@@ -304,15 +304,14 @@ public:
         // we have already shifted the origin
         // TODO: recognize common matices
         const auto & m = matrix.m;
+        auto prefixes = {"", "-ms-", "-webkit-"};
         if(tm_equal(m, ID_MATRIX, 4))
         {
-            auto prefixes = {"", "-ms-", "-moz-", "-webkit-", "-o-"};
             for(auto iter = prefixes.begin(); iter != prefixes.end(); ++iter)
                 out << *iter << "transform:none;";
         }
         else
         {
-            auto prefixes = {"", "-ms-", "-moz-", "-webkit-", "-o-"};
             for(auto iter = prefixes.begin(); iter != prefixes.end(); ++iter)
             {
                 // PDF use a different coordinate system from Web

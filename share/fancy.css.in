@@ -42,9 +42,7 @@
     background-color:#9e9e9e;
     /* http://philbit.com/svgpatterns/#thinstripes */
     background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1IiBoZWlnaHQ9IjUiPgo8cmVjdCB3aWR0aD0iNSIgaGVpZ2h0PSI1IiBmaWxsPSIjOWU5ZTllIj48L3JlY3Q+CjxwYXRoIGQ9Ik0wIDVMNSAwWk02IDRMNCA2Wk0tMSAxTDEgLTFaIiBzdHJva2U9IiM4ODgiIHN0cm9rZS13aWR0aD0iMSI+PC9wYXRoPgo8L3N2Zz4=");
-    -moz-transition:left 500ms;
     -webkit-transition:left 500ms;
-    -o-transition:left 500ms;
     transition:left 500ms;
   }
   .@CSS_PAGE_DECORATION_CN@ {
@@ -52,13 +50,9 @@
     box-shadow: 1px 1px 3px 1px #333;
   }
   @keyframes fadein { from { opacity:0;} to { opacity:1;} }
-  @-moz-keyframes fadein { from { opacity:0;} to { opacity:1;} }
   @-webkit-keyframes fadein { from { opacity:0;} to { opacity:1;} }
-  @-o-keyframes fadein { from { opacity:0;} to { opacity: 1;} }
   .@CSS_PAGE_CONTENT_BOX_CN@.opened { /* used by pdf2htmlEX.js, to show/hide pages */
-    -moz-animation: fadein 100ms; 
     -webkit-animation: fadein 100ms;
-    -o-animation: fadein 100ms; 
     animation: fadein 100ms; 
   }
 }
