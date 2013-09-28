@@ -24,23 +24,25 @@
 
 # base CSS styles
 @base.css
-# fancy CSS styles
+# fancy CSS styles - You can remove it if you don't want it 
 @fancy.css
 # PDF specific CSS styles
 $css
-# necessary Javascript codes
+# Javascript codes - You can remove it if you don't want it
 @jquery.js
 @pdf2htmlEX.js
 
 # entry point of pdf2htmlEX
 """
 <script type="text/javascript">
-pdf2htmlEX.defaultViewer = new pdf2htmlEX.Viewer({
+try{
+  pdf2htmlEX.defaultViewer = new pdf2htmlEX.Viewer({
     container_id : 'page-container', 
     sidebar_id : 'sidebar',
     outline_id : 'outline',
     loading_indicator_cls : 'loading-indicator',
-});
+  });
+}catch(e){}
 </script>
 """
 
