@@ -61,7 +61,6 @@
     90% { transform: rotate(720deg); }
     100%{ transform: rotate(720deg); }
   }
-
   @-webkit-keyframes swing {
     0%  { -webkit-transform: rotate(0deg); }
     10% { -webkit-transform: rotate(0deg); }

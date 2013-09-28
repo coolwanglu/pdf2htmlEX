@@ -236,8 +236,7 @@ file (GLOB datafiles
     share/jquery.js
     share/manifest
     share/pdf2htmlEX.js
-    share/pdf2htmlEX-plain-62x62.png
-    share/pdf2htmlEX-shadow-64x64.png
+    share/pdf2htmlEX-64x64.png
     )
 install (FILES ${datafiles} DESTINATION share/pdf2htmlEX)
 install (FILES pdf2htmlEX.1 DESTINATION share/man/man1)

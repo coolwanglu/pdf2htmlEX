@@ -39,7 +39,7 @@ pdf2htmlEX.defaultViewer = new pdf2htmlEX.Viewer({
     container_id : 'page-container', 
     sidebar_id : 'sidebar',
     outline_id : 'outline',
-    indicator_id : 'loading-indicator',
+    loading_indicator_id : 'loading-indicator',
 });
 </script>
 """

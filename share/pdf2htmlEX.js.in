@@ -128,6 +128,7 @@ var pdf2htmlEX = (function(){
     this.container_id = config['container_id'];
     this.sidebar_id = config['sidebar_id'];
     this.outline_id = config['outline_id'];
+    this.loading_indicator_id = config['loading_indicator_id'];
     this.pages_to_preload = config['pages_to_preload'] || DEFAULT_PAGES_TO_PRELOAD;
     this.pages_loading = {};
     this.init_before_loading_content();
@@ -150,6 +151,7 @@ var pdf2htmlEX = (function(){
       this.$sidebar = $('#'+this.sidebar_id);
       this.$outline = $('#'+this.outline_id);
       this.$container = $('#'+this.container_id);
+      this.$loading_indicator = $('#'+this.loading_indicator_id);
 
       // Open the outline if nonempty
       if(this.$outline.children().length > 0) { 
@@ -195,6 +197,9 @@ var pdf2htmlEX = (function(){
       var $pf = this.$container.find('#' + CSS_CLASS_NAMES['page_frame'] + page_no_hex);
       if($pf.length == 0)
         return;  // Page does not exist
+
+      $pf.append(this.$loading_indicator);
+      this.$loading_indicator.show();
 
       var _ = this;
 
