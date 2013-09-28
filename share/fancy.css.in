@@ -55,5 +55,22 @@
     -webkit-animation: fadein 100ms;
     animation: fadein 100ms; 
   }
+  @keyframes swing {
+    0%  { transform: rotate(0deg); }
+    10% { transform: rotate(0deg); }
+    90% { transform: rotate(720deg); }
+    100%{ transform: rotate(720deg); }
+  }
+
+  @-webkit-keyframes swing {
+    0%  { -webkit-transform: rotate(0deg); }
+    10% { -webkit-transform: rotate(0deg); }
+    90% { -webkit-transform: rotate(720deg); }
+    100%{ -webkit-transform: rotate(720deg); }
+  }
+  #loading-indicator {
+    animation: swing 1.5s ease-in-out 0s infinite alternate none;
+    -webkit-animation: swing 1.5s ease-in-out 0s infinite alternate none;
+  }
 }
 /* Fancy CSS END */
