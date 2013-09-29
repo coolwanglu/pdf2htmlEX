@@ -61,13 +61,13 @@ Read `LICENSE` for more detail.
                                                     
 ### Resources
 
-* Twitter <https://twitter.com/pdf2htmlEX>
+* Twitter [@pdf2htmlEX](https://twitter.com/pdf2htmlEX)
 * Blog <http://pdf2htmlex.blogspot.com> [[RSS]](http://pdf2htmlex.blogspot.com/feeds/posts/default)
 * Mailing list <pdf2htmlex@googlegroups.com> [[Subscribe]](https://groups.google.com/forum/#!forum/pdf2htmlex)
   
 ### Contacts
 
-* 王璐 (Lu Wang) <coolwanglu@gmail.com> or [coolwanglu@twitter](https://twitter.com/coolwanglu)
+* 王璐 (Lu Wang) <coolwanglu@gmail.com> or [@coolwanglu](https://twitter.com/coolwanglu)
   - For general and person questions
     - If you want to report an issue, please refer to [How to report](https://github.com/coolwanglu/pdf2htmlEX/wiki/How-to-report)
   - Accepting messages in **中文**, **English** or **日本語**
