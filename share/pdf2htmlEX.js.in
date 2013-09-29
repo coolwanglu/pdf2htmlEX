@@ -166,6 +166,8 @@ var pdf2htmlEX = (function(){
 
       //this.zoom_fixer();
       
+      this.navigation_key_handler();
+
       // handle links
       this.$container.add(this.$outline).on('click', '.'+CSS_CLASS_NAMES['link'], this, this.link_handler);
 
@@ -327,6 +329,91 @@ var pdf2htmlEX = (function(){
       });
     },
 
+    navigation_key_handler : function () {
+      var _ = this;
+
+      $(window).on('keydown', function keydown(e) {
+
+        switch (e.keyCode) {
+        case 33: // Page UP:
+          // pageup        -> scroll one screen up
+          // alt-pageup    -> scroll one page up
+          if (e.altKey) {
+            _.scroll_to_page(_.get_prev_page());
+          }
+          else {
+            _.$container.scrollTop(_.$container.scrollTop()-_.$container.height());
+          }
+          break;
+
+        case 34: // Page DOWN
+          // pagedown      -> scroll one screen down
+          // alt-pagedown  -> scroll one page down
+          if (e.altKey) {
+            _.scroll_to_page(_.get_next_page());
+          }
+          else {
+            _.$container.scrollTop(_.$container.scrollTop()+_.$container.height());
+          }
+          break;
+
+        case 35: // End
+          if (e.ctrlKey) {
+            _.$container.scrollTop(_.$container[0].scrollHeight);
+          }
+          else
+            return;
+          break;
+
+        case 36: // Home
+          if (e.ctrlKey) {
+            _.$container.scrollTop(0);
+          }
+          else
+            return;
+          break;
+
+        default:
+          return;
+        }
+        e.preventDefault();
+      });
+    },
+
+    // Find the first page that is at least half a page below the current position
+    get_next_page : function() {
+      var _ = this;
+
+      var position = [0,0];
+      var page_height = _.$container.height();
+
+      var pl = this.pages;
+      for(var i in pl) {
+        var page = pl[i];
+        var page_position = page.position();
+        if (page_position[1] < position[1] - page_height/2)
+          return page;
+      }
+      return undefined;
+    },
+
+    // Find the last page that is at least half a page above the current position
+    get_prev_page : function() {
+      var _ = this;
+
+      var position = [0,0];
+      var page_height = _.$container.height();
+
+      var pl = this.pages.slice().reverse();
+      for(var i in pl) {
+        var page = pl[i];
+        var page_position = page.position();
+        if (page_position[1] > position[1] + page_height/2)
+          return page;
+      }
+      return undefined;
+    },
+
     rescale : function (ratio, is_relative) {
       var pl = this.pages;
       for(var i in pl) {
@@ -427,6 +514,16 @@ var pdf2htmlEX = (function(){
       }
     }, 
     
+    scroll_to_page : function(target_page) {
+      if (target_page == undefined) return;
+
+      // Show a bit of space above the target page when scrolling
+      // TODO: do not hardcode!
+      var page_padding = 10;
+
+      this.scroll_to(target_page.n, [0,-page_padding]);
+    },
+
     /* pos=[x,y], where (0,0) is the top-left corner */
     scroll_to : function(pageno, pos) {
       var target_page = this.pages[pageno];
