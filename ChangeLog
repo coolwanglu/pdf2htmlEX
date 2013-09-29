@@ -1,7 +1,8 @@
 Developing v0.10
 
+* Logo as loading indicator
 * Add a logo
-* Remove Opera prefix (-o-)
+* Remove several CSS prefixes
 * Background image optimization
 * Support output background image in JPEG (--bg-format jpg)
 * [Experimental] Support output background image in SVG (--bg-format svg)
