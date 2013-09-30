@@ -1,5 +1,7 @@
 show hint for ttfautohint
 open issue for text accuracy
+compress js
+move pdf2htmlEX.Viewer's contstants outside
 
  - dots issue
   - AdobeXML*.pdf
@@ -7,9 +9,6 @@ open issue for text accuracy
   - cjkmix2*.pdf
  - space issue
   - python简明*.pdf
- - smarter space-as-offset
- - show hints about possible useful parameters
- - optimization levels
  - spinning icon for dynamic page loading
  - fix negative word-spacing for IE
 
@@ -33,4 +32,7 @@ Not enough motivation/Lazy
  - separate classes for annotations (such that we don't have to hide all css drawings for printing)
  - Widget Annoataion
  - handle large negative letter space
+ - optimization levels
+ - smarter space-as-offset
+ - show hints about possible useful parameters
  

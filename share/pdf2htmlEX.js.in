@@ -8,6 +8,7 @@
 
 'use strict';
 
+/* The namespace */
 var pdf2htmlEX = (function(){
   var CSS_CLASS_NAMES = {
     page_frame       : '@CSS_PAGE_FRAME_CN@',
@@ -18,10 +19,15 @@ var pdf2htmlEX = (function(){
     link             : '@CSS_LINK_CN@',
     __dummy__        : 'no comma'
   };
+
+  // How many page shall we preload that are below the last visible page
   var DEFAULT_PAGES_TO_PRELOAD = 3;
 
-  // Smooth zoom is enabled when pages shown are less then SMOOTH_ZOOM_THRESHOLD. Otherwise page content is hidden and redrawn after a delay (function schedule_render).
+  // Smooth zoom is enabled when the number of pages shown is less then SMOOTH_ZOOM_THRESHOLD. 
+  // Otherwise page content is hidden and redrawn after a delay (function schedule_render).
   var SMOOTH_ZOOM_THRESHOLD = 4;   // 0: disable smooth zoom optimizations (less CPU usage but flickering on zoom)
+
+
 
   var pdf2htmlEX = new Object();
 
@@ -53,7 +59,9 @@ var pdf2htmlEX = (function(){
     this.$b = $('.'+CSS_CLASS_NAMES['page_content_box'], this.$p);
     this.$d = this.$p.parent('.'+CSS_CLASS_NAMES['page_decoration']);
 
-    this.h = this.$p.height();     // Need to make rescale work when page_content_box is not loaded, yet
+    // page size
+    // Need to make rescale work when page_content_box is not loaded, yet
+    this.h = this.$p.height();     
     this.w = this.$p.width();
 
     // if page is loaded
@@ -145,7 +153,7 @@ var pdf2htmlEX = (function(){
   };
 
   $.extend(pdf2htmlEX.Viewer.prototype, {
-    /* Constants */
+    /* Constants: TODO: move outside */
     render_timeout : 100,
     scale_step : 0.9,
     scale : 1,
@@ -172,7 +180,7 @@ var pdf2htmlEX = (function(){
       var _ = this;
       this.$container.scroll(function(){ _.schedule_render(); });
 
-      this.zoom_fixer();
+      //this.zoom_fixer();
       
       // handle links
       this.$container.add(this.$outline).on('click', '.'+CSS_CLASS_NAMES['link'], this, this.link_handler);
@@ -183,7 +191,7 @@ var pdf2htmlEX = (function(){
     find_pages : function() {
       var new_pages = new Array();
       var $pl= $('.'+CSS_CLASS_NAMES['page_frame'], this.$container);
-      /* don't use for(..in..) */
+      /* don't use for(..in..) since $pl is more than an Array */
       for(var i = 0, l = $pl.length; i < l; ++i) {
         var p = new Page($pl[i], this.$container);
         new_pages[p.n] = p;
@@ -344,8 +352,11 @@ var pdf2htmlEX = (function(){
 
       // Save offset of the active page
       var active_page = this.get_active_page();
+      if(!active_page) return;
+
       var prev_offset = active_page.$p.offset();
       var old_scale = this.scale;
+      var pl = this.pages;
 
       var prerendering_enabled = false;
       if (SMOOTH_ZOOM_THRESHOLD > 0) {
@@ -353,11 +364,13 @@ var pdf2htmlEX = (function(){
         // Find out which pages are visible
         var min_visible, max_visible;
         min_visible = max_visible = active_page.n;
-        while (min_visible > 0 && this.pages[min_visible].is_visible()) { min_visible-- }
-        while (max_visible < this.pages.length && this.pages[max_visible].is_visible()) { max_visible++ }
+        while (pl[min_visible] && pl[min_visible].is_visible()) { --min_visible; }
+        ++ min_visible;
+        while (pl[max_visible] && pl[max_visible].is_visible()) { ++max_visible; }
+        -- max_visible;
 
         // If less then the threshold, enable prerendering on selected pages
-        if (max_visible - min_visible - 2 < SMOOTH_ZOOM_THRESHOLD)
+        if (max_visible - min_visible + 1 < SMOOTH_ZOOM_THRESHOLD)
           prerendering_enabled = true;
       }
 
@@ -368,9 +381,8 @@ var pdf2htmlEX = (function(){
         this.scale = ratio;
 
       // Rescale pages
-      var pl = this.pages;
       for(var i in pl) {
-        if (prerendering_enabled && i > min_visible && i < max_visible)
+        if (prerendering_enabled && i >= min_visible && i <= max_visible)
           pl[i].rescale(this.scale, true);    // Force immediate refresh
         else
           pl[i].rescale(this.scale);          // Delayed refresh
@@ -393,6 +405,7 @@ var pdf2htmlEX = (function(){
 
     fit_width : function () {
       var active_page = this.get_active_page();
+      if(!active_page) return;
 
       this.rescale(this.$container.width() / active_page.w, false);
       this.scroll_to(active_page.n, [0,0]);
@@ -400,6 +413,7 @@ var pdf2htmlEX = (function(){
 
     fit_height : function () {
       var active_page = this.get_active_page();
+      if(!active_page) return;
 
       this.rescale(this.$container.height() / active_page.h, false);
       this.scroll_to(active_page.n, [0,0]);
@@ -407,12 +421,15 @@ var pdf2htmlEX = (function(){
 
     get_active_page : function () {
         // get page that are on the center of the view     //TODO better on top?!
-        var y_center = $(this.$container).offset().top + this.$container.height() / 2;
-        for (var i=2; i<this.pages.length; i++) {
-            if (this.pages[i].$p.offset().top > y_center)
-               return this.pages[i-1];
+        var y_center = this.$container.offset().top + this.$container.height() / 2;
+        var pl = this.pages;
+        var last_page = -1;
+        for (var i in pl) {
+            if (pl[i].$p.offset().top > y_center)
+              break;
+            last_page = i;
         }
-        return this.pages[i-1];  // Last page
+        return pl[last_page];
     },
 
     get_containing_page : function(obj) {
