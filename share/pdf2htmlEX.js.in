@@ -20,6 +20,9 @@ var pdf2htmlEX = (function(){
   };
   var DEFAULT_PAGES_TO_PRELOAD = 3;
 
+  // Smooth zoom is enabled when pages shown are less then SMOOTH_ZOOM_THRESHOLD. Otherwise page content is hidden and redrawn after a delay (function schedule_render).
+  var SMOOTH_ZOOM_THRESHOLD = 4;   // 0: disable smooth zoom optimizations (less CPU usage but flickering on zoom)
+
   var pdf2htmlEX = new Object();
 
   var EPS = 1e-6;
@@ -42,6 +45,7 @@ var pdf2htmlEX = (function(){
     if(page == undefined) return;
 
     this.loaded = false;
+    this.shown = false;
     this.$p = $(page);
     this.$container = $(container);
 
@@ -61,7 +65,7 @@ var pdf2htmlEX = (function(){
        * set_r : last set
        * cur_r : currently using
        */
-      this.default_r = this.set_r = this.cur_r = this.$p.height() / this.$b.height();
+      this.default_r = this.set_r = this.cur_r = this.h / this.$b.height();
 
       this.data = $($('.'+CSS_CLASS_NAMES['page_data'], this.$p)[0]).data('data');
 
@@ -75,33 +79,39 @@ var pdf2htmlEX = (function(){
     /* hide & show are for contents, the page frame is still there */
     hide : function(){
       this.$b.removeClass('opened');
+      this.shown = false;
     },
     show : function(){
-      if(Math.abs(this.set_r - this.cur_r) > EPS) {
-        this.cur_r = this.set_r;
-        this.$b.css('transform', 'scale('+this.cur_r.toFixed(3)+')');
+      if (this.loaded) {
+        if(Math.abs(this.set_r - this.cur_r) > EPS) {
+          this.cur_r = this.set_r;
+          this.$b.css('transform', 'scale('+this.cur_r.toFixed(3)+')');
+        }
+        if (! this.shown) {
+          this.$b.addClass('opened');
+          this.shown = true;
+        }
       }
-      this.$b.addClass('opened');
     },
-    rescale : function(ratio, is_relative) {
+    rescale : function(ratio, keep_shown) {
       if(ratio == 0) {
         this.set_r = this.default_r;
-      } else if (is_relative) {
-        this.set_r *= ratio;
       } else {
         this.set_r = ratio;
       }
 
-      /* wait for redraw */
-      this.hide();
+      if (keep_shown)
+        this.show();    // Refresh content
+      else
+        this.hide();    // Wait for redraw
 
-      this.$p.height(this.$b.height() * this.set_r);
-      this.$p.width(this.$b.width() * this.set_r);
+      this.$d.height(this.h * this.set_r);
+      this.$d.width(this.w * this.set_r);
     },
     /* return if any part of this page is shown in the container */
     is_visible : function() {
       var off = this.position();
-      return !((off[1] > this.height()) || (off[1] + this.$container.height() < 0));
+      return !((off[1] > this.h) || (off[1] + this.$container.height() < 0));
     },
     /* return if this page or any neighbor of it is visible */
     is_nearly_visible : function() {
@@ -109,7 +119,7 @@ var pdf2htmlEX = (function(){
       /* I should use the height of the previous page or the next page here
        * but since they are not easily available, just use '*2', which should be a good estimate in most cases
        */
-      return !((off[1] > this.height() * 2) || (off[1] + this.$container.height() * 2 < 0));
+      return !((off[1] > this.h * 2) || (off[1] + this.$container.height() * 2 < 0));
     },
     /* return the coordinate of the top-left corner of container
      * in our coordinate system
@@ -118,9 +128,6 @@ var pdf2htmlEX = (function(){
       var off = this.$p.offset();
       var off_c = this.$container.offset();
       return [off_c.left-off.left, off_c.top-off.top];
-    },
-    height : function() {
-      return this.$p.height();
     }
   });
 
@@ -141,6 +148,7 @@ var pdf2htmlEX = (function(){
     /* Constants */
     render_timeout : 100,
     scale_step : 0.9,
+    scale : 1,
 
     init_before_loading_content : function() {
       /*hide all pages before loading, will reveal only visible ones later */
@@ -154,7 +162,7 @@ var pdf2htmlEX = (function(){
       this.$loading_indicator = $('.'+this.loading_indicator_cls);
 
       // Open the outline if nonempty
-      if(this.$outline.children().length > 0) { 
+      if(this.$outline.children().length > 0) {
         this.$sidebar.addClass('opened');
       }
 
@@ -164,14 +172,14 @@ var pdf2htmlEX = (function(){
       var _ = this;
       this.$container.scroll(function(){ _.schedule_render(); });
 
-      //this.zoom_fixer();
+      this.zoom_fixer();
       
       // handle links
       this.$container.add(this.$outline).on('click', '.'+CSS_CLASS_NAMES['link'], this, this.link_handler);
 
       this.render();
     },
-    
+
     find_pages : function() {
       var new_pages = new Array();
       var $pl= $('.'+CSS_CLASS_NAMES['page_frame'], this.$container);
@@ -210,10 +218,11 @@ var pdf2htmlEX = (function(){
           url: url,
           dataType: 'text'
         }).done(function(data){
-            _.pages[idx].$p.parent().replaceWith(data);
+            _.pages[idx].$d.replaceWith(data);
 
             var $new_pf = _.$container.find('#' + CSS_CLASS_NAMES['page_frame'] + page_no_hex);
             _.pages[idx] = new Page($new_pf, _.$container);
+            _.pages[idx].hide();
             _.pages[idx].rescale(_.scale);
             _.schedule_render();
 
@@ -327,13 +336,83 @@ var pdf2htmlEX = (function(){
       });
     },
 
-    rescale : function (ratio, is_relative) {
-      var pl = this.pages;
-      for(var i in pl) {
-        pl[i].rescale(ratio, is_relative);
+    rescale : function (ratio, is_relative, offsetX, offsetY) {
+      if (! offsetX)
+        offsetX = 0;
+      if (! offsetY)
+        offsetY = 0;
+
+      // Save offset of the active page
+      var active_page = this.get_active_page();
+      var prev_offset = active_page.$p.offset();
+      var old_scale = this.scale;
+
+      var prerendering_enabled = false;
+      if (SMOOTH_ZOOM_THRESHOLD > 0) {
+        // Immediate rendering optimizations enabled to improve reactiveness while zooming
+        // Find out which pages are visible
+        var min_visible, max_visible;
+        min_visible = max_visible = active_page.n;
+        while (min_visible > 0 && this.pages[min_visible].is_visible()) { min_visible-- }
+        while (max_visible < this.pages.length && this.pages[max_visible].is_visible()) { max_visible++ }
+
+        // If less then the threshold, enable prerendering on selected pages
+        if (max_visible - min_visible - 2 < SMOOTH_ZOOM_THRESHOLD)
+          prerendering_enabled = true;
       }
 
+      // Set new scale
+      if (is_relative)
+        this.scale *= ratio;
+      else
+        this.scale = ratio;
+
+      // Rescale pages
+      var pl = this.pages;
+      for(var i in pl) {
+        if (prerendering_enabled && i > min_visible && i < max_visible)
+          pl[i].rescale(this.scale, true);    // Force immediate refresh
+        else
+          pl[i].rescale(this.scale);          // Delayed refresh
+      }
+
+      // Correct container scroll to keep view aligned while zooming
+      var correction_top = active_page.$p.offset().top - prev_offset.top;
+      this.$container.scrollTop( this.$container.scrollTop() + correction_top + offsetY );
+
+      // Take the center of the view as a reference
+      var prev_center_x = this.$container.width() / 2 - prev_offset.left;
+      // Calculate the difference respect the center of the view after the zooming
+      var correction_left = prev_center_x * (this.scale/old_scale - 1) + active_page.$p.offset().left - prev_offset.left;
+      // Scroll the container accordingly to keep alignment to the initial reference
+      this.$container.scrollLeft( this.$container.scrollLeft() + correction_left + offsetX );
+
+      // Delayed rendering for pages not already shown
       this.schedule_render();
+    },
+
+    fit_width : function () {
+      var active_page = this.get_active_page();
+
+      this.rescale(this.$container.width() / active_page.w, false);
+      this.scroll_to(active_page.n, [0,0]);
+    },
+
+    fit_height : function () {
+      var active_page = this.get_active_page();
+
+      this.rescale(this.$container.height() / active_page.h, false);
+      this.scroll_to(active_page.n, [0,0]);
+    },
+
+    get_active_page : function () {
+        // get page that are on the center of the view     //TODO better on top?!
+        var y_center = $(this.$container).offset().top + this.$container.height() / 2;
+        for (var i=2; i<this.pages.length; i++) {
+            if (this.pages[i].$p.offset().top > y_center)
+               return this.pages[i-1];
+        }
+        return this.pages[i-1];  // Last page
     },
 
     get_containing_page : function(obj) {
@@ -354,7 +433,7 @@ var pdf2htmlEX = (function(){
       {
         cur_pos = cur_page.position();
         //get the coordinates in default user system
-        cur_pos = transform(cur_page.ictm, [cur_pos[0], cur_page.height()-cur_pos[1]]);
+        cur_pos = transform(cur_page.ictm, [cur_pos[0], cur_page.h-cur_pos[1]]);
       }
 
       var detail_str = t.attr('data-dest-detail');
@@ -383,7 +462,7 @@ var pdf2htmlEX = (function(){
           break;
         case 'FitH':
         case 'FitBH':
-          pos = [0, (detail[2] == null) ? cur_pos[1] : detail[2]]
+          pos = [0, (detail[2] == null) ? cur_pos[1] : detail[2]];
           ok = true;
           break;
         case 'FitV':
@@ -406,10 +485,10 @@ var pdf2htmlEX = (function(){
         var transform_and_scroll = function() {
           pos = transform(target_page.ctm, pos);
           if(upside_down) {
-            pos[1] = target_page.height() - pos[1];
+            pos[1] = target_page.h - pos[1];
           }
           _.scroll_to(detail[0], pos);
-        }
+        };
 
         if (target_page.loaded) {
           transform_and_scroll();
