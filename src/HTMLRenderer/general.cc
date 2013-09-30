@@ -192,6 +192,8 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state, XRef * xref)
             << "\" data-page-no=\"" << pageNum << "\">"
         << "<div class=\"" << CSS::PAGE_CONTENT_BOX_CN 
             << " " << CSS::PAGE_CONTENT_BOX_CN << pageNum
+            << " " << CSS::WIDTH_CN << wid
+            << " " << CSS::HEIGHT_CN << hid
             << "\">";
 
     /*
