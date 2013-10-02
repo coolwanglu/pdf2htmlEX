@@ -2,6 +2,7 @@ show hint for ttfautohint
 open issue for text accuracy
 compress js
 move pdf2htmlEX.Viewer's contstants outside
+increasing fallback resolution for type 3 fonts -- and see if that helps
 
  - dots issue
   - AdobeXML*.pdf
