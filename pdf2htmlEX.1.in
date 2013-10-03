@@ -168,7 +168,7 @@ This may be preceded by --external-hint-tool.
 .B --external-hint-tool <tool> (Default: <none>)
 If specified, the tool will be called in order to enhanced hinting for fonts, this will precede --auto-hint.
 
-The tool will be called as '<tool> <in.suffix> <out.suffix>', where suffix will be the same as specified for --font-suffix.
+The tool will be called as '<tool> <in.suffix> <out.suffix>', where suffix will be the same as specified for --font-format.
 
 .TP
 .B --stretch-narrow-glyph <0|1> (Default: 0)

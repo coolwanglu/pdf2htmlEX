@@ -307,6 +307,11 @@ void check_param()
         exit(EXIT_FAILURE);
     }
 #endif
+
+    if((param.font_format == "ttf") && (param.external_hint_tool == ""))
+    {
+        cerr << "Warning: No hint tool is specified for truetype fonts, the result may be rendered poorly in some circumstances." << endl;
+    }
 }
 
 int main(int argc, char **argv)
