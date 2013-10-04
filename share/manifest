@@ -12,10 +12,11 @@
 # Special
 # If a line contains """ only, all text until next """ will be included
 
+#############
 # Declaration - Do not modify
 """
 <!DOCTYPE html>
-<!-- Created by pdf2htmlEX (http://github.com/coolwanglu/pdf2htmlEX) -->
+<!-- Created by pdf2htmlEX (https://github.com/coolwanglu/pdf2htmlex) -->
 <html>
 <head>
 <meta charset="utf-8">
@@ -23,17 +24,21 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 """
 
+#############
+# Styles 
 # base CSS styles - Do not modify
 @base.css
 # fancy CSS styles - Optional
 @fancy.css
 # PDF specific CSS styles - Do not modify
 $css
-# Javascript codes - Optional
+
+
+#############
+# UI stuffs, optional
 @jquery.js
 @pdf2htmlEX.js
-
-# entry point of pdf2htmlEX - Optional
+# entry point 
 """
 <script type="text/javascript">
 try{
@@ -47,6 +52,7 @@ try{
 </script>
 """
 
+#############
 # Do not modify
 """
 <title></title>
@@ -54,6 +60,7 @@ try{
 <body>
 """
 
+#############
 # The sidebar
 # By default this is hidden, pdf2htmlEX.js will add the 'opened' class if it is not empty
 # You can add a class 'opened' here if you want it always opened or you don't use pdf2htmlEX.js
@@ -72,6 +79,7 @@ $outline
 </div>
 """
 
+#############
 # The container of PDF pages
 # check base.css for an example and requirements of its CSS styles
 """
@@ -82,6 +90,7 @@ $pages
 </div>
 """
 
+#############
 # The loading indicator
 # shown when loading a page via ajax
 """
@@ -92,6 +101,7 @@ $pages
 </div>
 """
 
+#############
 # Do not modify
 """
 </body>

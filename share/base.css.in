@@ -104,7 +104,7 @@
 .@CSS_PAGE_CONTENT_BOX_CN@.opened { /* used by pdf2htmlEX.js, to show/hide pages */
   display:block;
 }
-.@CSS_FULL_BACKGROUND_IMAGE_CN@ {
+.@CSS_FULL_BACKGROUND_IMAGE_CN@ { /* images that occupies the whole page */
   position:absolute;
   border:0;
   margin:0;
@@ -117,7 +117,7 @@
   -webkit-user-select:none;
   user-select:none;
 }
-.@CSS_BACKGROUND_IMAGE_CN@ {
+.@CSS_BACKGROUND_IMAGE_CN@ { /* images that cover only a part of the page */
   position:absolute;
   border:0;
   margin:0;
