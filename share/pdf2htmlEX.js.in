@@ -24,11 +24,11 @@ var pdf2htmlEX = (function(){
 
   var DEFAULT_CONFIG = {
     // id of the element to put the pages in
-    container_id : 'container_id',
+    container_id : 'page-container',
     // id of the element for sidebar (to open and close)
-    sidebar_id : 'sidebar_id',
+    sidebar_id : 'sidebar',
     // id of the element for outline
-    outline_id : 'outline_id',
+    outline_id : 'outline',
     // class for the loading indicator
     loading_indicator_cls : 'loading_indicator_cls',
     // How many page shall we preload that are below the last visible page
