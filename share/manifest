@@ -42,12 +42,7 @@ $css
 """
 <script type="text/javascript">
 try{
-  pdf2htmlEX.defaultViewer = new pdf2htmlEX.Viewer({
-    container_id : 'page-container', 
-    sidebar_id : 'sidebar',
-    outline_id : 'outline',
-    loading_indicator_cls : 'loading-indicator',
-  });
+  pdf2htmlEX.defaultViewer = new pdf2htmlEX.Viewer();
 }catch(e){}
 </script>
 """

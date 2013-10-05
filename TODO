@@ -1,6 +1,3 @@
-move pdf2htmlEX.Viewer's contstants outside
-default config object
-
  - dots issue
   - AdobeXML*.pdf
  - font issue 

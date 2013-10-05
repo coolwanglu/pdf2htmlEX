@@ -10,6 +10,8 @@
 
 /* The namespace */
 var pdf2htmlEX = (function(){
+  var pdf2htmlEX = new Object();
+
   var CSS_CLASS_NAMES = {
     page_frame       : '@CSS_PAGE_FRAME_CN@',
     page_decoration  : '@CSS_PAGE_DECORATION_CN@',
@@ -20,16 +22,24 @@ var pdf2htmlEX = (function(){
     __dummy__        : 'no comma'
   };
 
-  // How many page shall we preload that are below the last visible page
-  var DEFAULT_PAGES_TO_PRELOAD = 3;
+  var DEFAULT_CONFIG = {
+    // id of the element to put the pages in
+    container_id : 'container_id',
+    // id of the element for sidebar (to open and close)
+    sidebar_id : 'sidebar_id',
+    // id of the element for outline
+    outline_id : 'outline_id',
+    // class for the loading indicator
+    loading_indicator_cls : 'loading_indicator_cls',
+    // How many page shall we preload that are below the last visible page
+    preload_pages : 3,
+    // Smooth zoom is enabled when the number of pages shown is less than the threshold
+    // Otherwise page content is hidden and redrawn after a delay (function schedule_render).
+    // 0: disable smooth zoom optimizations (less CPU usage but flickering on zoom)
+    smooth_zoom_threshold : 4,
 
-  // Smooth zoom is enabled when the number of pages shown is less then SMOOTH_ZOOM_THRESHOLD. 
-  // Otherwise page content is hidden and redrawn after a delay (function schedule_render).
-  var SMOOTH_ZOOM_THRESHOLD = 4;   // 0: disable smooth zoom optimizations (less CPU usage but flickering on zoom)
-
-
-
-  var pdf2htmlEX = new Object();
+    __dummy__        : 'no comma'
+  };
 
   var EPS = 1e-6;
   var invert = function(ctm) {
@@ -140,11 +150,7 @@ var pdf2htmlEX = (function(){
   });
 
   pdf2htmlEX.Viewer = function(config) {
-    this.container_id = config['container_id'];
-    this.sidebar_id = config['sidebar_id'];
-    this.outline_id = config['outline_id'];
-    this.loading_indicator_cls = config['loading_indicator_cls'];
-    this.pages_to_preload = config['pages_to_preload'] || DEFAULT_PAGES_TO_PRELOAD;
+    this.config = $.extend({}, DEFAULT_CONFIG, config);
     this.pages_loading = {};
     this.init_before_loading_content();
 
@@ -164,10 +170,10 @@ var pdf2htmlEX = (function(){
     },
 
     init_after_loading_content : function() {
-      this.$sidebar = $('#'+this.sidebar_id);
-      this.$outline = $('#'+this.outline_id);
-      this.$container = $('#'+this.container_id);
-      this.$loading_indicator = $('.'+this.loading_indicator_cls);
+      this.$sidebar = $('#'+this.config['sidebar_id']);
+      this.$outline = $('#'+this.config['outline_id']);
+      this.$container = $('#'+this.config['container_id']);
+      this.$loading_indicator = $('.'+this.config['loading_indicator_cls']);
 
       // Open the outline if nonempty
       if(this.$outline.children().length > 0) {
@@ -253,7 +259,7 @@ var pdf2htmlEX = (function(){
       }
       // Concurrent prefetch of the next pages
       if (pages_to_preload === undefined)
-        pages_to_preload = this.pages_to_preload;
+        pages_to_preload = this.config['preload_pages'];
 
       if (--pages_to_preload > 0)
         _.load_page(idx+1, pages_to_preload);
@@ -359,7 +365,7 @@ var pdf2htmlEX = (function(){
       var pl = this.pages;
 
       var prerendering_enabled = false;
-      if (SMOOTH_ZOOM_THRESHOLD > 0) {
+      if (this.config['smooth_zoom_threshold'] > 0) {
         // Immediate rendering optimizations enabled to improve reactiveness while zooming
         // Find out which pages are visible
         var min_visible, max_visible;
@@ -370,7 +376,7 @@ var pdf2htmlEX = (function(){
         -- max_visible;
 
         // If less then the threshold, enable prerendering on selected pages
-        if (max_visible - min_visible + 1 < SMOOTH_ZOOM_THRESHOLD)
+        if (max_visible - min_visible + 1 < this.config['smooth_zoom_threshold'])
           prerendering_enabled = true;
       }
 
