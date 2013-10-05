@@ -78,31 +78,9 @@ to one of the --embed-*** switches. Lower case letters for 0 and upper case lett
 .B --split-pages <0|1> (Default: 0)
 If turned on, the content of each page is stored in a separated file.
 
---page-filename may be used to specify the format for the filenames for individual pages. A %d placeholder may be included to indicate where the page number should be placed. The placeholder supports a limited subset of normal numerical placeholders, including specified width and zero padding.
-
-If --page-filename does not contain a placeholder for the page number, the page number will be inserted directly before the file extension. If the filename does not have an extension, the page number will be placed at the end of the file name.
-
-If --page-filename is not specified, <input-filename> will be used for the output filename, replacing the extension with .page and adding the page number directly before the extension.
-
 This switch is useful if you want pages to be loaded separately & dynamically -- a supporting server might be necessary.
 
-.B Examples
-
-.B pdf2htmlEX --split-pages 1 foo.pdf
-
-  Yields page files foo1.page, foo2.page, etc.
-
-.B pdf2htmlEX --split-pages 1 foo.pdf bar.baz
-
-  Yields page files bar1.baz, bar2.baz, etc.
-
-.B pdf2htmlEX --split-pages 1 foo.pdf page%dbar.baz
-
-  Yields page files page1bar.baz, page2bar.baz, etc.
-
-.B pdf2htmlEX --split-pages 1 foo.pdf bar%03d.baz
-
-  Yields page files bar001.baz, bar002.baz, etc.
+Also see --page-filename.
 
 .TP
 .B --dest-dir <dir> (Default: .)
@@ -116,9 +94,31 @@ If it's empty, the file name will be determined automatically.
 
 .TP
 .B --page-filename <filename> (Default: <none>)
-Specify the filename template for pages. This is only useful when --split-pages is 1
+Specify the filename template for pages when --split-pages is 1
 
-If it's empty, a default one will be used, see description of --split-pages
+A %d placeholder may be included in `filename` to indicate where the page number should be placed. The placeholder supports a limited subset of normal numerical placeholders, including specified width and zero padding.
+
+If `filename` does not contain a placeholder for the page number, the page number will be inserted directly before the file extension. If the filename does not have an extension, the page number will be placed at the end of the file name.
+
+If --page-filename is not specified, <input-filename> will be used for the output filename, replacing the extension with .page and adding the page number directly before the extension.
+
+.B Examples
+
+.B pdf2htmlEX --split-pages 1 foo.pdf
+
+  Yields page files foo1.page, foo2.page, etc.
+
+.B pdf2htmlEX --split-pages 1 foo.pdf --page-filename bar.baz
+
+  Yields page files bar1.baz, bar2.baz, etc.
+
+.B pdf2htmlEX --split-pages 1 foo.pdf --page-filename page%dbar.baz
+
+  Yields page files page1bar.baz, page2bar.baz, etc.
+
+.B pdf2htmlEX --split-pages 1 foo.pdf --page-filename bar%03d.baz
+
+  Yields page files bar001.baz, bar002.baz, etc.
 
 .TP
 .B --outline-filename <filename> (Default: <none>)
