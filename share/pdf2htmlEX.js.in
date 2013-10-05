@@ -37,6 +37,10 @@ var pdf2htmlEX = (function(){
     // Otherwise page content is hidden and redrawn after a delay (function schedule_render).
     // 0: disable smooth zoom optimizations (less CPU usage but flickering on zoom)
     smooth_zoom_threshold : 4,
+    // how many ms should we wait before actually rendering the pages and after a scroll event
+    render_timeout : 100,
+    // zoom ratio step for each zoom in/out event
+    scale_step : 0.9,
 
     __dummy__        : 'no comma'
   };
@@ -159,9 +163,6 @@ var pdf2htmlEX = (function(){
   };
 
   $.extend(pdf2htmlEX.Viewer.prototype, {
-    /* Constants: TODO: move outside */
-    render_timeout : 100,
-    scale_step : 0.9,
     scale : 1,
 
     init_before_loading_content : function() {
@@ -307,7 +308,7 @@ var pdf2htmlEX = (function(){
       var _ = this;
       this.render_timer = setTimeout(function () {
         _.render();
-      }, this.render_timeout);
+      }, this.config['render_timeout']);
     },
 
     zoom_fixer : function () {
@@ -322,7 +323,7 @@ var pdf2htmlEX = (function(){
       $(window).on('DOMMouseScroll', function(e) {
         if (e.ctrlKey) {
           e.preventDefault();
-          _.rescale(Math.pow(_.scale_step, e.detail), true);
+          _.rescale(Math.pow(_.config['scale_step'], e.detail), true);
         }
       });
 
@@ -332,12 +333,12 @@ var pdf2htmlEX = (function(){
             case 61: // FF/Mac '='
             case 107: // FF '+' and '='
             case 187: // Chrome '+'
-              _.rescale(1.0 / _.scale_step, true);
+              _.rescale(1.0 / _.config['scale_step'], true);
               break;
             case 173: // FF/Mac '-'
             case 109: // FF '-'
             case 189: // Chrome '-'
-              _.rescale(_.scale_step, true);
+              _.rescale(_.config['scale_step'], true);
               break;
             case 48: // '0'
               _.rescale(0, false);
