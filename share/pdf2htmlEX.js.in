@@ -187,8 +187,8 @@ var pdf2htmlEX = (function(){
       var _ = this;
       this.$container.scroll(function(){ _.schedule_render(); });
 
-      //this.zoom_fixer();
-      
+      //this.register_key_handler();
+
       // handle links
       this.$container.add(this.$outline).on('click', '.'+CSS_CLASS_NAMES['link'], this, this.link_handler);
 
@@ -233,22 +233,22 @@ var pdf2htmlEX = (function(){
           url: url,
           dataType: 'text'
         }).done(function(data){
-            _.pages[idx].$d.replaceWith(data);
+          _.pages[idx].$d.replaceWith(data);
 
-            var $new_pf = _.$container.find('#' + CSS_CLASS_NAMES['page_frame'] + page_no_hex);
-            _.pages[idx] = new Page($new_pf, _.$container);
-            _.pages[idx].hide();
-            _.pages[idx].rescale(_.scale);
-            _.schedule_render();
+          var $new_pf = _.$container.find('#' + CSS_CLASS_NAMES['page_frame'] + page_no_hex);
+          _.pages[idx] = new Page($new_pf, _.$container);
+          _.pages[idx].hide();
+          _.pages[idx].rescale(_.scale);
+          _.schedule_render();
 
-            // disable background image dragging
-            $new_pf.find('.'+CSS_CLASS_NAMES['background_image']).on('dragstart', function(e){return false;});
+          // disable background image dragging
+          $new_pf.find('.'+CSS_CLASS_NAMES['background_image']).on('dragstart', function(e){return false;});
 
-            // Reset loading token
-            delete _.pages_loading[idx];
+          // Reset loading token
+          delete _.pages_loading[idx];
 
-            if (successCallback) successCallback();
-          }
+          if (successCallback) successCallback();
+        }
         ).fail(function(jqXHR, textStatus, errorThrown){
           console.error('error loading page ' + idx + ': ' + textStatus);
 
@@ -311,7 +311,10 @@ var pdf2htmlEX = (function(){
       }, this.config['render_timeout']);
     },
 
-    zoom_fixer : function () {
+    /*
+     * Handling key events, zooming, scrolling etc.
+     */
+    register_key_handler: function () {
       /* 
        * When user try to zoom in/out using ctrl + +/- or mouse wheel
        * handle this and prevent the default behaviours
@@ -328,27 +331,97 @@ var pdf2htmlEX = (function(){
       });
 
       $(window).on('keydown', function keydown(e) {
-        if (e.ctrlKey || e.metaKey) {
-          switch (e.keyCode) {
-            case 61: // FF/Mac '='
-            case 107: // FF '+' and '='
-            case 187: // Chrome '+'
+        var handled = false;
+        var cmd = (evt.ctrlKey ? 1 : 0) |
+          (evt.altKey ? 2 : 0) |
+          (evt.shiftKey ? 4 : 0) |
+          (evt.metaKey ? 8 : 0);
+        var with_ctrl = (cmd == 9);
+        var with_alt = (cmd == 2);
+        switch (e.keyCode) {
+          case 61: // FF/Mac '='
+          case 107: // FF '+' and '='
+          case 187: // Chrome '+'
+            if(with_ctrl){
               _.rescale(1.0 / _.config['scale_step'], true);
-              break;
-            case 173: // FF/Mac '-'
-            case 109: // FF '-'
-            case 189: // Chrome '-'
+              handled = true;
+            }
+            break;
+          case 173: // FF/Mac '-'
+          case 109: // FF '-'
+          case 189: // Chrome '-'
+            if(with_ctrl){
               _.rescale(_.config['scale_step'], true);
-              break;
-            case 48: // '0'
+              handled = true;
+            }
+            break;
+          case 48: // '0'
+            if(with_ctrl){
               _.rescale(0, false);
-              break;
-            default:
-              return;
-          }
-          e.preventDefault();
+              handled = true;
+            }
+            break;
+          case 33: // Page UP:
+            if (with_alt) { // alt-pageup    -> scroll one page up
+              _.scroll_to(_.get_prev_page());
+            } else { // pageup        -> scroll one screen up
+              _.$container.scrollTop(_.$container.scrollTop()-_.$container.height());
+            }
+            handled = true;
+            break;
+          case 34: // Page DOWN
+            if (with_alt) { // alt-pagedown  -> scroll one page down
+              _.scroll_to(_.get_next_page());
+            } else { // pagedown      -> scroll one screen down
+              _.$container.scrollTop(_.$container.scrollTop()+_.$container.height());
+            }
+            handled = true;
+            break;
+          case 35: // End
+            if (with_ctrl) {
+              _.$container.scrollTop(_.$container[0].scrollHeight);
+              handled = true;
+            }
+            break;
+          case 36: // Home
+            if (e.with_ctrl) {
+              _.$container.scrollTop(0);
+              handled = true;
+            }
+            break;
         }
-      });
+        if(handled) {
+          e.preventDefault();
+          return;
+        }
+      }
+    },
+    // Find the first page that is at least half a page below the current position
+    get_next_page : function() {
+      var page_height = this.$container.height();
+
+      var pl = this.pages;
+      for(var i in pl) {
+        var page = pl[i];
+        var page_position = page.position();
+        if (page_position[1] < position[1] - page_height/2)
+          return page;
+      }
+      return undefined;
+    },
+
+    // Find the last page that is at least half a page above the current position
+    get_prev_page : function() {
+      var page_height = this.$container.height();
+
+      var pl = this.pages.slice().reverse();
+      for(var i in pl) {
+        var page = pl[i];
+        var page_position = page.position();
+        if (page_position[1] > position[1] + page_height/2)
+          return page;
+      }
+      return undefined;
     },
 
     rescale : function (ratio, is_relative, offsetX, offsetY) {
@@ -427,16 +500,16 @@ var pdf2htmlEX = (function(){
     },
 
     get_active_page : function () {
-        // get page that are on the center of the view     //TODO better on top?!
-        var y_center = this.$container.offset().top + this.$container.height() / 2;
-        var pl = this.pages;
-        var last_page = -1;
-        for (var i in pl) {
-            if (pl[i].$p.offset().top > y_center)
-              break;
-            last_page = i;
-        }
-        return pl[last_page];
+      // get page that are on the center of the view     //TODO better on top?!
+      var y_center = this.$container.offset().top + this.$container.height() / 2;
+      var pl = this.pages;
+      var last_page = -1;
+      for (var i in pl) {
+        if (pl[i].$p.offset().top > y_center)
+          break;
+        last_page = i;
+      }
+      return pl[last_page];
     },
 
     get_containing_page : function(obj) {
@@ -476,7 +549,7 @@ var pdf2htmlEX = (function(){
       switch(detail[1]) {
         case 'XYZ':
           pos = [(detail[2] == null) ? cur_pos[0] : detail[2]
-                 ,(detail[3] == null) ? cur_pos[1] : detail[3]];
+            ,(detail[3] == null) ? cur_pos[1] : detail[3]];
           ok = true;
           break;
         case 'Fit':
@@ -529,11 +602,14 @@ var pdf2htmlEX = (function(){
         e.preventDefault();
       }
     }, 
-    
+
     /* pos=[x,y], where (0,0) is the top-left corner */
     scroll_to : function(pageno, pos) {
       var target_page = this.pages[pageno];
       if(target_page == undefined) return;
+
+      if(pos == undefined)
+        pos = [0,0];
 
       var cur_target_pos = target_page.position();
 
