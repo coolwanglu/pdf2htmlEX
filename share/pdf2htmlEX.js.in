@@ -394,7 +394,7 @@ var pdf2htmlEX = (function(){
           e.preventDefault();
           return;
         }
-      }
+      });
     },
     // Find the first page that is at least half a page below the current position
     get_next_page : function() {

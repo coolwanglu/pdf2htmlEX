@@ -1,3 +1,6 @@
+key handler on $container instead of window?
+fix get_next/prev_page
+
  - dots issue
   - AdobeXML*.pdf
  - font issue 
