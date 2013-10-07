@@ -233,6 +233,8 @@ var pdf2htmlEX = (function(){
           url: url,
           dataType: 'text'
         }).done(function(data){
+          // replace the old page with loaded data
+          // the loading indicator on this page should also be destroyed
           _.pages[idx].$d.replaceWith(data);
 
           var $new_pf = _.$container.find('#' + CSS_CLASS_NAMES['page_frame'] + page_no_hex);

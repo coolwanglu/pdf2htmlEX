@@ -39,6 +39,8 @@ $css
 @jquery.js
 @pdf2htmlEX.js
 # entry point 
+# You can override default configuration by passing an object to the constructor of Viewer
+# Refer to DEFAULT_CONFIG in pdf2htmlEX.js for possible keys
 """
 <script type="text/javascript">
 try{
