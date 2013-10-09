@@ -1,7 +1,9 @@
 #![](http://coolwanglu.github.io/pdf2htmlEX/images/pdf2htmlEX-64x64.png)pdf2htmlEX 
 
+<!--
 [![Build Status](https://travis-ci.org/coolwanglu/pdf2htmlEX.png?branch=master)](https://travis-ci.org/coolwanglu/pdf2htmlEX)
 
+-->
 A beautiful demo is worth a thousand words:
 
 - **Bible de Genève, 1564** (fonts and typography): [HTML](http://coolwanglu.github.com/pdf2htmlEX/demo/geneve.html) / [PDF](https://github.com/raphink/geneve_1564/raw/master/geneve_1564.pdf)
@@ -47,8 +49,8 @@ The generated HTML file is static, with optional features powered by JavaScript.
 
 ### LICENSE
 
-GPLv3 with additional terms (see below) for *most parts*.
-                                                     
+Most parts are licensed under GPLv3 with additional terms (see below).
+Others are respectively licensed under MIT License and Creative Commons Attribution 3.0
 Read `LICENSE` for more detail.
 
 #### For Online Services
