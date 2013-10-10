@@ -52,7 +52,7 @@ The generated HTML file is static, with optional features powered by JavaScript.
  * Latest news about pdf2htmlEX can be found on [@pdf2htmlEX](https://twitter.com/pdf2htmlEX) or [the blog](http://pdf2htmlex.blogspot.com) 
  * For questions and help please post to <pdf2htmlex@googlegroups.com>, and you can subscribe to the mailing list [here](https://groups.google.com/forum/#!forum/pdf2htmlex). **DO NOT create issues on the tracker**
  * Bug reports and feature requests should go to the [issue tracker](https://github.com/coolwanglu/pdf2htmlEX/issues?milestone=2&sort=updated&state=open). **DO NOT post to the mailing list**
- * You can donate to this project [here](http://coolwanglu.github.io/pdf2htmlEX/donate.html). Thanks!
+ * You can help this project by [making a donation](http://coolwanglu.github.io/pdf2htmlEX/donate.html). Thanks!
  * The author can be reached by 王璐 (Lu Wang) <coolwanglu@gmail.com> or [@coolwanglu](https://twitter.com/coolwanglu). 
   - Messages in **中文**, **English** or **日本語** are accepted.
   - Messages are checked on a regular basis so please expect some delay.
