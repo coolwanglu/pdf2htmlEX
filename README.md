@@ -47,6 +47,14 @@ The generated HTML file is static, with optional features powered by JavaScript.
  * [How to report](https://github.com/coolwanglu/pdf2htmlEX/wiki/How-to-report)
  * [FAQ](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ)
 
+### Contact
+
+ * Latest news about pdf2htmlEX can be found on [@pdf2htmlEX](https://twitter.com/pdf2htmlEX) or <http://pdf2htmlex.blogspot.com> 
+ * For questions and help please post to <pdf2htmlex@googlegroups.com>, and you can subscribe to the mailing list at <https://groups.google.com/forum/#!forum/pdf2htmlex>. **DO NOT create issues on the tracker**
+ * Bug reports and feature requests should go to the [issue tracker](https://github.com/coolwanglu/pdf2htmlEX/issues?milestone=2&sort=updated&state=open). **DO NOT post to the mailing list**
+ * The author can be reached by 王璐 (Lu Wang) <coolwanglu@gmail.com> or [@coolwanglu](https://twitter.com/coolwanglu). Mssages in **中文**, **English** or **日本語** are accepts.
+  - Messages are checked on a regular basis so please expect some delay before I can reply.
+
 ### LICENSE
 
 Most parts are licensed under GPLv3 with additional terms (see below).
@@ -60,25 +68,6 @@ but you should credit pdf2htmlEX if your service involves "online conversion" fa
 You are also encouraged to send me a name and a URL for the purpose of statistics.
 
 Read `LICENSE` for more detail.
-                                                    
-### Resources
-
-* Twitter [@pdf2htmlEX](https://twitter.com/pdf2htmlEX)
-* Blog <http://pdf2htmlex.blogspot.com> [[RSS]](http://pdf2htmlex.blogspot.com/feeds/posts/default)
-* Mailing list <pdf2htmlex@googlegroups.com> [[Subscribe]](https://groups.google.com/forum/#!forum/pdf2htmlex)
-  
-### Contacts
-
-* 王璐 (Lu Wang) <coolwanglu@gmail.com> or [@coolwanglu](https://twitter.com/coolwanglu)
-  - For general and person questions
-    - If you want to report an issue, please refer to [How to report](https://github.com/coolwanglu/pdf2htmlEX/wiki/How-to-report)
-  - Accepting messages in **中文**, **English** or **日本語**
-  - Messages are checked on a regular basis so please expect some delay before I can reply.
-  
-
-<!--
-* IRC Channel [irc://irc.freenode.net/pdf2htmlEX](irc://irc.freenode.net/pdf2htmlEX)
--->
 
 ### Acknowledgements
 
