@@ -1,4 +1,4 @@
-add donation link
+issue: separate CSS?
 key handler on $container instead of window?
 fix get_next/prev_page
 change $pages to object and store indices into an array
