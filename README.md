@@ -49,11 +49,12 @@ The generated HTML file is static, with optional features powered by JavaScript.
 
 ### Contact
 
- * Latest news about pdf2htmlEX can be found on [@pdf2htmlEX](https://twitter.com/pdf2htmlEX) or <http://pdf2htmlex.blogspot.com> 
- * For questions and help please post to <pdf2htmlex@googlegroups.com>, and you can subscribe to the mailing list at <https://groups.google.com/forum/#!forum/pdf2htmlex>. **DO NOT create issues on the tracker**
+ * Latest news about pdf2htmlEX can be found on [@pdf2htmlEX](https://twitter.com/pdf2htmlEX) or [the blog](http://pdf2htmlex.blogspot.com) 
+ * For questions and help please post to <pdf2htmlex@googlegroups.com>, and you can subscribe to the mailing list [here](https://groups.google.com/forum/#!forum/pdf2htmlex). **DO NOT create issues on the tracker**
  * Bug reports and feature requests should go to the [issue tracker](https://github.com/coolwanglu/pdf2htmlEX/issues?milestone=2&sort=updated&state=open). **DO NOT post to the mailing list**
- * The author can be reached by 王璐 (Lu Wang) <coolwanglu@gmail.com> or [@coolwanglu](https://twitter.com/coolwanglu). Mssages in **中文**, **English** or **日本語** are accepts.
-  - Messages are checked on a regular basis so please expect some delay before I can reply.
+ * The author can be reached by 王璐 (Lu Wang) <coolwanglu@gmail.com> or [@coolwanglu](https://twitter.com/coolwanglu). 
+  - Messages in **中文**, **English** or **日本語** are accepted.
+  - Messages are checked on a regular basis so please expect some delay.
 
 ### LICENSE
 
