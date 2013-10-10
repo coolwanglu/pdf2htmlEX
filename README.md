@@ -61,6 +61,7 @@ The generated HTML file is static, with optional features powered by JavaScript.
 
 Most parts are licensed under GPLv3 with additional terms (see below).
 Others are respectively licensed under MIT License and Creative Commons Attribution 3.0
+
 Read `LICENSE` for more detail.
 
 #### For Online Services
