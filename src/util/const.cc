@@ -43,7 +43,7 @@ const std::map<std::string, EmbedStringEntry> EMBED_STRING_MAP({
 const std::map<std::string, std::string> FORMAT_MIME_TYPE_MAP({
     {"eot", "application/vnd.ms-fontobject"},
     {"jpg", "image/jpeg"},
-    {"otf", "appilcation/x-font-otf"},
+    {"otf", "application/x-font-otf"},
     {"png", "image/png"},
     {"svg", "image/svg+xml"},
     {"ttf", "application/x-font-ttf"},
