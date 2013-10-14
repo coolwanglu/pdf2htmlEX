@@ -1,7 +1,10 @@
+store $pages from 0, 
+- store a separate map/dict for 'original' page number
+- OR adjust all destinations
+
 issue: separate CSS?
 key handler on $container instead of window?
 fix get_next/prev_page
-change $pages to object and store indices into an array
 next/prev for each Page ?
 
  - dots issue
