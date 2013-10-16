@@ -1,6 +1,8 @@
 pdf2htmlEX (https://github.com/coolwanglu/pdf2htmlEX)
 Copyright (c) 2012,2013 Lu Wang <coolwanglu@gmail.com> and other contributors
 
+pdf2htmlEX, as a whole package, is licensed under GPLv3 with additional terms (see below).
+
 -----
 TERM OF USE
 
@@ -20,9 +22,7 @@ must be called after a user upload some files and before the user can see the re
 of the files.
 
 -----
-Files: *
-Copyright (c) 2012,2013 Lu Wang <coolwanglu@gmail.com> and other contributors
-License: GPLv3
+GPLv3
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -37,82 +37,11 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+-----
+Files in share/ and logo/ are released under relaxed licenses, 
+read the respective `LICENSE` file in the folders for details.
 
+Files in 3rdparty/ are released under their own GPLv3-compatible licenses, 
+read the respective `LICENSE` file in the folders for details.
 
-Files: share/*
-Copyright (c) 2012,2013 Lu Wang <coolwanglu@gmail.com> and other contributors
-License: MIT License
-
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-
-
-File: share/jquery.js
-Copyright 2012 jQuery Foundation and other contributors
-License: MIT License
-
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-
-
-Files: logo/*
-Copyright (c) 2013 Lu Wang <coolwanglu@gmail.com> 
-License: Creative Commons Attribution 3.0 Unported
-
-You are free:
-
-    to Share — to copy, distribute and transmit the work
-    to Remix — to adapt the work
-    to make commercial use of the work
-
-Under the following conditions:
-
-    Attribution — You must attribute the work in the manner specified 
-by the author or licensor (but not in any way that suggests that they 
-endorse you or your use of the work).
-
-With the understanding that:
-
-    Waiver — Any of the above conditions can be waived if you get permission from the copyright holder.
-    Public Domain — Where the work or any of its elements is in the public domain under applicable law, that status is in no way affected by the license.
-    Other Rights — In no way are any of the following rights affected by the license:
-        Your fair dealing or fair use rights, or other applicable copyright exceptions and limitations;
-        The author's moral rights;
-        Rights other persons may have either in the work itself or in how the work is used, such as publicity or privacy rights.
-    Notice—For any reuse or distribution, you must make clear to others the license terms of this work. 
-The best way to do that is with a link to http://creativecommons.org/licenses/by-sa/3.0/
 

@@ -59,10 +59,8 @@ The generated HTML file is static, with optional features powered by JavaScript.
 
 ### LICENSE
 
-Most parts are licensed under GPLv3 with additional terms (see below).
-Others are respectively licensed under MIT License and Creative Commons Attribution 3.0
-
-Read `LICENSE` for more detail.
+pdf2htmlEX, as a whole package, is licensed under GPLv3 with additional terms (see below).
+Some resource files are released with relaxed licenses, read `LICENSE` for more details.
 
 #### For Online Services
 
