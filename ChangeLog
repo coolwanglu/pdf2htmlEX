@@ -1,5 +1,6 @@
 Developing v0.10
 
+* Lots of code cleaning
 * Logo as loading indicator
 * Add a logo
 * Remove several CSS prefixes
@@ -43,7 +44,7 @@ v0.8
  - reduce number of <span> elements
  - merge lines with different y values 
  - merge lines with different (but proportional) transform matrices
-* Custom format for page file name [Ryan Morlok]
+* Custom format for page file name
 * Workaround for NBSP
 * A default HTML file which load the pages dynamically when split-pages is on
 * Support simple clippings
@@ -69,18 +70,18 @@ v0.7
 
 * Process outline
 * Fix build with poppler
-* Many code cleaning jobs [John Hewson]
+* Many code cleaning jobs
 * Experimental printing support
 * Lots of code refinements
 
 v0.6
 2013.01.26
 
-* new option --no-drm [John Hewson]
-* Travis CI integration [John Hewson]
+* new option --no-drm 
+* Travis CI integration 
 * Add a class for 'left'
 * Fixed a bug of hashing/finding GfxRGB
-* new option -v, --version [John Hewson]
+* new option -v, --version 
 * Render Type 3 fonts as image
 * New parameter: --use-cropbox
 * Progress indicator
