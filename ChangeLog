@@ -13,7 +13,7 @@ v0.10
 * [Experimental] Support Type 3 fonts
 * New options
  --bg-format
- --font-format (same as --font-sufix, but without the leading dot)
+ --font-format (same as --font-suffix, but without the leading dot)
  --process-type3
 * Deprecated options:
  --font-suffix
