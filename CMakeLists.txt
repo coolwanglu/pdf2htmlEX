@@ -234,6 +234,7 @@ file (GLOB datafiles
     share/base.css
     share/fancy.css
     share/jquery.js
+    share/LICENSE
     share/manifest
     share/pdf2htmlEX.js
     share/pdf2htmlEX-64x64.png

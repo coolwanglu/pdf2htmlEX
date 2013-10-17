@@ -1,3 +1,9 @@
+pdf2htmlex (0.10-1~git201310171209rdc970-0ubuntu1) raring; urgency=low
+
+  * v0.10 released, see Changelog
+
+ -- WANG Lu <coolwanglu@gmail.com>  Thu, 17 Oct 2013 12:09:01 +0800
+
 pdf2htmlex (0.9-1~git201309161133rd60eb-0ubuntu1) raring; urgency=low
 
   * fix cmake test for packaging
