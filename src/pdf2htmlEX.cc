@@ -11,6 +11,7 @@
 #include <limits>
 #include <iostream>
 #include <memory>
+#include <errno.h>
 
 #include <getopt.h>
 
@@ -322,10 +323,16 @@ int main(int argc, char **argv)
     //prepare the directories
     {
         char buf[] = "/tmp/pdf2htmlEX-XXXXXX";
+        errno = 0;
         auto p = mkdtemp(buf);
         if(p == nullptr)
         {
-            cerr << "Cannot create temp directory" << endl;
+            const char * errmsg = strerror(errno);
+            if(!errmsg)
+            {
+                errmsg = "unknown error";
+            }
+            cerr << "Cannot create temp directory: " << errmsg << endl;
             exit(EXIT_FAILURE);
         }
         param.tmp_dir = buf;
