@@ -1,4 +1,4 @@
-outputUnicodes -> outputHTML
+link.cc: outputURL -> outputUnicodes
 remove page from dom -- UI option
 view hash
 update jquery

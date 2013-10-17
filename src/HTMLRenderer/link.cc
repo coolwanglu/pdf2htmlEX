@@ -185,7 +185,6 @@ string HTMLRenderer::get_linkaction_str(LinkAction * action, string & detail)
     
 /*
  * Based on pdftohtml from poppler
- * TODO: CSS for link rectangles
  * TODO: share rectangle draw with css-draw
  */
 void HTMLRenderer::processLink(AnnotLink * al)
