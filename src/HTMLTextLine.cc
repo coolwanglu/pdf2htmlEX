@@ -179,7 +179,7 @@ void HTMLTextLine::dump_text(ostream & out)
                         if(abs(target - space_off) <= param.h_eps)
                         {
                             Unicode u = ' ';
-                            outputUnicodes(out, &u, 1);
+                            writeUnicodes(out, &u, 1);
                             actual_offset = space_off;
                             done = true;
                         }
@@ -213,7 +213,7 @@ void HTMLTextLine::dump_text(ostream & out)
                 size_t next_text_idx = text_idx2;
                 if((cur_offset_iter != offsets.end()) && (cur_offset_iter->start_idx) < next_text_idx)
                     next_text_idx = cur_offset_iter->start_idx;
-                outputUnicodes(out, (&text.front()) + cur_text_idx, next_text_idx - cur_text_idx);
+                writeUnicodes(out, (&text.front()) + cur_text_idx, next_text_idx - cur_text_idx);
                 cur_text_idx = next_text_idx;
             }
         }

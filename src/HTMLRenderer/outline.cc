@@ -37,7 +37,7 @@ void HTMLRenderer::process_outline_items(GooList * items)
 
         // we don't care dest is empty or not.
         f_outline.fs << "<li>" << "<a class=\"" << CSS::LINK_CN << "\" href=\"";
-        outputAttribute(f_outline.fs, dest);
+        writeAttribute(f_outline.fs, dest);
         f_outline.fs << "\"";
 
         if(!detail.empty())
@@ -45,7 +45,7 @@ void HTMLRenderer::process_outline_items(GooList * items)
 
         f_outline.fs << ">";
 
-        outputUnicodes(f_outline.fs, item->getTitle(), item->getTitleLength());
+        writeUnicodes(f_outline.fs, item->getTitle(), item->getTitleLength());
 
         f_outline.fs << "</a>";
 

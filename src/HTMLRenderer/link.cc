@@ -195,7 +195,7 @@ void HTMLRenderer::processLink(AnnotLink * al)
     if(!dest_str.empty())
     {
         (*f_curpage) << "<a class=\"" << CSS::LINK_CN << "\" href=\"";
-        outputAttribute((*f_curpage), dest_str);
+        writeAttribute((*f_curpage), dest_str);
         (*f_curpage) << "\"";
 
         if(!dest_detail_str.empty())

@@ -55,7 +55,7 @@ static int mapUTF8(Unicode u, char *buf, int bufSize)
     }
 }
 
-void outputUnicodes(ostream & out, const Unicode * u, int uLen)
+void writeUnicodes(ostream & out, const Unicode * u, int uLen)
 {
     for(int i = 0; i < uLen; ++i)
     {
@@ -87,13 +87,13 @@ void outputUnicodes(ostream & out, const Unicode * u, int uLen)
 }
 
 /*
-static void outputHEX(ostream & out, char c)
+static void writeHEX(ostream & out, char c)
 {
     static const char * hexchars = "0123456789abcdef";
     out << hexchars[(c>>4)&0xf] << hexchars[c&0xf];
 }
 
-void outputURL(ostream & out, const string & s)
+void writeURL(ostream & out, const string & s)
 {
     static char * dont_escape = nullptr;
     if(!dont_escape)
@@ -123,13 +123,13 @@ void outputURL(ostream & out, const string & s)
         else
         {
             out << '%';
-            outputHEX(out, c);
+            writeHEX(out, c);
         }
     }
 }
 */
 
-void outputJSON(ostream & out, const string & s)
+void writeJSON(ostream & out, const string & s)
 {
     for(auto iter = s.begin(); iter != s.end(); ++iter)
     {
@@ -149,7 +149,7 @@ void outputJSON(ostream & out, const string & s)
     }
 }
 
-void outputAttribute(std::ostream & out, const std::string & s)
+void writeAttribute(std::ostream & out, const std::string & s)
 {
     for (auto iter = s.begin(); iter != s.end(); ++iter)
     {

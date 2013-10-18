@@ -18,23 +18,23 @@ namespace pdf2htmlEX {
 /*
  * Escape necessary characters, and map Unicode to UTF-8
  */
-void outputUnicodes(std::ostream & out, const Unicode * u, int uLen);
+void writeUnicodes(std::ostream & out, const Unicode * u, int uLen);
 
 
 /*
  * URL escaping
  */
-//void outputURL(std::ostream & out, const std::string & s);
+//void writeURL(std::ostream & out, const std::string & s);
 
 /*
  * JSON escaping
  */
-void outputJSON(std::ostream & out, const std::string & s);
+void writeJSON(std::ostream & out, const std::string & s);
 
 /*
  * HTML tag attribute escaping
  */
-void outputAttribute(std::ostream & out, const std::string & s);
+void writeAttribute(std::ostream & out, const std::string & s);
 
 } // namespace pdf2htmlEX
 
