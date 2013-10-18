@@ -22,14 +22,19 @@ void outputUnicodes(std::ostream & out, const Unicode * u, int uLen);
 
 
 /*
- * URL encoding
+ * URL escaping
  */
-void outputURL(std::ostream & out, const std::string & s);
-/*
- * JSON encoding
- */
+//void outputURL(std::ostream & out, const std::string & s);
 
+/*
+ * JSON escaping
+ */
 void outputJSON(std::ostream & out, const std::string & s);
+
+/*
+ * HTML tag attribute escaping
+ */
+void outputAttribute(std::ostream & out, const std::string & s);
 
 } // namespace pdf2htmlEX
 

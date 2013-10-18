@@ -86,6 +86,7 @@ void outputUnicodes(ostream & out, const Unicode * u, int uLen)
     }
 }
 
+/*
 static void outputHEX(ostream & out, char c)
 {
     static const char * hexchars = "0123456789abcdef";
@@ -99,11 +100,11 @@ void outputURL(ostream & out, const string & s)
     {
         dont_escape = new char [256];
         memset(dont_escape, 0, 256 * sizeof(char));
-        /*
+        / *
          * http://tools.ietf.org/html/rfc3986#section-2
          *
          * Also includes '%', in case that the original url has been escaped
-         */
+         * /
         const char * no_escape_chars = ":/?#[]@!$&'()*+,;="
             "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
             "abcdefghijklmnopqrstuvwxyz"
@@ -126,6 +127,7 @@ void outputURL(ostream & out, const string & s)
         }
     }
 }
+*/
 
 void outputJSON(ostream & out, const string & s)
 {
@@ -143,6 +145,37 @@ void outputJSON(ostream & out, const string & s)
             case '\r': out << "\\r"; break;
             case '\t': out << "\\t"; break;
             default: out << *iter; break;
+        }
+    }
+}
+
+void outputAttribute(std::ostream & out, const std::string & s)
+{
+    for (auto iter = s.begin(); iter != s.end(); ++iter)
+    {
+        char c = *iter;
+        switch(c)
+        {
+            case '&':
+                out << "&amp;";
+                break;
+            case '\"':
+                out << "&quot;";
+                break;
+            case '\'':
+                out << "&apos;";
+                break;
+            case '<':
+                out << "&lt;";
+                break;
+            case '>':
+                out << "&gt;";
+                break;
+            case '`': // for IE
+                out << "&#96;";
+                break;
+            default:
+                out << c;
         }
     }
 }

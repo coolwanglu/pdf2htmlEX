@@ -212,7 +212,7 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state, XRef * xref)
                 << "\" data-page-no=\"" << pageNum 
                 << "\" data-page-url=\"";
 
-        outputURL(f_pages.fs, cur_page_filename);
+        outputAttribute(f_pages.fs, cur_page_filename);
         f_pages.fs << "\">";
     }
 
@@ -555,7 +555,7 @@ void HTMLRenderer::embed_file(ostream & out, const string & path, const string &
     else
     {
         out << entry.prefix_external;
-        outputURL(out, fn);
+        outputAttribute(out, fn);
         out << entry.suffix_external << endl;
 
         if(copy)
