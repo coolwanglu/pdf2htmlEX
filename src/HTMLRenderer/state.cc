@@ -286,7 +286,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
             new_draw_text_scale = 1.0;
         }
 
-        if(!is_positive(new_draw_font_size))
+        if(is_positive(-new_draw_font_size))
         {
             // CSS cannot handle flipped pages
             new_draw_font_size *= -1;
