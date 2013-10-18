@@ -171,7 +171,7 @@ void outputAttribute(std::ostream & out, const std::string & s)
             case '>':
                 out << "&gt;";
                 break;
-            case '`': // for IE
+            case '`': // for IE: http://html5sec.org/#59
                 out << "&#96;";
                 break;
             default:
