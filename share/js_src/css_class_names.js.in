@@ -1,0 +1,24 @@
+/* vim: set shiftwidth=2 tabstop=2 autoindent cindent expandtab filetype=javascript : */
+/*
+ * css_class_names.js: declare css classes used in pdf2htmlEX
+ *
+ * Copyright 2012,2013 Lu Wang <coolwanglu@gmail.com> and other contributors
+ */
+ 
+/*
+ * Dependencies:
+ * jQuery
+ */
+
+'use strict';
+(function(pdf2htmlEX){
+  pdf2htmlEX.CSS_CLASS_NAMES = {
+    page_frame       : '@CSS_PAGE_FRAME_CN@',
+    page_decoration  : '@CSS_PAGE_DECORATION_CN@',
+    page_content_box : '@CSS_PAGE_CONTENT_BOX_CN@',
+    page_data        : '@CSS_PAGE_DATA_CN@',
+    background_image : '@CSS_BACKGROUND_IMAGE_CN@',
+    link             : '@CSS_LINK_CN@',
+    __dummy__        : 'no comma'
+  };
+})(window['pdf2htmlEX']);

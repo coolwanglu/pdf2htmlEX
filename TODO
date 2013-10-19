@@ -1,4 +1,3 @@
-separate constant from JS; compress JS
 pdf:mobile device
 pdf:miui
 tmp dir: use pid

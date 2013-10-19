@@ -170,7 +170,7 @@ include(${CMAKE_SOURCE_DIR}/src/css_class_names.cmakelists.txt)
 configure_file (${CMAKE_SOURCE_DIR}/src/util/css_const.h.in ${CMAKE_SOURCE_DIR}/src/util/css_const.h)
 configure_file (${CMAKE_SOURCE_DIR}/share/base.css.in ${CMAKE_SOURCE_DIR}/share/base.css)
 configure_file (${CMAKE_SOURCE_DIR}/share/fancy.css.in ${CMAKE_SOURCE_DIR}/share/fancy.css)
-configure_file (${CMAKE_SOURCE_DIR}/share/pdf2htmlEX.js.in ${CMAKE_SOURCE_DIR}/share/pdf2htmlEX.js)
+configure_file (${CMAKE_SOURCE_DIR}/share/js_src/css_class_names.js.in ${CMAKE_SOURCE_DIR}/share/js_src/css_class_names.js)
 
 set(PDF2HTMLEX_SRC ${PDF2HTMLEX_SRC}
     src/Param.h
@@ -229,15 +229,19 @@ set(PDF2HTMLEX_SRC ${PDF2HTMLEX_SRC}
 add_executable(pdf2htmlEX ${PDF2HTMLEX_SRC})
 target_link_libraries(pdf2htmlEX ${PDF2HTMLEX_LIBS})
 
+add_custom_target(pdf2htmlEX.js ALL DEPENDS ${CMAKE_SOURCE_DIR}/share/pdf2htmlEX.js)
+add_custom_command(OUTPUT ${CMAKE_SOURCE_DIR}/share/pdf2htmlEX.js
+    COMMAND ${CMAKE_SOURCE_DIR}/share/js_src/compile.sh)
+
 install (TARGETS pdf2htmlEX DESTINATION bin)
 file (GLOB datafiles 
-    share/base.css
-    share/fancy.css
-    share/jquery.js
-    share/LICENSE
-    share/manifest
-    share/pdf2htmlEX.js
-    share/pdf2htmlEX-64x64.png
+    ${CMAKE_SOURCE_DIR}/share/base.css
+    ${CMAKE_SOURCE_DIR}/share/fancy.css
+    ${CMAKE_SOURCE_DIR}/share/jquery.js
+    ${CMAKE_SOURCE_DIR}/share/LICENSE
+    ${CMAKE_SOURCE_DIR}/share/manifest
+    ${CMAKE_SOURCE_DIR}/share/pdf2htmlEX.js
+    ${CMAKE_SOURCE_DIR}/share/pdf2htmlEX-64x64.png
     )
 install (FILES ${datafiles} DESTINATION share/pdf2htmlEX)
 install (FILES pdf2htmlEX.1 DESTINATION share/man/man1)
