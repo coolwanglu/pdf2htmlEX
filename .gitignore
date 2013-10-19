@@ -7,8 +7,9 @@ Makefile
 install_manifest.txt
 pdf2htmlEX
 pdf2htmlEX.1
-share/fancy.css
 share/base.css
+share/fancy.css
+share/js_src/css_class_names.js
 share/pdf2htmlEX.js
 src/pdf2htmlEX-config.h
 src/util/css_const.h
