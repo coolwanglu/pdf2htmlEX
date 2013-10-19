@@ -36,11 +36,12 @@ $css
 
 #############
 # UI stuffs, optional
+# It'll be better to include a static jquery.js on your server
 @jquery.js
 @pdf2htmlEX.js
 # entry point 
 # You can override default configuration by passing an object to the constructor of Viewer
-# Refer to DEFAULT_CONFIG in pdf2htmlEX.js for possible keys
+# Refer to DEFAULT_CONFIG in viewer.js for possible keys
 """
 <script type="text/javascript">
 try{
