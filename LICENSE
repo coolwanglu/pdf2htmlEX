@@ -41,7 +41,3 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 Files in share/ and logo/ are released under relaxed licenses, 
 read the respective `LICENSE` file in the folders for details.
 
-Files in 3rdparty/ are released under their own GPLv3-compatible licenses, 
-read the respective `LICENSE` file in the folders for details.
-
-
