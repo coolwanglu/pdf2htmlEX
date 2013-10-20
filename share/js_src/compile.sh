@@ -9,7 +9,7 @@
 BASEDIR=$(dirname $0)
 OUTPUT="$BASEDIR/../pdf2htmlEX.js"
 
-(echo 'Compiling pdf2htmlEX.js with closure-compiler...' && \
+(echo 'Building pdf2htmlEX.js with closure-compiler...' && \
     tmpfile=$(mktemp 2>/dev/null) && \
     java -jar "$BASEDIR/../../3rdparty/closure-compiler/compiler.jar" --compilation_level ADVANCED_OPTIMIZATIONS --process_jquery_primitives --externs "$BASEDIR/../jquery.js" --js "$BASEDIR/css_class_names.js" --js "$BASEDIR/viewer.js" > "$tmpfile" 2>/dev/null && \
     cat "$BASEDIR/header.js" "$tmpfile" > "$OUTPUT" && \

@@ -231,7 +231,12 @@ target_link_libraries(pdf2htmlEX ${PDF2HTMLEX_LIBS})
 
 add_custom_target(pdf2htmlEX.js ALL DEPENDS ${CMAKE_SOURCE_DIR}/share/pdf2htmlEX.js)
 add_custom_command(OUTPUT ${CMAKE_SOURCE_DIR}/share/pdf2htmlEX.js
-    COMMAND ${CMAKE_SOURCE_DIR}/share/js_src/compile.sh)
+    COMMAND ${CMAKE_SOURCE_DIR}/share/js_src/compile.sh
+    DEPENDS 
+        ${CMAKE_SOURCE_DIR}/share/js_src/css_class_names.js
+        ${CMAKE_SOURCE_DIR}/share/js_src/header.js
+        ${CMAKE_SOURCE_DIR}/share/js_src/viewer.js
+    )
 
 install (TARGETS pdf2htmlEX DESTINATION bin)
 file (GLOB datafiles 

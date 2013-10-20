@@ -11,6 +11,25 @@
  * css_class_names.js
  */
 
+/*
+ * Attention:
+ * This files is to be optimized by closure-compiler, 
+ * so pay attention to the forms of property names:
+ *
+ * string/bracket form is safe, won't be optimized:
+ * var obj={ 'a':'b' }; obj['a'] = 'b';
+ * name/dot form will be optimized, the name is likely to be modified:
+ * var obj={ a:'b' }; obj.a = 'b';
+ *
+ * Either form can be used for internal objects, 
+ * but must be consistent for each one respectively.
+ *
+ * string/bracket form must be used for external objects
+ * e.g. DEFAULT_CONFIG, object stored in page-data
+ * property names are part of the `protocol` in these cases.
+ *
+ */
+
 'use strict';
 
 /* The namespace */
@@ -26,7 +45,7 @@
     // id of the element for outline
     'outline_id' : 'outline',
     // class for the loading indicator
-    'loading_indicator_cls' : 'loading_indicator_cls',
+    'loading_indicator_cls' : 'loading-indicator',
     // How many page shall we preload that are below the last visible page
     'preload_pages' : 3,
     // Smooth zoom is enabled when the number of pages shown is less than the threshold
@@ -66,8 +85,8 @@
     this.$container = $(container);
 
     this.n = parseInt(this.$p.data('page-no'), 16);
-    this.$b = $('.'+CSS_CLASS_NAMES['page_content_box'], this.$p);
-    this.$d = this.$p.parent('.'+CSS_CLASS_NAMES['page_decoration']);
+    this.$b = $('.'+CSS_CLASS_NAMES.page_content_box, this.$p);
+    this.$d = this.$p.parent('.'+CSS_CLASS_NAMES.page_decoration);
 
     // page size
     // Need to make rescale work when page_content_box is not loaded, yet
@@ -84,10 +103,9 @@
        * cur_r : currently using
        */
       this.default_r = this.set_r = this.cur_r = this.h / this.$b.height();
+      this.page_data = $($('.'+CSS_CLASS_NAMES.page_data, this.$p)[0]).data('data');
 
-      this.data = $($('.'+CSS_CLASS_NAMES['page_data'], this.$p)[0]).data('data');
-
-      this.ctm = this.data.ctm;
+      this.ctm = this.page_data['ctm'];
       this.ictm = invert(this.ctm);
 
       this.loaded = true;
@@ -187,14 +205,14 @@
       //this.register_key_handler();
 
       // handle links
-      this.$container.add(this.$outline).on('click', '.'+CSS_CLASS_NAMES['link'], this, this.link_handler);
+      this.$container.add(this.$outline).on('click', '.'+CSS_CLASS_NAMES.link, this, this.link_handler);
 
       this.render();
     },
 
     find_pages : function() {
       var new_pages = new Array();
-      var $pl= $('.'+CSS_CLASS_NAMES['page_frame'], this.$container);
+      var $pl= $('.'+CSS_CLASS_NAMES.page_frame, this.$container);
       /* don't use for(..in..) since $pl is more than an Array */
       for(var i = 0, l = $pl.length; i < l; ++i) {
         var p = new Page($pl[i], this.$container);
@@ -214,7 +232,7 @@
         return;  // Page is already loading
 
       var page_no_hex = idx.toString(16);
-      var $pf = this.$container.find('#' + CSS_CLASS_NAMES['page_frame'] + page_no_hex);
+      var $pf = this.$container.find('#' + CSS_CLASS_NAMES.page_frame + page_no_hex);
       if($pf.length == 0)
         return;  // Page does not exist
 
@@ -234,14 +252,14 @@
           // the loading indicator on this page should also be destroyed
           _.pages[idx].$d.replaceWith(data);
 
-          var $new_pf = _.$container.find('#' + CSS_CLASS_NAMES['page_frame'] + page_no_hex);
+          var $new_pf = _.$container.find('#' + CSS_CLASS_NAMES.page_frame + page_no_hex);
           _.pages[idx] = new Page($new_pf, _.$container);
           _.pages[idx].hide();
           _.pages[idx].rescale(_.scale);
           _.schedule_render();
 
           // disable background image dragging
-          $new_pf.find('.'+CSS_CLASS_NAMES['background_image']).on('dragstart', function(e){return false;});
+          $new_pf.find('.'+CSS_CLASS_NAMES.background_image).on('dragstart', function(e){return false;});
 
           // Reset loading token
           delete _.pages_loading[idx];
@@ -267,7 +285,7 @@
 
     pre_hide_pages : function() {
       /* pages might have not been loaded yet, so add a CSS rule */
-      var s = '@media screen{.'+CSS_CLASS_NAMES['page_content_box']+'{display:none;}}';
+      var s = '@media screen{.'+CSS_CLASS_NAMES.page_content_box+'{display:none;}}';
       var n = document.createElement('style');
       n.type = 'text/css';
       if (n.styleSheet) {
@@ -513,7 +531,7 @@
 
     get_containing_page : function(obj) {
       /* get the page obj containing obj */
-      var p = obj.closest('.'+CSS_CLASS_NAMES['page_frame'])[0];
+      var p = obj.closest('.'+CSS_CLASS_NAMES.page_frame)[0];
       return p && this.pages[(new Page(p)).n];
     },
 
