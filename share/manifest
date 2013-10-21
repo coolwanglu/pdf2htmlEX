@@ -36,14 +36,23 @@ $css
 
 #############
 # UI stuffs, optional
-# It'll be better to include a static jquery.js on your server
-@jquery.js
-@pdf2htmlEX.js
-# entry point 
+
+# jQuery, required by pdf2htmlEX.js
+# By default a local copy is embedded or linked to.
+#
+# You can also link to a static file from your server or a CDN such that
+#  - the size of output HTML is reduced
+#  - users can be benefited from the static URL (e.g. caching)
+# Example:
+# <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+@jquery-1.9.1.min.js
+
+# entry point of pdf2htmlEX.Viewer
 # You can override default configuration by passing an object to the constructor of Viewer
 # Refer to DEFAULT_CONFIG in viewer.js for possible keys
+@pdf2htmlEX.js
 """
-<script type="text/javascript">
+<script>
 try{
   pdf2htmlEX.defaultViewer = new pdf2htmlEX.Viewer();
 }catch(e){}
