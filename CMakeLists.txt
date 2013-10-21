@@ -239,7 +239,8 @@ add_custom_command(OUTPUT ${CMAKE_SOURCE_DIR}/share/pdf2htmlEX.js
     )
 
 install (TARGETS pdf2htmlEX DESTINATION bin)
-file (GLOB datafiles 
+
+set(PDF2HTMLEX_RESOURCE
     ${CMAKE_SOURCE_DIR}/share/base.css
     ${CMAKE_SOURCE_DIR}/share/fancy.css
     ${CMAKE_SOURCE_DIR}/share/jquery.js
@@ -248,7 +249,7 @@ file (GLOB datafiles
     ${CMAKE_SOURCE_DIR}/share/pdf2htmlEX.js
     ${CMAKE_SOURCE_DIR}/share/pdf2htmlEX-64x64.png
     )
-install (FILES ${datafiles} DESTINATION share/pdf2htmlEX)
+install (FILES ${PDF2HTMLEX_RESOURCE} DESTINATION share/pdf2htmlEX)
 install (FILES pdf2htmlEX.1 DESTINATION share/man/man1)
 
 enable_testing()
