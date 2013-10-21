@@ -36,14 +36,28 @@ $css
 
 #############
 # UI stuffs, optional
-# It'll be better to include a static jquery.js on your server
-@jquery.js
-@pdf2htmlEX.js
-# entry point 
+
+# jQuery, required by pdf2htmlEX.js
+# By default
+#  - the file from Google CDN is included, in order to reduce the size of output HTML
+#  - HTTP is always used in case the file is accessed locally
+#
+# You may embed the file (provided in pdf2htmlEX) into HTML:
+# @jquery-1.9.1.min.js
+#
+# Or you may remove "http:" to match the protocol of the published HTML:
+# <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+#
+"""
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+"""
+
+# entry point of pdf2htmlEX.Viewer
 # You can override default configuration by passing an object to the constructor of Viewer
 # Refer to DEFAULT_CONFIG in viewer.js for possible keys
+@pdf2htmlEX.js
 """
-<script type="text/javascript">
+<script>
 try{
   pdf2htmlEX.defaultViewer = new pdf2htmlEX.Viewer();
 }catch(e){}

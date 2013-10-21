@@ -1,6 +1,4 @@
 annot for closure-compiler:https://developers.google.com/closure/compiler/docs/js-for-compiler#generics 
-update jquery -> CDN
-remove default type declaration: text/javascript text/css
 minimize css
 pdf:mobile device
 pdf:miui

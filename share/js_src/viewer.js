@@ -169,6 +169,9 @@
 
   /* export pdf2htmlEX.Viewer */
   var Viewer = pdf2htmlEX['Viewer'] = function(config) {
+    /* do nothing if jQuery is not ready */
+    if(!window.jQuery) return;
+
     this.config = $.extend({}, DEFAULT_CONFIG, config);
     this.pages_loading = {};
     this.init_before_loading_content();

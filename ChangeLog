@@ -1,5 +1,7 @@
 Developing v0.11
+
 * Compress JS with closure-compiler
+* Link to jQuery from Google CDN by default
 
 v0.10
 2013.10.17
