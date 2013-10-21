@@ -16,6 +16,3 @@ OUTPUT="$BASEDIR/../pdf2htmlEX.js"
 echo 'Fall back to naive concatenation' && \
 cat "$BASEDIR/header.js" "$BASEDIR/css_class_names.js" "$BASEDIR/viewer.js" > "$OUTPUT")
 
-#debug
-ls $BASEDIR
-ls $BASEDIR/..
