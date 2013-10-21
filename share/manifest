@@ -38,19 +38,14 @@ $css
 # UI stuffs, optional
 
 # jQuery, required by pdf2htmlEX.js
-# By default
-#  - the file from Google CDN is included, in order to reduce the size of output HTML
-#  - HTTP is always used in case the file is accessed locally
+# By default a local copy is embedded or linked to.
 #
-# You may embed the file (provided in pdf2htmlEX) into HTML:
-# @jquery-1.9.1.min.js
-#
-# Or you may remove "http:" to match the protocol of the published HTML:
+# You can also link to a static file from your server or a CDN such that
+#  - the size of output HTML is reduced
+#  - users can be benefited from the static URL (e.g. caching)
+# Example:
 # <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-#
-"""
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-"""
+@jquery-1.9.1.min.js
 
 # entry point of pdf2htmlEX.Viewer
 # You can override default configuration by passing an object to the constructor of Viewer
