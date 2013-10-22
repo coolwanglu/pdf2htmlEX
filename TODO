@@ -22,7 +22,6 @@ next/prev for each Page ?
   - cjkmix2*.pdf
  - space issue
   - python简明*.pdf
- - spinning icon for dynamic page loading
  - fix negative word-spacing for IE
 
 == Future: ==
@@ -46,7 +45,4 @@ Not enough motivation/Lazy
  - Widget Annoataion
  - handle large negative letter space
  - optimization levels
- - smarter space-as-offset
- - show hints about possible useful parameters
- - compress js
  
