@@ -50,7 +50,7 @@ $css
 # entry point of pdf2htmlEX.Viewer
 # You can override default configuration by passing an object to the constructor of Viewer
 # Refer to DEFAULT_CONFIG in viewer.js for possible keys
-@pdf2htmlEX.js
+@pdf2htmlEX.min.js
 """
 <script>
 try{

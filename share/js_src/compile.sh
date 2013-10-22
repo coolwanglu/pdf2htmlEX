@@ -8,19 +8,20 @@
 
 BASEDIR=$(dirname $0)
 CLOSURE_COMPILER_DIR="$BASEDIR/../../3rdparty/closure-compiler"
-OUTPUT="$BASEDIR/../pdf2htmlEX.js"
+CLOSURE_COMPILER_JAR="$CLOSURE_COMPILER_DIR/compiler.jar"
+EXTERNS="$CLOSURE_COMPILER_DIR/jquery-1.9.js"
+INPUT="$BASEDIR/pdf2htmlEX.js"
+OUTPUT="$BASEDIR/../pdf2htmlEX.min.js"
 
 (echo 'Building pdf2htmlEX.js with closure-compiler...' && \
-    java -jar "$CLOSURE_COMPILER_DIR/compiler.jar" \
+    java -jar "$CLOSURE_COMPILER_JAR" \
          --compilation_level ADVANCED_OPTIMIZATIONS \
          --process_jquery_primitives \
-         --externs "$CLOSURE_COMPILER_DIR/jquery-1.9.js" \
-         --js "$BASEDIR/header.js" \
-         --js "$BASEDIR/css_class_names.js" \
-         --js "$BASEDIR/viewer.js" \
-         --js_output_file "$OUTPUT" 2>/dev/null && \
+         --externs "$EXTERNS" \
+         --js "$INPUT" \
+         --js_output_file "$OUTPUT" && \
     echo 'Done.') || \
 (echo 'Failed. Read `3rdparty/closure-compiler/README` for more detail.' && \
-echo 'Fall back to naive concatenation' && \
-cat "$BASEDIR/header.js" "$BASEDIR/css_class_names.js" "$BASEDIR/viewer.js" > "$OUTPUT")
+echo 'Using the uncompressed version.' && \
+cat "$INPUT" > "$OUTPUT")
 

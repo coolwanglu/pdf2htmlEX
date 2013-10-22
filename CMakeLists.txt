@@ -170,7 +170,7 @@ include(${CMAKE_SOURCE_DIR}/src/css_class_names.cmakelists.txt)
 configure_file (${CMAKE_SOURCE_DIR}/src/util/css_const.h.in ${CMAKE_SOURCE_DIR}/src/util/css_const.h)
 configure_file (${CMAKE_SOURCE_DIR}/share/base.css.in ${CMAKE_SOURCE_DIR}/share/base.css)
 configure_file (${CMAKE_SOURCE_DIR}/share/fancy.css.in ${CMAKE_SOURCE_DIR}/share/fancy.css)
-configure_file (${CMAKE_SOURCE_DIR}/share/js_src/css_class_names.js.in ${CMAKE_SOURCE_DIR}/share/js_src/css_class_names.js)
+configure_file (${CMAKE_SOURCE_DIR}/share/js_src/pdf2htmlEX.js.in ${CMAKE_SOURCE_DIR}/share/js_src/pdf2htmlEX.js)
 
 set(PDF2HTMLEX_SRC ${PDF2HTMLEX_SRC}
     src/Param.h
@@ -229,13 +229,11 @@ set(PDF2HTMLEX_SRC ${PDF2HTMLEX_SRC}
 add_executable(pdf2htmlEX ${PDF2HTMLEX_SRC})
 target_link_libraries(pdf2htmlEX ${PDF2HTMLEX_LIBS})
 
-add_custom_target(pdf2htmlEX.js ALL DEPENDS ${CMAKE_SOURCE_DIR}/share/pdf2htmlEX.js)
-add_custom_command(OUTPUT ${CMAKE_SOURCE_DIR}/share/pdf2htmlEX.js
+add_custom_target(pdf2htmlEX.min.js ALL DEPENDS ${CMAKE_SOURCE_DIR}/share/pdf2htmlEX.min.js)
+add_custom_command(OUTPUT ${CMAKE_SOURCE_DIR}/share/pdf2htmlEX.min.js
     COMMAND ${CMAKE_SOURCE_DIR}/share/js_src/compile.sh
     DEPENDS 
-        ${CMAKE_SOURCE_DIR}/share/js_src/css_class_names.js
-        ${CMAKE_SOURCE_DIR}/share/js_src/header.js
-        ${CMAKE_SOURCE_DIR}/share/js_src/viewer.js
+        ${CMAKE_SOURCE_DIR}/share/js_src/pdf2htmlEX.js
     )
 
 install (TARGETS pdf2htmlEX DESTINATION bin)
@@ -246,7 +244,7 @@ set(PDF2HTMLEX_RESOURCE
     ${CMAKE_SOURCE_DIR}/share/fancy.css
     ${CMAKE_SOURCE_DIR}/share/LICENSE
     ${CMAKE_SOURCE_DIR}/share/manifest
-    ${CMAKE_SOURCE_DIR}/share/pdf2htmlEX.js
+    ${CMAKE_SOURCE_DIR}/share/pdf2htmlEX.min.js
     ${CMAKE_SOURCE_DIR}/share/pdf2htmlEX-64x64.png
     )
 install (FILES ${PDF2HTMLEX_RESOURCE} DESTINATION share/pdf2htmlEX)

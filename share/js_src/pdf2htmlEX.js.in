@@ -1,6 +1,7 @@
 /* vim: set shiftwidth=2 tabstop=2 autoindent cindent expandtab filetype=javascript : */
+/** @license pdf2htmlEX.js * Copyright 2012,2013 Lu Wang <coolwanglu@gmail.com> and other contributors * https://github.com/coolwanglu/pdf2htmlex * https://github.com/coolwanglu/pdf2htmlEX/blob/master/share/LICENSE */
 /*
- * viewer.js : a simple UI for pdf2htmlEX
+ * pdf2htmlEX.js : a simple UI for pdf2htmlEX
  *
  * Copyright 2012,2013 Lu Wang <coolwanglu@gmail.com> and other contributors
  */
@@ -8,7 +9,6 @@
 /*
  * Dependencies:
  * jQuery
- * css_class_names.js
  */
 
 /*
@@ -34,9 +34,19 @@
 
 /* The namespace */
 (function(pdf2htmlEX){
-  var CSS_CLASS_NAMES = pdf2htmlEX.CSS_CLASS_NAMES;
+ /** @const */
+  var CSS_CLASS_NAMES = {
+    page_frame       : '@CSS_PAGE_FRAME_CN@',
+    page_decoration  : '@CSS_PAGE_DECORATION_CN@',
+    page_content_box : '@CSS_PAGE_CONTENT_BOX_CN@',
+    page_data        : '@CSS_PAGE_DATA_CN@',
+    background_image : '@CSS_BACKGROUND_IMAGE_CN@',
+    link             : '@CSS_LINK_CN@',
+    __dummy__        : 'no comma'
+  };
 
   /* always use string keys to export them in closure-compiler */
+  /** @const */
   var DEFAULT_CONFIG = {
     // id of the element to put the pages in
     'container_id' : 'page-container',
@@ -60,7 +70,9 @@
     __dummy__        : 'no comma'
   };
 
+  /** @const */
   var EPS = 1e-6;
+  /** @const */
   var invert = function(ctm) {
     var det = ctm[0] * ctm[3] - ctm[1] * ctm[2];
     var ictm = new Array();
@@ -72,10 +84,15 @@
     ictm[5] = (ctm[1] * ctm[4] - ctm[0] * ctm[5]) / det;
     return ictm;
   };
+  /** @const */
   var transform = function(ctm, pos) {
     return [ctm[0] * pos[0] + ctm[2] * pos[1] + ctm[4]
            ,ctm[1] * pos[0] + ctm[3] * pos[1] + ctm[5]];
   };
+  /** 
+   * @constructor 
+   * @struct
+   */
   var Page = function(page, container) {
     if(page == undefined) return;
 
@@ -111,7 +128,7 @@
       this.loaded = true;
     }
   };
-  $.extend(Page.prototype, {
+  $.extend(Page.prototype, /** @lends {Page.prototype} */ {
     /* hide & show are for contents, the page frame is still there */
     hide : function(){
       this.$b.removeClass('opened');
@@ -167,7 +184,11 @@
     }
   });
 
-  /* export pdf2htmlEX.Viewer */
+  /** 
+   * export pdf2htmlEX.Viewer 
+   * @constructor
+   * @struct
+   */
   var Viewer = pdf2htmlEX['Viewer'] = function(config) {
     /* do nothing if jQuery is not ready */
     if(!window.jQuery) return;
@@ -180,7 +201,7 @@
     $(function(){_.init_after_loading_content();});
   };
 
-  $.extend(Viewer.prototype, {
+  $.extend(Viewer.prototype, /** @lends {Viewer.prototype} */ {
     scale : 1,
 
     init_before_loading_content : function() {
@@ -270,8 +291,6 @@
           if (successCallback) successCallback();
         }
         ).fail(function(jqXHR, textStatus, errorThrown){
-          console.error('error loading page ' + idx + ': ' + textStatus);
-
           // Reset loading token
           delete _.pages_loading[idx];
 
@@ -639,4 +658,4 @@
 
     __last_member__ : 'no comma' /*,*/
   });
-})(window['pdf2htmlEX']);
+})(window['pdf2htmlEX'] = window['pdf2htmlEX'] || {});
