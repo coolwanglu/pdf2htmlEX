@@ -94,7 +94,7 @@
    * @struct
    */
   var Page = function(page, container) {
-    if(page == undefined) return;
+    if(page === undefined) return;
 
     this.loaded = false;
     this.shown = false;
@@ -565,7 +565,7 @@
 
       // cur_page might be undefined, e.g. from Outline
       var cur_page = _.get_containing_page(t);
-      if(cur_page != undefined)
+      if(cur_page !== undefined)
       {
         cur_pos = cur_page.position();
         //get the coordinates in default user system
@@ -573,13 +573,13 @@
       }
 
       var detail_str = t.attr('data-dest-detail');
-      if(detail_str == undefined) return;
+      if(detail_str === undefined) return;
 
       var ok = false;
       var detail = JSON.parse(detail_str);
 
       var target_page = _.pages[detail[0]];
-      if(target_page == undefined) return;
+      if(target_page === undefined) return;
 
       var pos = [0,0];
       var upside_down = true;
@@ -645,9 +645,9 @@
     /* pos=[x,y], where (0,0) is the top-left corner */
     scroll_to : function(pageno, pos) {
       var target_page = this.pages[pageno];
-      if(target_page == undefined) return;
+      if(target_page === undefined) return;
 
-      if(pos == undefined)
+      if(pos === undefined)
         pos = [0,0];
 
       var cur_target_pos = target_page.position();
