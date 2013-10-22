@@ -34,7 +34,10 @@
 
 /* The namespace */
 (function(pdf2htmlEX){
- /** @const */
+ /** 
+  * @const 
+  * @struct
+  */
   var CSS_CLASS_NAMES = {
     page_frame       : '@CSS_PAGE_FRAME_CN@',
     page_decoration  : '@CSS_PAGE_DECORATION_CN@',
@@ -45,8 +48,10 @@
     __dummy__        : 'no comma'
   };
 
-  /* always use string keys to export them in closure-compiler */
-  /** @const */
+  /** 
+   * @const 
+   * @dict
+   */
   var DEFAULT_CONFIG = {
     // id of the element to put the pages in
     'container_id' : 'page-container',
@@ -67,25 +72,23 @@
     // zoom ratio step for each zoom in/out event
     'scale_step' : 0.9,
 
-    __dummy__        : 'no comma'
+    '__dummy__'        : 'no comma'
   };
 
   /** @const */
   var EPS = 1e-6;
-  /** @const */
-  var invert = function(ctm) {
+
+  function invert(ctm) {
     var det = ctm[0] * ctm[3] - ctm[1] * ctm[2];
-    var ictm = new Array();
-    ictm[0] = ctm[3] / det;
-    ictm[1] = -ctm[1] / det;
-    ictm[2] = -ctm[2] / det;
-    ictm[3] = ctm[0] / det;
-    ictm[4] = (ctm[2] * ctm[5] - ctm[3] * ctm[4]) / det;
-    ictm[5] = (ctm[1] * ctm[4] - ctm[0] * ctm[5]) / det;
-    return ictm;
+    return [ ctm[3] / det
+            ,-ctm[1] / det
+            ,-ctm[2] / det
+            ,ctm[0] / det
+            ,(ctm[2] * ctm[5] - ctm[3] * ctm[4]) / det
+            ,(ctm[1] * ctm[4] - ctm[0] * ctm[5]) / det
+          ];
   };
-  /** @const */
-  var transform = function(ctm, pos) {
+  function transform(ctm, pos) {
     return [ctm[0] * pos[0] + ctm[2] * pos[1] + ctm[4]
            ,ctm[1] * pos[0] + ctm[3] * pos[1] + ctm[5]];
   };
@@ -93,8 +96,8 @@
    * @constructor 
    * @struct
    */
-  var Page = function(page, container) {
-    if(page === undefined) return;
+  function Page(page, container) {
+    if(!page) return;
 
     this.loaded = false;
     this.shown = false;
@@ -189,7 +192,7 @@
    * @constructor
    * @struct
    */
-  var Viewer = pdf2htmlEX['Viewer'] = function(config) {
+  function Viewer(config) {
     /* do nothing if jQuery is not ready */
     if(!window.jQuery) return;
 
@@ -371,10 +374,11 @@
 
       $(window).on('keydown', function keydown(e) {
         var handled = false;
-        var cmd = (evt.ctrlKey ? 1 : 0) |
-          (evt.altKey ? 2 : 0) |
-          (evt.shiftKey ? 4 : 0) |
-          (evt.metaKey ? 8 : 0);
+        var cmd = (e.ctrlKey ? 1 : 0)
+                  | (e.altKey ? 2 : 0)
+                  | (e.shiftKey ? 4 : 0)
+                  | (e.metaKey ? 8 : 0)
+                  ;
         var with_ctrl = (cmd == 9);
         var with_alt = (cmd == 2);
         switch (e.keyCode) {
@@ -435,33 +439,10 @@
         }
       });
     },
-    // Find the first page that is at least half a page below the current position
-    get_next_page : function() {
-      var page_height = this.$container.height();
 
-      var pl = this.pages;
-      for(var i in pl) {
-        var page = pl[i];
-        var page_position = page.position();
-        if (page_position[1] < position[1] - page_height/2)
-          return page;
-      }
-      return undefined;
-    },
-
-    // Find the last page that is at least half a page above the current position
-    get_prev_page : function() {
-      var page_height = this.$container.height();
-
-      var pl = this.pages.slice().reverse();
-      for(var i in pl) {
-        var page = pl[i];
-        var page_position = page.position();
-        if (page_position[1] > position[1] + page_height/2)
-          return page;
-      }
-      return undefined;
-    },
+    // TODO
+    get_next_page : function() { return undefined; },
+    get_prev_page : function() { return undefined; },
 
     rescale : function (ratio, is_relative, offsetX, offsetY) {
       if (! offsetX)
@@ -554,7 +535,7 @@
     get_containing_page : function(obj) {
       /* get the page obj containing obj */
       var p = obj.closest('.'+CSS_CLASS_NAMES.page_frame)[0];
-      return p && this.pages[(new Page(p)).n];
+      return p && this.pages[(new Page(p, null)).n];
     },
 
     link_handler : function (e) {
@@ -572,7 +553,7 @@
         cur_pos = transform(cur_page.ictm, [cur_pos[0], cur_page.h-cur_pos[1]]);
       }
 
-      var detail_str = t.attr('data-dest-detail');
+      var detail_str = /** @type{string} */ (t.attr('data-dest-detail'));
       if(detail_str === undefined) return;
 
       var ok = false;
@@ -658,4 +639,6 @@
 
     __last_member__ : 'no comma' /*,*/
   });
+
+  pdf2htmlEX['Viewer'] = Viewer;
 })(window['pdf2htmlEX'] = window['pdf2htmlEX'] || {});

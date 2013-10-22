@@ -16,6 +16,7 @@ OUTPUT="$BASEDIR/../pdf2htmlEX.min.js"
 (echo 'Building pdf2htmlEX.js with closure-compiler...' && \
     java -jar "$CLOSURE_COMPILER_JAR" \
          --compilation_level ADVANCED_OPTIMIZATIONS \
+         --warning_level VERBOSE \
          --process_jquery_primitives \
          --externs "$EXTERNS" \
          --js "$INPUT" \
