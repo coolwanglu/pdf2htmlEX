@@ -11,9 +11,10 @@ CLOSURE_COMPILER_DIR="$BASEDIR/../../3rdparty/closure-compiler"
 CLOSURE_COMPILER_JAR="$CLOSURE_COMPILER_DIR/compiler.jar"
 EXTERNS="$CLOSURE_COMPILER_DIR/jquery-1.9.js"
 INPUT="$BASEDIR/pdf2htmlEX.js"
-OUTPUT="$BASEDIR/../pdf2htmlEX.min.js"
+OUTPUT_FN="pdf2htmlEX.min.js"
+OUTPUT="$BASEDIR/../$OUTPUT_FN"
 
-(echo 'Building pdf2htmlEX.js with closure-compiler...' && \
+(echo "Building $OUTPUT_FN with closure-compiler..." && \
     java -jar "$CLOSURE_COMPILER_JAR" \
          --compilation_level ADVANCED_OPTIMIZATIONS \
          --warning_level VERBOSE \
