@@ -17,7 +17,7 @@ set(CSS_PAGE_CONTENT_BOX_CN "pc") # Page Content
 set(CSS_PAGE_DATA_CN        "pi") # Page Info
 
 set(CSS_BACKGROUND_IMAGE_CN "bi")      # Background Image
-set(CSS_FULL_BACKGROUND_IMAGE_CN "Bi") # Full Background Image
+set(CSS_FULL_BACKGROUND_IMAGE_CN "bf") # Background image (Full)
 
 set(CSS_FONT_FAMILY_CN      "ff") # Font Family
 set(CSS_FONT_SIZE_CN        "fs") # Font Size

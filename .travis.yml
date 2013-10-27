@@ -3,6 +3,7 @@ compiler: gcc
 before_install:
   - sudo add-apt-repository ppa:coolwanglu/pdf2htmlex --yes
   - sudo apt-get update -qq
+install:
   - sudo apt-get install -qq libpoppler-dev libfontforge-dev libspiro-dev libcairo-dev libfreetype6-dev
 before_script: 
   - cmake -DENABLE_SVG=ON .
