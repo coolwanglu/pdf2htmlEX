@@ -78,6 +78,7 @@ bool isLegalUnicode(Unicode u)
 
     /*
      * U+2029: Paragraph Separator
+     * TODO: check U+2028 etc
      */
     if(u == 0x2029)
         return false;
