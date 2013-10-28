@@ -190,14 +190,13 @@
   /** 
    * export pdf2htmlEX.Viewer 
    * @constructor
-   * @struct
    */
   function Viewer(config) {
     /* do nothing if jQuery is not ready */
     if(!window.jQuery) return;
 
     this.config = $.extend({}, DEFAULT_CONFIG, config);
-    this.pages_loading = {};
+    this.pages_loading = [];
     this.init_before_loading_content();
 
     var _ = this;
@@ -237,15 +236,23 @@
       this.render();
     },
 
+    /*
+     * set up this.pages and this.page_map
+     * pages is an array holding all the Page objects
+     * page-Map maps an original page number (in PDF) to the corresponding index in page
+     */
     find_pages : function() {
-      var new_pages = new Array();
+      var new_pages = [];
+      var new_page_map = {};
       var $pl= $('.'+CSS_CLASS_NAMES.page_frame, this.$container);
       /* don't use for(..in..) since $pl is more than an Array */
       for(var i = 0, l = $pl.length; i < l; ++i) {
         var p = new Page($pl[i], this.$container);
-        new_pages[p.n] = p;
+        new_pages.push(p);
+        new_page_map[p.n] = p;
       }
       this.pages = new_pages;
+      this.page_map = new_page_map;
     },
 
     load_page : function(idx, pages_to_preload, successCallback, errorCallback) {
@@ -323,14 +330,14 @@
 
     hide_pages : function() {
       var pl = this.pages;
-      for(var i in pl)
+      for(var i = 0, l = pl.length; i < l; ++i)
         pl[i].hide();
     },
 
     render : function () {
       /* hide (positional) invisible pages */
       var pl = this.pages;
-      for(var i in pl) {
+      for(var i = 0, l = pl.length; i < l; ++i) {
         var p = pl[i];
         if(p.is_nearly_visible()){
           if (p.loaded) {
@@ -481,7 +488,7 @@
         this.scale = ratio;
 
       // Rescale pages
-      for(var i in pl) {
+      for(var i = 0, l = pl.length; i < l; ++i) {
         if (prerendering_enabled && i >= min_visible && i <= max_visible)
           pl[i].rescale(this.scale, true);    // Force immediate refresh
         else
@@ -524,7 +531,7 @@
       var y_center = this.$container.offset().top + this.$container.height() / 2;
       var pl = this.pages;
       var last_page = -1;
-      for (var i in pl) {
+      for(var i = 0, l = pl.length; i < l; ++i) {
         if (pl[i].$p.offset().top > y_center)
           break;
         last_page = i;
@@ -534,8 +541,15 @@
 
     get_containing_page : function(obj) {
       /* get the page obj containing obj */
-      var p = obj.closest('.'+CSS_CLASS_NAMES.page_frame)[0];
-      return p && this.pages[(new Page(p, null)).n];
+      var $p = obj.closest('.'+CSS_CLASS_NAMES.page_frame);
+      if($p.length == 0) return;
+      /*
+       * Get original page number and map it to index of pages
+       * TODO: store the index on the dom element
+       */
+      var pn = (new Page($p[0], null)).n; 
+      var pm = this.page_map;
+      return (pn in pm) && this.pages[pm[pn]];
     },
 
     link_handler : function (e) {
@@ -559,8 +573,11 @@
       var ok = false;
       var detail = JSON.parse(detail_str);
 
-      var target_page = _.pages[detail[0]];
-      if(target_page === undefined) return;
+      var target_page_no = detail[0];
+      var page_map = this.page_map;
+      if(!(target_page_no in page_map)) return;
+      var target_page_idx = page_map[target_page_no];
+      var target_page = _.pages[target_page_idx];
 
       var pos = [0,0];
       var upside_down = true;
@@ -599,33 +616,31 @@
       }
 
       if(ok) {
-        var transform_and_scroll = function() {
-          pos = transform(target_page.ctm, pos);
+        /* page should of type Page */
+        var transform_and_scroll = function(page) {
+          pos = transform(page.ctm, pos);
           if(upside_down) {
-            pos[1] = target_page.h - pos[1];
+            pos[1] = page.h - pos[1];
           }
-          _.scroll_to(detail[0], pos);
+          _.scroll_to(target_page_idx, pos);
         };
 
         if (target_page.loaded) {
-          transform_and_scroll();
+          transform_and_scroll(target_page);
         } else {
           // Scroll to the exact position once loaded.
-          _.load_page(target_page.n, 1, function() {
-            target_page = _.pages[target_page.n];                   // Refresh reference
-            transform_and_scroll();
-          });
+          _.load_page(target_page.n, undefined, transform_and_scroll);
 
           // In the meantime page gets loaded, scroll approximately position for maximum responsiveness.
-          _.scroll_to(detail[0], [0,0]);
+          _.scroll_to(target_page_idx, [0,0]);
         }
         e.preventDefault();
       }
     }, 
 
     /* pos=[x,y], where (0,0) is the top-left corner */
-    scroll_to : function(pageno, pos) {
-      var target_page = this.pages[pageno];
+    scroll_to : function(page_idx, pos) {
+      var target_page = this.pages[page_idx];
       if(target_page === undefined) return;
 
       if(pos === undefined)

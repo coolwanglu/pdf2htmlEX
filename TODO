@@ -8,7 +8,6 @@ pdf:miui
 tmp dir: use pid
 remove page from dom -- UI option
 view hash
-store $pages from 0, 
 - store a separate map/dict for 'original' page number
 - OR adjust all destinations
 
