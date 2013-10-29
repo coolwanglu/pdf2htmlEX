@@ -62,6 +62,8 @@
   .@CSS_PAGE_DECORATION_CN@ {
     margin: 13px auto;
     box-shadow: 1px 1px 3px 1px #333;
+    /* Needed by IE to make box-shadow works * https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow */
+    border-collapse: separate;
   }
   .@CSS_PAGE_CONTENT_BOX_CN@.opened { /* used by pdf2htmlEX.js, to show/hide pages */
     -webkit-animation: fadein 100ms;
