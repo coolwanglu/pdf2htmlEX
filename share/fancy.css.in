@@ -1,6 +1,9 @@
 /* vim: set shiftwidth=2 tabstop=2 autoindent cindent expandtab filetype=css: */
-/* Fancy styles */
-/* Copyright 2013 Lu Wang <coolwanglu@gmail.com> */
+/*! 
+ * Fancy styles for pdf2htmlEX
+ * Copyright 2012,2013 Lu Wang <coolwanglu@gmail.com> 
+ * https://github.com/coolwanglu/pdf2htmlEX/blob/master/share/LICENSE
+ */
 @keyframes fadein { from { opacity:0;} to { opacity:1;} }
 @-webkit-keyframes fadein { from { opacity:0;} to { opacity:1;} }
 @keyframes swing {

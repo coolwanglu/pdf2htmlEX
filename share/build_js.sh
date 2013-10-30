@@ -7,12 +7,12 @@
 
 
 BASEDIR=$(dirname $0)
-CLOSURE_COMPILER_DIR="$BASEDIR/../../3rdparty/closure-compiler"
+CLOSURE_COMPILER_DIR="$BASEDIR/../3rdparty/closure-compiler"
 CLOSURE_COMPILER_JAR="$CLOSURE_COMPILER_DIR/compiler.jar"
 EXTERNS="$CLOSURE_COMPILER_DIR/jquery-1.9.js"
 INPUT="$BASEDIR/pdf2htmlEX.js"
 OUTPUT_FN="pdf2htmlEX.min.js"
-OUTPUT="$BASEDIR/../$OUTPUT_FN"
+OUTPUT="$BASEDIR/$OUTPUT_FN"
 
 (echo "Building $OUTPUT_FN with closure-compiler..." && \
     java -jar "$CLOSURE_COMPILER_JAR" \
