@@ -534,17 +534,13 @@
       this.scroll_to(this.page_map[active_page.n], [0,0]);
     },
 
+    // TODO: preserve active_page idx after rescaling
     get_active_page : function () {
-      // get page that are on the center of the view     //TODO better on top?!
-      var y_center = this.$container.offset().top + this.$container.height() / 2;
-      var pl = this.pages;
-      var last_page = -1;
       for(var i = 0, l = pl.length; i < l; ++i) {
-        if (pl[i].$p.offset().top > y_center)
-          break;
-        last_page = i;
+        if (pl[i].is_visible())
+          return pl[i];
       }
-      return pl[last_page];
+      return;
     },
 
     get_containing_page : function(obj) {
@@ -568,7 +564,7 @@
 
       // cur_page might be undefined, e.g. from Outline
       var cur_page = _.get_containing_page(t);
-      if(cur_page !== undefined)
+      if(cur_page)
       {
         cur_pos = cur_page.position();
         //get the coordinates in default user system

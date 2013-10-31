@@ -50,6 +50,8 @@ $css
 # entry point of pdf2htmlEX.Viewer
 # You can override default configuration by passing an object to the constructor of Viewer
 # Refer to DEFAULT_CONFIG in viewer.js for possible keys
+# E.g.
+# new pdf2htmlEX.Viewer({ 'preload_pages' : 1 });
 @pdf2htmlEX.min.js
 """
 <script>
