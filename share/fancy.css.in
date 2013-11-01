@@ -73,8 +73,8 @@
     animation: fadein 100ms; 
   }
   .loading-indicator {
-    animation: swing 1.5s ease-in-out 0s infinite alternate none;
     -webkit-animation: swing 1.5s ease-in-out 0s infinite alternate none;
+    animation: swing 1.5s ease-in-out 0s infinite alternate none;
   }
 }
 /* Fancy CSS END */
