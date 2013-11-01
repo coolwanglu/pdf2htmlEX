@@ -156,14 +156,17 @@
         }
       }
     },
-    rescale : function(ratio, keep_shown) {
+    /**
+     * @param {boolean=} force_show Force showing the page for smooth rescaling
+     */
+    rescale : function(ratio, force_show) {
       if(ratio == 0) {
         this.set_r = this.default_r;
       } else {
         this.set_r = ratio;
       }
 
-      if (keep_shown)
+      if (force_show)
         this.show();    // Refresh content
       else
         this.hide();    // Wait for redraw
@@ -298,7 +301,7 @@
           var p = _.pages[idx];
           p.$d.replaceWith(data);
 
-          var $new_pf = p.find('.' + CSS_CLASS_NAMES.page_frame);
+          var $new_pf = _.$container.find('#' + CSS_CLASS_NAMES.page_frame + p.n.toString(16));
           p = new Page($new_pf, _.$container);
           p.hide();
           p.rescale(_.scale);
@@ -537,6 +540,7 @@
 
     // TODO: preserve active_page idx after rescaling
     get_active_page : function () {
+      var pl = this.pages;
       for(var i = 0, l = pl.length; i < l; ++i) {
         if (pl[i].is_visible())
           return pl[i];
