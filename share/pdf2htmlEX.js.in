@@ -106,11 +106,13 @@
 
     this.loaded = false;
     this.shown = false;
-    this.$p = $(page);
+    this.$p = $(page); // page frame element
     this.$container = $(container);
 
     this.n = parseInt(this.$p.data('page-no'), 16);
+    // content box
     this.$b = $('.'+CSS_CLASS_NAMES.page_content_box, this.$p);
+    // decoration
     this.$d = this.$p.parent('.'+CSS_CLASS_NAMES.page_decoration);
 
     // page size
@@ -177,12 +179,14 @@
     /* return if this page or any neighbor of it is visible */
     is_nearly_visible : function() {
       var off = this.position();
-      /* I should use the height of the previous page or the next page here
+      /* 
+       * I should use the height of the previous page or the next page here
        * but since they are not easily available, just use '*2', which should be a good estimate in most cases
        */
       return !((off[1] > this.h * 2) || (off[1] + this.$container.height() * 2 < 0));
     },
-    /* return the coordinate of the top-left corner of container
+    /*
+     * return the coordinate of the top-left corner of container
      * in our coordinate system
      */
     position : function () {
@@ -265,24 +269,25 @@
       if (idx >= pages.length)
         return;  // Page does not exist
 
-      if (pages[idx].loaded)
+      var cur_page = pages[idx];
+      if (cur_page.loaded)
         return;  // Page is loaded
 
       if (this.pages_loading[idx])
         return;  // Page is already loading
 
-      var page_no_hex = pages[idx].n.toString(16);
-      var $pf = this.$container.find('#' + CSS_CLASS_NAMES.page_frame + page_no_hex);
-      if($pf.length == 0)
-        return;  // Page does not exist
+      var page_no_hex = cur_page.n.toString(16);
+      var $pf = cur_page.$p;
 
       this.$loading_indicator.clone().show().appendTo($pf);
 
-      var _ = this;
-
       var url = $pf.data('page-url');
-      if (url && url.length > 0) {
+      if (url) {
         this.pages_loading[idx] = true;       // Set semaphore
+
+        /* closure variables */
+        var _ = this;
+        var _idx = idx;
 
         $.ajax({
           url: url,
@@ -290,23 +295,25 @@
         }).done(function(data){
           // replace the old page with loaded data
           // the loading indicator on this page should also be destroyed
-          _.pages[idx].$d.replaceWith(data);
+          var p = _.pages[idx];
+          p.$d.replaceWith(data);
 
-          var $new_pf = _.$container.find('#' + CSS_CLASS_NAMES.page_frame + page_no_hex);
-          _.pages[idx] = new Page($new_pf, _.$container);
-          _.pages[idx].hide();
-          _.pages[idx].rescale(_.scale);
-          _.schedule_render();
+          var $new_pf = p.find('.' + CSS_CLASS_NAMES.page_frame);
+          p = new Page($new_pf, _.$container);
+          p.hide();
+          p.rescale(_.scale);
 
           // disable background image dragging
           $new_pf.find('.'+CSS_CLASS_NAMES.background_image).on('dragstart', function(e){return false;});
+
+          _.pages[idx] = p;
+          _.schedule_render();
 
           // Reset loading token
           delete _.pages_loading[idx];
 
           if (successCallback) successCallback(_.pages[idx]);
-        }
-        ).fail(function(jqXHR, textStatus, errorThrown){
+        }).fail(function(jqXHR, textStatus, errorThrown){
           // Reset loading token
           delete _.pages_loading[idx];
 
@@ -318,7 +325,7 @@
         pages_to_preload = this.config['preload_pages'];
 
       if (--pages_to_preload > 0)
-        _.load_page(idx+1, pages_to_preload);
+        this.load_page(idx+1, pages_to_preload);
     },
 
     pre_hide_pages : function() {
@@ -332,12 +339,6 @@
         n.appendChild(document.createTextNode(s));
       }
       document.getElementsByTagName('head')[0].appendChild(n);
-    },
-
-    hide_pages : function() {
-      var pl = this.pages;
-      for(var i = 0, l = pl.length; i < l; ++i)
-        pl[i].hide();
     },
 
     render : function () {
