@@ -1,3 +1,9 @@
+pdf2htmlex (0.11-1~git201311042119refddc-0ubuntu1) saucy; urgency=low
+
+  * Packaging for 13.10
+
+ -- WANG Lu <coolwanglu@gmail.com>  Mon, 04 Nov 2013 21:19:41 +0800
+
 pdf2htmlex (0.11-1~git201310172203re1b11-0ubuntu1) raring; urgency=low
 
   * Fix typo in dependencies 

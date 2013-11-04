@@ -10,7 +10,6 @@ page idx vs no
 move $container outside Page
 tracking current page
 more js annoatation
-packaging for 13.10
 pdf:mobile device
 pdf:miui
 tmp dir: use pid
