@@ -45,7 +45,6 @@
   */
   var CSS_CLASS_NAMES = {
     page_frame       : '@CSS_PAGE_FRAME_CN@',
-    page_decoration  : '@CSS_PAGE_DECORATION_CN@',
     page_content_box : '@CSS_PAGE_CONTENT_BOX_CN@',
     page_data        : '@CSS_PAGE_DATA_CN@',
     background_image : '@CSS_BACKGROUND_IMAGE_CN@',
@@ -112,8 +111,6 @@
     this.n = parseInt(this.$p.data('page-no'), 16);
     // content box
     this.$b = $('.'+CSS_CLASS_NAMES.page_content_box, this.$p);
-    // decoration
-    this.$d = this.$p.parent('.'+CSS_CLASS_NAMES.page_decoration);
 
     // page size
     // Need to make rescale work when page_content_box is not loaded, yet
@@ -171,8 +168,8 @@
       else
         this.hide();    // Wait for redraw
 
-      this.$d.height(this.h * this.set_r);
-      this.$d.width(this.w * this.set_r);
+      this.$p.height(this.h * this.set_r);
+      this.$p.width(this.w * this.set_r);
     },
     /* return if any part of this page is shown in the container */
     is_visible : function() {
@@ -333,7 +330,7 @@
           // replace the old page with loaded data
           // the loading indicator on this page should also be destroyed
           var p = _.pages[idx];
-          p.$d.replaceWith(data);
+          p.$p.replaceWith(data);
 
           var $new_pf = _.$container.find('#' + CSS_CLASS_NAMES.page_frame + p.n.toString(16));
           p = new Page($new_pf, _.$container);

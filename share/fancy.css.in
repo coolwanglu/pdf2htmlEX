@@ -62,7 +62,7 @@
     -webkit-transition:left 500ms;
     transition:left 500ms;
   }
-  .@CSS_PAGE_DECORATION_CN@ {
+  .@CSS_PAGE_FRAME_CN@ {
     margin: 13px auto;
     box-shadow: 1px 1px 3px 1px #333;
     /* Needed by IE to make box-shadow works * https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow */

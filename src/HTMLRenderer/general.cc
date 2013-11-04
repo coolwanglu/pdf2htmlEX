@@ -183,12 +183,10 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state, XRef * xref)
     long long wid = all_manager.width.install(pageWidth);
     long long hid = all_manager.height.install(pageHeight);
     (*f_curpage)
-        << "<div class=\"" << CSS::PAGE_DECORATION_CN 
-            << " " << CSS::WIDTH_CN << wid
-            << " " << CSS::HEIGHT_CN << hid
-            << "\">"
         << "<div id=\"" << CSS::PAGE_FRAME_CN << pageNum 
             << "\" class=\"" << CSS::PAGE_FRAME_CN
+            << " " << CSS::WIDTH_CN << wid
+            << " " << CSS::HEIGHT_CN << hid
             << "\" data-page-no=\"" << pageNum << "\">"
         << "<div class=\"" << CSS::PAGE_CONTENT_BOX_CN 
             << " " << CSS::PAGE_CONTENT_BOX_CN << pageNum
@@ -203,12 +201,10 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state, XRef * xref)
     if(param.split_pages)
     {
         f_pages.fs
-            << "<div class=\"" << CSS::PAGE_DECORATION_CN 
-                << " " << CSS::WIDTH_CN << wid
-                << " " << CSS::HEIGHT_CN << hid
-                << "\">"
             << "<div id=\"" << CSS::PAGE_FRAME_CN << pageNum 
                 << "\" class=\"" << CSS::PAGE_FRAME_CN
+                << " " << CSS::WIDTH_CN << wid
+                << " " << CSS::HEIGHT_CN << hid
                 << "\" data-page-no=\"" << pageNum 
                 << "\" data-page-url=\"";
 
@@ -253,11 +249,11 @@ void HTMLRenderer::endPage() {
     (*f_curpage) << "}'></div>";
     
     // close page
-    (*f_curpage) << "</div></div>" << endl;
+    (*f_curpage) << "</div>" << endl;
 
     if(param.split_pages)
     {
-        f_pages.fs << "</div></div>" << endl;
+        f_pages.fs << "</div>" << endl;
     }
 }
 
