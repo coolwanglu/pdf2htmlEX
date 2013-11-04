@@ -190,43 +190,16 @@
      * in our coordinate system
      */
     position : function () {
-      return this.offset_to(this.$container.get(0));
-
+      var rect = this.$p[0].getBoundingClientRect();
+      // getBoundingClientRect will be called on $container 
+      // for a lot of times(= #pages), just hope JIT works
+      var rect_c = this.$container[0].getBoundingClientRect();
+      return [rect_c.left-rect.left, rect_c.top-rect.top];
       /*
       var off = this.$p.offset();
       var off_c = this.$container.offset();
       return [off_c.left-off.left, off_c.top-off.top];
       */
-    },
-    /*
-     * Similar to position, but specify container as ele
-     * ele must be an ancestor node of current page
-     * TODO: remove position
-     * TODO: consider border
-     * TODO: consider scroll
-     */
-    offset_to : function (ele) {
-      var elep = ele.offsetParent;
-      var cur_e = this.$p.get(0);
-      var cur_top = 0;
-      var cur_left = 0;
-      while(true) {
-        switch(cur_e) {
-          case null:
-            return;
-          case elep:
-            cur_top -= ele.offsetTop;
-            cur_left -= ele.offsetLeft;
-            /* fall through */
-          case ele:
-            window['console']['log'](cur_top+' '+cur_left);
-            return [cur_top, cur_left];
-          default:
-            cur_top += cur_e.offsetTop;
-            cur_left += cur_e.offsetLeft;
-            cur_e = cur_e.offsetParent;
-        }
-      }
     }
   });
 
@@ -287,7 +260,7 @@
     find_pages : function() {
       var new_pages = [];
       var new_page_map = {};
-      var $pl= $('.'+CSS_CLASS_NAMES.page_frame, this.$container);
+      var $pl= this.$container.find('.'+CSS_CLASS_NAMES.page_frame);
       /* don't use for(..in..) since $pl is more than an Array */
       for(var i = 0, l = $pl.length; i < l; ++i) {
         var p = new Page($pl[i], this.$container);
@@ -503,7 +476,7 @@
       var active_page = this.get_active_page();
       if(!active_page) return;
 
-      var prev_offset = active_page.$p.offset();
+      var prev_offset = active_page.$p[0].getBoundingClientRect();
       var old_scale = this.scale;
       var pl = this.pages;
 
@@ -539,7 +512,7 @@
       }
 
       // Correct container scroll to keep view aligned while zooming
-      var correction_top = active_page.$p.offset().top - prev_offset.top;
+      var correction_top = active_page.$p[0].getBoundingClientRect().top - prev_offset.top;
       this.$container.scrollTop( this.$container.scrollTop() + correction_top + offsetY );
 
       // Take the center of the view as a reference
