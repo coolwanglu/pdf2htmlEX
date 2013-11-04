@@ -193,9 +193,39 @@
      * in our coordinate system
      */
     position : function () {
+      return this.offset_to(this.$container.get(0));
+
       var off = this.$p.offset();
       var off_c = this.$container.offset();
       return [off_c.left-off.left, off_c.top-off.top];
+    },
+    /*
+     * Similar to position, but specify container as ele
+     * ele must be an ancestor node of current page
+     * TODO: remove position
+     * TODO: consider border
+     */
+    offset_to : function (ele) {
+      var elep = ele.offsetParent;
+      var cur_e = this.$p.get(0);
+      var cur_top = 0;
+      var cur_left = 0;
+      while(true) {
+        switch(cur_e) {
+          case null;
+            return;
+          case elep:
+            cur_top -= ele.offsetTop;
+            cur_left -= ele.offsetLeft;
+            /* fall through */
+          case ele:
+            return [cur_top, cur_left];
+          default:
+            cur_top += cur_e.offsetTop;
+            cur_left += cur_e.offsetLeft;
+            cur_e = cur_e.offstParent;
+        }
+      }
     }
   });
 
