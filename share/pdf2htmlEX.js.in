@@ -1,19 +1,14 @@
 /* vim: set shiftwidth=2 tabstop=2 autoindent cindent expandtab filetype=javascript : */
 /** 
  * @license 
- * Core UI functions for pdf2htmlEX 
+ * pdf2htmlEX.js: Core UI functions for pdf2htmlEX 
  * Copyright 2012,2013 Lu Wang <coolwanglu@gmail.com> and other contributors 
  * https://github.com/coolwanglu/pdf2htmlEX/blob/master/share/LICENSE 
- */
-/*
- * pdf2htmlEX.js : a simple UI for pdf2htmlEX
- *
- * Copyright 2012,2013 Lu Wang <coolwanglu@gmail.com> and other contributors
  */
 
 /*
  * Dependencies:
- * jQuery
+ * jQuery - use it only when necessary
  */
 
 /*
@@ -108,12 +103,12 @@
     var $p = $(page);
     this.n = parseInt($p.data('page-no'), 16);
     // content box
-    this.$b = $p.find('.'+CSS_CLASS_NAMES.page_content_box);
+    this.$b = $p.children('.'+CSS_CLASS_NAMES.page_content_box);
 
     // page size
     // Need to make rescale work when page_content_box is not loaded, yet
-    this.h = this.p.clientHeight;     
-    this.w = this.p.clientWidth;
+    this.original_height = this.p.clientHeight;     
+    this.original_width = this.p.clientWidth;
 
     // if page is loaded
     if (this.$b.length > 0) {
@@ -124,8 +119,8 @@
        * set_r : last set
        * cur_r : currently using
        */
-      this.default_r = this.set_r = this.cur_r = this.h / this.$b.height();
-      this.page_data = $($p.find('.'+CSS_CLASS_NAMES.page_data)[0]).data('data');
+      this.default_r = this.set_r = this.cur_r = this.original_height / this.$b.height();
+      this.page_data = $($p.children('.'+CSS_CLASS_NAMES.page_data)[0]).data('data');
 
       this.ctm = this.page_data['ctm'];
       this.ictm = invert(this.ctm);
@@ -160,24 +155,24 @@
       }
 
       var s = this.p.style;
-      s.height = (this.h * this.set_r) + 'px';
-      s.width = (this.w * this.set_r) + 'px';
+      s.height = (this.original_height * this.set_r) + 'px';
+      s.width = (this.original_width * this.set_r) + 'px';
     },
     /* return if any part of this page is shown in the container */
-    // TODO: consider scale
     is_visible : function() {
-      var off = this.position();
-      return !((off[1] > this.h) || (off[1] + this.p.parentNode.clientHeight < 0));
+      var p = this.p;
+      var pos = this.position();
+      return !((pos[1] > p.clientHeight) || (pos[1] + p.parentNode.clientHeight < 0));
     },
     /* return if this page or any neighbor of it is visible */
-    // TODO: consider scale
     is_nearly_visible : function() {
+      var p = this.p;
       var off = this.position();
       /* 
        * I should use the height of the previous page or the next page here
        * but since they are not easily available, just use '*2', which should be a good estimate in most cases
        */
-      return !((off[1] > this.h * 2) || (off[1] + this.p.parentNode.clientHeight * 2 < 0));
+      return !((off[1] > p.clientHeight * 2) || (off[1] + p.parentNode.clientHeight * 2 < 0));
     },
     /*
      * return the coordinate of the top-left corner of container
@@ -187,12 +182,19 @@
     position : function () {
       var p = this.p;
       var c = p.parentNode;
-      return [c.scrollLeft - p.offsetLeft - p.clientLeft, c.scrollTop - p.offsetTop - p.clientTop];
+      return [ c.scrollLeft - p.offsetLeft - p.clientLeft
+             , c.scrollTop - p.offsetTop - p.clientTop];
+    },
+    height : function () {
+      return this.p.clientHeight;
+    },
+    width : function () {
+      return this.p.clientWidth;
     }
   });
 
   /** 
-   * export pdf2htmlEX.Viewer 
+   * export pdf2htmlEX.Viewer
    * @constructor
    */
   function Viewer(config) {
@@ -229,14 +231,16 @@
       this.find_pages();
 
       // register schedule rendering
+      // renew old schedules since scroll() may be called frequently
       var _ = this;
-      this.$container.scroll(function(){ _.schedule_render(); });
+      this.$container.scroll(function(){ _.schedule_render(true); });
 
       if(this.config['register_key_handler'])
         this.register_key_handler();
 
       // handle links
-      this.$container.add(this.$outline).on('click', '.'+CSS_CLASS_NAMES.link, this, this.link_handler);
+      this.$container.add(this.$outline)
+        .on('click', '.'+CSS_CLASS_NAMES.link, this, this.link_handler);
 
       this.render();
     },
@@ -249,7 +253,7 @@
     find_pages : function() {
       var new_pages = [];
       var new_page_map = {};
-      var $pl= this.$container.find('.'+CSS_CLASS_NAMES.page_frame);
+      var $pl= this.$container.children('.'+CSS_CLASS_NAMES.page_frame);
       /* don't use for(..in..) since $pl is more than an Array */
       for(var i = 0, l = $pl.length; i < l; ++i) {
         var p = new Page($pl[i]);
@@ -272,12 +276,9 @@
       if (this.pages_loading[idx])
         return;  // Page is already loading
 
-      var page_no_hex = cur_page.n.toString(16);
-      var $pf = $(cur_page.p);
-
-      this.$loading_indicator.clone().show().appendTo($pf);
-
-      var url = $pf.data('page-url');
+      var cur_page_ele = cur_page.p;
+      this.$loading_indicator.clone().show().appendTo(cur_page_ele);
+      var url = cur_page_ele.getAttribute('data-page-url');
       if (url) {
         this.pages_loading[idx] = true;       // Set semaphore
 
@@ -294,7 +295,8 @@
           var p = _.pages[idx];
           $(p.p).replaceWith(data);
 
-          var $new_pf = _.$container.find('#' + CSS_CLASS_NAMES.page_frame + p.n.toString(16));
+          var $new_pf = _.$container.children('#' + CSS_CLASS_NAMES.page_frame + p.n.toString(16));
+          //TODO: check $new_pf is not empty
           p = new Page($new_pf[0]);
           p.hide();
           p.rescale(_.scale);
@@ -303,7 +305,7 @@
           $new_pf.find('.'+CSS_CLASS_NAMES.background_image).on('dragstart', function(e){return false;});
 
           _.pages[idx] = p;
-          _.schedule_render();
+          _.schedule_render(false);
 
           // Reset loading token
           delete _.pages_loading[idx];
@@ -354,13 +356,19 @@
       }
     },
 
-    schedule_render : function() {
-      if(this.render_timer)
+    /*
+     * renew: renew the existing schedule instead of using the old one
+     */
+    schedule_render : function(renew) {
+      if(this.render_timer) {
+        if(!renew) return;
         clearTimeout(this.render_timer);
+      }
 
       var _ = this;
       this.render_timer = setTimeout(function () {
         _.render();
+        delete _.render_timer;
       }, this.config['render_timeout']);
     },
 
@@ -500,14 +508,15 @@
       this.$container.scrollLeft( this.$container.scrollLeft() + correction_left + offsetX );
 
       // some pages' visibility may be toggled, wait for next render()
-      this.schedule_render();
+      // renew old schedules since rescale() may be called frequently
+      this.schedule_render(true);
     },
 
     fit_width : function () {
       var active_page = this.get_active_page();
       if(!active_page) return;
 
-      this.rescale(this.$container.width() / active_page.w, false);
+      this.rescale(this.$container.width() / active_page.width(), false);
       this.scroll_to(this.page_map[active_page.n], [0,0]);
     },
 
@@ -515,7 +524,7 @@
       var active_page = this.get_active_page();
       if(!active_page) return;
 
-      this.rescale(this.$container.height() / active_page.h, false);
+      this.rescale(this.$container.height() / active_page.height(), false);
       this.scroll_to(this.page_map[active_page.n], [0,0]);
     },
 
@@ -554,7 +563,7 @@
       {
         cur_pos = cur_page.position();
         //get the coordinates in default user system
-        cur_pos = transform(cur_page.ictm, [cur_pos[0], cur_page.h-cur_pos[1]]);
+        cur_pos = transform(cur_page.ictm, [cur_pos[0], cur_page.height()-cur_pos[1]]);
       }
 
       var detail_str = /** @type{string} */ (t.attr('data-dest-detail'));
@@ -610,7 +619,7 @@
         var transform_and_scroll = function(page) {
           pos = transform(page.ctm, pos);
           if(upside_down) {
-            pos[1] = page.h - pos[1];
+            pos[1] = page.height() - pos[1];
           }
           _.scroll_to(target_page_idx, pos);
         };

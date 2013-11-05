@@ -1,5 +1,5 @@
-scale + scroll
-use offsetTop/Left instead of jquery.offset()
+enable global key handler
+link handling + scale
 
 more information on demo page:
   - showing pdf2htmlEX home page
