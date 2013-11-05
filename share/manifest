@@ -27,9 +27,9 @@
 #############
 # Styles 
 # base CSS styles - Do not modify
-@base.css
+@base.min.css
 # fancy CSS styles - Optional
-@fancy.css
+@fancy.min.css
 # PDF specific CSS styles - Do not modify
 $css
 

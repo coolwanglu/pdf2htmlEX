@@ -363,7 +363,7 @@
           xhr.onreadystatechange = function(){
             if(xhr.readyState != 4) return;
             // Reset loading token
-            delete _.pages_loading[idx];
+            delete _.pages_loading[_idx];
 
             if(xhr.status == 200) {
               // find the page element in the data
