@@ -7,11 +7,6 @@
  */
 
 /*
- * Dependencies:
- * jQuery - use it only when necessary
- */
-
-/*
  * Attention:
  * This files is to be optimized by closure-compiler, 
  * so pay attention to the forms of property names:
@@ -239,9 +234,6 @@
    * @constructor
    */
   function Viewer(config) {
-    /* do nothing if jQuery is not ready */
-    if(!jQuery) return;
-
     this.config = clone_and_extend_objs(DEFAULT_CONFIG, config);
     this.pages_loading = [];
     this.init_before_loading_content();
@@ -364,48 +356,51 @@
         var _ = this;
         var _idx = idx;
 
-        $.ajax({
-          url: url,
-          dataType: 'text'
-        }).done(function(data){
-          // find the page element in the data
-          var div = document.createElement('div');
-          div.innerHTML = data;
+        // load data
+        {
+          var xhr = new XMLHttpRequest();
+          xhr.open('GET', url, true);
+          xhr.onreadystatechange = function(){
+            if(xhr.readyState != 4) return;
+            // Reset loading token
+            delete _.pages_loading[idx];
 
-          var new_page = null;
-          var nodes = div.childNodes;
-          for(var i = 0, l = nodes.length; i < l; ++i) {
-            var cur_node = nodes[i];
-            if((cur_node.nodeType == Node.ELEMENT_NODE)
-                && cur_node.classList.contains(CSS_CLASS_NAMES.page_frame)) {
-              new_page = cur_node;
-              break;
+            if(xhr.status == 200) {
+              // find the page element in the data
+              var div = document.createElement('div');
+              div.innerHTML = xhr.responseText;
+
+              var new_page = null;
+              var nodes = div.childNodes;
+              for(var i = 0, l = nodes.length; i < l; ++i) {
+                var cur_node = nodes[i];
+                if((cur_node.nodeType == Node.ELEMENT_NODE)
+                    && cur_node.classList.contains(CSS_CLASS_NAMES.page_frame)) {
+                  new_page = cur_node;
+                  break;
+                }
+              }
+
+              // replace the old page with loaded data
+              // the loading indicator on this page should also be destroyed
+              var p = _.pages[_idx];
+              _.container.replaceChild(new_page, p.p);
+              p = new Page(new_page);
+              _.pages[_idx] = p;
+
+              p.hide();
+              p.rescale(_.scale);
+
+              // disable background image dragging
+              disable_dragstart(new_page.getElementsByClassName(CSS_CLASS_NAMES.background_image));
+
+              _.schedule_render(false);
+
+              if(callback){ callback(p); }
             }
-          }
-
-          // replace the old page with loaded data
-          // the loading indicator on this page should also be destroyed
-          var p = _.pages[_idx];
-          _.container.replaceChild(new_page, p.p);
-          p = new Page(new_page);
-          _.pages[_idx] = p;
-
-          p.hide();
-          p.rescale(_.scale);
-
-          // disable background image dragging
-          disable_dragstart(new_page.getElementsByClassName(CSS_CLASS_NAMES.background_image));
-
-          _.schedule_render(false);
-
-          // Reset loading token
-          delete _.pages_loading[idx];
-
-          if(callback){ callback(p); }
-        }).fail(function(jqXHR, textStatus, errorThrown){
-          // Reset loading token
-          delete _.pages_loading[_idx];
-        });
+          };
+          xhr.send(null);
+        }
       }
       // Concurrent prefetch of the next pages
       if (pages_to_preload === undefined)
