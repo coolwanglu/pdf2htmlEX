@@ -1,4 +1,4 @@
-remove page decroation
+scale + scroll
 use offsetTop/Left instead of jquery.offset()
 
 more information on demo page:
