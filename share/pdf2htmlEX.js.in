@@ -619,6 +619,8 @@
         if (target_page.loaded) {
           transform_and_scroll(target_page);
         } else {
+          // TODO: scroll_to may finish before load_page
+
           // Scroll to the exact position once loaded.
           _.load_page(target_page_idx, undefined, transform_and_scroll);
 
