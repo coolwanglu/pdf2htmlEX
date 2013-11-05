@@ -98,22 +98,22 @@
    * @constructor 
    * @struct
    */
-  function Page(page, container) {
+  function Page(page) {
     if(!page) return;
 
     this.loaded = false;
     this.shown = false;
-    this.$p = $(page); // page frame element
-    this.$container = $(container);
+    this.p = page; // page frame element
 
-    this.n = parseInt(this.$p.data('page-no'), 16);
+    var $p = $(page);
+    this.n = parseInt($p.data('page-no'), 16);
     // content box
-    this.$b = $('.'+CSS_CLASS_NAMES.page_content_box, this.$p);
+    this.$b = $p.find('.'+CSS_CLASS_NAMES.page_content_box);
 
     // page size
     // Need to make rescale work when page_content_box is not loaded, yet
-    this.h = this.$p.height();     
-    this.w = this.$p.width();
+    this.h = this.p.clientHeight;     
+    this.w = this.p.clientWidth;
 
     // if page is loaded
     if (this.$b.length > 0) {
@@ -125,7 +125,7 @@
        * cur_r : currently using
        */
       this.default_r = this.set_r = this.cur_r = this.h / this.$b.height();
-      this.page_data = $($('.'+CSS_CLASS_NAMES.page_data, this.$p)[0]).data('data');
+      this.page_data = $($p.find('.'+CSS_CLASS_NAMES.page_data)[0]).data('data');
 
       this.ctm = this.page_data['ctm'];
       this.ictm = invert(this.ctm);
@@ -159,22 +159,25 @@
         this.$b.css('transform', 'scale('+this.cur_r.toFixed(3)+')');
       }
 
-      this.$p.height(this.h * this.set_r);
-      this.$p.width(this.w * this.set_r);
+      var s = this.p.style;
+      s.height = (this.h * this.set_r) + 'px';
+      s.width = (this.w * this.set_r) + 'px';
     },
     /* return if any part of this page is shown in the container */
+    // TODO: consider scale
     is_visible : function() {
       var off = this.position();
-      return !((off[1] > this.h) || (off[1] + this.$container.height() < 0));
+      return !((off[1] > this.h) || (off[1] + this.p.parentNode.clientHeight < 0));
     },
     /* return if this page or any neighbor of it is visible */
+    // TODO: consider scale
     is_nearly_visible : function() {
       var off = this.position();
       /* 
        * I should use the height of the previous page or the next page here
        * but since they are not easily available, just use '*2', which should be a good estimate in most cases
        */
-      return !((off[1] > this.h * 2) || (off[1] + this.$container.height() * 2 < 0));
+      return !((off[1] > this.h * 2) || (off[1] + this.p.parentNode.clientHeight * 2 < 0));
     },
     /*
      * return the coordinate of the top-left corner of container
@@ -182,7 +185,7 @@
      * may or may not work if there are nodes between p.parentNode and p.offsetParent
      */
     position : function () {
-      var p = this.$p[0];
+      var p = this.p;
       var c = p.parentNode;
       return [c.scrollLeft - p.offsetLeft - p.clientLeft, c.scrollTop - p.offsetTop - p.clientTop];
     }
@@ -249,7 +252,7 @@
       var $pl= this.$container.find('.'+CSS_CLASS_NAMES.page_frame);
       /* don't use for(..in..) since $pl is more than an Array */
       for(var i = 0, l = $pl.length; i < l; ++i) {
-        var p = new Page($pl[i], this.$container);
+        var p = new Page($pl[i]);
         new_page_map[p.n] = i;
         new_pages.push(p);
       }
@@ -270,7 +273,7 @@
         return;  // Page is already loading
 
       var page_no_hex = cur_page.n.toString(16);
-      var $pf = cur_page.$p;
+      var $pf = $(cur_page.p);
 
       this.$loading_indicator.clone().show().appendTo($pf);
 
@@ -289,10 +292,10 @@
           // replace the old page with loaded data
           // the loading indicator on this page should also be destroyed
           var p = _.pages[idx];
-          p.$p.replaceWith(data);
+          $(p.p).replaceWith(data);
 
           var $new_pf = _.$container.find('#' + CSS_CLASS_NAMES.page_frame + p.n.toString(16));
-          p = new Page($new_pf, _.$container);
+          p = new Page($new_pf[0]);
           p.hide();
           p.rescale(_.scale);
 
@@ -455,6 +458,7 @@
     get_prev_page : function() { return undefined; },
 
     // TODO: offsetX/Y is by default the center of container
+    // TODO consider scale on offsetX/Y
     rescale : function (ratio, is_relative, offsetX, offsetY) {
       if (! offsetX)
         offsetX = 0;
@@ -465,7 +469,8 @@
       var active_page = this.get_active_page();
       if(!active_page) return;
 
-      var prev_offset = active_page.$p[0].getBoundingClientRect();
+      var active_page_ele = active_page.p;
+      var prev_offset = [ active_page_ele.offsetLeft, active_page_ele.offsetTop ];
       var old_scale = this.scale;
       var pl = this.pages;
 
@@ -484,13 +489,13 @@
           pl[i].rescale(this.scale);  
 
       // Correct container scroll to keep view aligned while zooming
-      var correction_top = active_page.$p[0].getBoundingClientRect().top - prev_offset.top;
+      var correction_top = active_page_ele.offsetTop - prev_offset[1];
       this.$container.scrollTop( this.$container.scrollTop() + correction_top + offsetY );
 
       // Take the center of the view as a reference
-      var prev_center_x = this.$container.width() / 2 - prev_offset.left;
+      var prev_center_x = this.$container.width() / 2 - prev_offset[0];
       // Calculate the difference respect the center of the view after the zooming
-      var correction_left = prev_center_x * (this.scale/old_scale - 1) + active_page.$p.offset().left - prev_offset.left;
+      var correction_left = prev_center_x * (this.scale/old_scale - 1) + active_page_ele.offsetLeft - prev_offset[0];
       // Scroll the container accordingly to keep alignment to the initial reference
       this.$container.scrollLeft( this.$container.scrollLeft() + correction_left + offsetX );
 
@@ -532,7 +537,7 @@
        * Get original page number and map it to index of pages
        * TODO: store the index on the dom element
        */
-      var pn = (new Page($p[0], null)).n; 
+      var pn = (new Page($p[0])).n; 
       var pm = this.page_map;
       return (pn in pm) && this.pages[pm[pn]];
     },
