@@ -17,7 +17,7 @@
 
 /** @license Copyright 2012 Mozilla Foundation 
  * Copyright 2013 Lu Wang <coolwanglu@gmail.com>
- * Apachine License Version 2.0 
+ * Apache License Version 2.0 
  */
 
 'use strict';
