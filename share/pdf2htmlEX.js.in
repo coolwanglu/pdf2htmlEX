@@ -39,10 +39,10 @@
 
 /* The namespace */
 (function(pdf2htmlEX){
- /** 
-  * @const 
-  * @struct
-  */
+  /** 
+   * @const 
+   * @struct
+   */
   var CSS_CLASS_NAMES = {
     page_frame       : '@CSS_PAGE_FRAME_CN@',
     page_content_box : '@CSS_PAGE_CONTENT_BOX_CN@',
@@ -67,14 +67,12 @@
     'loading_indicator_cls' : 'loading-indicator',
     // How many page shall we preload that are below the last visible page
     'preload_pages' : 3,
-    // Smooth zoom is enabled when the number of pages shown is less than the threshold
-    // Otherwise page content is hidden and redrawn after a delay (function schedule_render).
-    // 0: disable smooth zoom optimizations (less CPU usage but flickering on zoom)
-    'smooth_zoom_threshold' : 4,
     // how many ms should we wait before actually rendering the pages and after a scroll event
     'render_timeout' : 100,
     // zoom ratio step for each zoom in/out event
     'scale_step' : 0.9,
+    // register global key handler
+    'register_key_handler' : true,
 
     '__dummy__'        : 'no comma'
   };
@@ -143,30 +141,23 @@
     },
     show : function(){
       if (this.loaded) {
-        if(Math.abs(this.set_r - this.cur_r) > EPS) {
-          this.cur_r = this.set_r;
-          this.$b.css('transform', 'scale('+this.cur_r.toFixed(3)+')');
-        }
         if (! this.shown) {
           this.$b.addClass('opened');
           this.shown = true;
         }
       }
     },
-    /**
-     * @param {boolean=} force_show Force showing the page for smooth rescaling
-     */
-    rescale : function(ratio, force_show) {
+    rescale : function(ratio) {
       if(ratio == 0) {
         this.set_r = this.default_r;
       } else {
         this.set_r = ratio;
       }
 
-      if (force_show)
-        this.show();    // Refresh content
-      else
-        this.hide();    // Wait for redraw
+      if(Math.abs(this.set_r - this.cur_r) > EPS) {
+        this.cur_r = this.set_r;
+        this.$b.css('transform', 'scale('+this.cur_r.toFixed(3)+')');
+      }
 
       this.$p.height(this.h * this.set_r);
       this.$p.width(this.w * this.set_r);
@@ -244,7 +235,8 @@
       var _ = this;
       this.$container.scroll(function(){ _.schedule_render(); });
 
-      //this.register_key_handler();
+      if(this.config['register_key_handler'])
+        this.register_key_handler();
 
       // handle links
       this.$container.add(this.$outline).on('click', '.'+CSS_CLASS_NAMES.link, this, this.link_handler);
@@ -396,13 +388,15 @@
 
       $(window).on('keydown', function keydown(e) {
         var handled = false;
+        /*
         var cmd = (e.ctrlKey ? 1 : 0)
                   | (e.altKey ? 2 : 0)
                   | (e.shiftKey ? 4 : 0)
                   | (e.metaKey ? 8 : 0)
                   ;
-        var with_ctrl = (cmd == 9);
-        var with_alt = (cmd == 2);
+                  */
+        var with_ctrl = e.ctrlKey || e.metaKey;
+        var with_alt = e.altKey;
         switch (e.keyCode) {
           case 61: // FF/Mac '='
           case 107: // FF '+' and '='
@@ -466,6 +460,7 @@
     get_next_page : function() { return undefined; },
     get_prev_page : function() { return undefined; },
 
+    // TODO: offsetX/Y is by default the center of container
     rescale : function (ratio, is_relative, offsetX, offsetY) {
       if (! offsetX)
         offsetX = 0;
@@ -480,36 +475,19 @@
       var old_scale = this.scale;
       var pl = this.pages;
 
-      var prerendering_enabled = false;
-      if (this.config['smooth_zoom_threshold'] > 0) {
-        // Immediate rendering optimizations enabled to improve reactiveness while zooming
-        // Find out which pages are visible
-        var min_visible, max_visible;
-        // TODO: page index
-        min_visible = max_visible = this.page_map[active_page.n];
-        while (pl[min_visible] && pl[min_visible].is_visible()) { --min_visible; }
-        ++ min_visible;
-        while (pl[max_visible] && pl[max_visible].is_visible()) { ++max_visible; }
-        -- max_visible;
-
-        // If less then the threshold, enable prerendering on selected pages
-        if (max_visible - min_visible + 1 < this.config['smooth_zoom_threshold'])
-          prerendering_enabled = true;
-      }
-
       // Set new scale
-      if (is_relative)
+      if (ratio == 0) {
+        this.scale = 1;
+        is_relative = false;
+      }
+      else if (is_relative)
         this.scale *= ratio;
       else
         this.scale = ratio;
 
       // Rescale pages
-      for(var i = 0, l = pl.length; i < l; ++i) {
-        if (prerendering_enabled && i >= min_visible && i <= max_visible)
-          pl[i].rescale(this.scale, true);    // Force immediate refresh
-        else
-          pl[i].rescale(this.scale);          // Delayed refresh
-      }
+      for(var i = 0, l = pl.length; i < l; ++i) 
+          pl[i].rescale(this.scale);  
 
       // Correct container scroll to keep view aligned while zooming
       var correction_top = active_page.$p[0].getBoundingClientRect().top - prev_offset.top;
@@ -522,7 +500,7 @@
       // Scroll the container accordingly to keep alignment to the initial reference
       this.$container.scrollLeft( this.$container.scrollLeft() + correction_left + offsetX );
 
-      // Delayed rendering for pages not already shown
+      // some pages' visibility may be toggled, wait for next render()
       this.schedule_render();
     },
 
