@@ -186,11 +186,6 @@
       // for a lot of times(= #pages), just hope JIT works
       var rect_c = this.$container[0].getBoundingClientRect();
       return [rect_c.left-rect.left, rect_c.top-rect.top];
-      /*
-      var off = this.$p.offset();
-      var off_c = this.$container.offset();
-      return [off_c.left-off.left, off_c.top-off.top];
-      */
     }
   });
 
