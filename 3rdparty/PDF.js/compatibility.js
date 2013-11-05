@@ -15,7 +15,10 @@
  * limitations under the License.
  */
 
-/** @license Copyright 2012 Mozilla Foundation * Apachine License Version 2.0 */
+/** @license Copyright 2012 Mozilla Foundation 
+ * Copyright 2013 Lu Wang <coolwanglu@gmail.com>
+ * Apachine License Version 2.0 
+ */
 
 'use strict';
 
@@ -55,8 +58,8 @@
 
   Object.defineProperty(HTMLElement.prototype, 'classList', {
     get: function() {
-      if (this._classList)
-        return this._classList;
+      if (this['_classList'])
+        return this['_classList'];
 
       var classList = Object.create(classListPrototype, {
         element: {

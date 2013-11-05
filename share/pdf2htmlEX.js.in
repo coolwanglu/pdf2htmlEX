@@ -98,6 +98,9 @@
     return parseInt(ele.getAttribute('data-page-no'), 16);
   };
 
+  /**
+   * @param{NodeList} eles
+   */
   function disable_dragstart(eles) {
     for(var i = 0, l = eles.length; i < l; ++i) {
       eles[i].addEventListener('dragstart', function() {
@@ -106,10 +109,25 @@
     }
   };
 
+  /**
+   * @param{...Object} var_args
+   */
+  function clone_and_extend_objs(var_args) {
+    var result_obj = {};
+    for(var i = 0, l = arguments.length; i < l; ++i) {
+      var cur_obj = arguments[i];
+      for(var k in cur_obj) {
+        if(cur_obj.hasOwnProperty(k)) {
+          result_obj[k] = cur_obj[k];
+        }
+      }
+    }
+    return result_obj;
+  };
+
   /** 
    * @constructor 
    * @param{Element} page The element for the page
-   * @struct
    */
   function Page(page) {
     if(!page) return;
@@ -147,7 +165,7 @@
       this.loaded = true;
     }
   };
-  $.extend(Page.prototype, /** @lends {Page.prototype} */ {
+  Page.prototype = {
     /* hide & show are for contents, the page frame is still there */
     hide : function(){
       if(this.loaded) {
@@ -214,7 +232,7 @@
     width : function () {
       return this.p.clientWidth;
     }
-  });
+  };
 
   /** 
    * export pdf2htmlEX.Viewer
@@ -224,7 +242,7 @@
     /* do nothing if jQuery is not ready */
     if(!jQuery) return;
 
-    this.config = $.extend({}, DEFAULT_CONFIG, config);
+    this.config = clone_and_extend_objs(DEFAULT_CONFIG, config);
     this.pages_loading = [];
     this.init_before_loading_content();
 
@@ -234,7 +252,7 @@
     }, false);
   };
 
-  $.extend(Viewer.prototype, /** @lends {Viewer.prototype} */ {
+  Viewer.prototype = {
     scale : 1,
 
     init_before_loading_content : function() {
@@ -313,7 +331,14 @@
       this.page_map = new_page_map;
     },
 
-    load_page : function(idx, pages_to_preload, successCallback, errorCallback) {
+    /**
+     * @param{number} idx
+     * @param{number=} pages_to_preload
+     * @param{function(Page)=} callback
+     *
+     * TODO: remove callback
+     */
+    load_page : function(idx, pages_to_preload, callback) {
       var pages = this.pages;
       if (idx >= pages.length)
         return;  // Page does not exist
@@ -375,11 +400,11 @@
 
           // Reset loading token
           delete _.pages_loading[idx];
-          if (successCallback) successCallback(_.pages[_idx]);
+
+          if(callback){ callback(p); }
         }).fail(function(jqXHR, textStatus, errorThrown){
           // Reset loading token
           delete _.pages_loading[_idx];
-          if (errorCallback) errorCallback();
         });
       }
       // Concurrent prefetch of the next pages
@@ -530,8 +555,15 @@
     get_next_page : function() { return undefined; },
     get_prev_page : function() { return undefined; },
 
-    // TODO: offsetX/Y is by default the center of container
-    // TODO consider scale on offsetX/Y
+    /**
+     * @param{number} ratio
+     * @param{boolean} is_relative
+     * @param{number=} offsetX
+     * @param{number=} offsetY
+     *
+     * TODO: offsetX/Y is by default the center of container
+     * TODO consider scale on offsetX/Y
+     */
     rescale : function (ratio, is_relative, offsetX, offsetY) {
       if (! offsetX)
         offsetX = 0;
@@ -711,7 +743,10 @@
       }
     }, 
 
-    /* pos=[x,y], where (0,0) is the top-left corner */
+    /**
+     * @param{number} page_idx
+     * @param{Array=} pos [x,y], where (0,0) is the top-left corner
+     */
     scroll_to : function(page_idx, pos) {
       var target_page = this.pages[page_idx];
       if(target_page === undefined) return;
@@ -727,7 +762,7 @@
     },
 
     __last_member__ : 'no comma' /*,*/
-  });
+  };
 
   pdf2htmlEX['Viewer'] = Viewer;
 })((window['pdf2htmlEX'] = window['pdf2htmlEX'] || {}), document);
