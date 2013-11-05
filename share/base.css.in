@@ -16,7 +16,7 @@
   overflow:auto;
 }
 #page-container { /* PDF container */
-  position:absolute;
+  position:absolute; /* required for calulating relative positions of pages in pdf2htmlEX.js */
   top:0;
   left:0px;
   margin:0; 
