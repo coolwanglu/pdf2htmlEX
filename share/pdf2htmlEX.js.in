@@ -179,13 +179,12 @@
     /*
      * return the coordinate of the top-left corner of container
      * in our coordinate system
+     * may or may not work if there are nodes between p.parentNode and p.offsetParent
      */
     position : function () {
-      var rect = this.$p[0].getBoundingClientRect();
-      // getBoundingClientRect will be called on $container 
-      // for a lot of times(= #pages), just hope JIT works
-      var rect_c = this.$container[0].getBoundingClientRect();
-      return [rect_c.left-rect.left, rect_c.top-rect.top];
+      var p = this.$p[0];
+      var c = p.parentNode;
+      return [c.scrollLeft - p.offsetLeft - p.clientLeft, c.scrollTop - p.offsetTop - p.clientTop];
     }
   });
 
