@@ -72,7 +72,7 @@
     -webkit-animation: fadein 100ms;
     animation: fadein 100ms; 
   }
-  .loading-indicator {
+  .loading-indicator.active {
     -webkit-animation: swing 1.5s ease-in-out 0s infinite alternate none;
     animation: swing 1.5s ease-in-out 0s infinite alternate none;
   }

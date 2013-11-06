@@ -44,6 +44,9 @@
     margin-top:-32px;
     margin-left:-32px;
   }
+  .loading_indicator.active {
+    display:block;
+  }
   .loading-indicator img {
     position:absolute;
     top:0;

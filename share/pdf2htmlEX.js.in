@@ -91,6 +91,12 @@
            ,ctm[1] * pos[0] + ctm[3] * pos[1] + ctm[5]];
   };
 
+  /**
+   * @param{Element} ele
+   */
+  function get_page_number(ele) {
+    return parseInt(ele.getAttribute('data-page-no'), 16);
+  };
 
   /** 
    * @constructor 
@@ -104,11 +110,12 @@
     this.shown = false;
     this.p = page; // page frame element
 
-    this.n = parseInt(page.getAttribute('data-page-no'), 16);
+    this.n = get_page_number(page);
+
     // page size
     // Need to make rescale work when page_content_box is not loaded, yet
-    this.original_height = this.p.clientHeight;     
-    this.original_width = this.p.clientWidth;
+    this.original_height = page.clientHeight;     
+    this.original_width = page.clientWidth;
 
     // content box
     var content_box = page.querySelector('.'+CSS_CLASS_NAMES.page_content_box);
@@ -226,14 +233,14 @@
     },
 
     init_after_loading_content : function() {
-      this.$sidebar = $(document.getElementById(this.config['sidebar_id']));
-      this.$outline = $(document.getElementById(this.config['outline_id']));
+      this.sidebar = document.getElementById(this.config['sidebar_id']);
+      this.outline = document.getElementById(this.config['outline_id']);
       this.container = document.getElementById(this.config['container_id']);
-      this.$loading_indicator = $('.'+this.config['loading_indicator_cls']);
+      this.loading_indicator = document.getElementsByClassName(this.config['loading_indicator_cls'])[0];
 
       // Open the outline if nonempty
-      if(this.$outline.children().length > 0) {
-        this.$sidebar[0].classList.add('opened');
+      if(this.outline && this.outline.childNodes.length > 0) {
+        this.sidebar.classList.add('opened');
       }
 
       this.find_pages();
@@ -247,8 +254,7 @@
         this.register_key_handler();
 
       // handle links
-      $(this.container).add(this.$outline)
-        .on('click', '.'+CSS_CLASS_NAMES.link, this, this.link_handler);
+      $([this.container, this.outline]).on('click', '.'+CSS_CLASS_NAMES.link, this, this.link_handler);
 
       this.render();
     },
@@ -287,8 +293,12 @@
       if (this.pages_loading[idx])
         return;  // Page is already loading
 
+      var new_loading_indicator = this.loading_indicator.cloneNode();
+      new_loading_indicator.classList.add('active');
+
       var cur_page_ele = cur_page.p;
-      this.$loading_indicator.clone().show().appendTo(cur_page_ele);
+      cur_page_ele.appendChild(new_loading_indicator);
+
       var url = cur_page_ele.getAttribute('data-page-url');
       if (url) {
         this.pages_loading[idx] = true;       // Set semaphore
@@ -327,9 +337,7 @@
           p.rescale(_.scale);
 
           // disable background image dragging
-          /* TODO
-          $new_pf.find('.'+CSS_CLASS_NAMES.background_image).on('dragstart', function(e){return false;});
-          */
+          $(new_page).find('.'+CSS_CLASS_NAMES.background_image).on('dragstart', function(e){return false;});
 
           _.schedule_render(false);
 
@@ -563,18 +571,25 @@
       }
       return;
     },
-
-    get_containing_page : function(obj) {
+    /**
+     * @param{Element} ele
+     */
+    get_containing_page : function(ele) {
       /* get the page obj containing obj */
-      var $p = obj.closest('.'+CSS_CLASS_NAMES.page_frame);
-      if($p.length == 0) return;
-      /*
-       * Get original page number and map it to index of pages
-       * TODO: store the index on the dom element
-       */
-      var pn = (new Page($p[0])).n; 
-      var pm = this.page_map;
-      return (pn in pm) && this.pages[pm[pn]];
+      while(ele) {
+        if((ele.nodeType == Node.ELEMENT_NODE)
+            && ele.classList.contains(CSS_CLASS_NAMES.page_frame)) {
+          /*
+           * Get original page number and map it to index of pages
+           * TODO: store the index on the dom element
+           */
+          var pn = get_page_number(ele);
+          var pm = this.page_map;
+          return (pn in pm) ? this.pages[pm[pn]] : null;
+        }
+        ele = ele.parentNode;
+      }
+      return null;
     },
 
     link_handler : function (e) {
