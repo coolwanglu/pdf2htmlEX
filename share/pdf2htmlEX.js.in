@@ -248,12 +248,30 @@
       this.container = document.getElementById(this.config['container_id']);
       this.loading_indicator = document.getElementsByClassName(this.config['loading_indicator_cls'])[0];
 
-      // Open the outline if nonempty
-      if(this.outline && this.outline.childNodes.length > 0) {
-        this.sidebar.classList.add('opened');
+      
+      {
+        // Open the outline if nonempty
+        var empty = true;
+        var nodes = this.outline.childNodes;
+        for(var i = 0, l = nodes.length; i < l; ++i) {
+          var cur_node = nodes[i];
+          if(cur_node.nodeName == 'UL') {
+            empty = false;
+            break;
+          }
+        }
+        if(!empty)
+          this.sidebar.classList.add('opened');
       }
 
       this.find_pages();
+
+
+      // disable dragging of background images
+      disable_dragstart(document.getElementsByClassName(CSS_CLASS_NAMES.background_image));
+
+      if(this.config['register_key_handler'])
+        this.register_key_handler();
 
       // register schedule rendering
       // renew old schedules since scroll() may be called frequently
@@ -261,11 +279,6 @@
       this.container.addEventListener('scroll', function() {
         _.schedule_render(true);
       }, false);
-
-      disable_dragstart(document.getElementsByClassName(CSS_CLASS_NAMES.background_image));
-
-      if(this.config['register_key_handler'])
-        this.register_key_handler();
 
       // handle links
       this.container.addEventListener('click', function(e) {
@@ -612,13 +625,12 @@
     },
 
     link_handler : function (e) {
-      var _ = e.data;
       var target = e.currentTarget;
 
       var cur_pos = [0,0];
 
       // cur_page might be undefined, e.g. from Outline
-      var cur_page = _.get_containing_page(target);
+      var cur_page = this.get_containing_page(target);
       if(cur_page)
       {
         cur_pos = cur_page.position();
@@ -627,7 +639,7 @@
       }
 
       var detail_str = /** @type{string} */ (target.getAttribute('data-dest-detail'));
-      if(detail_str === undefined) return;
+      if(!detail_str) return;
 
       var ok = false;
       var detail = JSON.parse(detail_str);
@@ -636,7 +648,7 @@
       var page_map = this.page_map;
       if(!(target_page_no in page_map)) return;
       var target_page_idx = page_map[target_page_no];
-      var target_page = _.pages[target_page_idx];
+      var target_page = this.pages[target_page_idx];
 
       var pos = [0,0];
       var upside_down = true;
@@ -681,7 +693,7 @@
           if(upside_down) {
             pos[1] = page.height() - pos[1];
           }
-          _.scroll_to(target_page_idx, pos);
+          this.scroll_to(target_page_idx, pos);
         };
 
         if (target_page.loaded) {
@@ -690,10 +702,10 @@
           // TODO: scroll_to may finish before load_page
 
           // Scroll to the exact position once loaded.
-          _.load_page(target_page_idx, undefined, transform_and_scroll);
+          this.load_page(target_page_idx, undefined, transform_and_scroll);
 
           // In the meantime page gets loaded, scroll approximately position for maximum responsiveness.
-          _.scroll_to(target_page_idx, [0,0]);
+          this.scroll_to(target_page_idx, [0,0]);
         }
         e.preventDefault();
       }
