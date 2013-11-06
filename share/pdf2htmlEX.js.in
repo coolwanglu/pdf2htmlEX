@@ -309,7 +309,8 @@
           var nodes = div.childNodes;
           for(var i = 0, l = nodes.length; i < l; ++i) {
             var cur_node = nodes[i];
-            if(cur_node.classList.contains(CSS_CLASS_NAMES.page_frame)) {
+            if((cur_node.nodeType == Node.ELEMENT_NODE)
+                && cur_node.classList.contains(CSS_CLASS_NAMES.page_frame)) {
               new_page = cur_node;
               break;
             }
@@ -591,7 +592,7 @@
         cur_pos = transform(cur_page.ictm, [cur_pos[0], cur_page.height()-cur_pos[1]]);
       }
 
-      var detail_str = /** @type{string} */ (e.target.getAttribute('data-dest-detail'));
+      var detail_str = /** @type{string} */ (target.getAttribute('data-dest-detail'));
       if(detail_str === undefined) return;
 
       var ok = false;
