@@ -254,6 +254,7 @@ install (TARGETS pdf2htmlEX DESTINATION bin)
 
 set(PDF2HTMLEX_RESOURCE
     ${CMAKE_SOURCE_DIR}/3rdparty/jQuery/jquery-1.9.1.min.js
+    ${CMAKE_SOURCE_DIR}/3rdparty/PDF.js/compatibility.min.js
     ${CMAKE_SOURCE_DIR}/share/base.css
     ${CMAKE_SOURCE_DIR}/share/fancy.css
     ${CMAKE_SOURCE_DIR}/share/LICENSE

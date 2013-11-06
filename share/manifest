@@ -47,6 +47,10 @@ $css
 # <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 @jquery-1.9.1.min.js
 
+# compatibility.min.js, extracted from PDF.js
+# To support old browsers like IE9
+@compatibility.min.js
+
 # entry point of pdf2htmlEX.Viewer
 # You can override default configuration by passing an object to the constructor of Viewer
 # Refer to DEFAULT_CONFIG in viewer.js for possible keys
