@@ -98,6 +98,14 @@
     return parseInt(ele.getAttribute('data-page-no'), 16);
   };
 
+  function disable_dragstart(eles) {
+    for(var i = 0, l = eles.length; i < l; ++i) {
+      eles[i].addEventListener('dragstart', function() {
+        return false;
+      }, false);
+    }
+  };
+
   /** 
    * @constructor 
    * @param{Element} page The element for the page
@@ -118,7 +126,7 @@
     this.original_width = page.clientWidth;
 
     // content box
-    var content_box = page.querySelector('.'+CSS_CLASS_NAMES.page_content_box);
+    var content_box = page.getElementsByClassName(CSS_CLASS_NAMES.page_content_box)[0];
 
     // if page is loaded
     if (content_box) {
@@ -131,7 +139,7 @@
        * cur_r : currently using
        */
       this.default_r = this.set_r = this.cur_r = this.original_height / content_box.clientHeight;
-      this.page_data = JSON.parse(page.querySelector('.'+CSS_CLASS_NAMES.page_data).getAttribute('data-data'));
+      this.page_data = JSON.parse(page.getElementsByClassName(CSS_CLASS_NAMES.page_data)[0].getAttribute('data-data'));
 
       this.ctm = this.page_data['ctm'];
       this.ictm = invert(this.ctm);
@@ -221,7 +229,9 @@
     this.init_before_loading_content();
 
     var _ = this;
-    $(function(){_.init_after_loading_content();});
+    document.addEventListener('DOMContentLoaded', function(){
+      _.init_after_loading_content();
+    }, false);
   };
 
   $.extend(Viewer.prototype, /** @lends {Viewer.prototype} */ {
@@ -248,13 +258,22 @@
       // register schedule rendering
       // renew old schedules since scroll() may be called frequently
       var _ = this;
-      $(this.container).scroll(function(){ _.schedule_render(true); });
+      this.container.addEventListener('scroll', function() {
+        _.schedule_render(true);
+      }, false);
+
+      disable_dragstart(document.getElementsByClassName(CSS_CLASS_NAMES.background_image));
 
       if(this.config['register_key_handler'])
         this.register_key_handler();
 
       // handle links
-      $([this.container, this.outline]).on('click', '.'+CSS_CLASS_NAMES.link, this, this.link_handler);
+      this.container.addEventListener('click', function(e) {
+        _.link_handler(e);
+      }, false);
+      this.outline.addEventListener('click', function(e) {
+        _.link_handler(e);
+      }, false);
 
       this.render();
     },
@@ -337,7 +356,7 @@
           p.rescale(_.scale);
 
           // disable background image dragging
-          $(new_page).find('.'+CSS_CLASS_NAMES.background_image).on('dragstart', function(e){return false;});
+          disable_dragstart(new_page.getElementsByClassName(CSS_CLASS_NAMES.background_image));
 
           _.schedule_render(false);
 
@@ -417,14 +436,14 @@
        */
       var _ = this;
       // Firefox specific event, so that we can prevent browser from zooming
-      $(window).on('DOMMouseScroll', function(e) {
+      window.addEventListener('DOMMouseScroll', function(e) {
         if (e.ctrlKey) {
           e.preventDefault();
           _.rescale(Math.pow(_.config['scale_step'], e.detail), true);
         }
-      });
+      }, false);
 
-      $(window).on('keydown', function keydown(e) {
+      window.addEventListener('keydown', function(e) {
         var handled = false;
         /*
         var cmd = (e.ctrlKey ? 1 : 0)
@@ -491,7 +510,7 @@
           e.preventDefault();
           return;
         }
-      });
+      }, false);
     },
 
     // TODO
@@ -572,7 +591,7 @@
       return;
     },
     /**
-     * @param{Element} ele
+     * @param{Node} ele
      */
     get_containing_page : function(ele) {
       /* get the page obj containing obj */
@@ -583,7 +602,7 @@
            * Get original page number and map it to index of pages
            * TODO: store the index on the dom element
            */
-          var pn = get_page_number(ele);
+          var pn = get_page_number(/** @type{Element} */(ele));
           var pm = this.page_map;
           return (pn in pm) ? this.pages[pm[pn]] : null;
         }
