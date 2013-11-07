@@ -147,11 +147,10 @@
       /*
        * scale ratios
        *
-       * default_r : the first one
-       * set_r : last set
-       * cur_r : currently using
+       * original_scale : the first one
+       * cur_scale : currently using
        */
-      this.default_r = this.set_r = this.cur_r = this.original_height / content_box.clientHeight;
+      this.original_scale = this.cur_scale = this.original_height / content_box.clientHeight;
       this.page_data = JSON.parse(page.getElementsByClassName(CSS_CLASS_NAMES.page_data)[0].getAttribute('data-data'));
 
       this.ctm = this.page_data['ctm'];
@@ -163,36 +162,37 @@
   Page.prototype = {
     /* hide & show are for contents, the page frame is still there */
     hide : function(){
-      if(this.loaded) {
+      if(this.loaded && this.shown) {
         this.content_box.classList.remove('opened');
         this.shown = false;
       }
     },
     show : function(){
-      if (this.loaded) {
-        if (! this.shown) {
-          this.content_box.classList.add('opened');
-          this.shown = true;
-        }
+      if (this.loaded && !this.shown) {
+        this.content_box.classList.add('opened');
+        this.shown = true;
       }
     },
     rescale : function(ratio) {
       if(ratio == 0) {
-        this.set_r = this.default_r;
+        // reset scale
+        this.cur_scale = this.original_scale;
       } else {
-        this.set_r = ratio;
+        this.cur_scale = ratio;
       }
 
-      if(Math.abs(this.set_r - this.cur_r) > EPS) {
-        this.cur_r = this.set_r;
-            
+      // scale the content box
+      {
         var s = this.content_box.style;
-        s.msTransform = s.webkitTransform = s.transform = 'scale('+this.cur_r.toFixed(3)+')';
+        s.msTransform = s.webkitTransform = s.transform = 'scale('+this.cur_scale.toFixed(3)+')';
       }
 
-      var s = this.p.style;
-      s.height = (this.original_height * this.set_r) + 'px';
-      s.width = (this.original_width * this.set_r) + 'px';
+      // stretch the page frame to hold the place
+      {
+        var s = this.p.style;
+        s.height = (this.original_height * this.cur_scale) + 'px';
+        s.width = (this.original_width * this.cur_scale) + 'px';
+      }
     },
     /* return if any part of this page is shown in the container */
     is_visible : function() {
@@ -203,12 +203,12 @@
     /* return if this page or any neighbor of it is visible */
     is_nearly_visible : function() {
       var p = this.p;
-      var off = this.position();
+      var pos = this.position();
       /* 
        * I should use the height of the previous page or the next page here
        * but since they are not easily available, just use '*2', which should be a good estimate in most cases
        */
-      return !((off[1] > p.clientHeight * 2) || (off[1] + p.parentNode.clientHeight * 2 < 0));
+      return !((pos[1] > p.clientHeight * 2) || (pos[1] + p.parentNode.clientHeight * 2 < 0));
     },
     /*
      * return the coordinate of the top-left corner of container
@@ -448,8 +448,12 @@
 
       var _ = this;
       this.render_timer = setTimeout(function () {
-        _.render();
+        /*
+         * render() may trigger load_page(), which may in turn trigger another render()
+         * so delete render_timer first
+         */
         delete _.render_timer;
+        _.render();
       }, this.config['render_timeout']);
     },
 
