@@ -711,15 +711,13 @@
 
       if(ok) {
         var _ = this;
-        var scale = this.scale;
-        var _pos = [pos[0] * scale, pos[1] * scale]
         /* page should of type Page */
         var transform_and_scroll = function(page) {
-          _pos = transform(page.ctm, _pos);
+          pos = transform(page.ctm, pos);
           if(upside_down) {
-            _pos[1] = page.height() - _pos[1];
+            pos[1] = page.original_height - pos[1];
           }
-          _.scroll_to(target_page_idx, _pos);
+          _.scroll_to(target_page_idx, pos);
         };
 
         if (target_page.loaded) {
@@ -739,7 +737,7 @@
 
     /**
      * @param{number} page_idx
-     * @param{Array=} pos [x,y], where (0,0) is the top-left corner
+     * @param{Array=} pos [x,y] in UNSCALED COORDINATION, where (0,0) is the top-left corner
      */
     scroll_to : function(page_idx, pos) {
       var target_page = this.pages[page_idx];
@@ -751,8 +749,9 @@
       var cur_target_pos = target_page.position();
 
       var container = this.container;
-      container.scrollLeft += pos[0] - cur_target_pos[0];
-      container.scrollTop += pos[1] - cur_target_pos[1];
+      var scale = this.scale;
+      container.scrollLeft += pos[0] * scale - cur_target_pos[0];
+      container.scrollTop += pos[1] * scale - cur_target_pos[1];
     },
 
     __last_member__ : 'no comma' /*,*/
