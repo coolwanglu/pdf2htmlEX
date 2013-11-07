@@ -290,7 +290,7 @@
       }, false);
 
       // handle links
-      [this.container, this.outline].forEach(funciton(ele) {
+      [this.container, this.outline].forEach(function(ele) {
         ele.addEventListener('click', _.link_handler.bind(_), false);
       });
 
