@@ -1,6 +1,10 @@
 Developing v0.11
 
 * Compress JS with closure-compiler
+* Compress CSS with YUI Compressor
+* Remove jQuery
+* Lots of JS code cleaning
+* Enable global key handler by default
 
 v0.10
 2013.10.17

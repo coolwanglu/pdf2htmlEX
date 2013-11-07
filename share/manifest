@@ -44,13 +44,15 @@ $css
 # entry point of pdf2htmlEX.Viewer
 # You can override default configuration by passing an object to the constructor of Viewer
 # Refer to DEFAULT_CONFIG in viewer.js for possible keys
+# E.g.
+# pdf2htmlEX.defaultViewer = new pdf2htmlEX.Viewer({
+#   'register_key_handler' : false 
+# });
 @pdf2htmlEX.min.js
 """
 <script>
 try{
-  pdf2htmlEX.defaultViewer = new pdf2htmlEX.Viewer({
-    'register_key_handler' : false 
-  });
+  pdf2htmlEX.defaultViewer = new pdf2htmlEX.Viewer({});
 }catch(e){}
 </script>
 """

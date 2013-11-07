@@ -276,7 +276,6 @@
 
       this.find_pages();
 
-
       // disable dragging of background images
       disable_dragstart(document.getElementsByClassName(CSS_CLASS_NAMES.background_image));
 
@@ -291,12 +290,9 @@
       }, false);
 
       // handle links
-      this.container.addEventListener('click', function(e) {
-        _.link_handler(e);
-      }, false);
-      this.outline.addEventListener('click', function(e) {
-        _.link_handler(e);
-      }, false);
+      [this.container, this.outline].forEach(funciton(ele) {
+        ele.addEventListener('click', _.link_handler.bind(_), false);
+      });
 
       this.render();
     },
@@ -547,8 +543,8 @@
     },
 
     // TODO
-    get_next_page : function() { return undefined; },
-    get_prev_page : function() { return undefined; },
+    get_next_page : function() { return null; },
+    get_prev_page : function() { return null; },
 
     /**
      * @param{number} ratio
@@ -628,7 +624,7 @@
         if (pl[i].is_visible())
           return pl[i];
       }
-      return;
+      return null;
     },
     /**
      * @param{Node} ele
