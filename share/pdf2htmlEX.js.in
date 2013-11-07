@@ -648,7 +648,7 @@
     },
 
     link_handler : function (e) {
-      var target = e.currentTarget;
+      var target = e.target;
 
       var cur_pos = [0,0];
 
@@ -710,13 +710,16 @@
       }
 
       if(ok) {
+        var _ = this;
+        var scale = this.scale;
+        var _pos = [pos[0] * scale, pos[1] * scale]
         /* page should of type Page */
         var transform_and_scroll = function(page) {
-          pos = transform(page.ctm, pos);
+          _pos = transform(page.ctm, _pos);
           if(upside_down) {
-            pos[1] = page.height() - pos[1];
+            _pos[1] = page.height() - _pos[1];
           }
-          this.scroll_to(target_page_idx, pos);
+          _.scroll_to(target_page_idx, _pos);
         };
 
         if (target_page.loaded) {
