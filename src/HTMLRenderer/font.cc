@@ -746,17 +746,17 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
 
     /*
      * Step 3
-     *
-     * Reencode to Unicode Full such that FontForge won't ditch unicode values larger than 0xFFFF
-     *
      * Generate the font as desired
-     *
      */
+
+    // Reencode to Unicode Full such that FontForge won't ditch unicode values larger than 0xFFFF
     ffw_reencode_unicode_full();
 
-    string cur_tmp_fn = (char*)str_fmt("%s/__tmp_font1.%s", param.tmp_dir.c_str(), param.font_format.c_str());
+    // Due to a bug of Fontforge about pfa -> woff conversion
+    // we always generate TTF first, instead of the format specified by user
+    string cur_tmp_fn = (char*)str_fmt("%s/__tmp_font1.%s", param.tmp_dir.c_str(), "ttf");
     tmp_files.add(cur_tmp_fn);
-    string other_tmp_fn = (char*)str_fmt("%s/__tmp_font2.%s", param.tmp_dir.c_str(), param.font_format.c_str());
+    string other_tmp_fn = (char*)str_fmt("%s/__tmp_font2.%s", param.tmp_dir.c_str(), "ttf");
     tmp_files.add(other_tmp_fn);
 
     ffw_save(cur_tmp_fn.c_str());

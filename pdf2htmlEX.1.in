@@ -151,7 +151,7 @@ Specify whether the local matched fonts, for fonts not embedded in PDF, should b
 If this switch is off, only font names are exported such that web browsers may try to find proper fonts themselves, and that might cause issues about incorrect font metrics.
 
 .TP
-.B --font-format <format> (Default: ttf)
+.B --font-format <format> (Default: woff)
 Specify the format of fonts extracted from the PDF file.
 
 .TP

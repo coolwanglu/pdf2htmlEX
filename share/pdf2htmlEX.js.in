@@ -183,15 +183,15 @@
 
       // scale the content box
       {
-        var s = this.content_box.style;
-        s.msTransform = s.webkitTransform = s.transform = 'scale('+this.cur_scale.toFixed(3)+')';
+        var cbs = this.content_box.style;
+        cbs.msTransform = cbs.webkitTransform = cbs.transform = 'scale('+this.cur_scale.toFixed(3)+')';
       }
 
       // stretch the page frame to hold the place
       {
-        var s = this.p.style;
-        s.height = (this.original_height * this.cur_scale) + 'px';
-        s.width = (this.original_width * this.cur_scale) + 'px';
+        var ps = this.p.style;
+        ps.height = (this.original_height * this.cur_scale) + 'px';
+        ps.width = (this.original_width * this.cur_scale) + 'px';
       }
     },
     /* return if any part of this page is shown in the container */
