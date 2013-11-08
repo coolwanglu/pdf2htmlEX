@@ -18,6 +18,7 @@ OUTPUT="$BASEDIR/$OUTPUT_FN"
          --compilation_level ADVANCED_OPTIMIZATIONS \
          --warning_level VERBOSE \
          --process_jquery_primitives \
+         --output_wrapper "(function(){%output%})();" \
          --js "$INPUT" \
          --js_output_file "$OUTPUT" && \
     echo 'Done.') || \
