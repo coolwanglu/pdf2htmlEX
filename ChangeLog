@@ -5,6 +5,8 @@ Developing v0.11
 * Remove jQuery
 * Lots of JS code cleaning
 * Enable global key handler by default
+* Use WOFF by default
+* Always generate TTF before the final output
 
 v0.10
 2013.10.17

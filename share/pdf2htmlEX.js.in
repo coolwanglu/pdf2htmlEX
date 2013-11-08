@@ -42,6 +42,7 @@
   };
 
   /** 
+   * configurations of Viewer
    * @const 
    * @dict
    */
@@ -219,7 +220,7 @@
       var p = this.p;
       var c = p.parentNode;
       return [ c.scrollLeft - p.offsetLeft - p.clientLeft
-             , c.scrollTop - p.offsetTop - p.clientTop];
+             , c.scrollTop - p.offsetTop - p.clientTop ];
     },
     height : function () {
       return this.p.clientHeight;
@@ -358,9 +359,6 @@
           xhr.open('GET', url, true);
           xhr.onreadystatechange = function(){
             if(xhr.readyState != 4) return;
-            // Reset loading token
-            delete _.pages_loading[_idx];
-
             if(xhr.status == 200) {
               // find the page element in the data
               var div = document.createElement('div');
@@ -394,6 +392,9 @@
 
               if(callback){ callback(p); }
             }
+
+            // Reset loading token
+            delete _.pages_loading[_idx];
           };
           xhr.send(null);
         }
@@ -406,19 +407,26 @@
         this.load_page(idx+1, pages_to_preload);
     },
 
+    /*
+     * Hide all pages that have no 'opened' class
+     * The 'opened' class will be added to visible pages by JavaScript
+     * We cannot add this in the default CSS because JavaScript may be disabled
+     */
     pre_hide_pages : function() {
       /* pages might have not been loaded yet, so add a CSS rule */
       var s = '@media screen{.'+CSS_CLASS_NAMES.page_content_box+'{display:none;}}';
       var n = document.createElement('style');
-      n.type = 'text/css';
       if (n.styleSheet) {
         n.styleSheet.cssText = s;
       } else {
         n.appendChild(document.createTextNode(s));
       }
-      document.getElementsByTagName('head')[0].appendChild(n);
+      document.head.appendChild(n);
     },
 
+    /*
+     * show visible pages and hide invisible pages
+     */
     render : function () {
       /* hide (positional) invisible pages */
       var pl = this.pages;
