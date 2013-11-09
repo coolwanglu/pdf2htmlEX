@@ -17,7 +17,6 @@ OUTPUT="$BASEDIR/$OUTPUT_FN"
     java -jar "$CLOSURE_COMPILER_JAR" \
          --compilation_level ADVANCED_OPTIMIZATIONS \
          --warning_level VERBOSE \
-         --process_jquery_primitives \
          --output_wrapper "(function(){%output%})();" \
          --js "$INPUT" \
          --js_output_file "$OUTPUT" && \

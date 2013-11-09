@@ -135,6 +135,7 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
 
     // horiz_scaling is merged into ctm now, 
     // so the coordinate system is ugly
+    // TODO: why multiply hs here
     dx = (dx * cur_font_size + nChars * cur_letter_space + nSpaces * cur_word_space) * hs;
     
     dy *= cur_font_size;
