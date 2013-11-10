@@ -678,7 +678,7 @@ Viewer.prototype = {
    * @param{Event} e
    */
   link_handler : function (e) {
-    var target = e.target;
+    var target = /** @type{Node} */(e.target);
 
     var cur_pos = [0,0];
 
