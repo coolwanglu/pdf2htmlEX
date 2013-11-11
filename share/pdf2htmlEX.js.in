@@ -571,16 +571,12 @@ Viewer.prototype = {
           handled = true;
           break;
         case 35: // End
-          if (with_ctrl) {
-            _.container.scrollTop = _.container.scrollHeight;
-            handled = true;
-          }
+          _.container.scrollTop = _.container.scrollHeight;
+          handled = true;
           break;
         case 36: // Home
-          if (e.with_ctrl) {
-            _.container.scrollTop = 0;
-            handled = true;
-          }
+          _.container.scrollTop = 0;
+          handled = true;
           break;
       }
       if(handled) {
