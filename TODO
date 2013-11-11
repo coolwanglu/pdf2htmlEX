@@ -5,19 +5,11 @@ more information on demo page:
   - link to other demos
   - browser requirements
 
-page idx vs no
-tracking current page
 pdf:miui
 tmp dir: use pid
-remove page from dom -- UI option
 view hash
 - store a separate map/dict for 'original' page number
 - OR adjust all destinations
-
-issue: separate CSS?
-key handler on $container instead of window?
-fix get_next/prev_page
-next/prev for each Page ?
 
  - dots issue
   - AdobeXML*.pdf

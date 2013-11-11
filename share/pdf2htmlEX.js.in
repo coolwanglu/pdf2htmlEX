@@ -138,9 +138,9 @@ function Page(page) {
 
   this.loaded = false;
   this.shown = false;
-  this.p = page; // page frame element
+  this.page = page; // page frame element
 
-  this.n = get_page_number(page);
+  this.num = get_page_number(page);
 
   // page size
   // Need to make rescale work when page_content_box is not loaded, yet
@@ -201,43 +201,27 @@ Page.prototype = {
 
     // stretch the page frame to hold the place
     {
-      var ps = this.p.style;
+      var ps = this.page.style;
       ps.height = (this.original_height * this.cur_scale) + 'px';
       ps.width = (this.original_width * this.cur_scale) + 'px';
     }
   },
-  /* return if any part of this page is shown in the container */
-  is_visible : function() {
-    var p = this.p;
-    var pos = this.position();
-    return !((pos[1] > p.clientHeight) || (pos[1] + p.parentNode.clientHeight < 0));
-  },
-  /* return if this page or any neighbor of it is visible */
-  is_nearly_visible : function() {
-    var p = this.p;
-    var pos = this.position();
-    /* 
-     * I should use the height of the previous page or the next page here
-     * but since they are not easily available, just use '*2', which should be a good estimate in most cases
-     */
-    return !((pos[1] > p.clientHeight * 2) || (pos[1] + p.parentNode.clientHeight * 2 < 0));
-  },
   /*
    * return the coordinate of the top-left corner of container
    * in our coordinate system
-   * may or may not work if there are nodes between p.parentNode and p.offsetParent
+   * assuming that p.parentNode == p.offsetParent
    */
-  position : function () {
-    var p = this.p;
+  view_position : function () {
+    var p = this.page;
     var c = p.parentNode;
-    return [ c.scrollLeft - p.offsetLeft - p.clientLeft
-           , c.scrollTop - p.offsetTop - p.clientTop ];
+    return [c.scrollLeft - p.offsetLeft - p.clientLeft
+           ,c.scrollTop - p.offsetTop - p.clientTop];
   },
   height : function () {
-    return this.p.clientHeight;
+    return this.page.clientHeight;
   },
   width : function () {
-    return this.p.clientWidth;
+    return this.page.clientWidth;
   }
 };
 
@@ -259,6 +243,7 @@ function Viewer(config) {
 
 Viewer.prototype = {
   scale : 1,
+  cur_page_idx : 0,
 
   init_before_loading_content : function() {
     /*hide all pages before loading, will reveal only visible ones later */
@@ -325,7 +310,7 @@ Viewer.prototype = {
           && cur_node.classList.contains(CSS_CLASS_NAMES.page_frame)) {
         var p = new Page(cur_node);
         new_pages.push(p);
-        new_page_map[p.n] = new_pages.length - 1;
+        new_page_map[p.num] = new_pages.length - 1;
       }
     }
     this.pages = new_pages;
@@ -354,12 +339,12 @@ Viewer.prototype = {
     var new_loading_indicator = this.loading_indicator.cloneNode();
     new_loading_indicator.classList.add('active');
 
-    var cur_page_ele = cur_page.p;
+    var cur_page_ele = cur_page.page;
     cur_page_ele.appendChild(new_loading_indicator);
 
     var url = cur_page_ele.getAttribute('data-page-url');
     if (url) {
-      this.pages_loading[idx] = true;       // Set semaphore
+      this.pages_loading[idx] = true;       // set semaphore
 
       /* closure variables */
       var _ = this;
@@ -390,7 +375,7 @@ Viewer.prototype = {
             // replace the old page with loaded data
             // the loading indicator on this page should also be destroyed
             var p = _.pages[_idx];
-            _.container.replaceChild(new_page, p.p);
+            _.container.replaceChild(new_page, p.page);
             p = new Page(new_page);
             _.pages[_idx] = p;
 
@@ -438,23 +423,62 @@ Viewer.prototype = {
 
   /*
    * show visible pages and hide invisible pages
+   * update current page number
    */
   render : function () {
-    /* hide (positional) invisible pages */
+    var container = this.container;
+    /* 
+     * show the pages that are 'nearly' visible -- it's right above or below the container
+     *
+     * all the y values are in the all-page element's coordinate system
+     */
+    var container_min_y = container.scrollTop;
+    var container_height = container.clientHeight;
+    var container_max_y = container_min_y + container_height;
+    var visible_min_y = container_min_y - container_height;
+    var visible_max_y = container_max_y + container_height;
+
+    var cur_page_fully_visible = false;
+    var cur_page_idx = this.cur_page_idx;
+    var max_visible_page_idx = cur_page_idx;
+    var max_visible_ratio = 0.0;
+
     var pl = this.pages;
-    var pm = this.page_map;
     for(var i = 0, l = pl.length; i < l; ++i) {
-      var p = pl[i];
-      if(p.is_nearly_visible()){
-        if (p.loaded) {
-          p.show();
+      var cur_page = pl[i];
+      var cur_page_ele = cur_page.page;
+      var page_min_y = cur_page_ele.offsetTop + cur_page_ele.clientTop;
+      var page_height = cur_page_ele.clientHeight;
+      var page_max_y = page_min_y + page_height;
+      if((page_min_y <= visible_max_y) && (page_max_y >= visible_min_y))
+      {
+        // cur_page is 'nearly' visible, show it or load it
+        if (cur_page.loaded) {
+          cur_page.show();
         } else {
           this.load_page(i);
         }
+
+        if(!cur_page_fully_visible) {
+          // check the visible fraction of the page
+          var page_visible_ratio = (Math.min(container_max_y, page_max_y) - Math.max(container_min_y, page_min_y)) / page_height;
+          if ((i == cur_page_idx) && (Math.abs(page_visible_ratio - 1.0) <= EPS)) {
+            cur_page_fully_visible = true;
+          } else if (page_visible_ratio > max_visible_ratio) {
+            max_visible_ratio = page_visible_ratio;
+            max_visible_page_idx = i;
+          }
+        }
       } else {
-        p.hide();
+        cur_page.hide();
       }
     }
+    /*
+     * update current page number to the maximum visible page
+     * do not update it when current page is still fully visible
+     */
+    if(!cur_page_fully_visible) 
+      this.cur_page_idx = max_visible_page_idx;
   },
 
   /**
@@ -532,7 +556,7 @@ Viewer.prototype = {
           break;
         case 33: // Page UP:
           if (with_alt) { // alt-pageup    -> scroll one page up
-            _.scroll_to(_.get_prev_page());
+            _.scroll_to(_.cur_page_idx - 1);
           } else { // pageup        -> scroll one screen up
             _.container.scrollTop -= _.container.clientHeight;
           }
@@ -540,7 +564,7 @@ Viewer.prototype = {
           break;
         case 34: // Page DOWN
           if (with_alt) { // alt-pagedown  -> scroll one page down
-            _.scroll_to(_.get_next_page());
+            _.scroll_to(_.cur_page_idx + 1);
           } else { // pagedown      -> scroll one screen down
             _.container.scrollTop += _.container.clientHeight;
           }
@@ -566,10 +590,6 @@ Viewer.prototype = {
     }, false);
   },
 
-  // TODO
-  get_next_page : function() { return null; },
-  get_prev_page : function() { return null; },
-
   /**
    * @param{number} ratio
    * @param{boolean} is_relative
@@ -582,7 +602,7 @@ Viewer.prototype = {
   rescale : function (ratio, is_relative, offsetX, offsetY) {
     var old_scale = this.scale;
     var new_scale = 1.0;
-    // Set new scale
+    // set new scale
     if (ratio == 0) {
       new_scale = 1;
       is_relative = false;
@@ -600,7 +620,7 @@ Viewer.prototype = {
       offsetY = 0;
 
     // Save offset of the active page
-    var active_page = this.get_active_page();
+    var active_page = this.pages[this.cur_page_idx];
     if(!active_page) return;
 
     var active_page_ele = active_page.p;
@@ -629,29 +649,15 @@ Viewer.prototype = {
   },
 
   fit_width : function () {
-    var active_page = this.get_active_page();
-    if(!active_page) return;
-
-    this.rescale(this.container.clientWidth / active_page.width(), false);
-    this.scroll_to(this.page_map[active_page.n], [0,0]);
+    var page_idx = this.cur_page_idx;
+    this.rescale(this.container.clientWidth / this.pages[page_idx].width(), false);
+    this.scroll_to(page_idx, [0,0]);
   },
 
   fit_height : function () {
-    var active_page = this.get_active_page();
-    if(!active_page) return;
-
-    this.rescale(this.container.clientHeight / active_page.height(), false);
-    this.scroll_to(this.page_map[active_page.n], [0,0]);
-  },
-
-  // TODO: preserve active_page idx after rescaling
-  get_active_page : function () {
-    var pl = this.pages;
-    for(var i = 0, l = pl.length; i < l; ++i) {
-      if (pl[i].is_visible())
-        return pl[i];
-    }
-    return null;
+    var page_idx = this.cur_page_idx;
+    this.rescale(this.container.clientHeight / this.pages[page_idx].height(), false);
+    this.scroll_to(page_idx, [0,0]);
   },
   /**
    * @param{Node} ele
@@ -686,7 +692,7 @@ Viewer.prototype = {
     var cur_page = this.get_containing_page(target);
     if(cur_page)
     {
-      cur_pos = cur_page.position();
+      cur_pos = cur_page.view_position();
       //get the coordinates in default user system
       cur_pos = transform(cur_page.ictm, [cur_pos[0], cur_page.height()-cur_pos[1]]);
     }
@@ -779,21 +785,19 @@ Viewer.prototype = {
    * @param{Array.<number>=} pos [x,y] in UNSCALED COORDINATION, where (0,0) is the top-left corner
    */
   scroll_to : function(page_idx, pos) {
-    var target_page = this.pages[page_idx];
-    if(target_page === undefined) return;
+    var pl = this.pages;
+    if((page_idx < 0) || (page_idx >= pl.length)) return;
+    var target_page = pl[page_idx];
+    var cur_target_pos = target_page.view_position();
 
     if(pos === undefined)
       pos = [0,0];
-
-    var cur_target_pos = target_page.position();
 
     var container = this.container;
     var scale = this.scale;
     container.scrollLeft += pos[0] * scale - cur_target_pos[0];
     container.scrollTop += pos[1] * scale - cur_target_pos[1];
-  },
-
-  __last_member__ : 'no comma' /*,*/
+  }
 };
 
 pdf2htmlEX['Viewer'] = Viewer;
