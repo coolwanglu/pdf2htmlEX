@@ -106,7 +106,7 @@ function get_page_number(ele) {
  * @param{NodeList} eles
  */
 function disable_dragstart(eles) {
-  for(var i = 0, l = eles.length; i < l; ++i) {
+  for (var i = 0, l = eles.length; i < l; ++i) {
     eles[i].addEventListener('dragstart', function() {
       return false;
     }, false);
@@ -118,10 +118,10 @@ function disable_dragstart(eles) {
  */
 function clone_and_extend_objs(var_args) {
   var result_obj = {};
-  for(var i = 0, l = arguments.length; i < l; ++i) {
+  for (var i = 0, l = arguments.length; i < l; ++i) {
     var cur_obj = arguments[i];
-    for(var k in cur_obj) {
-      if(cur_obj.hasOwnProperty(k)) {
+    for (var k in cur_obj) {
+      if (cur_obj.hasOwnProperty(k)) {
         result_obj[k] = cur_obj[k];
       }
     }
@@ -134,7 +134,7 @@ function clone_and_extend_objs(var_args) {
  * @param{Element} page The element for the page
  */
 function Page(page) {
-  if(!page) return;
+  if (!page) return;
 
   this.loaded = false;
   this.shown = false;
@@ -171,7 +171,7 @@ function Page(page) {
 Page.prototype = {
   /* hide & show are for contents, the page frame is still there */
   hide : function(){
-    if(this.loaded && this.shown) {
+    if (this.loaded && this.shown) {
       this.content_box.classList.remove('opened');
       this.shown = false;
     }
@@ -186,7 +186,7 @@ Page.prototype = {
    * @param{number} ratio
    */
   rescale : function(ratio) {
-    if(ratio == 0) {
+    if (ratio == 0) {
       // reset scale
       this.cur_scale = this.original_scale;
     } else {
@@ -194,7 +194,7 @@ Page.prototype = {
     }
 
     // scale the content box
-    {
+    if (this.loaded) {
       var cbs = this.content_box.style;
       cbs.msTransform = cbs.webkitTransform = cbs.transform = 'scale('+this.cur_scale.toFixed(3)+')';
     }
@@ -261,14 +261,14 @@ Viewer.prototype = {
       // Open the outline if nonempty
       var empty = true;
       var nodes = this.outline.childNodes;
-      for(var i = 0, l = nodes.length; i < l; ++i) {
+      for (var i = 0, l = nodes.length; i < l; ++i) {
         var cur_node = nodes[i];
-        if(cur_node.nodeName == 'UL') {
+        if (cur_node.nodeName == 'UL') {
           empty = false;
           break;
         }
       }
-      if(!empty)
+      if (!empty)
         this.sidebar.classList.add('opened');
     }
 
@@ -277,7 +277,7 @@ Viewer.prototype = {
     // disable dragging of background images
     disable_dragstart(document.getElementsByClassName(CSS_CLASS_NAMES.background_image));
 
-    if(this.config['register_key_handler'])
+    if (this.config['register_key_handler'])
       this.register_key_handler();
 
     // register schedule rendering
@@ -304,9 +304,9 @@ Viewer.prototype = {
     var new_pages = [];
     var new_page_map = {};
     var nodes = this.container.childNodes;
-    for(var i = 0, l = nodes.length; i < l; ++i) {
+    for (var i = 0, l = nodes.length; i < l; ++i) {
       var cur_node = nodes[i];
-      if((cur_node.nodeType == Node.ELEMENT_NODE)
+      if ((cur_node.nodeType == Node.ELEMENT_NODE)
           && cur_node.classList.contains(CSS_CLASS_NAMES.page_frame)) {
         var p = new Page(cur_node);
         new_pages.push(p);
@@ -355,17 +355,17 @@ Viewer.prototype = {
         var xhr = new XMLHttpRequest();
         xhr.open('GET', url, true);
         xhr.onreadystatechange = function(){
-          if(xhr.readyState != 4) return;
-          if(xhr.status == 200) {
+          if (xhr.readyState != 4) return;
+          if (xhr.status == 200) {
             // find the page element in the data
             var div = document.createElement('div');
             div.innerHTML = xhr.responseText;
 
             var new_page = null;
             var nodes = div.childNodes;
-            for(var i = 0, l = nodes.length; i < l; ++i) {
+            for (var i = 0, l = nodes.length; i < l; ++i) {
               var cur_node = nodes[i];
-              if((cur_node.nodeType == Node.ELEMENT_NODE)
+              if ((cur_node.nodeType == Node.ELEMENT_NODE)
                   && cur_node.classList.contains(CSS_CLASS_NAMES.page_frame)) {
                 new_page = cur_node;
                 break;
@@ -387,7 +387,7 @@ Viewer.prototype = {
 
             _.schedule_render(false);
 
-            if(callback){ callback(p); }
+            if (callback){ callback(p); }
           }
 
           // Reset loading token
@@ -444,13 +444,13 @@ Viewer.prototype = {
     var max_visible_ratio = 0.0;
 
     var pl = this.pages;
-    for(var i = 0, l = pl.length; i < l; ++i) {
+    for (var i = 0, l = pl.length; i < l; ++i) {
       var cur_page = pl[i];
       var cur_page_ele = cur_page.page;
       var page_min_y = cur_page_ele.offsetTop + cur_page_ele.clientTop;
       var page_height = cur_page_ele.clientHeight;
       var page_max_y = page_min_y + page_height;
-      if((page_min_y <= visible_max_y) && (page_max_y >= visible_min_y))
+      if ((page_min_y <= visible_max_y) && (page_max_y >= visible_min_y))
       {
         // cur_page is 'nearly' visible, show it or load it
         if (cur_page.loaded) {
@@ -459,7 +459,7 @@ Viewer.prototype = {
           this.load_page(i);
         }
 
-        if(!cur_page_fully_visible) {
+        if (!cur_page_fully_visible) {
           // check the visible fraction of the page
           var page_visible_ratio = (Math.min(container_max_y, page_max_y) - Math.max(container_min_y, page_min_y)) / page_height;
           if ((i == cur_page_idx) && (Math.abs(page_visible_ratio - 1.0) <= EPS)) {
@@ -477,7 +477,7 @@ Viewer.prototype = {
      * update current page number to the maximum visible page
      * do not update it when current page is still fully visible
      */
-    if(!cur_page_fully_visible) 
+    if (!cur_page_fully_visible) 
       this.cur_page_idx = max_visible_page_idx;
   },
 
@@ -485,8 +485,8 @@ Viewer.prototype = {
    * @param{boolean} renew renew the existing schedule instead of using the old one
    */
   schedule_render : function(renew) {
-    if(this.render_timer !== undefined) {
-      if(!renew) return;
+    if (this.render_timer !== undefined) {
+      if (!renew) return;
       clearTimeout(this.render_timer);
     }
 
@@ -535,7 +535,7 @@ Viewer.prototype = {
         case 61: // FF/Mac '='
         case 107: // FF '+' and '='
         case 187: // Chrome '+'
-          if(with_ctrl){
+          if (with_ctrl){
             _.rescale(1.0 / _.config['scale_step'], true);
             handled = true;
           }
@@ -543,13 +543,13 @@ Viewer.prototype = {
         case 173: // FF/Mac '-'
         case 109: // FF '-'
         case 189: // Chrome '-'
-          if(with_ctrl){
+          if (with_ctrl){
             _.rescale(_.config['scale_step'], true);
             handled = true;
           }
           break;
         case 48: // '0'
-          if(with_ctrl){
+          if (with_ctrl){
             _.rescale(0, false);
             handled = true;
           }
@@ -579,7 +579,7 @@ Viewer.prototype = {
           handled = true;
           break;
       }
-      if(handled) {
+      if (handled) {
         e.preventDefault();
         return;
       }
@@ -597,13 +597,12 @@ Viewer.prototype = {
    */
   rescale : function (ratio, is_relative, offsetX, offsetY) {
     var old_scale = this.scale;
-    var new_scale = 1.0;
+    var new_scale = old_scale;
     // set new scale
     if (ratio == 0) {
       new_scale = 1;
       is_relative = false;
-    }
-    else if (is_relative)
+    } else if (is_relative)
       new_scale *= ratio;
     else
       new_scale = ratio;
@@ -617,14 +616,14 @@ Viewer.prototype = {
 
     // Save offset of the active page
     var active_page = this.pages[this.cur_page_idx];
-    if(!active_page) return;
+    if (!active_page) return;
 
-    var active_page_ele = active_page.p;
+    var active_page_ele = active_page.page;
     var prev_offset = [ active_page_ele.offsetLeft, active_page_ele.offsetTop ];
 
     // Rescale pages
     var pl = this.pages;
-    for(var i = 0, l = pl.length; i < l; ++i) 
+    for (var i = 0, l = pl.length; i < l; ++i) 
         pl[i].rescale(new_scale);  
 
     var container = this.container;
@@ -661,7 +660,7 @@ Viewer.prototype = {
   get_containing_page : function(ele) {
     /* get the page obj containing obj */
     while(ele) {
-      if((ele.nodeType == Node.ELEMENT_NODE)
+      if ((ele.nodeType == Node.ELEMENT_NODE)
           && ele.classList.contains(CSS_CLASS_NAMES.page_frame)) {
         /*
          * Get original page number and map it to index of pages
@@ -686,7 +685,7 @@ Viewer.prototype = {
 
     // cur_page might be undefined, e.g. from Outline
     var cur_page = this.get_containing_page(target);
-    if(cur_page)
+    if (cur_page)
     {
       cur_pos = cur_page.view_position();
       //get the coordinates in default user system
@@ -694,14 +693,14 @@ Viewer.prototype = {
     }
 
     var detail_str = /** @type{string} */ (target.getAttribute('data-dest-detail'));
-    if(!detail_str) return;
+    if (!detail_str) return;
 
     var ok = false;
     var detail = JSON.parse(detail_str);
 
     var target_page_no = detail[0];
     var page_map = this.page_map;
-    if(!(target_page_no in page_map)) return;
+    if (!(target_page_no in page_map)) return;
     var target_page_idx = page_map[target_page_no];
     var target_page = this.pages[target_page_idx];
 
@@ -715,7 +714,7 @@ Viewer.prototype = {
         pos = [(detail[2] == null) ? cur_pos[0] : detail[2]
           ,(detail[3] == null) ? cur_pos[1] : detail[3]];
         zoom = detail[4];
-        if((zoom == null) || (zoom == 0))
+        if ((zoom == null) || (zoom == 0))
           zoom = this.scale;
         ok = true;
         break;
@@ -745,7 +744,7 @@ Viewer.prototype = {
         break;
     }
 
-    if(ok) {
+    if (ok) {
       this.rescale(zoom, false);
 
       var _ = this;
@@ -755,7 +754,7 @@ Viewer.prototype = {
        */
       var transform_and_scroll = function(page) {
         pos = transform(page.ctm, pos);
-        if(upside_down) {
+        if (upside_down) {
           pos[1] = page.original_height - pos[1];
         }
         _.scroll_to(target_page_idx, pos);
@@ -782,11 +781,11 @@ Viewer.prototype = {
    */
   scroll_to : function(page_idx, pos) {
     var pl = this.pages;
-    if((page_idx < 0) || (page_idx >= pl.length)) return;
+    if ((page_idx < 0) || (page_idx >= pl.length)) return;
     var target_page = pl[page_idx];
     var cur_target_pos = target_page.view_position();
 
-    if(pos === undefined)
+    if (pos === undefined)
       pos = [0,0];
 
     var container = this.container;
