@@ -287,7 +287,7 @@ By default, pdf2htmlEX will use the manifest in the default data-dir (run `pdf2h
 
 You can modify the default one, or you can create a new one and specify the correct data-dir in the command line. 
 
-When single-html is 1, all files referred by the manifest must be located in the data-dir.
+All files referred by the manifest must be located in the data-dir.
 
 .SH EXAMPLE
 .TP
@@ -297,7 +297,7 @@ Convert file.pdf into file.html
 .B pdf2htmlEX --clean-tmp 0 --debug 1 /path/to/file.pdf
 Convert file.pdf and leave all intermediate files.
 .TP
-.B pdf2htmlEX --dest-dir out --single-html 0 /path/to/file.pdf
+.B pdf2htmlEX --dest-dir out --embed fi /path/to/file.pdf
 Convert file.pdf into out/file.html and leave font/image files separated.
 
 .SH COPYRIGHT
