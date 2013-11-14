@@ -176,7 +176,7 @@ protected:
     void export_remote_default_font(long long fn_id);
     void export_local_font(const FontInfo & info, GfxFont * font, const std::string & original_font_name, const std::string & cssfont);
 
-    // depending on single-html, to embed the content or add a link to it
+    // depending on --embed***, to embed the content or add a link to it
     // "type": specify the file type, usually it's the suffix, in which case this parameter could be ""
     // "copy": indicates whether to copy the file into dest_dir, if not embedded
     void embed_file(std::ostream & out, const std::string & path, const std::string & type, bool copy);
