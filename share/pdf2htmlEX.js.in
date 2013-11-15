@@ -235,9 +235,9 @@ function Viewer(config) {
   this.pages_loading = [];
   this.init_before_loading_content();
 
-  var _ = this;
+  var self = this;
   document.addEventListener('DOMContentLoaded', function(){
-    _.init_after_loading_content();
+    self.init_after_loading_content();
   }, false);
 };
 
@@ -282,14 +282,14 @@ Viewer.prototype = {
 
     // register schedule rendering
     // renew old schedules since scroll() may be called frequently
-    var _ = this;
+    var self = this;
     this.container.addEventListener('scroll', function() {
-      _.schedule_render(true);
+      self.schedule_render(true);
     }, false);
 
     // handle links
     [this.container, this.outline].forEach(function(ele) {
-      ele.addEventListener('click', _.link_handler.bind(_), false);
+      ele.addEventListener('click', self.link_handler.bind(self), false);
     });
 
     this.render();
@@ -346,12 +346,10 @@ Viewer.prototype = {
     if (url) {
       this.pages_loading[idx] = true;       // set semaphore
 
-      /* closure variables */
-      var _ = this;
-      var _idx = idx;
-
       // load data
       {
+        var self = this;
+        var _idx = idx;
         var xhr = new XMLHttpRequest();
         xhr.open('GET', url, true);
         xhr.onreadystatechange = function(){
@@ -374,24 +372,24 @@ Viewer.prototype = {
 
             // replace the old page with loaded data
             // the loading indicator on this page should also be destroyed
-            var p = _.pages[_idx];
-            _.container.replaceChild(new_page, p.page);
+            var p = self.pages[_idx];
+            self.container.replaceChild(new_page, p.page);
             p = new Page(new_page);
-            _.pages[_idx] = p;
+            self.pages[_idx] = p;
 
             p.hide();
-            p.rescale(_.scale);
+            p.rescale(self.scale);
 
             // disable background image dragging
             disable_dragstart(new_page.getElementsByClassName(CSS_CLASS_NAMES.background_image));
 
-            _.schedule_render(false);
+            self.schedule_render(false);
 
             if (callback){ callback(p); }
           }
 
           // Reset loading token
-          delete _.pages_loading[_idx];
+          delete self.pages_loading[_idx];
         };
         xhr.send(null);
       }
@@ -490,14 +488,14 @@ Viewer.prototype = {
       clearTimeout(this.render_timer);
     }
 
-    var _ = this;
+    var self = this;
     this.render_timer = setTimeout(function () {
       /*
        * render() may trigger load_page(), which may in turn trigger another render()
        * so delete render_timer first
        */
-      delete _.render_timer;
-      _.render();
+      delete self.render_timer;
+      self.render();
     }, this.config['render_timeout']);
   },
 
@@ -511,12 +509,12 @@ Viewer.prototype = {
      *
      * Code credit to PDF.js
      */
-    var _ = this;
+    var self = this;
     // Firefox specific event, so that we can prevent browser from zooming
     window.addEventListener('DOMMouseScroll', function(e) {
       if (e.ctrlKey) {
         e.preventDefault();
-        _.rescale(Math.pow(_.config['scale_step'], e.detail), true);
+        self.rescale(Math.pow(self.config['scale_step'], e.detail), true);
       }
     }, false);
 
@@ -536,7 +534,7 @@ Viewer.prototype = {
         case 107: // FF '+' and '='
         case 187: // Chrome '+'
           if (with_ctrl){
-            _.rescale(1.0 / _.config['scale_step'], true);
+            self.rescale(1.0 / self.config['scale_step'], true);
             handled = true;
           }
           break;
@@ -544,38 +542,38 @@ Viewer.prototype = {
         case 109: // FF '-'
         case 189: // Chrome '-'
           if (with_ctrl){
-            _.rescale(_.config['scale_step'], true);
+            self.rescale(self.config['scale_step'], true);
             handled = true;
           }
           break;
         case 48: // '0'
           if (with_ctrl){
-            _.rescale(0, false);
+            self.rescale(0, false);
             handled = true;
           }
           break;
         case 33: // Page UP:
           if (with_alt) { // alt-pageup    -> scroll one page up
-            _.scroll_to(_.cur_page_idx - 1);
+            self.scroll_to(self.cur_page_idx - 1);
           } else { // pageup        -> scroll one screen up
-            _.container.scrollTop -= _.container.clientHeight;
+            self.container.scrollTop -= self.container.clientHeight;
           }
           handled = true;
           break;
         case 34: // Page DOWN
           if (with_alt) { // alt-pagedown  -> scroll one page down
-            _.scroll_to(_.cur_page_idx + 1);
+            self.scroll_to(self.cur_page_idx + 1);
           } else { // pagedown      -> scroll one screen down
-            _.container.scrollTop += _.container.clientHeight;
+            self.container.scrollTop += self.container.clientHeight;
           }
           handled = true;
           break;
         case 35: // End
-          _.container.scrollTop = _.container.scrollHeight;
+          self.container.scrollTop = self.container.scrollHeight;
           handled = true;
           break;
         case 36: // Home
-          _.container.scrollTop = 0;
+          self.container.scrollTop = 0;
           handled = true;
           break;
       }
@@ -747,7 +745,7 @@ Viewer.prototype = {
     if (ok) {
       this.rescale(zoom, false);
 
-      var _ = this;
+      var self = this;
       /**
        * page should of type Page 
        * @param{Page} page 
@@ -757,7 +755,7 @@ Viewer.prototype = {
         if (upside_down) {
           pos[1] = page.original_height - pos[1];
         }
-        _.scroll_to(target_page_idx, pos);
+        self.scroll_to(target_page_idx, pos);
       };
 
       if (target_page.loaded) {

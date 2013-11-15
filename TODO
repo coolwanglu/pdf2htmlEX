@@ -10,8 +10,7 @@ more information on demo page:
 pdf:miui
 tmp dir: use pid
 view hash
-- store a separate map/dict for 'original' page number
-- OR adjust all destinations
+position history stack (popstate)
 
  - dots issue
   - AdobeXML*.pdf
@@ -33,7 +32,6 @@ Not enough motivation/Lazy
  - detect duplicate base fonts when embedding
  - disable selection if we know unicode is wrong
  - check if we can add information to the font, and let browsers show ligatures automatically
- - position history stack (popstate)
  - draw non-orthogonal lines with CSS
  - precise link destination: zoom
  - multiple charcode mapped to a same glyph
