@@ -244,6 +244,7 @@ function Viewer(config) {
 
 Viewer.prototype = {
   scale : 1,
+  // index of the active page (most visible one)
   cur_page_idx : 0,
 
   init_before_loading_content : function() {
@@ -656,13 +657,13 @@ Viewer.prototype = {
   fit_width : function () {
     var page_idx = this.cur_page_idx;
     this.rescale(this.container.clientWidth / this.pages[page_idx].width(), false);
-    this.scroll_to(page_idx, [0,0]);
+    this.scroll_to(page_idx);
   },
 
   fit_height : function () {
     var page_idx = this.cur_page_idx;
     this.rescale(this.container.clientHeight / this.pages[page_idx].height(), false);
-    this.scroll_to(page_idx, [0,0]);
+    this.scroll_to(page_idx);
   },
   /**
    * @param{Node} ele
@@ -727,21 +728,23 @@ Viewer.prototype = {
 
     // cur_page might be undefined, e.g. from Outline
     var cur_page = src_page || this.pages[this.cur_page_idx];
-    // TODO: view_position is now in scaled coordination system, but we need in unscaled system
+
     var cur_pos = cur_page.view_position();
-    //get the coordinates in default user system
     cur_pos = transform(cur_page.ictm, [cur_pos[0], cur_page.height()-cur_pos[1]]);
 
-    var pos = [0,0];
     var zoom = this.scale;
+    var pos = [0,0];
     var upside_down = true;
     var ok = false;
+
+    // position specified in `detail` are in the raw coordinate system of the page (unscaled)
+    var scale = this.scale;
     // TODO: fitb*
     // TODO: BBox
     switch(detail[1]) {
       case 'XYZ':
-        pos = [(detail[2] === null) ? cur_pos[0] : detail[2]
-          ,(detail[3] === null) ? cur_pos[1] : detail[3]];
+        pos = [ (detail[2] === null) ? cur_pos[0] : detail[2] * scale
+              , (detail[3] === null) ? cur_pos[1] : detail[3] * scale ];
         zoom = detail[4];
         if ((zoom === null) || (zoom === 0))
           zoom = this.scale;
@@ -754,18 +757,18 @@ Viewer.prototype = {
         break;
       case 'FitH':
       case 'FitBH':
-        pos = [0, (detail[2] === null) ? cur_pos[1] : detail[2]];
+        pos = [0, (detail[2] === null) ? cur_pos[1] : detail[2] * scale];
         ok = true;
         break;
       case 'FitV':
       case 'FitBV':
-        pos = [(detail[2] === null) ? cur_pos[0] : detail[2], 0];
+        pos = [(detail[2] === null) ? cur_pos[0] : detail[2] * scale, 0];
         ok = true;
         break;
       case 'FitR':
         /* locate the top-left corner of the rectangle */
         // TODO
-        pos = [detail[2], detail[5]];
+        pos = [detail[2] * scale, detail[5] * scale];
         upside_down = false;
         ok = true;
         break;
@@ -777,6 +780,7 @@ Viewer.prototype = {
 
     this.rescale(zoom, false);
 
+
     var self = this;
     /**
      * page should of type Page 
@@ -785,7 +789,7 @@ Viewer.prototype = {
     var transform_and_scroll = function(page) {
       pos = transform(page.ctm, pos);
       if (upside_down) {
-        pos[1] = page.original_height - pos[1];
+        pos[1] = page.height() - pos[1];
       }
       self.scroll_to(target_page_idx, pos);
     };
@@ -799,13 +803,13 @@ Viewer.prototype = {
       this.load_page(target_page_idx, undefined, transform_and_scroll);
 
       // In the meantime page gets loaded, scroll approximately position for maximum responsiveness.
-      this.scroll_to(target_page_idx, [0,0]);
+      this.scroll_to(target_page_idx);
     }
   }, 
 
   /**
    * @param{number} page_idx
-   * @param{Array.<number>=} pos [x,y] in UNSCALED COORDINATION, where (0,0) is the top-left corner
+   * @param{Array.<number>=} pos [x,y] where (0,0) is the top-left corner
    */
   scroll_to : function(page_idx, pos) {
     var pl = this.pages;
@@ -817,9 +821,8 @@ Viewer.prototype = {
       pos = [0,0];
 
     var container = this.container;
-    var scale = this.scale;
-    container.scrollLeft += pos[0] * scale - cur_target_pos[0];
-    container.scrollTop += pos[1] * scale - cur_target_pos[1];
+    container.scrollLeft += pos[0] - cur_target_pos[0];
+    container.scrollTop += pos[1] - cur_target_pos[1];
   }
 };
 
