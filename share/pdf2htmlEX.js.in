@@ -188,7 +188,7 @@ Page.prototype = {
    * @param{number} ratio
    */
   rescale : function(ratio) {
-    if (ratio == 0) {
+    if (ratio === 0) {
       // reset scale
       this.cur_scale = this.original_scale;
     } else {
@@ -211,7 +211,7 @@ Page.prototype = {
   /*
    * return the coordinate of the top-left corner of container
    * in our coordinate system
-   * assuming that p.parentNode == p.offsetParent
+   * assuming that p.parentNode === p.offsetParent
    */
   view_position : function () {
     var p = this.page;
@@ -228,7 +228,6 @@ Page.prototype = {
 };
 
 /** 
- * export pdf2htmlEX.Viewer
  * @constructor
  * @param{Object=} config
  */
@@ -265,7 +264,7 @@ Viewer.prototype = {
       var nodes = this.outline.childNodes;
       for (var i = 0, l = nodes.length; i < l; ++i) {
         var cur_node = nodes[i];
-        if (cur_node.nodeName == 'UL') {
+        if (cur_node.nodeName === 'UL') {
           empty = false;
           break;
         }
@@ -315,7 +314,7 @@ Viewer.prototype = {
     var nodes = this.container.childNodes;
     for (var i = 0, l = nodes.length; i < l; ++i) {
       var cur_node = nodes[i];
-      if ((cur_node.nodeType == Node.ELEMENT_NODE)
+      if ((cur_node.nodeType === Node.ELEMENT_NODE)
           && cur_node.classList.contains(CSS_CLASS_NAMES.page_frame)) {
         var p = new Page(cur_node);
         new_pages.push(p);
@@ -331,7 +330,7 @@ Viewer.prototype = {
    * @param{number=} pages_to_preload
    * @param{function(Page)=} callback
    *
-   * TODO: remove callback
+   * TODO: remove callback -> promise ?
    */
   load_page : function(idx, pages_to_preload, callback) {
     var pages = this.pages;
@@ -363,7 +362,7 @@ Viewer.prototype = {
         xhr.open('GET', url, true);
         xhr.onreadystatechange = function(){
           if (xhr.readyState != 4) return;
-          if (xhr.status == 200) {
+          if (xhr.status === 200) {
             // find the page element in the data
             var div = document.createElement('div');
             div.innerHTML = xhr.responseText;
@@ -372,7 +371,7 @@ Viewer.prototype = {
             var nodes = div.childNodes;
             for (var i = 0, l = nodes.length; i < l; ++i) {
               var cur_node = nodes[i];
-              if ((cur_node.nodeType == Node.ELEMENT_NODE)
+              if ((cur_node.nodeType === Node.ELEMENT_NODE)
                   && cur_node.classList.contains(CSS_CLASS_NAMES.page_frame)) {
                 new_page = cur_node;
                 break;
@@ -473,7 +472,7 @@ Viewer.prototype = {
         if (!cur_page_fully_visible) {
           // check the visible fraction of the page
           var page_visible_ratio = (Math.min(container_max_y, page_max_y) - Math.max(container_min_y, page_min_y)) / page_height;
-          if ((i == cur_page_idx) && (Math.abs(page_visible_ratio - 1.0) <= EPS)) {
+          if ((i === cur_page_idx) && (Math.abs(page_visible_ratio - 1.0) <= EPS)) {
             cur_page_fully_visible = true;
           } else if (page_visible_ratio > max_visible_ratio) {
             max_visible_ratio = page_visible_ratio;
@@ -610,7 +609,7 @@ Viewer.prototype = {
     var old_scale = this.scale;
     var new_scale = old_scale;
     // set new scale
-    if (ratio == 0) {
+    if (ratio === 0) {
       new_scale = 1;
       is_relative = false;
     } else if (is_relative)
@@ -671,7 +670,7 @@ Viewer.prototype = {
   get_containing_page : function(ele) {
     /* get the page obj containing obj */
     while(ele) {
-      if ((ele.nodeType == Node.ELEMENT_NODE)
+      if ((ele.nodeType === Node.ELEMENT_NODE)
           && ele.classList.contains(CSS_CLASS_NAMES.page_frame)) {
         /*
          * Get original page number and map it to index of pages
@@ -717,9 +716,18 @@ Viewer.prototype = {
     var target_page_idx = page_map[target_page_no];
     var target_page = this.pages[target_page_idx];
 
+    for (var i = 2, l = detail.length; i < l; ++i) {
+      var d = detail[i];
+      if(!((d === null) || (typeof d === 'number')))
+        return;
+    }
+
+    while(detail.length < 6)
+      detail.push(null);
 
     // cur_page might be undefined, e.g. from Outline
     var cur_page = src_page || this.pages[this.cur_page_idx];
+    // TODO: view_position is now in scaled coordination system, but we need in unscaled system
     var cur_pos = cur_page.view_position();
     //get the coordinates in default user system
     cur_pos = transform(cur_page.ictm, [cur_pos[0], cur_page.height()-cur_pos[1]]);
@@ -732,10 +740,10 @@ Viewer.prototype = {
     // TODO: BBox
     switch(detail[1]) {
       case 'XYZ':
-        pos = [(detail[2] == null) ? cur_pos[0] : detail[2]
-          ,(detail[3] == null) ? cur_pos[1] : detail[3]];
+        pos = [(detail[2] === null) ? cur_pos[0] : detail[2]
+          ,(detail[3] === null) ? cur_pos[1] : detail[3]];
         zoom = detail[4];
-        if ((zoom == null) || (zoom == 0))
+        if ((zoom === null) || (zoom === 0))
           zoom = this.scale;
         ok = true;
         break;
@@ -746,16 +754,17 @@ Viewer.prototype = {
         break;
       case 'FitH':
       case 'FitBH':
-        pos = [0, (detail[2] == null) ? cur_pos[1] : detail[2]];
+        pos = [0, (detail[2] === null) ? cur_pos[1] : detail[2]];
         ok = true;
         break;
       case 'FitV':
       case 'FitBV':
-        pos = [(detail[2] == null) ? cur_pos[0] : detail[2], 0];
+        pos = [(detail[2] === null) ? cur_pos[0] : detail[2], 0];
         ok = true;
         break;
       case 'FitR':
         /* locate the top-left corner of the rectangle */
+        // TODO
         pos = [detail[2], detail[5]];
         upside_down = false;
         ok = true;
@@ -814,4 +823,5 @@ Viewer.prototype = {
   }
 };
 
+// export pdf2htmlEX.Viewer
 pdf2htmlEX['Viewer'] = Viewer;
