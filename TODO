@@ -1,3 +1,6 @@
+position history stack (popstate)
+scale limits
+onresize
 built in support for ttfautohint
 
 beforeprint/afterprint
@@ -10,7 +13,6 @@ more information on demo page:
 pdf:miui
 tmp dir: use pid
 view hash
-position history stack (popstate)
 
  - dots issue
   - AdobeXML*.pdf

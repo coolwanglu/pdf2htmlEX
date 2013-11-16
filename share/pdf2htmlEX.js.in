@@ -63,7 +63,9 @@ var DEFAULT_CONFIG = {
   // zoom ratio step for each zoom in/out event
   'scale_step' : 0.9,
   // register global key handler
-  'register_key_handler' : true,
+  'key_handler' : true,
+  // register hashchange handler
+  'hashchange_handler' : true,
 
   '__dummy__'        : 'no comma'
 };
@@ -277,12 +279,19 @@ Viewer.prototype = {
     // disable dragging of background images
     disable_dragstart(document.getElementsByClassName(CSS_CLASS_NAMES.background_image));
 
-    if (this.config['register_key_handler'])
+    if (this.config['key_handler'])
       this.register_key_handler();
+
+    var self = this;
+
+    if (this.config['hashchange_handler']) {
+      window.addEventListener('hashchange', function(e) {
+        self.navigate_to_dest(document.location.hash.substring(1));
+      }, false);
+    }
 
     // register schedule rendering
     // renew old schedules since scroll() may be called frequently
-    var self = this;
     this.container.addEventListener('scroll', function() {
       self.schedule_render(true);
     }, false);
@@ -398,8 +407,12 @@ Viewer.prototype = {
     if (pages_to_preload === undefined)
       pages_to_preload = this.config['preload_pages'];
 
-    if (--pages_to_preload > 0)
-      this.load_page(idx+1, pages_to_preload);
+    if (--pages_to_preload > 0) {
+      var self = this;
+      setTimeout(function() {
+        self.load_page(idx+1, pages_to_preload);
+      },0);
+    }
   },
 
   /*
@@ -678,23 +691,25 @@ Viewer.prototype = {
    */
   link_handler : function (e) {
     var target = /** @type{Node} */(e.target);
-
-    var cur_pos = [0,0];
-
-    // cur_page might be undefined, e.g. from Outline
-    var cur_page = this.get_containing_page(target);
-    if (cur_page)
-    {
-      cur_pos = cur_page.view_position();
-      //get the coordinates in default user system
-      cur_pos = transform(cur_page.ictm, [cur_pos[0], cur_page.height()-cur_pos[1]]);
-    }
-
     var detail_str = /** @type{string} */ (target.getAttribute('data-dest-detail'));
     if (!detail_str) return;
 
-    var ok = false;
-    var detail = JSON.parse(detail_str);
+    this.navigate_to_dest(detail_str, this.get_containing_page(target));
+    e.preventDefault();
+  },
+
+  /**
+   * @param{string} detail_str may come from user provided hashtag, need sanitzing
+   * @param{Page=} src_page page containing the source event (e.g. link)
+   */
+  navigate_to_dest : function(detail_str, src_page) {
+    try {
+      var detail = JSON.parse(detail_str);
+    } catch(e) {
+      return;
+    }
+
+    if(!(detail instanceof Array)) return;
 
     var target_page_no = detail[0];
     var page_map = this.page_map;
@@ -702,9 +717,17 @@ Viewer.prototype = {
     var target_page_idx = page_map[target_page_no];
     var target_page = this.pages[target_page_idx];
 
+
+    // cur_page might be undefined, e.g. from Outline
+    var cur_page = src_page || this.pages[this.cur_page_idx];
+    var cur_pos = cur_page.view_position();
+    //get the coordinates in default user system
+    cur_pos = transform(cur_page.ictm, [cur_pos[0], cur_page.height()-cur_pos[1]]);
+
     var pos = [0,0];
     var zoom = this.scale;
     var upside_down = true;
+    var ok = false;
     // TODO: fitb*
     // TODO: BBox
     switch(detail[1]) {
@@ -738,38 +761,36 @@ Viewer.prototype = {
         ok = true;
         break;
       default:
-        ok = false;
         break;
     }
 
-    if (ok) {
-      this.rescale(zoom, false);
+    if (!ok) return;
 
-      var self = this;
-      /**
-       * page should of type Page 
-       * @param{Page} page 
-       */
-      var transform_and_scroll = function(page) {
-        pos = transform(page.ctm, pos);
-        if (upside_down) {
-          pos[1] = page.original_height - pos[1];
-        }
-        self.scroll_to(target_page_idx, pos);
-      };
+    this.rescale(zoom, false);
 
-      if (target_page.loaded) {
-        transform_and_scroll(target_page);
-      } else {
-        // TODO: scroll_to may finish before load_page
-
-        // Scroll to the exact position once loaded.
-        this.load_page(target_page_idx, undefined, transform_and_scroll);
-
-        // In the meantime page gets loaded, scroll approximately position for maximum responsiveness.
-        this.scroll_to(target_page_idx, [0,0]);
+    var self = this;
+    /**
+     * page should of type Page 
+     * @param{Page} page 
+     */
+    var transform_and_scroll = function(page) {
+      pos = transform(page.ctm, pos);
+      if (upside_down) {
+        pos[1] = page.original_height - pos[1];
       }
-      e.preventDefault();
+      self.scroll_to(target_page_idx, pos);
+    };
+
+    if (target_page.loaded) {
+      transform_and_scroll(target_page);
+    } else {
+      // TODO: scroll_to may finish before load_page
+
+      // Scroll to the exact position once loaded.
+      this.load_page(target_page_idx, undefined, transform_and_scroll);
+
+      // In the meantime page gets loaded, scroll approximately position for maximum responsiveness.
+      this.scroll_to(target_page_idx, [0,0]);
     }
   }, 
 

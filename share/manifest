@@ -46,7 +46,7 @@ $css
 # Refer to DEFAULT_CONFIG in viewer.js for possible keys
 # E.g.
 # pdf2htmlEX.defaultViewer = new pdf2htmlEX.Viewer({
-#   'register_key_handler' : false 
+#   'key_handler' : false 
 # });
 @pdf2htmlEX.min.js
 """
