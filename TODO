@@ -1,10 +1,10 @@
-split js
+split js files
 position history stack (popstate)
 scale limits
 onresize
 built in support for ttfautohint
-
 beforeprint/afterprint
+customevent
 
 more information on demo page:
   - showing pdf2htmlEX home page
