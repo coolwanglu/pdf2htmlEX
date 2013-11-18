@@ -356,15 +356,15 @@ Viewer.prototype = {
     if (this.pages_loading[idx])
       return;  // Page is already loading
 
-    var new_loading_indicator = this.loading_indicator.cloneNode();
-    new_loading_indicator.classList.add('active');
-
     var cur_page_ele = cur_page.page;
-    cur_page_ele.appendChild(new_loading_indicator);
-
     var url = cur_page_ele.getAttribute('data-page-url');
     if (url) {
       this.pages_loading[idx] = true;       // set semaphore
+
+      // add a copy of the loading indicator
+      var new_loading_indicator = this.loading_indicator.cloneNode();
+      new_loading_indicator.classList.add('active');
+      cur_page_ele.appendChild(new_loading_indicator);
 
       // load data
       {
