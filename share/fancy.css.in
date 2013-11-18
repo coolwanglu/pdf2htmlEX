@@ -74,8 +74,13 @@
   }
   .loading-indicator.active {
     display: block;
-    -webkit-animation: swing 1.5s ease-in-out 0s infinite alternate none;
-    animation: swing 1.5s ease-in-out 0s infinite alternate none;
+    /* 
+     * use 0.01s instead of 0s,
+     * since YUI Compressor will change 0s to 0,
+     * which is not recognized by Firefox
+     */
+    -webkit-animation: swing 1.5s ease-in-out 0.01s infinite alternate none;
+    animation: swing 1.5s ease-in-out 0.01s infinite alternate none;
   }
 }
 /* Fancy CSS END */
