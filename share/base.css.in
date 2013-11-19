@@ -36,6 +36,9 @@
   }
   .loading-indicator {
     display:none;
+  }
+  .loading-indicator.active {
+    display:block;
     position:absolute;
     width:64px;
     height:64px;
@@ -43,9 +46,6 @@
     left:50%;
     margin-top:-32px;
     margin-left:-32px;
-  }
-  .loading_indicator.active {
-    display:block;
   }
   .loading-indicator img {
     position:absolute;

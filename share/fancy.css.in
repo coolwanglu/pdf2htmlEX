@@ -73,7 +73,6 @@
     animation: fadein 100ms; 
   }
   .loading-indicator.active {
-    display: block;
     /* 
      * use 0.01s instead of 0s,
      * since YUI Compressor will change 0s to 0,

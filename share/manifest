@@ -98,6 +98,8 @@ $pages
 #############
 # The loading indicator
 # shown when loading a page via ajax
+# The default appearance should be invisible
+# The 'active' class will be added when it is used
 """
 <div class="loading-indicator">
 """
