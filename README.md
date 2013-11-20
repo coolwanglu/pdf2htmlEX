@@ -43,15 +43,15 @@ The generated HTML file is static, with optional features powered by JavaScript.
  * [Download](https://github.com/coolwanglu/pdf2htmlEX/wiki/Download)
  * [Building](https://github.com/coolwanglu/pdf2htmlEX/wiki/Building)
  * [Quick Start](https://github.com/coolwanglu/pdf2htmlEX/wiki/QuickStart)
- * [How to contribute](https://github.com/coolwanglu/pdf2htmlEX/wiki/Contribute)
- * [How to report](https://github.com/coolwanglu/pdf2htmlEX/wiki/How-to-report)
+ * [Report Issues / Ask for Help](https://github.com/coolwanglu/pdf2htmlEX/blob/master/CONTRIBUTING.md#guidance)
+ * [How can I help](https://github.com/coolwanglu/pdf2htmlEX/wiki/How-to-Help)
  * [FAQ](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ)
- * You can help this project by [making a donation](http://coolwanglu.github.io/pdf2htmlEX/donate.html). Thanks!
 
 ### Resources
 
  * [Development Blog](http://pdf2htmlex.blogspot.com) 
  * Twitter: [@pdf2htmlEX](https://twitter.com/pdf2htmlEX) 
+ * You can help this project by [making a donation](http://coolwanglu.github.io/pdf2htmlEX/donate.html). Thanks!
 
 ### Contact
 

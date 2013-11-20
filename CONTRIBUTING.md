@@ -75,6 +75,7 @@ On the other hand, if you think it's something wrong about pdf2htmlEX, please [r
 ### Bug Reports
 A bug is a demonstrable problem that is caused by the code in the repository.
 A perfect bug report may help the developer to identify the cause and locate the problematic code quickly.
+Bugs should always be reported to [the Issue Tracker](#the-issue-tracker).
 
 Before you report any bug:
 - Use the latest git version of pdf2htmlEX, since the issue may have been already fixed.
