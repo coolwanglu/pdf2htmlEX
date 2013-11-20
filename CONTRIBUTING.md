@@ -7,43 +7,39 @@ This document is adapted from [necolas/issue-guidelines](https://github.com/neco
 
 ## Table of Contents
 - [Channels](#channels)
-  - [The Issue Tracker](#issue-tracker)
-  - [The Mailing List](#mailing-list)
-  - [Contacting the Author](#author)
-- [Guidance](#guide)
-  - [Ask Questions](#ask-question)
-  - [Bug Reports](#bug-report)
-  - [Feature Requests](#feature-request)
-  - [Pull Requests](#pull-request)
+  - [The Issue Tracker](#the-issue-tracker)
+  - [The Mailing List](#the-mailing-list)
+  - [Contacting the Author](#contacting-the-author)
+- [Guidance](#guidance)
+  - [Ask Questions](#ask-questions)
+  - [Bug Reports](#bug-reports)
+  - [Feature Requests](#feature-requests)
+  - [Pull Requests](#pull-requests)
 
 ***
-<div id="channels"></div>
 ## Channels
 
 A few channels are available to reach the developers, please find the most proper one for your purpose.
 
-<div id="issue-tracker"></div>
 ### The Issue Tracker
 
 The [Issue Tracker](https://github.com/coolwanglu/pdf2htmlEX/issues)
 is the best way for 
-[bug reports](#bug-report),
-[features requests](#feature-request) 
-and [submitting pull requests](#pull-request). 
+[bug reports](#bug-reports),
+[features requests](#feature-requests) 
+and [submitting pull requests](#pull-requests). 
 
 Please respect the following restrictions:
 * Do not post personal support requests, (e.g How can I call pdf2htmlEX in Java?). Use the mailing list, or [Stack Overflow](http://stackoverflow.com) instead. 
 * Keep the discussion on topic and respect the opinions of others. 
 * Posts violating the above restrictions may be removed without any notification.
 
-<div id="mailing-list"></div>
 ### The Mailing List
 
 The [Mailing list](pdf2htmlex@googlegroups.com) is set up for discussion and announcements.
-You are welcome to [ask any question](#ask-question) about pdf2htmlEX there. 
+You are welcome to [ask any question](#ask-questions) about pdf2htmlEX there. 
 However do not report issues or submit patches there, since it's terrible to keep track of them.
 
-<div id="author"></div>
 ### Contacting the author
 
 pdf2htmlEX is mostly written and maintained by 王璐 (Lu Wang).
@@ -56,13 +52,11 @@ Please post only messages that do not fit into the above channels, for example:
 
 Please expect a _long_ delay，since the messages are usually archived and checked on a regular basis.
 
-<div id="guidance"></div>
 ## Guidance
 
 Here are a few tips for different types of messages.
 Lots of your time may be saved if you follow the guidelines.
 
-<div id="ask-question"></div>
 ### Ask questions
 
 If you need any help or have issues using pdf2htmlEX, 
@@ -72,13 +66,12 @@ First of all, did you realize that your question might have been already answere
 
 - [pdf2htmlEX Wiki](https://github.com/coolwanglu/pdf2htmlEX/wiki)
 - The manpage (run `man pdf2htmlEX`)
-- Old posts in the [mailing list](#mailing-list) or the [issue tracker](#issue-tracker)
+- Old posts in the [mailing list](#the-mailing-list) or the [issue tracker](#the-issue-tracker)
 - [Google](http://www.google.com/)
  
-If you cannot find anything useful there, do not hesitate to post in the [mailing list](#mailing-list).
-On the other hand, if you think it's something wrong about pdf2htmlEX, please [report a bug](#bug-report) instead.
+If you cannot find anything useful there, do not hesitate to post in the [mailing list](#the-mailing-list).
+On the other hand, if you think it's something wrong about pdf2htmlEX, please [report a bug](#bug-reports) instead.
 
-<div id="bug-report"></div>
 ### Bug Reports
 A bug is a demonstrable problem that is caused by the code in the repository.
 A perfect bug report may help the developer to identify the cause and locate the problematic code quickly.
@@ -109,7 +102,6 @@ Especially for issues regarding building pdf2htmlEX:
 - What's the output of `cmake` and `make`?
 - What's the content of `CMakeList.txt`?
 
-<div id="feature-request"></div>
 ### Feature requests
 
 Feature requests are welcome. But take a moment to find out whether your idea
@@ -117,7 +109,6 @@ fits with the scope and aims of the project. It's up to *you* to make a strong
 case to convince the project's developers of the merits of this feature. Please
 provide as much detail and context as possible.
 
-<div id="pull-request"></div>
 ### Pull requests
 
 Good pull requests - patches, improvements, new features - are a fantastic
