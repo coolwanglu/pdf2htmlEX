@@ -46,7 +46,7 @@ However do not report issues or submit patches there, since it's terrible to kee
 <div id="author"></div>
 ### Contacting the author
 
-pdf2htmlEX is mostly written and maintained by Lu Wang (王璐). 
+pdf2htmlEX is mostly written and maintained by 王璐 (Lu Wang).
 His email and twitter address of the author can be found in 
 [README.md](https://github.com/coolwanglu/pdf2htmlEX/blob/master/README.md). 
 

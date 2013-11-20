@@ -46,16 +46,21 @@ The generated HTML file is static, with optional features powered by JavaScript.
  * [How to contribute](https://github.com/coolwanglu/pdf2htmlEX/wiki/Contribute)
  * [How to report](https://github.com/coolwanglu/pdf2htmlEX/wiki/How-to-report)
  * [FAQ](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ)
+ * You can help this project by [making a donation](http://coolwanglu.github.io/pdf2htmlEX/donate.html). Thanks!
+
+### Resources
+
+ * [Development Blog](http://pdf2htmlex.blogspot.com) 
+ * Twitter: [@pdf2htmlEX](https://twitter.com/pdf2htmlEX) 
 
 ### Contact
 
- * Latest news about pdf2htmlEX can be found on [@pdf2htmlEX](https://twitter.com/pdf2htmlEX) or [the blog](http://pdf2htmlex.blogspot.com) 
- * For questions and help please post to <pdf2htmlex@googlegroups.com>, and you can subscribe to the mailing list [here](https://groups.google.com/forum/#!forum/pdf2htmlex). **DO NOT create issues on the tracker**
- * Bug reports and feature requests should go to the [issue tracker](https://github.com/coolwanglu/pdf2htmlEX/issues?milestone=2&sort=updated&state=open). **DO NOT post to the mailing list**
- * You can help this project by [making a donation](http://coolwanglu.github.io/pdf2htmlEX/donate.html). Thanks!
- * The author can be reached by 王璐 (Lu Wang) <coolwanglu@gmail.com> or [@coolwanglu](https://twitter.com/coolwanglu). 
-  - Messages in **中文**, **English** or **日本語** are accepted.
-  - Messages are checked on a regular basis so please expect some delay.
+Please read [this guidance](https://github.com/coolwanglu/pdf2htmlEX/blob/master/CONTRIBUTING.md) before posting any message.
+
+ * [Issue Tracker](https://github.com/coolwanglu/pdf2htmlEX/issues)
+ * Mailing List: <pdf2htmlex@googlegroups.com>  [Subscribe Here](https://groups.google.com/forum/#!forum/pdf2htmlex)
+ * Lead author: 王璐 (Lu Wang) <coolwanglu@gmail.com> or [@coolwanglu](https://twitter.com/coolwanglu). 
+  - Accepting messages in **中文**, **English** or **日本語**.
 
 ### LICENSE
 
