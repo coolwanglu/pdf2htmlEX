@@ -43,7 +43,7 @@ However do not report issues or submit patches there, since it's terrible to kee
 ### Contacting the author
 
 pdf2htmlEX is mostly written and maintained by 王璐 (Lu Wang).
-His email and twitter address of the author can be found in 
+His email and twitter account can be found in 
 [README.md](https://github.com/coolwanglu/pdf2htmlEX/blob/master/README.md). 
 
 Please post only messages that do not fit into the above channels, for example:
