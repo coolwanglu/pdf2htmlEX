@@ -9,6 +9,7 @@
 
 #include <iostream>
 #include <cstdio>
+#include <sys/stat.h>
 
 #include "TmpFiles.h"
 #include "Param.h"
@@ -19,11 +20,11 @@ namespace pdf2htmlEX {
 
 
 TmpFiles::TmpFiles( const Param& param )
-	: param( param )
+    : param( param )
 { }
 
 TmpFiles::~TmpFiles()
-{ 
+{
     clean();
 }
 
@@ -54,5 +55,16 @@ void TmpFiles::clean()
         cerr << "Remove temporary directory: " << param.tmp_dir << endl;
 }
 
+double TmpFiles::get_total_size() const
+{
+    double total_size = 0;
+    struct _stat st;
+    for(auto iter = tmp_files.begin(); iter != tmp_files.end(); ++iter) {
+        _stat(iter->c_str(), &st);
+        total_size += st.st_size;
+    }
+
+    return total_size;
+}
 
 } // namespace pdf2htmlEX

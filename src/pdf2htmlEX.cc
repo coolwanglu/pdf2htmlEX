@@ -141,7 +141,6 @@ void prepare_directories()
     stringstream ss;
     ss << setw(6) << rand_value;
 
-    std::cout << "1- " << tmp_dir << endl;
     tmp_dir.erase(tmp_dir.size() - 6);
     param.tmp_dir = tmp_dir + ss.str();
     ::CreateDirectory(param.tmp_dir.c_str(), NULL);
@@ -170,6 +169,7 @@ void parse_options (int argc, char **argv)
         .add("embed-image", &param.embed_image, 1, "embed image files into output")
         .add("embed-javascript", &param.embed_javascript, 1, "embed JavaScript files into output")
         .add("embed-outline", &param.embed_outline, 1, "embed outlines into output")
+        .add("max-output-size", &param.max_size, -1, "maximum output size, in KB (-1 for no max)")
         .add("split-pages", &param.split_pages, 0, "split pages into separate files")
         .add("dest-dir", &param.dest_dir, ".", "specify destination directory")
         .add("css-filename", &param.css_filename, "", "filename of the generated css file")
@@ -390,7 +390,6 @@ int main(int argc, char **argv)
         cerr << "temporary dir: " << (param.tmp_dir) << endl;
     }
 
-    exit(0);
     try
     {
         create_directories(param.dest_dir);
