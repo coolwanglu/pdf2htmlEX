@@ -19,6 +19,11 @@
 
 #include "ffw.h"
 
+#if defined(_WIN32)
+#undef printf
+#undef vfprintf
+#endif
+
 static real EPS=1e-6;
 
 static inline int min(int a, int b)

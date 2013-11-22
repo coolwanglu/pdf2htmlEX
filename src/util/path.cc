@@ -14,6 +14,17 @@
 
 using std::string;
 
+#if defined(_WIN32)
+#include <windows.h>
+int mkdir(const char *pathname, mode_t mode) {
+  if (::GetFileAttributes(pathname) == FILE_ATTRIBUTE_DIRECTORY) {
+    errno = EEXIST;
+    return -1;
+  }
+  return ::CreateDirectory(pathname, NULL) ? 0 : -1;
+}
+#endif
+
 namespace pdf2htmlEX {
 
 void create_directories(const string & path)
@@ -31,9 +42,15 @@ void create_directories(const string & path)
     {
         if(errno == EEXIST)
         {
+#if defined(_WIN32)
+            struct _stat32 stat_buf;
+            if((_stat32(path.c_str(), &stat_buf) == 0) && S_ISDIR(stat_buf.st_mode))
+                return;
+#else
             struct stat stat_buf;
             if((stat(path.c_str(), &stat_buf) == 0) && S_ISDIR(stat_buf.st_mode))
                 return;
+#endif
         }
 
         throw string("Cannot create directory: ") + path;

@@ -42,6 +42,31 @@ using namespace pdf2htmlEX;
 Param param;
 ArgParser argparser;
 
+#if defined(_WIN32)
+#include <errno.h>
+char *mkdtemp(char *tempbuf) {
+  int rand_value = 0;
+  char* tempbase = NULL;
+  char tempbasebuf[MAX_PATH] = "";
+
+  if (strcmp(&tempbuf[strlen(tempbuf)-6], "XXXXXX")) {
+    errno = EINVAL;
+    return NULL;
+  }
+
+  srand((unsigned)time(0));
+  rand_value = (int)((rand() / ((double)RAND_MAX+1.0)) * 1e6);
+  tempbase = strrchr(tempbuf, '/');
+  tempbase = tempbase ? tempbase+1 : tempbuf;
+  strcpy(tempbasebuf, tempbase);
+  sprintf(&tempbasebuf[strlen(tempbasebuf)-6], "%d", rand_value);
+  ::GetTempPath(MAX_PATH, tempbuf);
+  strcat(tempbuf, tempbasebuf);
+  ::CreateDirectory(tempbuf, NULL);
+  return tempbuf;
+}
+#endif
+
 void deprecated_font_suffix(const char * dummy = nullptr)
 {
     cerr << "--font-suffix is deprecated. Use `--font-format` instead." << endl;
