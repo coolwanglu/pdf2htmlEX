@@ -41,9 +41,11 @@ using namespace pdf2htmlEX;
 
 Param param;
 ArgParser argparser;
+string data_dir;
 
-#if defined(_WIN32)
+#ifdef _WIN32
 #include <errno.h>
+#include <libgen.h>
 char *mkdtemp(char *tempbuf) {
   int rand_value = 0;
   char* tempbase = NULL;
@@ -65,6 +67,7 @@ char *mkdtemp(char *tempbuf) {
   ::CreateDirectory(tempbuf, NULL);
   return tempbuf;
 }
+
 #endif
 
 void deprecated_font_suffix(const char * dummy = nullptr)
@@ -90,7 +93,11 @@ void show_version_and_exit(const char * dummy = nullptr)
 #if ENABLE_SVG
     cerr << "  cairo " << cairo_version_string() << endl;
 #endif
+#ifdef _WIN32
+    cerr << "Default data-dir: " << data_dir << endl;
+#else
     cerr << "Default data-dir: " << PDF2HTMLEX_DATA_PATH << endl;
+#endif
     cerr << "Supported image format:";
 #ifdef ENABLE_LIBPNG
     cerr << " png";
@@ -137,15 +144,15 @@ void parse_options (int argc, char **argv)
         // pages
         .add("first-page,f", &param.first_page, 1, "first page to convert")
         .add("last-page,l", &param.last_page, numeric_limits<int>::max(), "last page to convert")
-        
+
         // dimensions
         .add("zoom", &param.zoom, 0, "zoom ratio", true)
-        .add("fit-width", &param.fit_width, 0, "fit width to <fp> pixels", true) 
+        .add("fit-width", &param.fit_width, 0, "fit width to <fp> pixels", true)
         .add("fit-height", &param.fit_height, 0, "fit height to <fp> pixels", true)
         .add("use-cropbox", &param.use_cropbox, 1, "use CropBox instead of MediaBox")
         .add("hdpi", &param.h_dpi, 144.0, "horizontal resolution for graphics in DPI")
         .add("vdpi", &param.v_dpi, 144.0, "vertical resolution for graphics in DPI")
-        
+
         // output files
         .add("embed", "specify which elements should be embedded into output", embed_parser, true)
         .add("embed-css", &param.embed_css, 1, "embed CSS files into output")
@@ -162,7 +169,7 @@ void parse_options (int argc, char **argv)
         .add("process-outline", &param.process_outline, 1, "show outline in HTML")
         .add("printing", &param.printing, 1, "enable printing support")
         .add("fallback", &param.fallback, 0, "output in fallback mode")
-        
+
         // fonts
         .add("embed-external-font", &param.embed_external_font, 1, "embed local match for external fonts")
         .add("font-format", &param.font_format, "woff", "suffix for embedded font files (ttf,otf,woff,svg)")
@@ -173,7 +180,7 @@ void parse_options (int argc, char **argv)
         .add("squeeze-wide-glyph", &param.squeeze_wide_glyph, 1, "shrink wide glyphs instead of truncating them")
         .add("override-fstype", &param.override_fstype, 0, "clear the fstype bits in TTF/OTF fonts")
         .add("process-type3", &param.process_type3, 0, "convert Type 3 fonts for web (experimental)")
-        
+
         // text
         .add("heps", &param.h_eps, 1.0, "horizontal threshold for merging text, in pixels")
         .add("veps", &param.v_eps, 1.0, "vertical threshold for merging text, in pixels")
@@ -185,19 +192,23 @@ void parse_options (int argc, char **argv)
 
         // background image
         .add("bg-format", &param.bg_format, "png", "specify background image format")
-        
+
         // encryption
         .add("owner-password,o", &param.owner_password, "", "owner password (for encrypted files)", true)
         .add("user-password,u", &param.user_password, "", "user password (for encrypted files)", true)
         .add("no-drm", &param.no_drm, 0, "override document DRM settings")
-        
+
         // misc.
         .add("clean-tmp", &param.clean_tmp, 1, "remove temporary files after conversion")
+#ifdef _WIN32
+        .add("data-dir", &param.data_dir, data_dir, "specify data directory")
+#else
         .add("data-dir", &param.data_dir, PDF2HTMLEX_DATA_PATH, "specify data directory")
+#endif
         // TODO: css drawings are hidden on print, for annot links, need to fix it for other drawings
 //        .add("css-draw", &param.css_draw, 0, "[experimental and unsupported] CSS drawing")
         .add("debug", &param.debug, 0, "print debugging information")
-        
+
         // meta
         .add("version,v", "print copyright and version info", &show_version_and_exit)
         .add("help,h", "print usage information", &show_usage_and_exit)
@@ -342,6 +353,15 @@ void check_param()
 
 int main(int argc, char **argv)
 {
+#ifdef _WIN32
+    {
+        // Under Windows, the default data_dir is under /data in the pdf2htmlEX directory
+        stringstream ss;
+        ss << dirname(argv[0]) << "/data";
+        data_dir = ss.str();
+    }
+#endif
+
     parse_options(argc, argv);
     check_param();
 
@@ -394,11 +414,11 @@ int main(int argc, char **argv)
             delete ownerPW;
         }
 
-        if (!doc->isOk()) 
+        if (!doc->isOk())
             throw "Cannot read the file";
 
         // check for copy permission
-        if (!doc->okToCopy()) 
+        if (!doc->okToCopy())
         {
             if (param.no_drm == 0)
                 throw "Copying of text from this document is not allowed.";
