@@ -41,33 +41,10 @@ using namespace pdf2htmlEX;
 
 Param param;
 ArgParser argparser;
-string data_dir;
 
 #ifdef _WIN32
-#include <errno.h>
-#include <libgen.h>
-char *mkdtemp(char *tempbuf) {
-  int rand_value = 0;
-  char* tempbase = NULL;
-  char tempbasebuf[MAX_PATH] = "";
-
-  if (strcmp(&tempbuf[strlen(tempbuf)-6], "XXXXXX")) {
-    errno = EINVAL;
-    return NULL;
-  }
-
-  srand((unsigned)time(0));
-  rand_value = (int)((rand() / ((double)RAND_MAX+1.0)) * 1e6);
-  tempbase = strrchr(tempbuf, '/');
-  tempbase = tempbase ? tempbase+1 : tempbuf;
-  strcpy(tempbasebuf, tempbase);
-  sprintf(&tempbasebuf[strlen(tempbasebuf)-6], "%d", rand_value);
-  ::GetTempPath(MAX_PATH, tempbuf);
-  strcat(tempbuf, tempbasebuf);
-  ::CreateDirectory(tempbuf, NULL);
-  return tempbuf;
-}
-
+#   include <iomanip>
+#   include <libgen.h>
 #endif
 
 void deprecated_font_suffix(const char * dummy = nullptr)
@@ -94,7 +71,7 @@ void show_version_and_exit(const char * dummy = nullptr)
     cerr << "  cairo " << cairo_version_string() << endl;
 #endif
 #ifdef _WIN32
-    cerr << "Default data-dir: " << data_dir << endl;
+    cerr << "Default data-dir: " << param.data_dir << endl;
 #else
     cerr << "Default data-dir: " << PDF2HTMLEX_DATA_PATH << endl;
 #endif
@@ -136,6 +113,39 @@ void embed_parser (const char * str)
         }
         ++ str;
     }
+}
+
+void prepare_directories()
+{
+    std::string tmp_dir = param.basetmp_dir + "/pdf2htmlEX-XXXXXX";
+#ifndef _WIN32
+    errno = 0;
+
+    auto_ptr<char> pBuf(new char[tmp_dir.size() + 1]);
+    strcpy(pBuf.get(), tmp_dir.c_str());
+    auto p = mkdtemp(pBuf.get());
+    if(p == nullptr)
+    {
+        const char * errmsg = strerror(errno);
+        if(!errmsg)
+        {
+            errmsg = "unknown error";
+        }
+        cerr << "Cannot create temp directory: " << errmsg << endl;
+        exit(EXIT_FAILURE);
+    }
+    param.tmp_dir = pBuf.get();
+#else
+    srand((unsigned)time(0));
+    int rand_value = (int)((rand() / ((double)RAND_MAX+1.0)) * 1e6);
+    stringstream ss;
+    ss << setw(6) << rand_value;
+
+    std::cout << "1- " << tmp_dir << endl;
+    tmp_dir.erase(tmp_dir.size() - 6);
+    param.tmp_dir = tmp_dir + ss.str();
+    ::CreateDirectory(param.tmp_dir.c_str(), NULL);
+#endif
 }
 
 void parse_options (int argc, char **argv)
@@ -200,8 +210,9 @@ void parse_options (int argc, char **argv)
 
         // misc.
         .add("clean-tmp", &param.clean_tmp, 1, "remove temporary files after conversion")
+        .add("base-tmp-dir", &param.basetmp_dir, param.basetmp_dir, "base temporary directory - will create pdf2htmlEX-XXXXXX under it")
 #ifdef _WIN32
-        .add("data-dir", &param.data_dir, data_dir, "specify data directory")
+        .add("data-dir", &param.data_dir, param.data_dir, "specify data directory")
 #else
         .add("data-dir", &param.data_dir, PDF2HTMLEX_DATA_PATH, "specify data directory")
 #endif
@@ -353,12 +364,19 @@ void check_param()
 
 int main(int argc, char **argv)
 {
-#ifdef _WIN32
+#ifndef _WIN32
+    param.basetmp_dir = "/tmp";
+#else
     {
         // Under Windows, the default data_dir is under /data in the pdf2htmlEX directory
         stringstream ss;
         ss << dirname(argv[0]) << "/data";
-        data_dir = ss.str();
+        param.data_dir = ss.str();
+
+        // Under Windows, the temp path is not under /tmp, find it.
+        char temppath[MAX_PATH];
+        ::GetTempPath(MAX_PATH, temppath);
+        param.basetmp_dir = temppath;
     }
 #endif
 
@@ -366,26 +384,13 @@ int main(int argc, char **argv)
     check_param();
 
     //prepare the directories
-    {
-        char buf[] = "/tmp/pdf2htmlEX-XXXXXX";
-        errno = 0;
-        auto p = mkdtemp(buf);
-        if(p == nullptr)
-        {
-            const char * errmsg = strerror(errno);
-            if(!errmsg)
-            {
-                errmsg = "unknown error";
-            }
-            cerr << "Cannot create temp directory: " << errmsg << endl;
-            exit(EXIT_FAILURE);
-        }
-        param.tmp_dir = buf;
+    prepare_directories();
+
+    if(param.debug) {
+        cerr << "temporary dir: " << (param.tmp_dir) << endl;
     }
 
-    if(param.debug)
-        cerr << "temporary dir: " << (param.tmp_dir) << endl;
-
+    exit(0);
     try
     {
         create_directories(param.dest_dir);
