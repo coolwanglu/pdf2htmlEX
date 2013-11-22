@@ -586,11 +586,16 @@ Viewer.prototype = {
      * Code credit to PDF.js
      */
     var self = this;
+
     // Firefox specific event, so that we can prevent browser from zooming
     window.addEventListener('DOMMouseScroll', function(e) {
       if (e.ctrlKey) {
         e.preventDefault();
-        self.rescale(Math.pow(self.config['scale_step'], e.detail), true);
+        var container = self.container;
+        var rect = container.getBoundingClientRect();
+        var fixed_point = [e.clientX - rect['left'] - container.clientLeft
+                          ,e.clientY - rect['top'] - container.clientTop];
+        self.rescale(Math.pow(self.config['scale_step'], e.detail), true, fixed_point);
       }
     }, false);
 
@@ -663,12 +668,9 @@ Viewer.prototype = {
   /**
    * @param{number} ratio
    * @param{boolean} is_relative
-   * @param{Array.<number>=} preserve_pos preserve the position after rescaling
-   *
-   * TODO: offsetX/Y is by default the center of container
-   * TODO consider scale on offsetX/Y
+   * @param{Array.<number>=} fixed_point preserve the position (relative to the top-left corner of the viewer) after rescaling
    */
-  rescale : function (ratio, is_relative, preserve_pos) {
+  rescale : function (ratio, is_relative, fixed_point) {
     var old_scale = this.scale;
     var new_scale = old_scale;
     // set new scale
@@ -682,30 +684,58 @@ Viewer.prototype = {
 
     this.scale = new_scale;
 
-    if(!preserve_pos)
-      preserve_pos = [0,0]
+    if (!fixed_point)
+      fixed_point = [0,0];
 
-    // Save offset of the active page
-    var active_page = this.pages[this.cur_page_idx];
+    // translate fixed_point to the coordinate system of all pages
+    var container = this.container;
+    fixed_point[0] += container.scrollLeft;
+    fixed_point[1] += container.scrollTop;
 
-    var active_page_ele = active_page.page;
-    var prev_offset = [ active_page_ele.offsetLeft, active_page_ele.offsetTop ];
+    // find the visible page that contains the fixed point
+    // if the fixed point lies between two pages (including their borders), it's contained in the first one
+    var pl = this.pages;
+    var pl_len = pl.length;
+    for (var i = this.first_page_idx; i < pl_len; ++i) {
+      var p = pl[i].page;
+      if (p.offsetTop + p.clientTop >= fixed_point[1])
+        break;
+    }
+    var fixed_point_page_idx = i - 1;
+
+    // determine the new scroll position
+    // each-value consists of two parts, one inside the page, which is affected by rescaling,
+    // the other is outside, (e.g. borders and margins), which is not affected
+
+    // if the fixed_point is above the first page, use the first page as the reference
+    if (fixed_point_page_idx < 0) 
+      fixed_point_page_idx = 0;
+
+    var fp_p = pl[fixed_point_page_idx].page;
+    var fp_p_width = fp_p.clientWidth;
+    var fp_p_height = fp_p.clientHeight;
+
+    var fp_x_ref = fp_p.offsetLeft + fp_p.clientLeft;
+    var fp_x_inside = fixed_point[0] - fp_x_ref;
+    if (fp_x_inside < 0)
+      fp_x_inside = 0;
+    else if (fp_x_inside > fp_p_width)
+      fp_x_inside = fp_p_width;
+
+    var fp_y_ref = fp_p.offsetTop + fp_p.clientTop;
+    var fp_y_inside = fixed_point[1] - fp_y_ref;
+    if (fp_y_inside < 0)
+      fp_y_inside = 0;
+    else if (fp_y_inside > fp_p_height)
+      fp_y_inside = fp_p_height;
 
     // Rescale pages
-    var pl = this.pages;
-    for (var i = 0, l = pl.length; i < l; ++i) 
+    for (var i = 0; i < pl_len; ++i) 
         pl[i].rescale(new_scale);  
 
-    var container = this.container;
     // Correct container scroll to keep view aligned while zooming
-    var correction_top = active_page_ele.offsetTop - prev_offset[1];
-    container.scrollTop += correction_top + preserve_pos[1];
-    // Take the center of the view as a reference
-    var prev_center_x = container.clientWidth / 2 - prev_offset[0];
-    // Calculate the difference respect the center of the view after the zooming
-    var correction_left = prev_center_x * (new_scale/old_scale - 1) + active_page_ele.offsetLeft - prev_offset[0];
-    // Scroll the container accordingly to keep alignment to the initial reference
-    container.scrollLeft += correction_left + preserve_pos[0];
+    container.scrollLeft += fp_x_inside / old_scale * new_scale + fp_p.offsetLeft + fp_p.clientLeft - fp_x_inside - fp_x_ref;
+    container.scrollTop += fp_y_inside / old_scale * new_scale + fp_p.offsetTop + fp_p.clientTop - fp_y_inside - fp_y_ref;
 
     // some pages' visibility may be toggled, wait for next render()
     // renew old schedules since rescale() may be called frequently
