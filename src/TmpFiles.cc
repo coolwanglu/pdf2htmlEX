@@ -58,9 +58,17 @@ void TmpFiles::clean()
 double TmpFiles::get_total_size() const
 {
     double total_size = 0;
+#ifndef _WIN32
+    struct stat st;
+#else
     struct _stat st;
+#endif
     for(auto iter = tmp_files.begin(); iter != tmp_files.end(); ++iter) {
+#ifndef _WIN32
+        stat(iter->c_str(), &st);
+#else
         _stat(iter->c_str(), &st);
+#endif
         total_size += st.st_size;
     }
 
@@ -68,3 +76,4 @@ double TmpFiles::get_total_size() const
 }
 
 } // namespace pdf2htmlEX
+
