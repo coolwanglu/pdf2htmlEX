@@ -399,20 +399,6 @@ void HTMLRenderer::post_process(void)
     long line_no = 0;
     while(getline(manifest_fin, line))
     {
-        ++line_no;
-
-        if(line == "\"\"\"")
-        {
-            embed_string = !embed_string;
-            continue;
-        }
-
-        if(embed_string)
-        {
-            output << line << endl;
-            continue;
-        }
-
         // trim space at both sides
         {
             static const char * whitespaces = " \t\n\v\f\r";
@@ -427,6 +413,20 @@ void HTMLRenderer::post_process(void)
                 assert(idx2 >= idx1);
                 line = line.substr(idx1, idx2 - idx1 + 1);
             }
+        }
+
+        ++line_no;
+
+        if(line == "\"\"\"")
+        {
+            embed_string = !embed_string;
+            continue;
+        }
+
+        if(embed_string)
+        {
+            output << line << endl;
+            continue;
         }
 
         if(line.empty() || line[0] == '#')
