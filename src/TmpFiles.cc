@@ -16,6 +16,12 @@
 
 using namespace std;
 
+#ifndef _WIN32
+#   define STAT stat
+#else
+#   define STAT _stat
+#endif
+
 namespace pdf2htmlEX {
 
 
@@ -55,20 +61,13 @@ void TmpFiles::clean()
         cerr << "Remove temporary directory: " << param.tmp_dir << endl;
 }
 
+// Return the total size of the temporary files in bytes
 double TmpFiles::get_total_size() const
 {
     double total_size = 0;
-#ifndef _WIN32
-    struct stat st;
-#else
-    struct _stat st;
-#endif
+    struct STAT st;
     for(auto iter = tmp_files.begin(); iter != tmp_files.end(); ++iter) {
-#ifndef _WIN32
-        stat(iter->c_str(), &st);
-#else
-        _stat(iter->c_str(), &st);
-#endif
+        STAT(iter->c_str(), &st);
         total_size += st.st_size;
     }
 

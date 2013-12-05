@@ -45,6 +45,7 @@ ArgParser argparser;
 #ifdef _WIN32
 #   include <iomanip>
 #   include <libgen.h>
+#   include <direct.h>
 #endif
 
 void deprecated_font_suffix(const char * dummy = nullptr)
@@ -70,11 +71,7 @@ void show_version_and_exit(const char * dummy = nullptr)
 #if ENABLE_SVG
     cerr << "  cairo " << cairo_version_string() << endl;
 #endif
-#ifdef _WIN32
     cerr << "Default data-dir: " << param.data_dir << endl;
-#else
-    cerr << "Default data-dir: " << PDF2HTMLEX_DATA_PATH << endl;
-#endif
     cerr << "Supported image format:";
 #ifdef ENABLE_LIBPNG
     cerr << " png";
@@ -143,7 +140,10 @@ void prepare_directories()
 
     tmp_dir.erase(tmp_dir.size() - 6);
     param.tmp_dir = tmp_dir + ss.str();
-    ::CreateDirectory(param.tmp_dir.c_str(), NULL);
+    if (mkdir(param.tmp_dir.c_str())) {
+        cerr << "Cannot create temp directory (" << param.tmp_dir << "): " << strerror(errno) << endl;
+        exit(EXIT_FAILURE);
+    }
 #endif
 }
 
@@ -169,7 +169,7 @@ void parse_options (int argc, char **argv)
         .add("embed-image", &param.embed_image, 1, "embed image files into output")
         .add("embed-javascript", &param.embed_javascript, 1, "embed JavaScript files into output")
         .add("embed-outline", &param.embed_outline, 1, "embed outlines into output")
-        .add("max-output-size", &param.max_size, -1, "maximum output size, in KB (-1 for no max)")
+        .add("output-size-limit", &param.max_size, -1, "Limit the output size, in KB (-1 for no limit). This is only an estimate, the output may be bigger")
         .add("split-pages", &param.split_pages, 0, "split pages into separate files")
         .add("dest-dir", &param.dest_dir, ".", "specify destination directory")
         .add("css-filename", &param.css_filename, "", "filename of the generated css file")
@@ -211,11 +211,7 @@ void parse_options (int argc, char **argv)
         // misc.
         .add("clean-tmp", &param.clean_tmp, 1, "remove temporary files after conversion")
         .add("base-tmp-dir", &param.basetmp_dir, param.basetmp_dir, "base temporary directory - will create pdf2htmlEX-XXXXXX under it")
-#ifdef _WIN32
         .add("data-dir", &param.data_dir, param.data_dir, "specify data directory")
-#else
-        .add("data-dir", &param.data_dir, PDF2HTMLEX_DATA_PATH, "specify data directory")
-#endif
         // TODO: css drawings are hidden on print, for annot links, need to fix it for other drawings
 //        .add("css-draw", &param.css_draw, 0, "[experimental and unsupported] CSS drawing")
         .add("debug", &param.debug, 0, "print debugging information")
@@ -366,6 +362,7 @@ int main(int argc, char **argv)
 {
 #ifndef _WIN32
     param.basetmp_dir = "/tmp";
+    param.data_dir = PDF2HTMLEX_DATA_PATH;
 #else
     {
         // Under Windows, the default data_dir is under /data in the pdf2htmlEX directory
