@@ -132,7 +132,7 @@ endif()
 
 # Add additional dependencies
 if(MINGW)
-set(PDF2HTMLEX_LIBS ${PDF2HTMLEX_LIBS} intl iconv gettextlib gettextpo gutils png jpeg openjpeg glib-2.0.dll z xml2 tiff gio-2.0.dll ltdl plibc.dll)
+set(PDF2HTMLEX_LIBS ${PDF2HTMLEX_LIBS} intl iconv gettextlib gettextpo gutils png jpeg openjpeg glib-2.0.dll z xml2 tiff gio-2.0.dll ltdl plibc.dll gunicode)
 endif()
 
 # debug build flags (overwrite default cmake debug flags)
