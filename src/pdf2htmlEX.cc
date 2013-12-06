@@ -210,7 +210,7 @@ void parse_options (int argc, char **argv)
 
         // misc.
         .add("clean-tmp", &param.clean_tmp, 1, "remove temporary files after conversion")
-        .add("base-tmp-dir", &param.basetmp_dir, param.basetmp_dir, "base temporary directory - will create pdf2htmlEX-XXXXXX under it")
+        .add("tmp-dir", &param.basetmp_dir, param.basetmp_dir, "specify the location of tempory directory.")
         .add("data-dir", &param.data_dir, param.data_dir, "specify data directory")
         // TODO: css drawings are hidden on print, for annot links, need to fix it for other drawings
 //        .add("css-draw", &param.css_draw, 0, "[experimental and unsupported] CSS drawing")
@@ -360,6 +360,7 @@ void check_param()
 
 int main(int argc, char **argv)
 {
+    // We need to adjust these directories before parsing the options.
 #ifndef _WIN32
     param.basetmp_dir = "/tmp";
     param.data_dir = PDF2HTMLEX_DATA_PATH;
