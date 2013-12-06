@@ -15,7 +15,7 @@
 #ifdef _WIN32
 #   include <direct.h>
 #   define STAT _stat
-#   define MKDIR(A, B) mkdir(A)
+#   define MKDIR(A, B) _mkdir(A)
 #else
 #   define STAT stat
 #   define MKDIR(A, B) mkdir(A, B)
