@@ -68,13 +68,15 @@ First of all, did you realize that your question might have been already answere
 - The manpage (run `man pdf2htmlEX`)
 - Old posts in the [mailing list](#the-mailing-list) or the [issue tracker](#the-issue-tracker)
 - [Google](http://www.google.com/)
+- [Stack Overflow](http://stackoverflow.com/)
  
 If you cannot find anything useful there, do not hesitate to post in the [mailing list](#the-mailing-list).
 On the other hand, if you think it's something wrong about pdf2htmlEX, please [report a bug](#bug-reports) instead.
 
 ### Bug Reports
+
 A bug is a demonstrable problem that is caused by the code in the repository.
-A perfect bug report may help the developer to identify the cause and locate the problematic code quickly.
+A perfect bug report may help the deveolper to identify the cause and locate the problematic code quickly.
 Bugs should always be reported to [the Issue Tracker](#the-issue-tracker).
 
 Before you report any bug:
