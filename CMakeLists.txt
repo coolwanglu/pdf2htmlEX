@@ -130,11 +130,6 @@ else()
     set(PDF2HTMLEX_LIBS ${PDF2HTMLEX_LIBS} ${PYTHON_LIBRARIES})
 endif()
 
-# Add additional dependencies
-if(MINGW)
-set(PDF2HTMLEX_LIBS ${PDF2HTMLEX_LIBS} intl iconv gettextlib gettextpo gutils png jpeg openjpeg glib-2.0.dll z xml2 tiff gio-2.0.dll ltdl plibc.dll gunicode)
-endif()
-
 # debug build flags (overwrite default cmake debug flags)
 set(CMAKE_C_FLAGS_DEBUG "-ggdb -pg")
 set(CMAKE_CXX_FLAGS_DEBUG "-ggdb -pg")
