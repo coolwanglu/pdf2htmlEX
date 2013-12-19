@@ -7,6 +7,8 @@ Developing v0.11
 * Enable global key handler by default
 * Use WOFF by default
 * Always generate TTF before the final output
+* Fix CSS for loading-indicator
+* Do not set style for global <span>
 
 v0.10
 2013.10.17
