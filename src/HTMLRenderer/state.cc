@@ -380,7 +380,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
             }
             //else no solution
         }
-        // else force new line
+        // else: different rotation: force new line
 
         if(merged)
         {

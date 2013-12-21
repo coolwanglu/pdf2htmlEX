@@ -188,17 +188,28 @@ void HTMLTextLine::dump_text(ostream & out)
                     // finally, just dump it
                     if(!done)
                     {
-                        long long wid = all_manager.whitespace.install(target, &actual_offset);
-
-                        if(!equal(actual_offset, 0))
+                        if(param.optimize_text < 3) 
                         {
-                            if(is_positive(-actual_offset))
-                                last_text_pos_with_negative_offset = cur_text_idx;
+                            long long wid = all_manager.whitespace.install(target, &actual_offset);
 
+                            if(!equal(actual_offset, 0))
+                            {
+                                if(is_positive(-actual_offset))
+                                    last_text_pos_with_negative_offset = cur_text_idx;
+
+                                double threshold = state_iter1->em_size() * (param.space_threshold);
+
+                                out << "<span class=\"" << CSS::WHITESPACE_CN
+                                    << ' ' << CSS::WHITESPACE_CN << wid << "\">" << (target > (threshold - EPS) ? " " : "") << "</span>";
+                            }
+                        }
+                        else 
+                        {
+                            // aggressive optimization
                             double threshold = state_iter1->em_size() * (param.space_threshold);
-
-                            out << "<span class=\"" << CSS::WHITESPACE_CN
-                                << ' ' << CSS::WHITESPACE_CN << wid << "\">" << (target > (threshold - EPS) ? " " : "") << "</span>";
+                            if(target > threshold)
+                                out << ' ';
+                            actual_offset = target;
                         }
                     }
                 }
