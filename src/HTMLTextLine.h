@@ -73,7 +73,7 @@ public:
         double width;
     };
 
-    void append_unicodes(const Unicode * u, int l);
+    void append_unicodes(const Unicode * u, int l, double width);
     void append_offset(double width);
     void append_state(const HTMLTextState & text_state);
     void dump_text(std::ostream & out);
@@ -87,8 +87,10 @@ public:
      * Optimize and calculate necessary values
      */
     void prepare(void);
+    void optimize(std::vector<HTMLTextLine*> &);
 private:
-    void optimize(void);
+    void optimize_normal(std::vector<HTMLTextLine*> &);
+    void optimize_aggressive(std::vector<HTMLTextLine*> &);
 
     const Param & param;
     AllStateManager & all_manager;
@@ -96,6 +98,7 @@ private:
     HTMLLineState line_state;
     double ascent, descent;
     double clip_x1, clip_y1;
+    double width;
 
     std::vector<State> states;
     std::vector<Offset> offsets;

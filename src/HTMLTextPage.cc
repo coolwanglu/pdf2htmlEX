@@ -12,7 +12,6 @@
 namespace pdf2htmlEX {
 
 using std::ostream;
-using std::unique_ptr;
 
 HTMLTextPage::HTMLTextPage(const Param & param, AllStateManager & all_manager)
     : param(param)
@@ -22,8 +21,24 @@ HTMLTextPage::HTMLTextPage(const Param & param, AllStateManager & all_manager)
     , page_height(0)
 { } 
 
+HTMLTextPage::~HTMLTextPage()
+{
+    for(auto iter = text_lines.begin(); iter != text_lines.end(); ++iter)
+    {
+        delete (*iter);
+    }
+}
+
 void HTMLTextPage::dump_text(ostream & out)
 {
+    if(param.optimize_text)
+    {
+        // text lines may be split during optimization, collect them
+        std::vector<HTMLTextLine*> new_text_lines;
+        for(auto iter = text_lines.begin(); iter != text_lines.end(); ++iter)
+            (*iter)->optimize(new_text_lines);
+        std::swap(text_lines, new_text_lines);
+    }
     for(auto iter = text_lines.begin(); iter != text_lines.end(); ++iter)
         (*iter)->prepare();
     if(param.optimize_text)
@@ -98,7 +113,7 @@ void HTMLTextPage::open_new_line(const HTMLLineState & line_state)
     // do not reused the last text_line even if it's empty
     // because the clip states may point to the next index
     text_lines.emplace_back(new HTMLTextLine(line_state, param, all_manager));
-    cur_line = text_lines.back().get();
+    cur_line = text_lines.back();
 }
 
 void HTMLTextPage::set_page_size(double width, double height)
