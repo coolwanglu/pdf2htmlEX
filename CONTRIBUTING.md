@@ -56,12 +56,10 @@ pdf2htmlEX is mostly written and maintained by 王璐 (Lu Wang).
 His email and twitter account can be found in 
 [README.md](https://github.com/coolwanglu/pdf2htmlEX/blob/master/README.md). 
 
-Please post only messages that do not fit into the above channels, for example:
-- Private messages to the author.
-- Sample files with private information. (But please still report the bug via the issue tracker)
+Please post only messages that do not fit into the above channels, otherwise
+note that he no longer replies with _Please post your question to the mailing list_ or _Please file an issue at GitHub_, consider your message already replied.
 
 Please expect a _long_ delay，since the messages are usually archived and checked on a regular basis.
-Note that he no longer reply with _Please post your question to the mailing list_ or _Please file an issue at GitHub_. Consider your message has already been replied.
 
 ## Guidance
 
