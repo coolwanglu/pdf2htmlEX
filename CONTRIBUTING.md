@@ -34,6 +34,16 @@ Please respect the following restrictions:
 * Keep the discussion on topic and respect the opinions of others. 
 * Posts violating the above restrictions may be removed without any notification.
 
+
+Issues may be closed due to the following reasons:
+* Fixed
+* Duplicate of other issues
+* Invalid / Won't fix / Off topic
+* Inactiviy (for unconfirmed issues)
+* Insufficient info (for unconfirmed issues)
+
+In the last two cases, you can reopen the issue when you can provide more information.
+
 ### The Mailing List
 
 The [Mailing list](pdf2htmlex@googlegroups.com) is set up for discussion and announcements.
