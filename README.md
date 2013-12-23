@@ -55,7 +55,7 @@ The generated HTML file is static, with optional features powered by JavaScript.
 
 ### Contact
 
-Please read [this guidance](https://github.com/coolwanglu/pdf2htmlEX/blob/master/CONTRIBUTING.md) before posting any message.
+Note: Your message will be most likely ignored if you failed to follow [this guidance](https://github.com/coolwanglu/pdf2htmlEX/blob/master/CONTRIBUTING.md).
 
  * [GitHub Issue Tracker](https://github.com/coolwanglu/pdf2htmlEX/issues)
  * Mailing List: <pdf2htmlex@googlegroups.com>  &mdash; [Subscribe Here](https://groups.google.com/forum/#!forum/pdf2htmlex)
