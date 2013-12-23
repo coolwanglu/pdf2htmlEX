@@ -73,10 +73,12 @@ First of all, did you realize that your question might have been already answere
 If you cannot find anything useful there, do not hesitate to post in the [mailing list](#the-mailing-list).
 On the other hand, if you think it's something wrong about pdf2htmlEX, please [report a bug](#bug-reports) instead.
 
+It will help a lot if you provide detailed information as mentioned in the [Bug Reports](#bug-reports) section.
+
 ### Bug Reports
 
 A bug is a demonstrable problem that is caused by the code in the repository.
-A perfect bug report may help the deveolper to identify the cause and locate the problematic code quickly.
+A perfect bug report may help the developer to identify the cause and locate the problematic code quickly.
 Bugs should always be reported to [the Issue Tracker](#the-issue-tracker).
 
 Before you report any bug:
@@ -98,12 +100,13 @@ If you are not sure, please try to answer the following questions:
 - What steps will reproduce the issue? &mdash; please try to remove unnecessary steps
 - What's the result and what did you expect? &mdash; e.g. you can post screenshots
 - What error messages did you see?
-- Where's the affected PDF file? &mdash; e.g. you may upload the file via Dropbox and post a link here
+- Where's the affected PDF file and which pages are causing the issue? &mdash; e.g. you may upload the file via Dropbox and post a link here
 
 Especially for issues regarding building pdf2htmlEX:
 - Which compiler are you using?
 - What's the output of `cmake` and `make`?
 - What's the content of `CMakeList.txt`?
+
 
 ### Feature requests
 
