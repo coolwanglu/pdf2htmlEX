@@ -916,3 +916,5 @@ Viewer.prototype = {
 
 // export pdf2htmlEX.Viewer
 pdf2htmlEX['Viewer'] = Viewer;
+Viewer.prototype['rescale'] = Viewer.prototype.rescale;
+Viewer.prototype['scroll_to'] = Viewer.prototype.scroll_to;
