@@ -66,11 +66,12 @@ public:
     };
 
     struct Offset {
-        Offset(size_t size_idx, double width)
-            :start_idx(size_idx),width(width)
+        Offset(size_t size_idx, double width, double start_width)
+            :start_idx(size_idx),width(width),start_width(start_width)
         { }
         size_t start_idx; // should put this Offset right before text[start_idx];
         double width;
+        double start_width; // the width of the line before this offset
     };
 
     void append_unicodes(const Unicode * u, int l, double width);

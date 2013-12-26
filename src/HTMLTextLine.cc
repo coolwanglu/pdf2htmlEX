@@ -50,7 +50,7 @@ void HTMLTextLine::append_offset(double width)
     if((!offsets.empty()) && (offsets.back().start_idx == text.size()))
         offsets.back().width += width;
     else
-        offsets.emplace_back(text.size(), width);
+        offsets.emplace_back(text.size(), width, this->width);
     this->width += width;
 }
 
@@ -472,16 +472,15 @@ void HTMLTextLine::optimize_normal(std::vector<HTMLTextLine*> & lines)
 // for optimize-text == 3
 void HTMLTextLine::optimize_aggressive(std::vector<HTMLTextLine*> & lines)
 {
-    HTMLTextLine *cur_line = this;
+    HTMLLineState original_line_state = line_state;
+    // break the line if there are a large (positive or negative) shift
+    // letter space / word space are not taken into consideration (yet)
     while(true) 
     {
         lines.push_back(cur_line);
 
-        // break the line if there are a large (positive or negative) shift
-        // letter space / word space are not taken into consideration (yet)
         
 
-        // TODO
     }
 
     /*
