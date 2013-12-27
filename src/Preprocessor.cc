@@ -43,20 +43,24 @@ Preprocessor::~Preprocessor(void)
 void Preprocessor::process(PDFDoc * doc)
 {
     int page_count = (param.last_page - param.first_page + 1);
-    for(int i = param.first_page; i <= param.last_page ; ++i) 
+    for(int i = param.first_page; i <= param.last_page ; ++i)
     {
-        cerr << "Preprocessing: " << (i-param.first_page) << "/" << page_count << '\r' << flush;
+        if (!param.quiet) {
+            cerr << "Preprocessing: " << (i-param.first_page) << "/" << page_count << '\r' << flush;
+        }
 
         doc->displayPage(this, i, DEFAULT_DPI, DEFAULT_DPI,
-                0, 
+                0,
                 (!(param.use_cropbox)),
                 true,  // crop
                 false, // printing
                 nullptr, nullptr, nullptr, nullptr);
     }
-    if(page_count >= 0)
-        cerr << "Preprocessing: " << page_count << "/" << page_count;
-    cerr << endl;
+    if (!param.quiet) {
+        if(page_count >= 0)
+            cerr << "Preprocessing: " << page_count << "/" << page_count;
+        cerr << endl;
+    }
 }
 
 void Preprocessor::drawChar(GfxState *state, double x, double y,
