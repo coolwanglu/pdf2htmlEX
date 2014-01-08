@@ -110,15 +110,11 @@ void HTMLRenderer::process(PDFDoc *doc)
     for(int i = param.first_page; i <= param.last_page ; ++i)
     {
         if (param.max_size != -1 && tmp_files.get_total_size() > param.max_size * 1024) {
-            if (!param.quiet) {
-                cerr << "Stop processing, reach max size\n";
-            }
+            cerr << "Stop processing, reach max size\n";
             break;
         }
 
-        if (!param.quiet) {
-            cerr << "Working: " << (i-param.first_page) << "/" << page_count << '\r' << flush;
-        }
+        cerr << "Working: " << (i-param.first_page) << "/" << page_count << '\r' << flush;
 
         if(param.split_pages)
         {
@@ -151,11 +147,9 @@ void HTMLRenderer::process(PDFDoc *doc)
             f_curpage = nullptr;
         }
     }
-    if (!param.quiet) {
-        if (page_count >= 0)
-            cerr << "Working: " << page_count << "/" << page_count;
-        cerr << endl;
-    }
+    if(page_count >= 0)
+        cerr << "Working: " << page_count << "/" << page_count;
+    cerr << endl;
 
     ////////////////////////
     // Process Outline
@@ -170,9 +164,7 @@ void HTMLRenderer::process(PDFDoc *doc)
         bg_renderer = nullptr;
     }
 
-    if (!param.quiet) {
-        cerr << endl;
-    }
+    cerr << endl;
 }
 
 void HTMLRenderer::setDefaultCTM(double *ctm)

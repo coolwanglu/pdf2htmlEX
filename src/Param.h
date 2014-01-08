@@ -72,7 +72,6 @@ struct Param
     std::string data_dir;
     std::string basetmp_dir;
     int css_draw;
-    int quiet;
     int debug;
 
     std::string input_filename, output_filename;

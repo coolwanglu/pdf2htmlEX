@@ -158,7 +158,7 @@ endif()
 include(CheckCXXCompilerFlag)
 check_cxx_compiler_flag("${CMAKE_CXX_FLAGS}" CXX0X_SUPPORT)
 if(NOT CXX0X_SUPPORT)
-    message(FATAL_ERROR "Error: your compiler does not support C++0x, please update it.")
+    message(FATAL_ERROR "Error: you compiler does not support C++0x, please update it.")
 endif()
 
 
