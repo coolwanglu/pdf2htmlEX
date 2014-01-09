@@ -72,13 +72,14 @@ void CairoBackgroundRenderer::render_page(PDFDoc * doc, int pageno)
         if(param.embed_image)
             html_renderer->tmp_files.add((char*)fn);
 
-        surface = cairo_svg_surface_create((char*)fn, page_width * DEFAULT_DPI, page_height * DEFAULT_DPI);
+        surface = cairo_svg_surface_create((char*)fn, page_width * param.h_dpi / DEFAULT_DPI, page_height * param.v_dpi / DEFAULT_DPI);
     }
     cairo_svg_surface_restrict_to_version(surface, CAIRO_SVG_VERSION_1_2);
     cairo_surface_set_fallback_resolution(surface, param.h_dpi, param.v_dpi);
 
     cairo_t * cr = cairo_create(surface);
     setCairo(cr);
+    /*
     setPrinting(false); // TODO, check the parameter
     cairo_save(cr);
 
@@ -89,15 +90,16 @@ void CairoBackgroundRenderer::render_page(PDFDoc * doc, int pageno)
         cairo_matrix_scale(&matrix, DEFAULT_DPI, DEFAULT_DPI);
         cairo_transform(cr, &matrix);
     }
-   
-    doc->displayPage(this, pageno, DEFAULT_DPI, DEFAULT_DPI,
+    */
+
+    doc->displayPage(this, pageno, param.h_dpi, param.v_dpi,
             0, 
             (!(param.use_cropbox)),
             false, 
             false,
             nullptr, nullptr, &annot_cb, nullptr);
 
-    cairo_restore(cr);
+    // cairo_restore(cr);
     setCairo(nullptr);
     
     {
