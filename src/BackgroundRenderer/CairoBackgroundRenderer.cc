@@ -79,18 +79,6 @@ void CairoBackgroundRenderer::render_page(PDFDoc * doc, int pageno)
 
     cairo_t * cr = cairo_create(surface);
     setCairo(cr);
-    /*
-    setPrinting(false); // TODO, check the parameter
-    cairo_save(cr);
-
-    // zoom the image to prevent CairoOutputDev from rounding/increasing thin borders
-    {
-        cairo_matrix_t matrix;
-        cairo_matrix_init_identity(&matrix);
-        cairo_matrix_scale(&matrix, DEFAULT_DPI, DEFAULT_DPI);
-        cairo_transform(cr, &matrix);
-    }
-    */
 
     doc->displayPage(this, pageno, param.h_dpi, param.v_dpi,
             0, 
@@ -99,7 +87,6 @@ void CairoBackgroundRenderer::render_page(PDFDoc * doc, int pageno)
             false,
             nullptr, nullptr, &annot_cb, nullptr);
 
-    // cairo_restore(cr);
     setCairo(nullptr);
     
     {
@@ -109,7 +96,6 @@ void CairoBackgroundRenderer::render_page(PDFDoc * doc, int pageno)
             throw string("Cairo error: ") + cairo_status_to_string(status);
     }
 
-//    cairo_surface_show_page(surface);
     cairo_surface_finish(surface);
     {
         auto status = cairo_surface_status(surface);
