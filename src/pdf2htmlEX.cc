@@ -114,11 +114,11 @@ void embed_parser (const char * str)
 
 void prepare_directories()
 {
-    std::string tmp_dir = param.basetmp_dir + "/pdf2htmlEX-XXXXXX";
+    std::string tmp_dir = param.tmp_dir + "/pdf2htmlEX-XXXXXX";
 #ifndef _WIN32
     errno = 0;
 
-    auto_ptr<char> pBuf(new char[tmp_dir.size() + 1]);
+    unique_ptr<char> pBuf(new char[tmp_dir.size() + 1]);
     strcpy(pBuf.get(), tmp_dir.c_str());
     auto p = mkdtemp(pBuf.get());
     if(p == nullptr)
@@ -169,7 +169,7 @@ void parse_options (int argc, char **argv)
         .add("embed-image", &param.embed_image, 1, "embed image files into output")
         .add("embed-javascript", &param.embed_javascript, 1, "embed JavaScript files into output")
         .add("embed-outline", &param.embed_outline, 1, "embed outlines into output")
-        .add("tmp-file-size-limit", &param.max_size, -1, "Limit the temporary file output size, in KB (-1 for no limit). This is only an estimate, the output may be bigger")
+        .add("tmp-file-size-limit", &param.tmp_file_size_limit, -1, "Limit the temporary file output size, in KB (-1 for no limit). This is only an estimate, the output may be bigger")
         .add("split-pages", &param.split_pages, 0, "split pages into separate files")
         .add("dest-dir", &param.dest_dir, ".", "specify destination directory")
         .add("css-filename", &param.css_filename, "", "filename of the generated css file")
@@ -210,7 +210,7 @@ void parse_options (int argc, char **argv)
 
         // misc.
         .add("clean-tmp", &param.clean_tmp, 1, "remove temporary files after conversion")
-        .add("tmp-dir", &param.basetmp_dir, param.basetmp_dir, "specify the location of tempory directory.")
+        .add("tmp-dir", &param.tmp_dir, param.tmp_dir, "specify the location of tempory directory.")
         .add("data-dir", &param.data_dir, param.data_dir, "specify data directory")
         // TODO: css drawings are hidden on print, for annot links, need to fix it for other drawings
 //        .add("css-draw", &param.css_draw, 0, "[experimental and unsupported] CSS drawing")
@@ -362,7 +362,7 @@ int main(int argc, char **argv)
 {
     // We need to adjust these directories before parsing the options.
 #ifndef _WIN32
-    param.basetmp_dir = "/tmp";
+    param.tmp_dir = "/tmp";
     param.data_dir = PDF2HTMLEX_DATA_PATH;
 #else
     {
@@ -374,7 +374,7 @@ int main(int argc, char **argv)
         // Under Windows, the temp path is not under /tmp, find it.
         char temppath[MAX_PATH];
         ::GetTempPath(MAX_PATH, temppath);
-        param.basetmp_dir = temppath;
+        param.tmp_dir = temppath;
     }
 #endif
 

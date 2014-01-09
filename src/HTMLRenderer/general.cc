@@ -109,7 +109,7 @@ void HTMLRenderer::process(PDFDoc *doc)
     int page_count = (param.last_page - param.first_page + 1);
     for(int i = param.first_page; i <= param.last_page ; ++i)
     {
-        if (param.max_size != -1 && tmp_files.get_total_size() > param.max_size * 1024) {
+        if (param.tmp_file_size_limit != -1 && tmp_files.get_total_size() > param.tmp_file_size_limit * 1024) {
             cerr << "Stop processing, reach max size\n";
             break;
         }

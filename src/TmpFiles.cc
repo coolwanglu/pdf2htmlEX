@@ -18,8 +18,11 @@ using namespace std;
 
 #ifndef _WIN32
 #   define STAT stat
+#   define RMDIR rmdir
 #else
+#   include <direct.h>
 #   define STAT _stat
+#   define RMDIR _rmdir
 #endif
 
 namespace pdf2htmlEX {
@@ -56,7 +59,7 @@ void TmpFiles::clean()
             cerr << "Remove temporary file: " << fn << endl;
     }
 
-    remove(param.tmp_dir.c_str());
+    RMDIR(param.tmp_dir.c_str());
     if(param.debug)
         cerr << "Remove temporary directory: " << param.tmp_dir << endl;
 }

@@ -31,7 +31,7 @@ struct Param
     int embed_javascript;
     int embed_outline;
     int split_pages;
-    int max_size;
+    int tmp_file_size_limit;
     std::string dest_dir;
     std::string css_filename;
     std::string page_filename;
@@ -70,14 +70,11 @@ struct Param
     // misc.
     int clean_tmp;
     std::string data_dir;
-    std::string basetmp_dir;
+    std::string tmp_dir;
     int css_draw;
     int debug;
 
     std::string input_filename, output_filename;
-
-    // not a paramater
-    std::string tmp_dir;
 };
 
 } // namespace pdf2htmlEX
