@@ -12,8 +12,11 @@ If you want to use pdf2htmlEX (or your modified version) in your online service,
 through which a user can provide one or more files through a computer network, 
 and view any part of the result produced by pdf2htmlEX (or your modified version) on 
 the file(s) provided by the user, you should credit pdf2htmlEX with a proper link to 
-https://github.com/coolwanglu/pdf2htmlEX in the page where the result is presented, 
-or the homepage of your service, or a page directly accessible from the homepage of your service.
+https://github.com/coolwanglu/pdf2htmlEX
+in at least one of the following places:
+ - The page where the output of pdf2htmlEX is presented.
+ - The homepage of your service.
+ - A page that is directly accessible from the homepage of your service.
 
 Any derivate works should also include this term.
 
