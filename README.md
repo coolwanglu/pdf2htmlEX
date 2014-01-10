@@ -58,7 +58,8 @@ The generated HTML file is static, with optional features powered by JavaScript.
 Note: Your message will be most likely ignored if you failed to follow [this guidance](https://github.com/coolwanglu/pdf2htmlEX/blob/master/CONTRIBUTING.md).
 
  * [GitHub Issue Tracker](https://github.com/coolwanglu/pdf2htmlEX/issues)
- * Mailing List: <pdf2htmlex@googlegroups.com>  &mdash; [Subscribe Here](https://groups.google.com/forum/#!forum/pdf2htmlex)
+ * Mailing List: https://groups.google.com/forum/#!forum/pdf2htmlex
+  - 中文邮件列表: https://groups.google.com/forum/#!forum/pdf2htmlex-cn
  * Lead author: 王璐 (Lu Wang) <coolwanglu@gmail.com> or [@coolwanglu](https://twitter.com/coolwanglu). 
   - Accepting messages in **中文**, **English** or **日本語**.
 
