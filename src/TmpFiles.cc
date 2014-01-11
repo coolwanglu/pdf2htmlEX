@@ -17,6 +17,7 @@
 using namespace std;
 
 #ifndef _WIN32
+#   include <unistd.h>
 #   define STAT stat
 #   define RMDIR rmdir
 #else

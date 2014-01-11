@@ -9,6 +9,10 @@ Developing v0.11
 * Always generate TTF before the final output
 * Fix CSS for loading-indicator
 * Do not set style for global <span>
+* Improvements on the SVG output
+* New options
+ --tmp-file-size-limit
+ --tmp-dir
 
 v0.10
 2013.10.17
