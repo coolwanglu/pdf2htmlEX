@@ -45,7 +45,7 @@ HTMLRenderer::HTMLRenderer(const Param & param)
     ,param(param)
     ,html_text_page(param, all_manager)
     ,preprocessor(param)
-	,tmp_files(param)
+    ,tmp_files(param)
 {
     if(!(param.debug))
     {
@@ -79,7 +79,7 @@ HTMLRenderer::HTMLRenderer(const Param & param)
 }
 
 HTMLRenderer::~HTMLRenderer()
-{ 
+{
     ffw_finalize();
     delete [] cur_mapping;
     delete [] cur_mapping2;
@@ -96,7 +96,7 @@ void HTMLRenderer::process(PDFDoc *doc)
 
     ///////////////////
     // Process pages
-    
+
     bg_renderer = nullptr;
     if(param.process_nontext)
     {
@@ -107,15 +107,20 @@ void HTMLRenderer::process(PDFDoc *doc)
     }
 
     int page_count = (param.last_page - param.first_page + 1);
-    for(int i = param.first_page; i <= param.last_page ; ++i) 
+    for(int i = param.first_page; i <= param.last_page ; ++i)
     {
+        if (param.tmp_file_size_limit != -1 && tmp_files.get_total_size() > param.tmp_file_size_limit * 1024) {
+            cerr << "Stop processing, reach max size\n";
+            break;
+        }
+
         cerr << "Working: " << (i-param.first_page) << "/" << page_count << '\r' << flush;
 
         if(param.split_pages)
         {
             string filled_template_filename = (char*)str_fmt(param.page_filename.c_str(), i);
             auto page_fn = str_fmt("%s/%s", param.dest_dir.c_str(), filled_template_filename.c_str());
-            f_curpage = new ofstream((char*)page_fn, ofstream::binary); 
+            f_curpage = new ofstream((char*)page_fn, ofstream::binary);
             if(!(*f_curpage))
                 throw string("Cannot open ") + (char*)page_fn + " for writing";
             set_stream_flags((*f_curpage));
@@ -128,9 +133,9 @@ void HTMLRenderer::process(PDFDoc *doc)
             bg_renderer->render_page(doc, i);
         }
 
-        doc->displayPage(this, i, 
+        doc->displayPage(this, i,
                 text_zoom_factor() * DEFAULT_DPI, text_zoom_factor() * DEFAULT_DPI,
-                0, 
+                0,
                 (!(param.use_cropbox)),
                 true,  // crop
                 false, // printing
@@ -149,7 +154,7 @@ void HTMLRenderer::process(PDFDoc *doc)
     ////////////////////////
     // Process Outline
     if(param.process_outline)
-        process_outline(); 
+        process_outline();
 
     post_process();
 
@@ -170,7 +175,7 @@ void HTMLRenderer::setDefaultCTM(double *ctm)
 #if POPPLER_OLDER_THAN_0_23_0
 void HTMLRenderer::startPage(int pageNum, GfxState *state)
 #else
-void HTMLRenderer::startPage(int pageNum, GfxState *state, XRef * xref) 
+void HTMLRenderer::startPage(int pageNum, GfxState *state, XRef * xref)
 #endif
 {
     this->pageNum = pageNum;
@@ -183,12 +188,12 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state, XRef * xref)
     long long wid = all_manager.width.install(pageWidth);
     long long hid = all_manager.height.install(pageHeight);
     (*f_curpage)
-        << "<div id=\"" << CSS::PAGE_FRAME_CN << pageNum 
+        << "<div id=\"" << CSS::PAGE_FRAME_CN << pageNum
             << "\" class=\"" << CSS::PAGE_FRAME_CN
             << " " << CSS::WIDTH_CN << wid
             << " " << CSS::HEIGHT_CN << hid
             << "\" data-page-no=\"" << pageNum << "\">"
-        << "<div class=\"" << CSS::PAGE_CONTENT_BOX_CN 
+        << "<div class=\"" << CSS::PAGE_CONTENT_BOX_CN
             << " " << CSS::PAGE_CONTENT_BOX_CN << pageNum
             << " " << CSS::WIDTH_CN << wid
             << " " << CSS::HEIGHT_CN << hid
@@ -201,11 +206,11 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state, XRef * xref)
     if(param.split_pages)
     {
         f_pages.fs
-            << "<div id=\"" << CSS::PAGE_FRAME_CN << pageNum 
+            << "<div id=\"" << CSS::PAGE_FRAME_CN << pageNum
                 << "\" class=\"" << CSS::PAGE_FRAME_CN
                 << " " << CSS::WIDTH_CN << wid
                 << " " << CSS::HEIGHT_CN << hid
-                << "\" data-page-no=\"" << pageNum 
+                << "\" data-page-no=\"" << pageNum
                 << "\" data-page-url=\"";
 
         writeAttribute(f_pages.fs, cur_page_filename);
@@ -236,7 +241,7 @@ void HTMLRenderer::endPage() {
     // TODO: create a function for this
     // BE CAREFUL WITH ESCAPES
     (*f_curpage) << "<div class=\"" << CSS::PAGE_DATA_CN << "\" data-data='{";
-    
+
     //default CTM
     (*f_curpage) << "\"ctm\":[";
     for(int i = 0; i < 6; ++i)
@@ -247,7 +252,7 @@ void HTMLRenderer::endPage() {
     (*f_curpage) << "]";
 
     (*f_curpage) << "}'></div>";
-    
+
     // close page
     (*f_curpage) << "</div>" << endl;
 
@@ -266,7 +271,7 @@ void HTMLRenderer::pre_process(PDFDoc * doc)
      */
     {
         vector<double> zoom_factors;
-        
+
         if(is_positive(param.zoom))
         {
             zoom_factors.push_back(param.zoom);
@@ -283,8 +288,8 @@ void HTMLRenderer::pre_process(PDFDoc * doc)
         }
 
         double zoom = (zoom_factors.empty() ? 1.0 : (*min_element(zoom_factors.begin(), zoom_factors.end())));
-        
-        text_scale_factor1 = max<double>(zoom, param.font_size_multiplier);  
+
+        text_scale_factor1 = max<double>(zoom, param.font_size_multiplier);
         text_scale_factor2 = zoom / text_scale_factor1;
     }
 
@@ -340,13 +345,13 @@ void HTMLRenderer::pre_process(PDFDoc * doc)
          * we have to keep the html file for pages into a temporary place
          * because we'll have to embed css before it
          *
-         * Otherwise just generate it 
+         * Otherwise just generate it
          */
         auto fn = str_fmt("%s/__pages", param.tmp_dir.c_str());
         tmp_files.add((char*)fn);
 
         f_pages.path = (char*)fn;
-        f_pages.fs.open(f_pages.path, ofstream::binary); 
+        f_pages.fs.open(f_pages.path, ofstream::binary);
         if(!f_pages.fs)
             throw string("Cannot open ") + (char*)fn + " for writing";
         set_stream_flags(f_pages.fs);
@@ -371,7 +376,7 @@ void HTMLRenderer::post_process(void)
     {
         f_outline.fs.close();
     }
-    f_pages.fs.close(); 
+    f_pages.fs.close();
     f_css.fs.close();
 
     // build the main HTML file
@@ -394,20 +399,6 @@ void HTMLRenderer::post_process(void)
     long line_no = 0;
     while(getline(manifest_fin, line))
     {
-        ++line_no;
-
-        if(line == "\"\"\"")
-        {
-            embed_string = !embed_string;
-            continue;
-        }
-
-        if(embed_string)
-        {
-            output << line << endl;
-            continue;
-        }
-
         // trim space at both sides
         {
             static const char * whitespaces = " \t\n\v\f\r";
@@ -422,6 +413,20 @@ void HTMLRenderer::post_process(void)
                 assert(idx2 >= idx1);
                 line = line.substr(idx1, idx2 - idx1 + 1);
             }
+        }
+
+        ++line_no;
+
+        if(line == "\"\"\"")
+        {
+            embed_string = !embed_string;
+            continue;
+        }
+
+        if(embed_string)
+        {
+            output << line << endl;
+            continue;
         }
 
         if(line.empty() || line[0] == '#')
@@ -492,7 +497,7 @@ void HTMLRenderer::dump_css (void)
     all_manager.width           .dump_css(f_css.fs);
     all_manager.left            .dump_css(f_css.fs);
     all_manager.bgimage_size    .dump_css(f_css.fs);
-    
+
     // print css
     if(param.printing)
     {
@@ -518,8 +523,8 @@ void HTMLRenderer::dump_css (void)
 void HTMLRenderer::embed_file(ostream & out, const string & path, const string & type, bool copy)
 {
     string fn = get_filename(path);
-    string suffix = (type == "") ? get_suffix(fn) : type; 
-    
+    string suffix = (type == "") ? get_suffix(fn) : type;
+
     // TODO
     auto iter = EMBED_STRING_MAP.find(suffix);
     if(iter == EMBED_STRING_MAP.end())
@@ -529,14 +534,14 @@ void HTMLRenderer::embed_file(ostream & out, const string & path, const string &
     }
 
     const auto & entry = iter->second;
-    
+
     if(param.*(entry.embed_flag))
     {
         ifstream fin(path, ifstream::binary);
         if(!fin)
             throw string("Cannot open file ") + path + " for embedding";
         out << entry.prefix_embed;
-       
+
         if(entry.base64_encode)
         {
             out << Base64Stream(fin);

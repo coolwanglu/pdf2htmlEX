@@ -83,6 +83,13 @@ This switch is useful if you want pages to be loaded separately & dynamically --
 Also see --page-filename.
 
 .TP
+.B --tmp-file-size-limit <limit> (Default: -1)
+This limits the total size of the temporary files which will also limit the total size of the output file.
+This is an estimate and it will stop after a page, once the total temporary files size is greater than this number.
+
+-1 means no limit and is the default.
+
+.TP
 .B --dest-dir <dir> (Default: .)
 Specify destination folder.
 
@@ -261,6 +268,10 @@ If switched off, intermediate files won't be cleaned in the end.
 .TP
 .B --data-dir <dir> (Default: @CMAKE_INSTALL_PREFIX@/share/pdf2htmlEX)
 Specify the folder holding the manifest and other files (see below for the manifest file)`
+
+.TP
+.B --tmp-dir <dir> (Default: /tmp)
+Specify the temporary folder to use for temporary files
 
 .TP
 .B --css-draw <0|1> (Default: 0)

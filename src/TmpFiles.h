@@ -7,19 +7,20 @@
 
 namespace pdf2htmlEX {
 
-class TmpFiles 
+class TmpFiles
 {
 public:
     explicit TmpFiles( const Param& param );
     ~TmpFiles();
 
-	void add( const std::string& fn);
+    void add( const std::string& fn);
+    double get_total_size() const;
 
 private:
-	void clean();
-		
+    void clean();
+
     const Param& param;
-	std::set<std::string> tmp_files;
+    std::set<std::string> tmp_files;
 };
 
 } // namespace pdf2htmlEX
