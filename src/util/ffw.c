@@ -59,7 +59,7 @@ void ffw_init(int debug)
     if ( default_encoding==NULL )
         default_encoding=FindOrMakeEncoding("ISO8859-1");
     if ( default_encoding==NULL )
-        default_encoding=&custom;   /* In case iconv is broken */
+        default_encoding=&custom; /* In case iconv is broken */
 
     if(!debug)
     {

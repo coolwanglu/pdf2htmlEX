@@ -46,6 +46,20 @@ void TmpFiles::add( const string & fn)
         cerr << "Add new temporary file: " << fn << endl;
 }
 
+// Return the total size of the temporary files in bytes
+double TmpFiles::get_total_size() const
+{
+    double total_size = 0;
+    struct STAT st;
+    for(auto iter = tmp_files.begin(); iter != tmp_files.end(); ++iter) {
+        STAT(iter->c_str(), &st);
+        total_size += st.st_size;
+    }
+
+    return total_size;
+}
+
+
 void TmpFiles::clean()
 {
     if(!param.clean_tmp)
@@ -62,19 +76,6 @@ void TmpFiles::clean()
     RMDIR(param.tmp_dir.c_str());
     if(param.debug)
         cerr << "Remove temporary directory: " << param.tmp_dir << endl;
-}
-
-// Return the total size of the temporary files in bytes
-double TmpFiles::get_total_size() const
-{
-    double total_size = 0;
-    struct STAT st;
-    for(auto iter = tmp_files.begin(); iter != tmp_files.end(); ++iter) {
-        STAT(iter->c_str(), &st);
-        total_size += st.st_size;
-    }
-
-    return total_size;
 }
 
 } // namespace pdf2htmlEX

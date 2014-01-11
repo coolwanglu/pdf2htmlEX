@@ -169,7 +169,6 @@ void parse_options (int argc, char **argv)
         .add("embed-image", &param.embed_image, 1, "embed image files into output")
         .add("embed-javascript", &param.embed_javascript, 1, "embed JavaScript files into output")
         .add("embed-outline", &param.embed_outline, 1, "embed outlines into output")
-        .add("tmp-file-size-limit", &param.tmp_file_size_limit, -1, "Limit the temporary file output size, in KB (-1 for no limit). This is only an estimate, the output may be bigger")
         .add("split-pages", &param.split_pages, 0, "split pages into separate files")
         .add("dest-dir", &param.dest_dir, ".", "specify destination directory")
         .add("css-filename", &param.css_filename, "", "filename of the generated css file")
@@ -179,6 +178,7 @@ void parse_options (int argc, char **argv)
         .add("process-outline", &param.process_outline, 1, "show outline in HTML")
         .add("printing", &param.printing, 1, "enable printing support")
         .add("fallback", &param.fallback, 0, "output in fallback mode")
+        .add("tmp-file-size-limit", &param.tmp_file_size_limit, -1, "Maximum size (in KB) used by temporary files, -1 for no limit.")
 
         // fonts
         .add("embed-external-font", &param.embed_external_font, 1, "embed local match for external fonts")
@@ -384,9 +384,8 @@ int main(int argc, char **argv)
     //prepare the directories
     prepare_directories();
 
-    if(param.debug) {
+    if(param.debug)
         cerr << "temporary dir: " << (param.tmp_dir) << endl;
-    }
 
     try
     {

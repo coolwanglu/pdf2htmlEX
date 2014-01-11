@@ -83,13 +83,6 @@ This switch is useful if you want pages to be loaded separately & dynamically --
 Also see --page-filename.
 
 .TP
-.B --tmp-file-size-limit <limit> (Default: -1)
-This limits the total size of the temporary files which will also limit the total size of the output file.
-This is an estimate and it will stop after a page, once the total temporary files size is greater than this number.
-
--1 means no limit and is the default.
-
-.TP
 .B --dest-dir <dir> (Default: .)
 Specify destination folder.
 
@@ -148,6 +141,14 @@ Enable printing support. Disabling this option may reduce the size of CSS.
 .TP
 .B --fallback <0|1> (Deafult: 0)
 Output in fallback mode, for better accuracy and browser compatibility, but the size becomes larger.
+
+.TP
+.B --tmp-file-size-limit <limit> (Default: -1)
+This limits the total size (in KB) of the temporary files which will also limit the total size of the output file.
+This is an estimate and it will stop after a page, once the total temporary files size is greater than this number.
+
+-1 means no limit and is the default.
+
 
 .SS Fonts
 

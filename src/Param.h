@@ -31,7 +31,6 @@ struct Param
     int embed_javascript;
     int embed_outline;
     int split_pages;
-    int tmp_file_size_limit;
     std::string dest_dir;
     std::string css_filename;
     std::string page_filename;
@@ -40,6 +39,7 @@ struct Param
     int process_outline;
     int printing;
     int fallback;
+    int tmp_file_size_limit;
 
     // fonts
     int embed_external_font;
