@@ -10,24 +10,14 @@
 #include <iostream>
 #include <cstdio>
 #include <sys/stat.h>
+#include <unistd.h>
 
 #include "TmpFiles.h"
 #include "Param.h"
 
 using namespace std;
 
-#ifndef _WIN32
-#   include <unistd.h>
-#   define STAT stat
-#   define RMDIR rmdir
-#else
-#   include <direct.h>
-#   define STAT _stat
-#   define RMDIR _rmdir
-#endif
-
 namespace pdf2htmlEX {
-
 
 TmpFiles::TmpFiles( const Param& param )
     : param( param )
@@ -51,9 +41,9 @@ void TmpFiles::add( const string & fn)
 double TmpFiles::get_total_size() const
 {
     double total_size = 0;
-    struct STAT st;
+    struct stat st;
     for(auto iter = tmp_files.begin(); iter != tmp_files.end(); ++iter) {
-        STAT(iter->c_str(), &st);
+        stat(iter->c_str(), &st);
         total_size += st.st_size;
     }
 
@@ -74,7 +64,7 @@ void TmpFiles::clean()
             cerr << "Remove temporary file: " << fn << endl;
     }
 
-    RMDIR(param.tmp_dir.c_str());
+    rmdir(param.tmp_dir.c_str());
     if(param.debug)
         cerr << "Remove temporary directory: " << param.tmp_dir << endl;
 }

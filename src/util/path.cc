@@ -12,15 +12,6 @@
 
 #include "path.h"
 
-#ifdef _WIN32
-#   include <direct.h>
-#   define STAT _stat
-#   define MKDIR(A, B) _mkdir(A)
-#else
-#   define STAT stat
-#   define MKDIR(A, B) mkdir(A, B)
-#endif
-
 using std::string;
 
 namespace pdf2htmlEX {
@@ -35,13 +26,13 @@ void create_directories(const string & path)
         create_directories(path.substr(0, idx));
     }
 
-    int r = MKDIR(path.c_str(), S_IRWXU);
+    int r = mkdir(path.c_str(), S_IRWXU);
     if(r != 0)
     {
         if(errno == EEXIST)
         {
-            struct STAT stat_buf;
-            if((STAT(path.c_str(), &stat_buf) == 0) && S_ISDIR(stat_buf.st_mode))
+            struct stat stat_buf;
+            if((stat(path.c_str(), &stat_buf) == 0) && S_ISDIR(stat_buf.st_mode))
                 return;
         }
 

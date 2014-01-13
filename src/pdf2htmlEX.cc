@@ -42,12 +42,6 @@ using namespace pdf2htmlEX;
 Param param;
 ArgParser argparser;
 
-#ifdef _WIN32
-#   include <iomanip>
-#   include <libgen.h>
-#   include <direct.h>
-#endif
-
 void deprecated_font_suffix(const char * dummy = nullptr)
 {
     cerr << "--font-suffix is deprecated. Use `--font-format` instead." << endl;
@@ -115,7 +109,7 @@ void embed_parser (const char * str)
 void prepare_directories()
 {
     std::string tmp_dir = param.tmp_dir + "/pdf2htmlEX-XXXXXX";
-#ifndef _WIN32
+
     errno = 0;
 
     unique_ptr<char> pBuf(new char[tmp_dir.size() + 1]);
@@ -132,19 +126,6 @@ void prepare_directories()
         exit(EXIT_FAILURE);
     }
     param.tmp_dir = pBuf.get();
-#else
-    srand((unsigned)time(0));
-    int rand_value = (int)((rand() / ((double)RAND_MAX+1.0)) * 1e6);
-    stringstream ss;
-    ss << setw(6) << rand_value;
-
-    tmp_dir.erase(tmp_dir.size() - 6);
-    param.tmp_dir = tmp_dir + ss.str();
-    if (mkdir(param.tmp_dir.c_str())) {
-        cerr << "Cannot create temp directory (" << param.tmp_dir << "): " << strerror(errno) << endl;
-        exit(EXIT_FAILURE);
-    }
-#endif
 }
 
 void parse_options (int argc, char **argv)
@@ -361,22 +342,8 @@ void check_param()
 int main(int argc, char **argv)
 {
     // We need to adjust these directories before parsing the options.
-#ifndef _WIN32
     param.tmp_dir = "/tmp";
     param.data_dir = PDF2HTMLEX_DATA_PATH;
-#else
-    {
-        // Under Windows, the default data_dir is under /data in the pdf2htmlEX directory
-        stringstream ss;
-        ss << dirname(argv[0]) << "/data";
-        param.data_dir = ss.str();
-
-        // Under Windows, the temp path is not under /tmp, find it.
-        char temppath[MAX_PATH];
-        ::GetTempPath(MAX_PATH, temppath);
-        param.tmp_dir = temppath;
-    }
-#endif
 
     parse_options(argc, argv);
     check_param();
