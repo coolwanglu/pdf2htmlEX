@@ -42,12 +42,6 @@ using namespace pdf2htmlEX;
 Param param;
 ArgParser argparser;
 
-void deprecated_font_suffix(const char * dummy = nullptr)
-{
-    cerr << "--font-suffix is deprecated. Use `--font-format` instead." << endl;
-    exit(EXIT_FAILURE);
-}
-
 void show_usage_and_exit(const char * dummy = nullptr)
 {
     cerr << "Usage: pdf2htmlEX [options] <input.pdf> [<output.html>]" << endl;
@@ -202,7 +196,6 @@ void parse_options (int argc, char **argv)
         .add("help,h", "print usage information", &show_usage_and_exit)
 
         // deprecated
-        .add("font-suffix", "", &deprecated_font_suffix)
 
         .add("", &param.input_filename, "", "")
         .add("", &param.output_filename, "", "")
