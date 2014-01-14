@@ -5,53 +5,65 @@
  * 2014.01.13
  */
 
-#ifdef _WIN32
+#ifdef __MINGW32__
 
 #include <string>
+#include <iostream>
 #include <cstdio>
 #include <cstdlib>
-#include <time.h>
-#include <sstream>
-#include <windows.h>
+#include <limits.h>
+#include <libgen.h>
 
 #include "win32.h"
 
+using namespace std;
+
 char* mkdtemp(char* temp)
 {
+    char *filename = nullptr;
     if (temp != nullptr) {
-        bool created = false;
-        char value[30];
-
-        srand((unsigned)time(0));
-        while (!created) {
-            int rand_value = (int)((rand() / ((double)RAND_MAX+1.0)) * 1e6);
-            sprintf(value, "%06d", rand_value);
-            sprintf(temp + strlen(temp) - 6, "%6.6s", value);
-            created = _mkdir(temp) == 0;
+        filename = mktemp(temp);
+        if (filename != nullptr) {
+            if (_mkdir(temp) != 0) {
+                filename = nullptr;
+            }
         }
     }
 
-    return temp;
+    return filename;
 }
 
 namespace pdf2htmlEX {
-std::string get_data_dir(char *dir)
+string get_exec_dir(char *dir)
 {
     // Under Windows, the default data_dir is under /data in the pdf2htmlEX directory
-    std::stringstream ss;
-    ss << dirname(dir) << "/data";
-    return ss.str();
+    string s = dirname(dir);
+    if (s == ".") {
+        char* wd(getcwd(nullptr, PATH_MAX));
+        s = wd;
+        free(wd);
+    }
+    s += "/data";
+    return s;
 }
 
-std::string get_tmp_dir()
+string get_tmp_dir()
 {
     // Under Windows, the temp path is not under /tmp, find it.
-    char temppath[MAX_PATH];
-    ::GetTempPath(MAX_PATH, temppath);
-    return temppath;
+    char *tmp = getenv("TMP");
+    if (tmp == nullptr) {
+        tmp = getenv("TEMP");
+    }
+
+    if (tmp == nullptr) {
+        cerr << "Error: Cannot find temporary directory. Export TMP/TEMP variable.";
+        exit(EXIT_FAILURE);
+    }
+
+    return std::string(tmp) + "/";
 }
 
 } // namespace pdf2htmlEX;
 
-#endif //_WIN32
+#endif //__MINGW32__
 

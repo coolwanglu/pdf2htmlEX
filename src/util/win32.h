@@ -8,11 +8,9 @@
 #ifndef WIN32_H__
 #define WIN32_H__
 
-#ifdef _WIN32
+#ifdef __MINGW32__
 
 #include <io.h>
-#include <libgen.h>
-#include <sstream>
 
 char *mkdtemp(char *temp);
 
@@ -20,11 +18,11 @@ char *mkdtemp(char *temp);
 #define stat _stat
 
 namespace pdf2htmlEX {
-    std::string     get_data_dir(char *dir);
+    std::string     get_exec_dir(char *dir);
     std::string     get_tmp_dir();
 } // namespace pdf2htmlEX
 
-#endif //_WIN32
+#endif //__MINGW32__
 
 #endif //WIN32_H__
 

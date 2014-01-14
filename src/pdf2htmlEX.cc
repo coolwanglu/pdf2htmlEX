@@ -343,11 +343,11 @@ void check_param()
 int main(int argc, char **argv)
 {
     // We need to adjust these directories before parsing the options.
-#ifndef _WIN32
+#ifndef __MINGW32__
     param.tmp_dir = "/tmp";
     param.data_dir = PDF2HTMLEX_DATA_PATH;
 #else
-    param.data_dir = get_data_dir(argv[0]);
+    param.data_dir = get_exec_dir(argv[0]);
     param.tmp_dir  = get_tmp_dir();
 #endif
 
