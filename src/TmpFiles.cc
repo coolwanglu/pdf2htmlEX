@@ -14,6 +14,7 @@
 
 #include "TmpFiles.h"
 #include "Param.h"
+#include "util/win32.h"
 
 using namespace std;
 

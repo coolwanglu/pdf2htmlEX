@@ -11,6 +11,7 @@
 #include <cstring>
 
 #include "path.h"
+#include "win32.h"
 
 using std::string;
 
