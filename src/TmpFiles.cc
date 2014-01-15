@@ -14,7 +14,10 @@
 
 #include "TmpFiles.h"
 #include "Param.h"
-#include "util/win32.h"
+
+#ifdef __MINGW32__
+#include "util/mingw.h"
+#endif
 
 using namespace std;
 

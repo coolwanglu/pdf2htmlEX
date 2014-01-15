@@ -14,7 +14,7 @@
 #include <limits.h>
 #include <libgen.h>
 
-#include "win32.h"
+#include "mingw.h"
 
 using namespace std;
 
@@ -55,12 +55,7 @@ string get_tmp_dir()
         tmp = getenv("TEMP");
     }
 
-    if (tmp == nullptr) {
-        cerr << "Error: Cannot find temporary directory. Export TMP/TEMP variable.";
-        exit(EXIT_FAILURE);
-    }
-
-    return std::string(tmp) + "/";
+    return tmp != nullptr ? string(tmp) + "/" : "/";
 }
 
 } // namespace pdf2htmlEX;

@@ -206,8 +206,8 @@ set(PDF2HTMLEX_SRC ${PDF2HTMLEX_SRC}
     src/util/path.cc
     src/util/unicode.h
     src/util/unicode.cc
-    src/util/win32.h
-    src/util/win32.cc
+    src/util/mingw.h
+    src/util/mingw.cc
     src/ArgParser.h
     src/ArgParser.cc
     src/Base64Stream.h

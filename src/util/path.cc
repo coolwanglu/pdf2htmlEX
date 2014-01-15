@@ -11,7 +11,10 @@
 #include <cstring>
 
 #include "path.h"
-#include "win32.h"
+
+#ifdef __MINGW32__
+#include "util/mingw.h"
+#endif
 
 using std::string;
 

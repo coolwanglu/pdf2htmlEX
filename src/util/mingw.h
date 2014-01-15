@@ -5,8 +5,8 @@
  * 2014.01.13
  */
 
-#ifndef WIN32_H__
-#define WIN32_H__
+#ifndef MINGW_H__
+#define MINGW_H__
 
 #ifdef __MINGW32__
 
@@ -24,5 +24,5 @@ namespace pdf2htmlEX {
 
 #endif //__MINGW32__
 
-#endif //WIN32_H__
+#endif //MINGW_H__
 
