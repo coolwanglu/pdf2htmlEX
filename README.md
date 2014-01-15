@@ -65,16 +65,8 @@ Note: Your message will be most likely ignored if you failed to follow [this gui
 
 ### LICENSE
 
-pdf2htmlEX, as a whole package, is licensed under GPLv3 with additional terms (see below).
+pdf2htmlEX, as a whole package, is licensed under GPLv3.
 Some resource files are released with relaxed licenses, read `LICENSE` for more details.
-
-#### For Online Services
-
-You are free and welcome to modify pdf2htmlEX for your online services, 
-but you should credit pdf2htmlEX if your service involves "online conversion" facilitated by pdf2htmlEX.
-You are also encouraged to send me a name and a URL for the purpose of statistics.
-
-Read `LICENSE` for more detail.
 
 ### Acknowledgements
 
