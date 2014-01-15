@@ -59,7 +59,7 @@ void ffw_init(int debug)
     if ( default_encoding==NULL )
         default_encoding=FindOrMakeEncoding("ISO8859-1");
     if ( default_encoding==NULL )
-        default_encoding=&custom;	/* In case iconv is broken */
+        default_encoding=&custom; /* In case iconv is broken */
 
     if(!debug)
     {
@@ -167,13 +167,13 @@ void ffw_save(const char * filename)
 
     int r = GenerateScript(cur_fv->sf, _filename
             , _, -1, -1, NULL, NULL, cur_fv->map, NULL, ly_fore);
-    
+
     free(_);
     free(_filename);
 
     if(!r)
         err("Cannot save font to %s\n", filename);
-} 
+}
 void ffw_close(void)
 {
     FontViewClose(cur_fv);
@@ -290,8 +290,8 @@ void ffw_add_empty_char(int32_t unicode, int width)
 {
     SplineChar * sc = SFMakeChar(cur_fv->sf, cur_fv->map, cur_fv->map->enccount);
     char buffer[400];
-    SCSetMetaData(sc, 
-        strcopy(StdGlyphName(buffer, unicode, 
+    SCSetMetaData(sc,
+        strcopy(StdGlyphName(buffer, unicode,
                 cur_fv->sf->uni_interp, cur_fv->sf->for_new_glyphs)),
         unicode, sc->comment);
     SCSynchronizeWidth(sc, width, sc->width, cur_fv);
@@ -377,13 +377,13 @@ void ffw_set_metric(double ascent, double descent)
 /*
  * TODO:bitmap, reference have not been considered in this function
  */
-void ffw_set_widths(int * width_list, int mapping_len, 
+void ffw_set_widths(int * width_list, int mapping_len,
         int stretch_narrow, int squeeze_wide)
 {
     SplineFont * sf = cur_fv->sf;
 
-    if(sf->onlybitmaps 
-            && cur_fv->active_bitmap != NULL 
+    if(sf->onlybitmaps
+            && cur_fv->active_bitmap != NULL
             && sf->bitmaps != NULL)
     {
         printf("TODO: width vs bitmap\n");
@@ -397,7 +397,7 @@ void ffw_set_widths(int * width_list, int mapping_len,
         /*
          * Don't mess with it if the glyphs is not used.
          */
-        if(width_list[i] == -1) 
+        if(width_list[i] == -1)
         {
             continue;
         }
@@ -412,9 +412,9 @@ void ffw_set_widths(int * width_list, int mapping_len,
         }
         else if(((sc->width > EPS)
                 && (((sc->width > width_list[i] + EPS) && (squeeze_wide))
-                    || ((sc->width < width_list[i] - EPS) && (stretch_narrow))))) 
+                    || ((sc->width < width_list[i] - EPS) && (stretch_narrow)))))
         {
-            real transform[6]; 
+            real transform[6];
             transform[0] = ((double)width_list[i]) / (sc->width);
             transform[3] = 1.0;
             transform[1] = transform[2] = transform[4] = transform[5] = 0;
@@ -443,7 +443,7 @@ void ffw_import_svg_glyph(int code, const char * filename, double ox, double oy,
     {
         int a = cur_fv->sf->ascent;
         int d = cur_fv->sf->descent;
-        real transform[6]; 
+        real transform[6];
         transform[0] = 1.0;
         transform[3] = 1.0;
         transform[1] = transform[2] = 0.0;

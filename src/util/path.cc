@@ -25,7 +25,7 @@ void create_directories(const string & path)
     {
         create_directories(path.substr(0, idx));
     }
-            
+
     int r = mkdir(path.c_str(), S_IRWXU);
     if(r != 0)
     {
@@ -44,8 +44,8 @@ bool sanitize_filename(string & filename)
 {
     string sanitized;
     bool format_specifier_found = false;
-    
-    for(size_t i = 0; i < filename.size(); i++) 
+
+    for(size_t i = 0; i < filename.size(); i++)
     {
         if('%' == filename[i])
         {
@@ -54,7 +54,7 @@ bool sanitize_filename(string & filename)
                 sanitized.push_back('%');
                 sanitized.push_back('%');
             }
-            else  
+            else
             {
                 // We haven't found the format specifier yet, so see if we can use this one as a valid formatter
                 size_t original_i = i;
@@ -63,14 +63,14 @@ bool sanitize_filename(string & filename)
                 while(++i < filename.size())
                 {
                     tmp.push_back(filename[i]);
-                    
+
                     // If we aren't still in option specifiers, stop looking
                     if(!strchr("0123456789", filename[i]))
                     {
                         break;
                     }
                 }
-                
+
                 // Check to see if we yielded a valid format specifier
                 if('d' == tmp[tmp.size()-1])
                 {
@@ -88,7 +88,7 @@ bool sanitize_filename(string & filename)
                 }
             }
         }
-        else 
+        else
         {
             sanitized.push_back(filename[i]);
         }
@@ -97,7 +97,7 @@ bool sanitize_filename(string & filename)
     // Only sanitize if it is a valid format.
     if(format_specifier_found)
     {
-        filename.assign(sanitized);   
+        filename.assign(sanitized);
     }
 
     return format_specifier_found;
@@ -111,7 +111,7 @@ bool is_truetype_suffix(const string & suffix)
 string get_filename (const string & path)
 {
     size_t idx = path.rfind('/');
-    if(idx == string::npos) 
+    if(idx == string::npos)
         return path;
     else if (idx == path.size() - 1)
         return "";
@@ -134,4 +134,4 @@ string get_suffix(const string & path)
 }
 
 
-} //namespace pdf2htmlEX 
+} //namespace pdf2htmlEX

@@ -17,14 +17,14 @@ struct Param
 {
     // pages
     int first_page, last_page;
-    
+
     // dimensions
     double zoom;
     double fit_width, fit_height;
     int use_cropbox;
     double h_dpi, v_dpi;
-    
-    // output 
+
+    // output
     int embed_css;
     int embed_font;
     int embed_image;
@@ -39,7 +39,8 @@ struct Param
     int process_outline;
     int printing;
     int fallback;
-    
+    int tmp_file_size_limit;
+
     // fonts
     int embed_external_font;
     std::string font_format;
@@ -50,7 +51,7 @@ struct Param
     int squeeze_wide_glyph;
     int override_fstype;
     int process_type3;
-    
+
     // text
     double h_eps, v_eps;
     double space_threshold;
@@ -61,21 +62,19 @@ struct Param
 
     // background image
     std::string bg_format;
-    
+
     // encryption
     std::string owner_password, user_password;
     int no_drm;
-    
+
     // misc.
     int clean_tmp;
     std::string data_dir;
+    std::string tmp_dir;
     int css_draw;
     int debug;
-    
-    std::string input_filename, output_filename;
 
-    // not a paramater
-    std::string tmp_dir;
+    std::string input_filename, output_filename;
 };
 
 } // namespace pdf2htmlEX

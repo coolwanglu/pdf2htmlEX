@@ -75,7 +75,7 @@ else()
         set(FONTFORGE_INCLUDE_DIRS ${FF_INCLUDE_PATH}/fontforge)
         include_directories(${FONTFORGE_INCLUDE_DIRS})
         # MacOSX gettext is in /opt/local/include - strange
-        if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")  
+        if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
           find_path(GETTEXT_INCLUDE_PATH libintl.h HINTS "/usr/local/opt/gettext/include") # homebrew
           if(GETTEXT_INCLUDE_PATH)
             include_directories(${GETTEXT_INCLUDE_PATH})
@@ -97,7 +97,7 @@ else()
     macro(wl_find_library LIB_NAME RESULT)
         unset(${RESULT})
         unset(${RESULT} CACHE)
-        foreach(FULL_LIB_NAME 
+        foreach(FULL_LIB_NAME
             ${CMAKE_IMPORT_LIBRARY_PREFIX}${LIB_NAME}${CMAKE_IMPORT_LIBRARY_SUFFIX}
             ${CMAKE_SHARED_LIBRARY_PREFIX}${LIB_NAME}${CMAKE_SHARED_LIBRARY_SUFFIX}
             ${CMAKE_STATIC_LIBRARY_PREFIX}${LIB_NAME}${CMAKE_STATIC_LIBRARY_SUFFIX}
@@ -130,7 +130,6 @@ else()
     set(PDF2HTMLEX_LIBS ${PDF2HTMLEX_LIBS} ${PYTHON_LIBRARIES})
 endif()
 
-
 # debug build flags (overwrite default cmake debug flags)
 set(CMAKE_C_FLAGS_DEBUG "-ggdb -pg")
 set(CMAKE_CXX_FLAGS_DEBUG "-ggdb -pg")
@@ -159,7 +158,7 @@ endif()
 include(CheckCXXCompilerFlag)
 check_cxx_compiler_flag("${CMAKE_CXX_FLAGS}" CXX0X_SUPPORT)
 if(NOT CXX0X_SUPPORT)
-    message(FATAL_ERROR "Error: you compiler does not support C++0x, please update it.")
+    message(FATAL_ERROR "Error: your compiler does not support C++0x, please update it.")
 endif()
 
 
@@ -174,9 +173,9 @@ configure_file (${CMAKE_SOURCE_DIR}/share/pdf2htmlEX.js.in ${CMAKE_SOURCE_DIR}/s
 
 set(PDF2HTMLEX_SRC ${PDF2HTMLEX_SRC}
     src/Param.h
-    src/pdf2htmlEX.cc 
+    src/pdf2htmlEX.cc
     src/pdf2htmlEX-config.h
-    src/HTMLRenderer/HTMLRenderer.h 
+    src/HTMLRenderer/HTMLRenderer.h
     src/HTMLRenderer/draw.cc
     src/HTMLRenderer/general.cc
     src/HTMLRenderer/image.cc
@@ -185,12 +184,12 @@ set(PDF2HTMLEX_SRC ${PDF2HTMLEX_SRC}
     src/HTMLRenderer/outline.cc
     src/HTMLRenderer/state.cc
     src/HTMLRenderer/text.cc
-    src/BackgroundRenderer/BackgroundRenderer.h 
+    src/BackgroundRenderer/BackgroundRenderer.h
     src/BackgroundRenderer/BackgroundRenderer.cc
-    src/BackgroundRenderer/SplashBackgroundRenderer.h 
-    src/BackgroundRenderer/SplashBackgroundRenderer.cc 
-    src/BackgroundRenderer/CairoBackgroundRenderer.h 
-    src/BackgroundRenderer/CairoBackgroundRenderer.cc 
+    src/BackgroundRenderer/SplashBackgroundRenderer.h
+    src/BackgroundRenderer/SplashBackgroundRenderer.cc
+    src/BackgroundRenderer/CairoBackgroundRenderer.h
+    src/BackgroundRenderer/CairoBackgroundRenderer.cc
     src/util/const.h
     src/util/const.cc
     src/util/css_const.h
@@ -229,7 +228,7 @@ set(PDF2HTMLEX_SRC ${PDF2HTMLEX_SRC}
 add_executable(pdf2htmlEX ${PDF2HTMLEX_SRC})
 target_link_libraries(pdf2htmlEX ${PDF2HTMLEX_LIBS})
 
-add_custom_target(pdf2htmlEX_resources ALL DEPENDS 
+add_custom_target(pdf2htmlEX_resources ALL DEPENDS
     ${CMAKE_SOURCE_DIR}/share/base.min.css
     ${CMAKE_SOURCE_DIR}/share/fancy.min.css
     ${CMAKE_SOURCE_DIR}/share/pdf2htmlEX.min.js
@@ -237,15 +236,15 @@ add_custom_target(pdf2htmlEX_resources ALL DEPENDS
 
 add_custom_command(OUTPUT ${CMAKE_SOURCE_DIR}/share/pdf2htmlEX.min.js
     COMMAND ${CMAKE_SOURCE_DIR}/share/build_js.sh
-    DEPENDS 
+    DEPENDS
         ${CMAKE_SOURCE_DIR}/share/pdf2htmlEX.js
     )
 
-add_custom_command(OUTPUT 
+add_custom_command(OUTPUT
         ${CMAKE_SOURCE_DIR}/share/base.min.css
         ${CMAKE_SOURCE_DIR}/share/fancy.min.css
     COMMAND ${CMAKE_SOURCE_DIR}/share/build_css.sh
-    DEPENDS 
+    DEPENDS
         ${CMAKE_SOURCE_DIR}/share/base.css
         ${CMAKE_SOURCE_DIR}/share/fancy.css
     )
@@ -269,5 +268,5 @@ install (FILES ${PDF2HTMLEX_RESOURCE} DESTINATION share/pdf2htmlEX)
 install (FILES pdf2htmlEX.1 DESTINATION share/man/man1)
 
 enable_testing()
-add_test(test_naming 
+add_test(test_naming
     python ${CMAKE_SOURCE_DIR}/test/test_naming.py)
