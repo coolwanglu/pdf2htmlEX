@@ -15,6 +15,10 @@
 #include "TmpFiles.h"
 #include "Param.h"
 
+#ifdef __MINGW32__
+#include "util/mingw.h"
+#endif
+
 using namespace std;
 
 namespace pdf2htmlEX {

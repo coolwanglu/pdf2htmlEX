@@ -36,6 +36,10 @@
 #include "util/path.h"
 #include "util/ffw.h"
 
+#ifdef __MINGW32__
+#include "util/mingw.h"
+#endif
+
 using namespace std;
 using namespace pdf2htmlEX;
 
@@ -335,8 +339,13 @@ void check_param()
 int main(int argc, char **argv)
 {
     // We need to adjust these directories before parsing the options.
+#if defined(__MINGW32__)
+    param.data_dir = get_exec_dir(argv[0]);
+    param.tmp_dir  = get_tmp_dir();
+#else
     param.tmp_dir = "/tmp";
     param.data_dir = PDF2HTMLEX_DATA_PATH;
+#endif
 
     parse_options(argc, argv);
     check_param();
