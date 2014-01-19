@@ -1,4 +1,7 @@
-Developing v0.11
+Developing v0.12
+
+v0.11
+2014.01.19
 
 * Compress JS with closure-compiler
 * Compress CSS with YUI Compressor
