@@ -5,7 +5,7 @@ v0.11
 
 * Compress JS with closure-compiler
 * Compress CSS with YUI Compressor
-* Remove jQuery
+* jQuery removed
 * Lots of JS code cleaning
 * Enable global key handler by default
 * Use WOFF by default
