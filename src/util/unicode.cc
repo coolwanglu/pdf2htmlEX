@@ -8,6 +8,8 @@
 
 #include <GlobalParams.h>
 
+#include "pdf2htmlEX-config.h"
+
 #include "unicode.h"
 
 namespace pdf2htmlEX {
