@@ -1,8 +1,7 @@
 /*
  * Unicode manipulation functions
  *
- * by WangLu
- * 2012.11.29
+ * Copyright (C) 2012-2014 Lu Wang <coolwanglu@gmail.com>
  */
 
 #include <iostream>

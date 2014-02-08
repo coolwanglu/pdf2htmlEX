@@ -3,8 +3,7 @@
  *
  * Processing fonts using Fontforge
  *
- * by WangLu
- * 2012.09.03
+ * Copyright (C) 2012-2014 Lu Wang <coolwanglu@gmail.com>
  */
 
 #include <stdio.h>
