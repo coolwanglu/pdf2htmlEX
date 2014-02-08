@@ -2,7 +2,7 @@
  * config.h
  * Compile time constants
  *
- * by WangLu
+ * Copyright (C) 2012-2014 Lu Wang <coolwanglu@gmail.com>
  */
 
 
@@ -11,6 +11,7 @@
 
 #include <string>
 
+#define POPPLER_OLDER_THAN_0_25_0 @POPPLER_OLDER_THAN_0_25_0@
 #define POPPLER_OLDER_THAN_0_23_0 @POPPLER_OLDER_THAN_0_23_0@
 #define ENABLE_SVG @ENABLE_SVG@
 
