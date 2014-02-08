@@ -118,8 +118,11 @@ Unicode unicode_from_font (CharCode code, GfxFont * font)
         // may be untranslated ligature
         if(cname)
         {
+#if POPPLER_OLDER_THAN_0_25_0
             Unicode ou = globalParams->mapNameToUnicode(cname);
-
+#else
+            Unicode ou = globalParams->mapNameToUnicodeText(cname);
+#endif
             if(isLegalUnicode(ou))
                 return ou;
         }
