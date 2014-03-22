@@ -1,5 +1,7 @@
 Developing v0.12
 
+* Do not support Fontforge < 2.0.0 any more
+
 v0.11
 2014.01.19
 
