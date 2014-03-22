@@ -5,6 +5,8 @@ before_install:
   - sudo apt-get update -qq
 install:
   - sudo apt-get install -qq libpoppler-dev libfontforge-dev libspiro-dev libcairo-dev libfreetype6-dev
+  - wget 'https://github.com/coolwanglu/fontforge/archive/pdf2htmlEX.tar.gz' -O - | tar -zxf
+  - pushd fontforge-pdf2htmlEX && ./autogen.sh && ./configure && make && sudo make install && popd
 before_script: 
   - cmake -DENABLE_SVG=ON .
 script:
