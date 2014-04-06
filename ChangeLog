@@ -1,8 +1,13 @@
-Developing v0.11
+Developing v0.12
+
+* Do not support Fontforge < 2.0.0 any more
+
+v0.11
+2014.01.19
 
 * Compress JS with closure-compiler
 * Compress CSS with YUI Compressor
-* Remove jQuery
+* jQuery removed
 * Lots of JS code cleaning
 * Enable global key handler by default
 * Use WOFF by default

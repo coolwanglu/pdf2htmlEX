@@ -24,7 +24,7 @@ pdf2htmlEX is best for text-based PDF files, for example scientific papers with 
 Text, fonts and formats are natively preserved in HTML such that you can still search and copy.
 The generated HTML file is static, with optional features powered by JavaScript.
 
-[Learn more about who and why should use pdf2htmlEX](https://github.com/coolwanglu/pdf2htmlEX/wiki/Introduction)
+Learn more about [who](https://github.com/coolwanglu/pdf2htmlEX/wiki/Use-Cases) and [why](https://github.com/coolwanglu/pdf2htmlEX/wiki/Introduction) should use pdf2htmlEX.
 
 ### Features
 
@@ -32,7 +32,7 @@ The generated HTML file is static, with optional features powered by JavaScript.
 * Flexible Output
 * Moderate Size
 * More PDF stuffs that you love: links, outlines & printing
-* Experimental: SVG background output & Type 3 font conversion
+* SVG background output & Type 3 font conversion
 
 [Learn more](https://github.com/coolwanglu/pdf2htmlEX/wiki/Feature-List)   
 [Compare with others](https://github.com/coolwanglu/pdf2htmlEX/wiki/Comparison)
@@ -44,25 +44,19 @@ The generated HTML file is static, with optional features powered by JavaScript.
  * [Building](https://github.com/coolwanglu/pdf2htmlEX/wiki/Building)
  * [Quick Start](https://github.com/coolwanglu/pdf2htmlEX/wiki/QuickStart)
  * [Report Issues / Ask for Help](https://github.com/coolwanglu/pdf2htmlEX/blob/master/CONTRIBUTING.md#guidance)
- * [How can I help](https://github.com/coolwanglu/pdf2htmlEX/wiki/How-to-Help)
  * [FAQ](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ)
 
-### Resources
+### Get in Touch
 
  * [Development Blog](http://pdf2htmlex.blogspot.com) 
- * Twitter: [@pdf2htmlEX](https://twitter.com/pdf2htmlEX) 
- * You can help this project by [making a donation](http://coolwanglu.github.io/pdf2htmlEX/donate.html). Thanks!
-
-### Contact
-
-Note: Your message will be most likely ignored if you failed to follow [this guidance](https://github.com/coolwanglu/pdf2htmlEX/blob/master/CONTRIBUTING.md).
-
- * [GitHub Issue Tracker](https://github.com/coolwanglu/pdf2htmlEX/issues)
- * Mailing List: https://groups.google.com/forum/#!forum/pdf2htmlex
-  - 中文邮件列表: https://groups.google.com/forum/#!forum/pdf2htmlex-cn
- * Lead author: 王璐 (Lu Wang) <coolwanglu@gmail.com> or [@coolwanglu](https://twitter.com/coolwanglu). 
-  - Accepting messages in **中文**, **English** or **日本語**.
-
+ * [@pdf2htmlEX](https://twitter.com/pdf2htmlEX) 
+ * [Mailing List](https://groups.google.com/forum/#!forum/pdf2htmlex)
+  - [中文邮件列表](https://groups.google.com/forum/#!forum/pdf2htmlex-cn)
+ * Lead author: 王璐 (Lu Wang) <coolwanglu@gmail.com> or [@coolwanglu](https://twitter.com/coolwanglu)
+  - Personal messages only. No support for pdf2htmlEX
+  - Accepting messages in **中文**, **English** or **日本語**
+ * [Make a donation](http://coolwanglu.github.io/pdf2htmlEX/donate.html)
+ 
 ### LICENSE
 
 pdf2htmlEX, as a whole package, is licensed under GPLv3.

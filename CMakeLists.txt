@@ -9,7 +9,7 @@ option(ENABLE_SVG "Enable SVG support, for generating SVG background images and 
 
 include_directories(${CMAKE_SOURCE_DIR}/src)
 
-set(PDF2HTMLEX_VERSION "0.11")
+set(PDF2HTMLEX_VERSION "0.12")
 set(ARCHIVE_NAME pdf2htmlex-${PDF2HTMLEX_VERSION})
 add_custom_target(dist
     COMMAND git archive --prefix=${ARCHIVE_NAME}/ HEAD
@@ -17,13 +17,23 @@ add_custom_target(dist
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 
 find_package(PkgConfig)
-pkg_check_modules(POPPLER poppler>=0.23.0)
+
+
+pkg_check_modules(POPPLER poppler>=0.25.0)
 if(POPPLER_FOUND)
+    set(POPPLER_OLDER_THAN_0_25_0 0)
     set(POPPLER_OLDER_THAN_0_23_0 0)
 else()
-    set(POPPLER_OLDER_THAN_0_23_0 1)
-    pkg_check_modules(POPPLER REQUIRED poppler>=0.20.0)
+    set(POPPLER_OLDER_THAN_0_25_0 1)
+    pkg_check_modules(POPPLER poppler>=0.23.0)
+    if(POPPLER_FOUND)
+        set(POPPLER_OLDER_THAN_0_23_0 0)
+    else()
+        set(POPPLER_OLDER_THAN_0_23_0 1)
+        pkg_check_modules(POPPLER REQUIRED poppler>=0.20.0)
+    endif()
 endif()
+
 include_directories(${POPPLER_INCLUDE_DIRS})
 link_directories(${POPPLER_LIBRARY_DIRS})
 set(PDF2HTMLEX_LIBS ${PDF2HTMLEX_LIBS} ${POPPLER_LIBRARIES})
@@ -62,73 +72,10 @@ if(ENABLE_SVG)
 endif()
 
 # fontforge starts using pkg-config 'correctly' since 2.0.0
-pkg_check_modules(FONTFORGE libfontforge>=2.0.0)
-if(FONTFORGE_FOUND)
-    include_directories(${FONTFORGE_INCLUDE_DIRS})
-    link_directories(${FONTFORGE_LIBRARY_DIRS})
-    set(PDF2HTMLEX_LIBS ${PDF2HTMLEX_LIBS} ${FONTFORGE_LIBRARIES})
-else()
-    message("Trying to locate old versions of fontforge...")
-    find_path(FF_INCLUDE_PATH fontforge/fontforge.h)
-    if(FF_INCLUDE_PATH)
-        message("Found fontforge.h: ${FF_INCLUDE_PATH}/fontforge/fontforge.h")
-        set(FONTFORGE_INCLUDE_DIRS ${FF_INCLUDE_PATH}/fontforge)
-        include_directories(${FONTFORGE_INCLUDE_DIRS})
-        # MacOSX gettext is in /opt/local/include - strange
-        if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-          find_path(GETTEXT_INCLUDE_PATH libintl.h HINTS "/usr/local/opt/gettext/include") # homebrew
-          if(GETTEXT_INCLUDE_PATH)
-            include_directories(${GETTEXT_INCLUDE_PATH})
-          else()
-            message("Cannot found libintl.h, if you see errors about libintl.h, add the path to gettext header files into your include paths")
-          endif()
-        endif()
-    else()
-        message(FATAL_ERROR "Error: cannot locate fontforge.h")
-    endif()
-    find_path(FF_CONFIG_INCLUDE_PATH config.h PATHS ${FONTFORGE_INCLUDE_DIRS} NO_DEFAULT_PATH)
-    if(FF_CONFIG_INCLUDE_PATH)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -include ${FF_CONFIG_INCLUDE_PATH}/config.h")
-    message("Found config.h: ${FF_CONFIG_INCLUDE_PATH}/config.h")
-    else()
-    message("Cannot locate config.h for fontforge")
-    endif()
-
-    macro(wl_find_library LIB_NAME RESULT)
-        unset(${RESULT})
-        unset(${RESULT} CACHE)
-        foreach(FULL_LIB_NAME
-            ${CMAKE_IMPORT_LIBRARY_PREFIX}${LIB_NAME}${CMAKE_IMPORT_LIBRARY_SUFFIX}
-            ${CMAKE_SHARED_LIBRARY_PREFIX}${LIB_NAME}${CMAKE_SHARED_LIBRARY_SUFFIX}
-            ${CMAKE_STATIC_LIBRARY_PREFIX}${LIB_NAME}${CMAKE_STATIC_LIBRARY_SUFFIX}
-        )
-            find_library(FULL_LIB ${FULL_LIB_NAME})
-            if(FULL_LIB)
-                message("Found ${LIB_NAME}: ${FULL_LIB}")
-                set(${RESULT} ${FULL_LIB})
-                break()
-            endif()
-        endforeach()
-        unset(FULL_LIB_NAME)
-        unset(FULL_LIB_NAME CACHE)
-        unset(FULL_LIB)
-        unset(FULL_LIB CACHE)
-    endmacro()
-
-    wl_find_library(fontforge FONTFORGE_LIBRARIES)
-    if(NOT DEFINED FONTFORGE_LIBRARIES)
-        set(FONTFORGE_LIBRARIES fontforge)
-        message("Error: cannot locate fontforge")
-    endif()
-    set(PDF2HTMLEX_LIBS ${PDF2HTMLEX_LIBS} ${FONTFORGE_LIBRARIES})
-
-    wl_find_library(gunicode GUNICODE_LIBRARIES)
-    set(PDF2HTMLEX_LIBS ${PDF2HTMLEX_LIBS} ${GUNICODE_LIBRARIES})
-
-    message("Looking for libraries of python, which is required by fontforge, if you can link fontforge without python, you may disable this")
-    pkg_search_module(PYTHON python python-2.7)
-    set(PDF2HTMLEX_LIBS ${PDF2HTMLEX_LIBS} ${PYTHON_LIBRARIES})
-endif()
+pkg_check_modules(FONTFORGE REQUIRED libfontforge>=2.0.0)
+include_directories(${FONTFORGE_INCLUDE_DIRS})
+link_directories(${FONTFORGE_LIBRARY_DIRS})
+set(PDF2HTMLEX_LIBS ${PDF2HTMLEX_LIBS} ${FONTFORGE_LIBRARIES})
 
 # debug build flags (overwrite default cmake debug flags)
 set(CMAKE_C_FLAGS_DEBUG "-ggdb -pg")
@@ -206,6 +153,8 @@ set(PDF2HTMLEX_SRC ${PDF2HTMLEX_SRC}
     src/util/path.cc
     src/util/unicode.h
     src/util/unicode.cc
+    src/util/mingw.h
+    src/util/mingw.cc
     src/ArgParser.h
     src/ArgParser.cc
     src/Base64Stream.h

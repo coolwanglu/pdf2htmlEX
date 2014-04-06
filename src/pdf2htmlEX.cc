@@ -1,6 +1,6 @@
 // pdf2htmlEX.cc
 //
-// Copyright (C) 2012,2013 Lu Wang <coolwanglu@gmail.com>
+// Copyright (C) 2012-2014 Lu Wang <coolwanglu@gmail.com>
 
 #include <cstdio>
 #include <cstdlib>
@@ -36,6 +36,10 @@
 #include "util/path.h"
 #include "util/ffw.h"
 
+#ifdef __MINGW32__
+#include "util/mingw.h"
+#endif
+
 using namespace std;
 using namespace pdf2htmlEX;
 
@@ -52,7 +56,7 @@ void show_usage_and_exit(const char * dummy = nullptr)
 void show_version_and_exit(const char * dummy = nullptr)
 {
     cerr << "pdf2htmlEX version " << PDF2HTMLEX_VERSION << endl;
-    cerr << "Copyright 2012,2013 Lu Wang <coolwanglu@gmail.com> and other contributers" << endl;
+    cerr << "Copyright 2012-2014 Lu Wang <coolwanglu@gmail.com> and other contributers" << endl;
     cerr << "Libraries: " << endl;
     cerr << "  poppler " << POPPLER_VERSION << endl;
     cerr << "  libfontforge " << ffw_get_version() << endl;
@@ -71,6 +75,14 @@ void show_version_and_exit(const char * dummy = nullptr)
     cerr << " svg";
 #endif
     cerr << endl;
+
+    // TODO: define constants
+    if(ffw_get_version() < 20130101LL) 
+    {
+        cerr << endl 
+             << "Warning: pdf2htmlEX has been built with a too old version of Fontforge, which is not supported." << endl;
+    }
+    
     cerr << endl;
     exit(EXIT_SUCCESS);
 }
@@ -335,8 +347,13 @@ void check_param()
 int main(int argc, char **argv)
 {
     // We need to adjust these directories before parsing the options.
+#if defined(__MINGW32__)
+    param.data_dir = get_exec_dir(argv[0]);
+    param.tmp_dir  = get_tmp_dir();
+#else
     param.tmp_dir = "/tmp";
     param.data_dir = PDF2HTMLEX_DATA_PATH;
+#endif
 
     parse_options(argc, argv);
     check_param();

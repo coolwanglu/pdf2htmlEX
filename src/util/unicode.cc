@@ -1,13 +1,14 @@
 /*
  * Unicode manipulation functions
  *
- * by WangLu
- * 2012.11.29
+ * Copyright (C) 2012-2014 Lu Wang <coolwanglu@gmail.com>
  */
 
 #include <iostream>
 
 #include <GlobalParams.h>
+
+#include "pdf2htmlEX-config.h"
 
 #include "unicode.h"
 
@@ -118,8 +119,11 @@ Unicode unicode_from_font (CharCode code, GfxFont * font)
         // may be untranslated ligature
         if(cname)
         {
+#if POPPLER_OLDER_THAN_0_25_0
             Unicode ou = globalParams->mapNameToUnicode(cname);
-
+#else
+            Unicode ou = globalParams->mapNameToUnicodeText(cname);
+#endif
             if(isLegalUnicode(ou))
                 return ou;
         }

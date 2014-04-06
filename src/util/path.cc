@@ -12,6 +12,10 @@
 
 #include "path.h"
 
+#ifdef __MINGW32__
+#include "util/mingw.h"
+#endif
+
 using std::string;
 
 namespace pdf2htmlEX {

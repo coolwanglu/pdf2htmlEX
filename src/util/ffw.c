@@ -3,8 +3,7 @@
  *
  * Processing fonts using Fontforge
  *
- * by WangLu
- * 2012.09.03
+ * Copyright (C) 2012-2014 Lu Wang <coolwanglu@gmail.com>
  */
 
 #include <stdio.h>
@@ -202,7 +201,7 @@ static void ffw_do_reencode(Encoding * encoding, int force)
     SFReplaceEncodingBDFProps(cur_fv->sf, cur_fv->map);
 
     free(cur_fv->selected);
-    cur_fv->selected = gcalloc(cur_fv->map->enccount, sizeof(char));
+    cur_fv->selected = calloc(cur_fv->map->enccount, sizeof(char));
 }
 
 void ffw_reencode_glyph_order(void)
