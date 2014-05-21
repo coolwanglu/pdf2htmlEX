@@ -8,7 +8,7 @@ Homepage: http://github.com/coolwanglu/pdf2htmlEX
 
 Package: pdf2htmlex
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, libpng12-0, libjpeg8, libfontforge1
+Depends: ${shlibs:Depends}, ${misc:Depends}, libpng12-0, libjpeg8
 Suggests: ttfautohint
 Description: Converts PDF to HTML without losing format
  pdf2htmlEX converts PDF to HTML while retaining text, format & style as much as possible
