@@ -93,6 +93,7 @@ Bugs should always be reported to [the Issue Tracker](#the-issue-tracker).
 Before you report any bug:
 - Use the latest git version of pdf2htmlEX, since the issue may have been already fixed.
 - Search for previous issues (open or closed), to make sure that the issue has not been reported before.
+- If pdf2htmlEX crashed, take a look at [this article](https://github.com/coolwanglu/pdf2htmlEX/wiki/Troubleshooting-Crashes).
 
 A good bug report shouldn't leave others needing to chase you up for more information.
 The developers may be very familiar with the code base of pdf2htmlEX,
