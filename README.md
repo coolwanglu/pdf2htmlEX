@@ -42,7 +42,7 @@ Learn more about [who](https://github.com/coolwanglu/pdf2htmlEX/wiki/Use-Cases) 
  * [Wiki Home](https://github.com/coolwanglu/pdf2htmlEX/wiki)
  * [Download](https://github.com/coolwanglu/pdf2htmlEX/wiki/Download)
  * [Building](https://github.com/coolwanglu/pdf2htmlEX/wiki/Building)
- * [Quick Start](https://github.com/coolwanglu/pdf2htmlEX/wiki/QuickStart)
+ * [Quick Start](https://github.com/coolwanglu/pdf2htmlEX/wiki/Quick-Start)
  * [Report Issues / Ask for Help](https://github.com/coolwanglu/pdf2htmlEX/blob/master/CONTRIBUTING.md#guidance)
  * [FAQ](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ)
 
