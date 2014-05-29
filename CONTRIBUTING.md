@@ -39,7 +39,7 @@ Issues may be closed due to the following reasons:
 * Fixed
 * Duplicate of other issues
 * Invalid / Won't fix / Off topic
-* Inactiviy (for unconfirmed issues)
+* Inactivity (for unconfirmed issues)
 * Insufficient info (for unconfirmed issues)
 
 In the last two cases, you can reopen the issue when you can provide more information.
