@@ -46,7 +46,7 @@ In the last two cases, you can reopen the issue when you can provide more inform
 
 ### The Mailing List
 
-The [Mailing list](https://groups.google.com/forum/#!forum/pdf2htmlex) <pdf2htmlex@googlegroups.com> is set up for discussion and announcements.
+The [mailing list](https://groups.google.com/forum/#!forum/pdf2htmlex) is set up for discussion and announcements.
 You are welcome to [ask any question](#ask-questions) about pdf2htmlEX there. 
 However do not report issues or submit patches there, since it's terrible to keep track of them.
 
