@@ -20,16 +20,13 @@
 
 namespace pdf2htmlEX {
 
+class SplashBackgroundRenderer;
+
 // Based on BackgroundRenderer from poppler
 class CairoBackgroundRenderer : public BackgroundRenderer, CairoOutputDev 
 {
 public:
-  CairoBackgroundRenderer(HTMLRenderer * html_renderer, const Param & param)
-      : CairoOutputDev()
-      , html_renderer(html_renderer)
-      , param(param)
-      , surface(nullptr)
-  { }
+  CairoBackgroundRenderer(HTMLRenderer * html_renderer, const Param & param);
 
   virtual ~CairoBackgroundRenderer() { }
 
@@ -50,6 +47,8 @@ protected:
   HTMLRenderer * html_renderer;
   const Param & param;
   cairo_surface_t * surface;
+  SplashBackgroundRenderer * bitmap_renderer;
+  bool use_bitmap;
 };
 
 }
