@@ -157,6 +157,10 @@
   unicode-bidi:bidi-override;/* For rtl lanauges, e.g. Hebrew, we don't want the default Unicode behaviour */
   -moz-font-feature-settings:"liga" 0;/* We don't want Firefox to recognize ligatures */
 }
+.@CSS_LINE_CN@:after {
+  /* Workaround for https://bugs.webkit.org/show_bug.cgi?id=35443 */
+  content: '';
+}
 .@CSS_LINE_CN@ span { /* text blocks within a line */
   position:relative;
   vertical-align: baseline;
