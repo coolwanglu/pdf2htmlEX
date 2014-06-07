@@ -79,7 +79,6 @@ void CairoBackgroundRenderer::render_page(PDFDoc * doc, int pageno)
 
     cairo_t * cr = cairo_create(surface);
     setCairo(cr);
-    setPrinting(false);
 
     bool process_annotation = param.process_annotation;
     doc->displayPage(this, pageno, param.h_dpi, param.v_dpi,
