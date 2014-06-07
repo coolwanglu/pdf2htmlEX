@@ -1,9 +1,12 @@
 Developing v0.12
 
 * Do not support Fontforge < 2.0.0 any more
+* New options
+ --process-annotation
 
 v0.11
 2014.01.19
+
 
 * Compress JS with closure-compiler
 * Compress CSS with YUI Compressor

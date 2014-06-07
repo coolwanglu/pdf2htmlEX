@@ -37,6 +37,7 @@ struct Param
     std::string outline_filename;
     int process_nontext;
     int process_outline;
+    int process_annotation;
     int printing;
     int fallback;
     int tmp_file_size_limit;

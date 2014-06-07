@@ -472,17 +472,14 @@ void HTMLTextLine::optimize_normal(std::vector<HTMLTextLine*> & lines)
 // for optimize-text == 3
 void HTMLTextLine::optimize_aggressive(std::vector<HTMLTextLine*> & lines)
 {
+    /*
     HTMLLineState original_line_state = line_state;
     // break the line if there are a large (positive or negative) shift
     // letter space / word space are not taken into consideration (yet)
     while(true) 
     {
-
-        
-
     }
 
-    /*
     // aggressive optimization
     if(target > state_iter1->em_size() * (param.space_threshold) - EPS)
         out << ' ';
