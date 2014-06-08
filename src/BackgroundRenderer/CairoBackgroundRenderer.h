@@ -20,8 +20,6 @@
 
 namespace pdf2htmlEX {
 
-class SplashBackgroundRenderer;
-
 // Based on BackgroundRenderer from poppler
 class CairoBackgroundRenderer : public BackgroundRenderer, CairoOutputDev 
 {
@@ -31,7 +29,7 @@ public:
   virtual ~CairoBackgroundRenderer() { }
 
   virtual void init(PDFDoc * doc);
-  virtual void render_page(PDFDoc * doc, int pageno);
+  virtual bool render_page(PDFDoc * doc, int pageno);
   virtual void embed_image(int pageno);
 
   // Does this device use beginType3Char/endType3Char?  Otherwise,
@@ -47,8 +45,6 @@ protected:
   HTMLRenderer * html_renderer;
   const Param & param;
   cairo_surface_t * surface;
-  SplashBackgroundRenderer * bitmap_renderer;
-  bool use_bitmap;
 };
 
 }

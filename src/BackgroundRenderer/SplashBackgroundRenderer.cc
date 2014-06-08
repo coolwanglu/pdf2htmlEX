@@ -28,27 +28,26 @@ using std::unique_ptr;
 
 const SplashColor SplashBackgroundRenderer::white = {255,255,255};
 
-SplashBackgroundRenderer::SplashBackgroundRenderer(HTMLRenderer * html_renderer, const Param & param)
+SplashBackgroundRenderer::SplashBackgroundRenderer(const string & imgFormat, HTMLRenderer * html_renderer, const Param & param)
     : SplashOutputDev(splashModeRGB8, 4, gFalse, (SplashColorPtr)(&white), gTrue, gTrue)
     , html_renderer(html_renderer)
     , param(param)
+    , format(imgFormat)
 {
-    if(false) { }
+    bool supported = false;
 #ifdef ENABLE_LIBPNG
-    else if(param.bg_format == "png" || param.bg_format == "svg")
-    {
+    if (format.empty())
         format = "png";
-    }
+    supported = supported || format == "png";
 #endif
 #ifdef ENABLE_LIBJPEG
-    else if(param.bg_format == "jpg" || param.bg_format == "svg")
-    {
+    if (format.empty())
         format = "jpg";
-    }
+    supported = supported || format == "jpg";
 #endif
-    else
+    if (!supported)
     {
-        throw string("Image format not supported: ") + param.bg_format;
+        throw string("Image format not supported: ") + format;
     }
 }
 
@@ -100,7 +99,7 @@ static GBool annot_cb(Annot *, void * pflag) {
     return (*((bool*)pflag)) ? gTrue : gFalse;
 };
 
-void SplashBackgroundRenderer::render_page(PDFDoc * doc, int pageno)
+bool SplashBackgroundRenderer::render_page(PDFDoc * doc, int pageno)
 {
     bool process_annotation = param.process_annotation;
     doc->displayPage(this, pageno, param.h_dpi, param.v_dpi,
@@ -108,6 +107,7 @@ void SplashBackgroundRenderer::render_page(PDFDoc * doc, int pageno)
             (!(param.use_cropbox)),
             false, false,
             nullptr, nullptr, &annot_cb, &process_annotation);
+    return true;
 }
 
 void SplashBackgroundRenderer::embed_image(int pageno)
