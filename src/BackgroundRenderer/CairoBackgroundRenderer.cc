@@ -19,8 +19,7 @@
 
 namespace pdf2htmlEX {
 
-using std::string;
-using std::ifstream;
+using namespace std;
 
 CairoBackgroundRenderer::CairoBackgroundRenderer(HTMLRenderer * html_renderer, const Param & param)
     : CairoOutputDev()
@@ -28,6 +27,15 @@ CairoBackgroundRenderer::CairoBackgroundRenderer(HTMLRenderer * html_renderer, c
     , param(param)
     , surface(nullptr)
 { }
+
+CairoBackgroundRenderer::~CairoBackgroundRenderer()
+{
+    for(auto i = bitmaps_ref_count.begin(); i != bitmaps_ref_count.end(); ++i)
+    {
+        if (i->second == 0)
+            html_renderer->tmp_files.add(this->get_bitmap_path(i->first));
+    }
+}
 
 void CairoBackgroundRenderer::drawChar(GfxState *state, double x, double y,
         double dx, double dy,
@@ -86,6 +94,8 @@ bool CairoBackgroundRenderer::render_page(PDFDoc * doc, int pageno)
     cairo_t * cr = cairo_create(surface);
     setCairo(cr);
 
+    bitmaps_in_current_page.resize(0);
+
     bool process_annotation = param.process_annotation;
     doc->displayPage(this, pageno, param.h_dpi, param.v_dpi,
             0, 
@@ -131,6 +141,10 @@ bool CairoBackgroundRenderer::render_page(PDFDoc * doc, int pageno)
         }
     }
 
+    // the svg file is actually used, so add its bitmaps' ref count.
+    for (auto i = bitmaps_in_current_page.begin(); i != bitmaps_in_current_page.end(); i++)
+        ++bitmaps_ref_count[*i];
+
     return true;
 }
 
@@ -138,7 +152,19 @@ void CairoBackgroundRenderer::embed_image(int pageno)
 {
     auto & f_page = *(html_renderer->f_curpage);
     
-    f_page << "<img class=\"" << CSS::FULL_BACKGROUND_IMAGE_CN 
+    // SVGs introduced by <img> or background-image can't have external resources;
+    // SVGs introduced by <embed> and <object> can, but they are more expensive for browsers.
+    // So we use <img> if the SVG contains no external bitmaps, and use <embed> otherwise.
+    // See also:
+    //   https://developer.mozilla.org/en-US/docs/Web/SVG/SVG_as_an_Image
+    //   http://stackoverflow.com/questions/4476526/do-i-use-img-object-or-embed-for-svg-files
+
+    if (param.svg_embed_bitmap || bitmaps_in_current_page.empty())
+        f_page << "<img";
+    else
+        f_page << "<embed";
+
+    f_page << " class=\"" << CSS::FULL_BACKGROUND_IMAGE_CN
         << "\" alt=\"\" src=\"";
 
     if(param.embed_image)
@@ -154,6 +180,56 @@ void CairoBackgroundRenderer::embed_image(int pageno)
         f_page << (char*)html_renderer->str_fmt("bg%x.svg", pageno);
     }
     f_page << "\"/>";
+}
+
+// use object number as bitmap file name, without pageno prefix,
+// because a bitmap may be shared by multiple pages.
+const char* CairoBackgroundRenderer::get_bitmap_path(int id)
+{
+    return html_renderer->str_fmt("%s/%d.jpg", param.dest_dir.c_str(), id);
+}
+// Override CairoOutputDev::setMimeData() and dump bitmaps in SVG to external files.
+void CairoBackgroundRenderer::setMimeData(Stream *str, Object *ref, cairo_surface_t *image)
+{
+    if (param.svg_embed_bitmap)
+    {
+        CairoOutputDev::setMimeData(str, ref, image);
+        return;
+    }
+
+    // TODO dump bitmaps in other formats.
+    if (str->getKind() != strDCT)
+        return;
+
+    // TODO inline image?
+    if (ref == nullptr || !ref->isRef())
+        return;
+
+    int imgId = ref->getRef().num;
+    auto uri = strdup((char*) html_renderer->str_fmt("%d.jpg", imgId));
+    auto st = cairo_surface_set_mime_data(image, CAIRO_MIME_TYPE_URI,
+        (unsigned char*) uri, strlen(uri), gfree, uri);
+    if (st)
+    {
+        gfree(uri);
+        return;
+    }
+    bitmaps_in_current_page.push_back(imgId);
+
+    if(bitmaps_ref_count.find(imgId) != bitmaps_ref_count.end())
+        return;
+
+    bitmaps_ref_count[imgId] = 0;
+
+    char *strBuffer;
+    int len;
+    if (getStreamData(str->getNextStream(), &strBuffer, &len))
+    {
+        string path = get_bitmap_path(imgId);
+        ofstream imgfile(path, ofstream::binary);
+        imgfile.write(strBuffer, len);
+        gfree(strBuffer);
+    }
 }
 
 } // namespace pdf2htmlEX

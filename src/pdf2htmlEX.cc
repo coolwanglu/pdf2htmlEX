@@ -192,6 +192,9 @@ void parse_options (int argc, char **argv)
         .add("bg-format", &param.bg_format, "png", "specify background image format")
         .add("svg-nodes-limit", &param.svg_nodes_limit, 0, "if node count in a svg background image exceeds this limit,"
                 " fall back to bitmap background. 0 or negative means no limit.")
+        .add("svg-embed-bitmap", &param.svg_embed_bitmap, 1, "embed bitmaps in svg files or save them as external files"
+                " (even if 0 is specified, some bitmaps may still be embedded)")
+
         // encryption
         .add("owner-password,o", &param.owner_password, "", "owner password (for encrypted files)", true)
         .add("user-password,u", &param.user_password, "", "user password (for encrypted files)", true)
