@@ -12,6 +12,8 @@
 #include <CairoOutputDev.h>
 #include <cairo.h>
 #include <cairo-svg.h>
+#include <map>
+#include <vector>
 
 #include "pdf2htmlEX-config.h"
 
@@ -26,7 +28,7 @@ class CairoBackgroundRenderer : public BackgroundRenderer, CairoOutputDev
 public:
   CairoBackgroundRenderer(HTMLRenderer * html_renderer, const Param & param);
 
-  virtual ~CairoBackgroundRenderer() { }
+  virtual ~CairoBackgroundRenderer();
 
   virtual void init(PDFDoc * doc);
   virtual bool render_page(PDFDoc * doc, int pageno);
@@ -42,9 +44,22 @@ public:
       CharCode code, int nBytes, Unicode *u, int uLen);
 
 protected:
+  virtual void setMimeData(Stream *str, Object *ref, cairo_surface_t *image);
+
+protected:
   HTMLRenderer * html_renderer;
   const Param & param;
   cairo_surface_t * surface;
+
+private:
+  // convert bitmap stream id to bitmap file name. No pageno prefix,
+  // because a bitmap may be shared by multiple pages.
+  const char* get_bitmap_path(int id);
+  // map<id_of_bitmap_stream, usage_count_in_all_svgs>
+  // note: if a svg bg fallbacks to bitmap bg, its bitmaps are not taken into account.
+  std::map<int, int> bitmaps_ref_count;
+  // id of bitmaps' stream used by current page
+  std::vector<int> bitmaps_in_current_page;
 };
 
 }
