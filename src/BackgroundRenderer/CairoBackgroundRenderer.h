@@ -12,7 +12,7 @@
 #include <CairoOutputDev.h>
 #include <cairo.h>
 #include <cairo-svg.h>
-#include <map>
+#include <unordered_map>
 #include <vector>
 
 #include "pdf2htmlEX-config.h"
@@ -57,7 +57,7 @@ private:
   const char* get_bitmap_path(int id);
   // map<id_of_bitmap_stream, usage_count_in_all_svgs>
   // note: if a svg bg fallbacks to bitmap bg, its bitmaps are not taken into account.
-  std::map<int, int> bitmaps_ref_count;
+  std::unordered_map<int, int> bitmaps_ref_count;
   // id of bitmaps' stream used by current page
   std::vector<int> bitmaps_in_current_page;
 };
