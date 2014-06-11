@@ -37,7 +37,10 @@ CairoBackgroundRenderer::~CairoBackgroundRenderer()
     for(auto itr = bitmaps_ref_count.begin(); itr != bitmaps_ref_count.end(); ++itr)
     {
         if (itr->second == 0)
-            html_renderer->tmp_files.add(this->get_bitmap_path(itr->first));
+        {
+            string path;
+            html_renderer->tmp_files.add(this->build_bitmap_path(itr->first, path));
+        }
     }
 }
 
@@ -186,9 +189,10 @@ void CairoBackgroundRenderer::embed_image(int pageno)
     f_page << "\"/>";
 }
 
-const char* CairoBackgroundRenderer::get_bitmap_path(int id)
+string & CairoBackgroundRenderer::build_bitmap_path(int id, string & path)
 {
-    return html_renderer->str_fmt("%s/%d.jpg", param.dest_dir.c_str(), id);
+    // "po" for "PDF Object"
+    return path = html_renderer->str_fmt("%s/po-%d.jpg", param.dest_dir.c_str(), id);
 }
 // Override CairoOutputDev::setMimeData() and dump bitmaps in SVG to external files.
 void CairoBackgroundRenderer::setMimeData(Stream *str, Object *ref, cairo_surface_t *image)
@@ -208,7 +212,7 @@ void CairoBackgroundRenderer::setMimeData(Stream *str, Object *ref, cairo_surfac
         return;
 
     int imgId = ref->getRef().num;
-    auto uri = strdup((char*) html_renderer->str_fmt("%d.jpg", imgId));
+    auto uri = strdup((char*) html_renderer->str_fmt("po-%d.jpg", imgId));
     auto st = cairo_surface_set_mime_data(image, CAIRO_MIME_TYPE_URI,
         (unsigned char*) uri, strlen(uri), free, uri);
     if (st)
@@ -227,8 +231,8 @@ void CairoBackgroundRenderer::setMimeData(Stream *str, Object *ref, cairo_surfac
     int len;
     if (getStreamData(str->getNextStream(), &strBuffer, &len))
     {
-        string path = get_bitmap_path(imgId);
-        ofstream imgfile(path, ofstream::binary);
+        string path;
+        ofstream imgfile(build_bitmap_path(imgId, path), ofstream::binary);
         imgfile.write(strBuffer, len);
         free(strBuffer);
     }
