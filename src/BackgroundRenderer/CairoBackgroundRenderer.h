@@ -14,6 +14,7 @@
 #include <cairo-svg.h>
 #include <unordered_map>
 #include <vector>
+#include <string>
 
 #include "pdf2htmlEX-config.h"
 
@@ -54,7 +55,7 @@ protected:
 private:
   // convert bitmap stream id to bitmap file name. No pageno prefix,
   // because a bitmap may be shared by multiple pages.
-  const char* get_bitmap_path(int id);
+  std::string & build_bitmap_path(int id, std::string & path);
   // map<id_of_bitmap_stream, usage_count_in_all_svgs>
   // note: if a svg bg fallbacks to bitmap bg, its bitmaps are not taken into account.
   std::unordered_map<int, int> bitmaps_ref_count;
