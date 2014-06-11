@@ -130,7 +130,7 @@ bool CairoBackgroundRenderer::render_page(PDFDoc * doc, int pageno)
     }
 
     //check node count in the svg file, fall back to bitmap_renderer if necessary.
-    if (param.svg_nodes_limit > 0)
+    if (param.svg_node_count_limit >= 0)
     {
         int n = 0;
         char c;
@@ -140,7 +140,7 @@ bool CairoBackgroundRenderer::render_page(PDFDoc * doc, int pageno)
         {
             if (c == '<')
                 ++n;
-            if (n > param.svg_nodes_limit)
+            if (n > param.svg_node_count_limit)
             {
                 html_renderer->tmp_files.add(fn);
                 return false;
@@ -149,8 +149,8 @@ bool CairoBackgroundRenderer::render_page(PDFDoc * doc, int pageno)
     }
 
     // the svg file is actually used, so add its bitmaps' ref count.
-    for (auto i = bitmaps_in_current_page.begin(); i != bitmaps_in_current_page.end(); i++)
-        ++bitmaps_ref_count[*i];
+    for (auto itr = bitmaps_in_current_page.begin(); itr != bitmaps_in_current_page.end(); itr++)
+        ++bitmaps_ref_count[*itr];
 
     return true;
 }
