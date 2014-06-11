@@ -20,9 +20,18 @@ namespace pdf2htmlEX {
 
 BackgroundRenderer * BackgroundRenderer::getBackgroundRenderer(const std::string & format, HTMLRenderer * html_renderer, const Param & param)
 {
-    if (format == "png" || format == "jpg")
+#ifdef ENABLE_LIBPNG
+    if(format == "png")
+    {
         return new SplashBackgroundRenderer(format, html_renderer, param);
-
+    }
+#endif
+#ifdef ENABLE_LIBJPEG
+    if(format == "jpg")
+    {
+        return new SplashBackgroundRenderer(format, html_renderer, param);
+    }
+#endif
 #if ENABLE_SVG
     if (format == "svg")
     {

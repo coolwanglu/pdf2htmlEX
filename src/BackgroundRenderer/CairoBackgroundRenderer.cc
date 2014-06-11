@@ -19,7 +19,11 @@
 
 namespace pdf2htmlEX {
 
-using namespace std;
+using std::string;
+using std::ifstream;
+using std::ofstream;
+using std::vector;
+using std::unordered_map;
 
 CairoBackgroundRenderer::CairoBackgroundRenderer(HTMLRenderer * html_renderer, const Param & param)
     : CairoOutputDev()
@@ -30,10 +34,10 @@ CairoBackgroundRenderer::CairoBackgroundRenderer(HTMLRenderer * html_renderer, c
 
 CairoBackgroundRenderer::~CairoBackgroundRenderer()
 {
-    for(auto i = bitmaps_ref_count.begin(); i != bitmaps_ref_count.end(); ++i)
+    for(auto itr = bitmaps_ref_count.begin(); itr != bitmaps_ref_count.end(); ++itr)
     {
-        if (i->second == 0)
-            html_renderer->tmp_files.add(this->get_bitmap_path(i->first));
+        if (itr->second == 0)
+            html_renderer->tmp_files.add(this->get_bitmap_path(itr->first));
     }
 }
 
@@ -182,8 +186,6 @@ void CairoBackgroundRenderer::embed_image(int pageno)
     f_page << "\"/>";
 }
 
-// use object number as bitmap file name, without pageno prefix,
-// because a bitmap may be shared by multiple pages.
 const char* CairoBackgroundRenderer::get_bitmap_path(int id)
 {
     return html_renderer->str_fmt("%s/%d.jpg", param.dest_dir.c_str(), id);
@@ -208,10 +210,10 @@ void CairoBackgroundRenderer::setMimeData(Stream *str, Object *ref, cairo_surfac
     int imgId = ref->getRef().num;
     auto uri = strdup((char*) html_renderer->str_fmt("%d.jpg", imgId));
     auto st = cairo_surface_set_mime_data(image, CAIRO_MIME_TYPE_URI,
-        (unsigned char*) uri, strlen(uri), gfree, uri);
+        (unsigned char*) uri, strlen(uri), free, uri);
     if (st)
     {
-        gfree(uri);
+        free(uri);
         return;
     }
     bitmaps_in_current_page.push_back(imgId);
@@ -228,7 +230,7 @@ void CairoBackgroundRenderer::setMimeData(Stream *str, Object *ref, cairo_surfac
         string path = get_bitmap_path(imgId);
         ofstream imgfile(path, ofstream::binary);
         imgfile.write(strBuffer, len);
-        gfree(strBuffer);
+        free(strBuffer);
     }
 }
 
