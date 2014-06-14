@@ -119,6 +119,9 @@ void HTMLRenderer::reset_state()
     cur_line_state.y = 0;
     memcpy(cur_line_state.transform_matrix, ID_MATRIX, sizeof(cur_line_state.transform_matrix));
 
+    if (param.process_covered_text)
+        cur_line_state.chars_covered = &covered_text_handler.get_chars_covered();
+
     cur_clip_state.xmin = 0;
     cur_clip_state.xmax = 0;
     cur_clip_state.ymin = 0;
@@ -500,6 +503,8 @@ void HTMLRenderer::prepare_text_line(GfxState * state)
     {
         // update position such that they will be recorded by text_line_buf
         state->transform(state->getCurX(), state->getCurY(), &cur_line_state.x, &cur_line_state.y);
+        if (param.process_covered_text)
+            cur_line_state.first_char_index = covered_text_handler.get_chars_covered().size();
         html_text_page.open_new_line(cur_line_state);
 
         cur_text_state.vertical_align = 0;

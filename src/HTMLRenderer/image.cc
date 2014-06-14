@@ -14,6 +14,8 @@ namespace pdf2htmlEX {
 
 void HTMLRenderer::drawImage(GfxState * state, Object * ref, Stream * str, int width, int height, GfxImageColorMap * colorMap, GBool interpolate, int *maskColors, GBool inlineImg)
 {
+    add_image_bbox(state);
+
     return OutputDev::drawImage(state,ref,str,width,height,colorMap,interpolate,maskColors,inlineImg);
 
 #if 0
@@ -60,6 +62,32 @@ void HTMLRenderer::drawImage(GfxState * state, Object * ref, Stream * str, int w
 
     ++ image_count;
 #endif
+}
+
+void HTMLRenderer::drawSoftMaskedImage(GfxState *state, Object *ref, Stream *str,
+                   int width, int height,
+                   GfxImageColorMap *colorMap,
+                   GBool interpolate,
+                   Stream *maskStr,
+                   int maskWidth, int maskHeight,
+                   GfxImageColorMap *maskColorMap,
+                   GBool maskInterpolate)
+{
+    add_image_bbox(state);
+
+    return OutputDev::drawSoftMaskedImage(state,ref,str,
+            width,height,colorMap,interpolate,
+            maskStr, maskWidth, maskHeight, maskColorMap, maskInterpolate);
+}
+
+void HTMLRenderer::add_image_bbox(GfxState *state)
+{
+    if (!param.process_covered_text)
+        return;
+    auto ctm = state->getCTM();
+    double bbox[4] {0, 0, 1, 1};
+    tm_transform_bbox(ctm, bbox);
+    covered_text_handler.add_non_char_bbox(bbox);
 }
 
 } // namespace pdf2htmlEX

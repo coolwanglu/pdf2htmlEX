@@ -242,6 +242,11 @@ If set to 0, pdf2htmlEX would try its best to balance the two methods above.
 .B --optimize-text <0|1> (Default: 0)
 If set to 1, pdf2htmlEX will try to reduce the number of HTML elements used for text. Turn it off if anything goes wrong.
 
+.TP
+.B --process-covered-text <0|1> (Default: 0)
+If set to 1, pdf2htmlEX will try to detect texts covered by other graphics and properly arrange them, 
+i.e. covered texts are made transparent in text layer, and are drawn on background layer.
+
 .SS Background Image
 
 .TP

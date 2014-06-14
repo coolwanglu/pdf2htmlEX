@@ -21,17 +21,17 @@ void tm_transform(const double * tm, double & x, double & y, bool is_delta)
     }
 }
 
-void tm_multiply(double * tm_left, const double * tm_right)
+void tm_multiply(const double * tm_left, const double * tm_right, double * tm_result)
 {
     double old[4];
     memcpy(old, tm_left, sizeof(old));
 
-    tm_left[0] = old[0] * tm_right[0] + old[2] * tm_right[1];
-    tm_left[1] = old[1] * tm_right[0] + old[3] * tm_right[1];
-    tm_left[2] = old[0] * tm_right[2] + old[2] * tm_right[3];
-    tm_left[3] = old[1] * tm_right[2] + old[3] * tm_right[3];
-    tm_left[4] += old[0] * tm_right[4] + old[2] * tm_right[5];
-    tm_left[5] += old[1] * tm_right[4] + old[3] * tm_right[5];
+    tm_result[0] = tm_left[0] * tm_right[0] + tm_left[2] * tm_right[1];
+    tm_result[1] = tm_left[1] * tm_right[0] + tm_left[3] * tm_right[1];
+    tm_result[2] = tm_left[0] * tm_right[2] + tm_left[2] * tm_right[3];
+    tm_result[3] = tm_left[1] * tm_right[2] + tm_left[3] * tm_right[3];
+    tm_result[4] += tm_left[0] * tm_right[4] + tm_left[2] * tm_right[5];
+    tm_result[5] += tm_left[1] * tm_right[4] + tm_left[3] * tm_right[5];
 }
 
 void tm_transform_bbox(const double * tm, double * bbox)

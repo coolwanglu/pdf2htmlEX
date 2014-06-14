@@ -161,6 +161,8 @@ set(PDF2HTMLEX_SRC ${PDF2HTMLEX_SRC}
     src/Base64Stream.cc
     src/Color.h
     src/Color.cc
+    src/CoveredTextHandler.h
+    src/CoveredTextHandler.cc
     src/HTMLState.h
     src/HTMLTextLine.h
     src/HTMLTextLine.cc

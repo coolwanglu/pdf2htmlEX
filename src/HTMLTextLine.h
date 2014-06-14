@@ -91,6 +91,7 @@ public:
 private:
     void optimize_normal(std::vector<HTMLTextLine*> &);
     void optimize_aggressive(std::vector<HTMLTextLine*> &);
+    void dump_chars(std::ostream & out, const Unicode * u, int uLen);
 
     const Param & param;
     AllStateManager & all_manager;
@@ -103,6 +104,8 @@ private:
     std::vector<State> states;
     std::vector<Offset> offsets;
     std::vector<Unicode> text;
+
+    int dumped_char_count;
 };
 
 } // namespace pdf2htmlEX
