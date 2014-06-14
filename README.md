@@ -52,8 +52,9 @@ Learn more about [who](https://github.com/coolwanglu/pdf2htmlEX/wiki/Use-Cases) 
  * [@pdf2htmlEX](https://twitter.com/pdf2htmlEX) 
  * [Mailing List](https://groups.google.com/forum/#!forum/pdf2htmlex)
   - [中文邮件列表](https://groups.google.com/forum/#!forum/pdf2htmlex-cn)
- * Lead author: 王璐 (Lu Wang) <coolwanglu@gmail.com> or [@coolwanglu](https://twitter.com/coolwanglu)
-  - Personal messages only. No support for pdf2htmlEX
+ * Lead author: 王璐 (Lu Wang)
+  - **No support for pdf2htmlEX**, use the mailling list instead.
+  - <coolwanglu@gmail.com> or [@coolwanglu](https://twitter.com/coolwanglu)
   - Accepting messages in **中文**, **English** or **日本語**
  * [Make a donation](http://coolwanglu.github.io/pdf2htmlEX/donate.html)
  
