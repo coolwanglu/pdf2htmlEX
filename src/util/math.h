@@ -40,5 +40,7 @@ void tm_transform(const double * tm, double & x, double & y, bool is_delta = fal
 void tm_multiply(double * tm_left, const double * tm_right);
 void tm_transform_bbox(const double * tm, double * bbox);
 
+bool bbox_intersect(double * bbox1, double * bbox2);
+
 } //namespace pdf2htmlEX 
 #endif //MATH_H__

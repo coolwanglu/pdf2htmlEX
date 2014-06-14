@@ -31,6 +31,7 @@
 #include "HTMLTextPage.h"
 
 #include "BackgroundRenderer/BackgroundRenderer.h"
+#include "CoveredTextHandler.h"
 
 #include "util/const.h"
 #include "util/misc.h"
@@ -125,6 +126,15 @@ public:
 
     virtual void drawImage(GfxState * state, Object * ref, Stream * str, int width, int height, GfxImageColorMap * colorMap, GBool interpolate, int *maskColors, GBool inlineImg);
 
+    virtual void drawSoftMaskedImage(GfxState *state, Object *ref, Stream *str,
+                       int width, int height,
+                       GfxImageColorMap *colorMap,
+                       GBool interpolate,
+                       Stream *maskStr,
+                       int maskWidth, int maskHeight,
+                       GfxImageColorMap *maskColorMap,
+                       GBool maskInterpolate);
+
     virtual void stroke(GfxState *state) { css_do_path(state, false); }
     virtual void fill(GfxState *state) { css_do_path(state, true); }
     virtual GBool axialShadedFill(GfxState *state, GfxAxialShading *shading, double tMin, double tMax);
@@ -134,6 +144,8 @@ public:
     /* capacity test */
     bool can_stroke(GfxState *state) { return css_do_path(state, false, true); }
     bool can_fill(GfxState *state) { return css_do_path(state, true, true); }
+
+    const std::vector<bool> & get_chars_covered() { return covered_text_handler.get_chars_covered(); }
 
 protected:
     ////////////////////////////////////////////////////
@@ -215,6 +227,19 @@ protected:
             const GfxRGB * line_color, const GfxRGB * fill_color, 
             void (*style_function)(void *, std::ostream &) = nullptr, void * style_function_data = nullptr );
 
+    ////////////////////////////////////////////////////
+    // Covered text handling
+    ////////////////////////////////////////////////////
+    /*
+     * Cue CoveredTextHandler that a character is drawn
+     * x, y: glyph-drawing position, in PDF text object space.
+     * ax, ay: glyph advance, in glyph space.
+     */
+    void add_char_bbox(GfxState *state, double x, double y, double ax, double ay);
+    /*
+     * Cue CoveredTextHandler that an image is drawn
+     */
+    void add_image_bbox(GfxState *state);
 
     ////////////////////////////////////////////////////
     // PDF stuffs
@@ -338,6 +363,8 @@ protected:
     std::string cur_page_filename;
 
     static const std::string MANIFEST_FILENAME;
+
+    CoveredTextHandler covered_text_handler;
 };
 
 } //namespace pdf2htmlEX

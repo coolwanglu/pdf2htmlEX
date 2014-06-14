@@ -133,13 +133,10 @@ void HTMLRenderer::process(PDFDoc *doc)
             cur_page_filename = filled_template_filename;
         }
 
-        if(param.process_nontext)
-        {
-            fallback_bg_required = !bg_renderer->render_page(doc, i);
-            if (fallback_bg_required && fallback_bg_renderer != nullptr)
-                fallback_bg_renderer->render_page(doc, i);
-        }
-
+        // We handle covered texts during doc->displayPage(this...),
+        // and bg_renderer->render_page() depends on the result, so it must be called after
+        // doc->displayPage(this...).
+        covered_text_handler.reset();
         doc->displayPage(this, i,
                 text_zoom_factor() * DEFAULT_DPI, text_zoom_factor() * DEFAULT_DPI,
                 0,
@@ -147,6 +144,13 @@ void HTMLRenderer::process(PDFDoc *doc)
                 true,  // crop
                 false, // printing
                 nullptr, nullptr, nullptr, nullptr);
+
+        if(param.process_nontext)
+        {
+            fallback_bg_required = !bg_renderer->render_page(doc, i);
+            if (fallback_bg_required && fallback_bg_renderer != nullptr)
+                fallback_bg_renderer->render_page(doc, i);
+        }
 
         if(param.split_pages)
         {

@@ -187,6 +187,7 @@ void parse_options (int argc, char **argv)
         .add("space-as-offset", &param.space_as_offset, 0, "treat space characters as offsets")
         .add("tounicode", &param.tounicode, 0, "how to handle ToUnicode CMaps (0=auto, 1=force, -1=ignore)")
         .add("optimize-text", &param.optimize_text, 0, "try to reduce the number of HTML elements used for text")
+        .add("process-covered-text", &param.process_covered_text, 0, "try to detect texts covered by other graphics and properly arrange them")
 
         // background image
         .add("bg-format", &param.bg_format, "png", "specify background image format")

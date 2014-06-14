@@ -69,6 +69,32 @@ void HTMLTextLine::append_state(const HTMLTextState & text_state)
     last_state.font_size *= last_state.font_info->font_size_scale;
 }
 
+void HTMLTextLine::dump_chars(ostream & out, const Unicode * u, int uLen)
+{
+    if (!line_state.chars_covered)
+    {
+        writeUnicodes(out, u, uLen);
+        return;
+    }
+
+    //TODO merge sibling invisiable spans
+    int start = this->line_state.first_char_index + dumped_char_count;
+    for(int i = 0; i < uLen; i++)
+    {
+        if (!(*line_state.chars_covered)[start + i]) //visible
+        {
+            writeUnicodes(out, u + i, 1);
+        }
+        else
+        {
+            out << "<span style=\"color:transparent\">";
+            writeUnicodes(out, u + i, 1);
+            out << "</span>";
+        }
+    }
+    dumped_char_count += uLen;
+}
+
 void HTMLTextLine::dump_text(ostream & out)
 {
     /*
@@ -83,6 +109,8 @@ void HTMLTextLine::dump_text(ostream & out)
         cerr << "Warning: text without a style! Must be a bug in pdf2htmlEX" << endl;
         return;
     }
+
+    dumped_char_count = 0;
 
     // Start Output
     {
@@ -216,7 +244,7 @@ void HTMLTextLine::dump_text(ostream & out)
                 size_t next_text_idx = text_idx2;
                 if((cur_offset_iter != offsets.end()) && (cur_offset_iter->start_idx) < next_text_idx)
                     next_text_idx = cur_offset_iter->start_idx;
-                writeUnicodes(out, (&text.front()) + cur_text_idx, next_text_idx - cur_text_idx);
+                dump_chars(out, (&text.front()) + cur_text_idx, next_text_idx - cur_text_idx);
                 cur_text_idx = next_text_idx;
             }
         }
