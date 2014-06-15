@@ -72,7 +72,7 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
             cerr << "TODO: non-zero origins" << endl;
         }
 
-        add_char_bbox(state, dx, dy, dx1, dy1);
+        tracer.draw_char(state, dx, dy, dx1, dy1); //TODO dx dy seems not correct?
 
         bool is_space = false;
         if (n == 1 && *p == ' ') 
@@ -143,45 +143,6 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
         
     draw_tx += dx;
     draw_ty += dy;
-}
-
-void HTMLRenderer::add_char_bbox(GfxState *state, double x, double y, double ax, double ay)
-{
-    if (!param.process_covered_text)
-        return;
-
-    Matrix tm_ctm, tm, itm;
-    memcpy(tm_ctm.m, this->cur_text_tm, sizeof(tm_ctm.m));
-    memcpy(tm.m, state->getTextMat(), sizeof(tm.m));
-    double fs = state->getFontSize();
-
-    double cx = state->getCurX(), cy = state->getCurY(),
-            ry = state->getRise(), h = state->getHorizScaling();
-
-    //cx and cy has been transformed by text matrix, we need to reverse them.
-    tm.invertTo(&itm);
-    double char_cx, char_cy;
-    itm.transform(cx, cy, &char_cx, &char_cy);
-
-    //TODO Vertical? Currently vertical/type3 chars are treated as non-chars.
-    double tchar[6] {fs * h, 0, 0, fs, char_cx + x, char_cy + y + ry};
-
-    double tfinal[6];
-    tm_multiply(tfinal, tm_ctm.m, tchar);
-
-    auto font = state->getFont();
-    double bbox[4] {0, 0, ax, ay};
-    double desc = font->getDescent(), asc = font->getAscent();
-    if (font->getWMode() == 0)
-    {
-        bbox[1] += desc;
-        bbox[3] += asc;
-    }
-    else
-    {//TODO Vertical?
-    }
-    tm_transform_bbox(tfinal, bbox);
-    covered_text_handler.add_char_bbox(bbox);
 }
 
 } // namespace pdf2htmlEX

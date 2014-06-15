@@ -46,6 +46,7 @@ void HTMLRenderer::updateFont(GfxState * state)
 void HTMLRenderer::updateCTM(GfxState * state, double m11, double m12, double m21, double m22, double m31, double m32) 
 {
     ctm_changed = true; 
+    tracer.set_ctm(state);
 }
 void HTMLRenderer::updateTextMat(GfxState * state) 
 {
@@ -89,14 +90,17 @@ void HTMLRenderer::updateStrokeColor(GfxState * state)
 void HTMLRenderer::clip(GfxState * state)
 {
     clip_changed = true;
+    tracer.clip(state);
 }
 void HTMLRenderer::eoClip(GfxState * state)
 {
     clip_changed = true;
+    tracer.clip(state, true);
 }
 void HTMLRenderer::clipToStrokePath(GfxState * state)
 {
     clip_changed = true;
+    tracer.clip_to_stroke_path(state);
 }
 void HTMLRenderer::reset_state()
 {

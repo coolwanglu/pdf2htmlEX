@@ -11,6 +11,7 @@
 #include <cmath>
 #include <algorithm>
 #include <vector>
+#include <functional>
 
 #include <GlobalParams.h>
 
@@ -46,6 +47,7 @@ HTMLRenderer::HTMLRenderer(const Param & param)
     ,html_text_page(param, all_manager)
     ,preprocessor(param)
     ,tmp_files(param)
+    ,tracer(param)
 {
     if(!(param.debug))
     {
@@ -76,6 +78,13 @@ HTMLRenderer::HTMLRenderer(const Param & param)
     all_manager.height      .set_eps(EPS);
     all_manager.width       .set_eps(EPS);
     all_manager.bottom      .set_eps(EPS);
+
+    tracer.on_char_drawn =
+            [this](double * box) { covered_text_handler.add_char_bbox(box); };
+    tracer.on_char_clipped =
+            [this](double * box) { covered_text_handler.add_char_bbox(box); }; //TODO
+    tracer.on_non_char_drawn =
+            [this](double * box) { covered_text_handler.add_non_char_bbox(box); };
 }
 
 HTMLRenderer::~HTMLRenderer()
@@ -136,7 +145,6 @@ void HTMLRenderer::process(PDFDoc *doc)
         // We handle covered texts during doc->displayPage(this...),
         // and bg_renderer->render_page() depends on the result, so it must be called after
         // doc->displayPage(this...).
-        covered_text_handler.reset();
         doc->displayPage(this, i,
                 text_zoom_factor() * DEFAULT_DPI, text_zoom_factor() * DEFAULT_DPI,
                 0,
@@ -194,6 +202,9 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
 void HTMLRenderer::startPage(int pageNum, GfxState *state, XRef * xref)
 #endif
 {
+    covered_text_handler.reset();
+    tracer.reset(state);
+
     this->pageNum = pageNum;
 
     double pageWidth = state->getPageWidth();
