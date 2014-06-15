@@ -60,12 +60,30 @@ void tm_transform_bbox(const double * tm, double * bbox)
     }
 }
 
-bool bbox_intersect(double * bbox1, double * bbox2)
+bool bbox_intersect(const double * bbox1, const double * bbox2, double * result)
 {
-    return min(bbox1[0], bbox1[2]) < max(bbox2[0], bbox2[2])
-        && max(bbox1[0], bbox1[2]) > min(bbox2[0], bbox2[2])
-        && min(bbox1[1], bbox1[3]) < max(bbox2[1], bbox2[3])
-        && max(bbox1[1], bbox1[3]) > min(bbox2[1], bbox2[3]);
+    double x0, y0, x1, y1;
+
+    x0 = max(min(bbox1[0], bbox1[2]), min(bbox2[0], bbox2[2]));
+    x1 = min(max(bbox1[0], bbox1[2]), max(bbox2[0], bbox2[2]));
+
+    if (x0 >= x1)
+        return false;
+
+    y0 = max(min(bbox1[1], bbox1[3]), min(bbox2[1], bbox2[3]));
+    y1 = min(max(bbox1[1], bbox1[3]), max(bbox2[1], bbox2[3]));
+
+    if (y0 >= y1)
+        return false;
+
+    if (result)
+    {
+        result[0] = x0;
+        result[1] = y0;
+        result[2] = x1;
+        result[3] = y1;
+    }
+    return true;
 }
 
 } //namespace pdf2htmlEX 

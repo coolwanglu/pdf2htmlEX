@@ -39,8 +39,14 @@ static inline double hypot(double x, double y) { return std::sqrt(x*x+y*y); }
 void tm_transform(const double * tm, double & x, double & y, bool is_delta = false);
 void tm_multiply(double * tm_left, const double * tm_right);
 void tm_transform_bbox(const double * tm, double * bbox);
-
-bool bbox_intersect(double * bbox1, double * bbox2);
+/**
+ * Calculate the intersection of 2 boxes.
+ * If they are intersecting, store the result to result (if not null) and return true.
+ * Otherwise return false, and result is not touched.
+ * Param result can be same as one of bbox1 and bbox2.
+ * Data in boxes are expected in the order of (x0, y0, x1, y1).
+ */
+bool bbox_intersect(const double * bbox1, const double * bbox2, double * result = nullptr);
 
 } //namespace pdf2htmlEX 
 #endif //MATH_H__

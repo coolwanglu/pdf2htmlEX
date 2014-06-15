@@ -53,15 +53,15 @@ void DrawingTracer::set_ctm(GfxState *state)
     matrix.yy = ctm[3];
     matrix.x0 = ctm[4];
     matrix.y0 = ctm[5];
-    cairo_set_matrix (cairo, &matrix);
+    cairo_set_matrix(cairo, &matrix);
 }
 
 void DrawingTracer::clip(GfxState * state, bool even_odd)
 {
     if (!param.process_covered_text)
         return;
-    do_path (state, state->getPath());
-    cairo_set_fill_rule (cairo, even_odd? CAIRO_FILL_RULE_EVEN_ODD : CAIRO_FILL_RULE_WINDING);
+    do_path(state, state->getPath());
+    cairo_set_fill_rule(cairo, even_odd? CAIRO_FILL_RULE_EVEN_ODD : CAIRO_FILL_RULE_WINDING);
     cairo_clip (cairo);
 }
 
@@ -91,13 +91,13 @@ void DrawingTracer::do_path(GfxState * state, GfxPath * path)
     GfxSubpath *subpath;
     int i, j;
     double x, y;
-    cairo_new_path (cairo);
+    cairo_new_path(cairo);
     for (i = 0; i < path->getNumSubpaths(); ++i) {
         subpath = path->getSubpath(i);
         if (subpath->getNumPoints() > 0) {
             x = subpath->getX(0);
             y = subpath->getY(0);
-            cairo_move_to (cairo, x, y);
+            cairo_move_to(cairo, x, y);
             j = 1;
             while (j < subpath->getNumPoints()) {
                 if (subpath->getCurve(j)) {
@@ -111,7 +111,7 @@ void DrawingTracer::do_path(GfxState * state, GfxPath * path)
                 } else {
                     x = subpath->getX(j);
                     y = subpath->getY(j);
-                    cairo_line_to (cairo, x, y);
+                    cairo_line_to(cairo, x, y);
                     ++j;
                 }
             }
@@ -150,22 +150,56 @@ void DrawingTracer::fill(GfxState * state, bool even_odd)
 
 void DrawingTracer::draw_non_char_bbox(GfxState * state, double * bbox)
 {
-    double cbox[4], result[4];
+    double cbox[4];
     cairo_clip_extents(cairo, cbox, cbox + 1, cbox + 2, cbox + 3);
-    // TODO intersect
-    tm_transform_bbox(state->getCTM(), bbox);
-    if (on_non_char_drawn)
-        on_non_char_drawn(bbox);
+    if(bbox_intersect(cbox, bbox, bbox))
+    {
+        tm_transform_bbox(state->getCTM(), bbox);
+        if (on_non_char_drawn)
+            on_non_char_drawn(bbox);
+    }
 }
 
 void DrawingTracer::draw_char_bbox(GfxState * state, double * bbox)
 {
-    double cbox[4], result[4];
-    cairo_clip_extents(cairo, cbox, cbox + 1, cbox + 2, cbox + 3);
-    // TODO intersect
-    tm_transform_bbox(state->getCTM(), bbox);
-    if (on_char_drawn)
-        on_char_drawn(bbox);
+    // Note: even if 4 corner of the char are all in the clip area,
+    // it still could be partially clipped.
+    // TODO better solution?
+    int pt_in = 0;
+    if (cairo_in_clip(cairo, bbox[0], bbox[1]))
+        ++pt_in;
+    if (cairo_in_clip(cairo, bbox[2], bbox[3]))
+        ++pt_in;
+    if (cairo_in_clip(cairo, bbox[2], bbox[1]))
+        ++pt_in;
+    if (cairo_in_clip(cairo, bbox[0], bbox[3]))
+        ++pt_in;
+
+    if (pt_in == 0)
+    {
+        if(on_char_clipped)
+            on_char_clipped(bbox, false);
+    }
+    else
+    {
+        if (pt_in < 4)
+        {
+            double cbox[4];
+            cairo_clip_extents(cairo, cbox, cbox + 1, cbox + 2, cbox + 3);
+            bbox_intersect(cbox, bbox, bbox);
+        }
+        tm_transform_bbox(state->getCTM(), bbox);
+        if (pt_in < 4)
+        {
+            if(on_char_clipped)
+                on_char_clipped(bbox, true);
+        }
+        else
+        {
+            if (on_char_drawn)
+                on_char_drawn(bbox);
+        }
+    }
 }
 
 void DrawingTracer::draw_image(GfxState *state)

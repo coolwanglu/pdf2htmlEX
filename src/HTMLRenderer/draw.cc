@@ -32,7 +32,8 @@ using std::ostream;
 
 void HTMLRenderer::restoreState(GfxState * state)
 {
-    updateAll(state); tracer.restore();
+    updateAll(state);
+    tracer.restore();
 }
 
 void HTMLRenderer::saveState(GfxState *state)
