@@ -25,9 +25,12 @@ public:
      * The callback to receive drawn event.
      * bbox in device space.
      */
+    // a non-char graphics is drawn
     std::function<void(double * bbox)> on_non_char_drawn;
+    // a char is drawn in the clip area
     std::function<void(double * bbox)> on_char_drawn;
-    std::function<void(double * bbox)> on_char_clipped;
+    // a char is drawn out of/partially in the clip area
+    std::function<void(double * bbox, bool patially)> on_char_clipped;
 
     DrawingTracer(const Param & param);
     virtual ~DrawingTracer();

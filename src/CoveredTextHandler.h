@@ -32,6 +32,8 @@ public:
      */
     void add_char_bbox(double * bbox);
 
+    void add_char_bbox_clipped(double * bbox, bool patially);
+
     /**
      * Add a drawn non-char graphics' bounding box.
      * If it intersects any previously drawn char's bbox, the char is marked as covered
@@ -51,7 +53,6 @@ public:
     const std::vector<bool> & get_chars_covered() { return chars_covered; }
 
 private:
-    //covered text test
     std::vector<bool> chars_covered;
     // x00, y00, x01, y01; x10, y10, x11, y11;...
     std::vector<double> char_bboxes;

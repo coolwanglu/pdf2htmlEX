@@ -30,9 +30,16 @@ void CoveredTextHandler::reset()
 
 void CoveredTextHandler::add_char_bbox(double * bbox)
 {
-    for (int i = 0; i < 4; i++)
-        char_bboxes.push_back(bbox[i]);
+    char_bboxes.insert(char_bboxes.end(), bbox, bbox + 4);
     chars_covered.push_back(false);
+}
+
+void CoveredTextHandler::add_char_bbox_clipped(double * bbox, bool patially)
+{
+    char_bboxes.insert(char_bboxes.end(), bbox, bbox + 4);
+    chars_covered.push_back(true);
+    if (patially)
+        add_non_char_bbox(bbox, chars_covered.size() - 1);
 }
 
 void CoveredTextHandler::add_non_char_bbox(double * bbox, int index)

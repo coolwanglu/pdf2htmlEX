@@ -82,7 +82,7 @@ HTMLRenderer::HTMLRenderer(const Param & param)
     tracer.on_char_drawn =
             [this](double * box) { covered_text_handler.add_char_bbox(box); };
     tracer.on_char_clipped =
-            [this](double * box) { covered_text_handler.add_char_bbox(box); }; //TODO
+            [this](double * box, bool partial) { covered_text_handler.add_char_bbox_clipped(box, partial); };
     tracer.on_non_char_drawn =
             [this](double * box) { covered_text_handler.add_non_char_bbox(box); };
 }
