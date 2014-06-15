@@ -20,6 +20,8 @@
 #include <GfxFont.h>
 #include <Annot.h>
 
+#include <cairo.h>
+
 #include "pdf2htmlEX-config.h"
 
 #include "Param.h"
@@ -32,9 +34,11 @@
 
 #include "BackgroundRenderer/BackgroundRenderer.h"
 #include "CoveredTextHandler.h"
+#include "DrawingTracer.h"
 
 #include "util/const.h"
 #include "util/misc.h"
+
 
 namespace pdf2htmlEX {
 
@@ -90,7 +94,9 @@ public:
      * We just mark as changed, and recheck if they have been changed when we are about to output a new string
      */
 
-    virtual void restoreState(GfxState * state) { updateAll(state); }
+    virtual void restoreState(GfxState * state);
+
+    virtual void saveState(GfxState *state);
 
     virtual void updateAll(GfxState * state);
 
@@ -135,15 +141,16 @@ public:
                        GfxImageColorMap *maskColorMap,
                        GBool maskInterpolate);
 
-    virtual void stroke(GfxState *state) { css_do_path(state, false); }
-    virtual void fill(GfxState *state) { css_do_path(state, true); }
+    virtual void stroke(GfxState *state); ////{ css_do_path(state, false); }
+    virtual void fill(GfxState *state); ////{ css_do_path(state, true); }
+    virtual void eoFill(GfxState *state);
     virtual GBool axialShadedFill(GfxState *state, GfxAxialShading *shading, double tMin, double tMax);
 
     virtual void processLink(AnnotLink * al);
 
     /* capacity test */
-    bool can_stroke(GfxState *state) { return css_do_path(state, false, true); }
-    bool can_fill(GfxState *state) { return css_do_path(state, true, true); }
+    bool can_stroke(GfxState *state) { return false; } ////{ return css_do_path(state, false, true); }
+    bool can_fill(GfxState *state) { return false; } ////{ return css_do_path(state, true, true); }
 
     const std::vector<bool> & get_chars_covered() { return covered_text_handler.get_chars_covered(); }
 
@@ -207,6 +214,7 @@ protected:
     // make sure the current HTML style consistent with PDF
     void prepare_text_line(GfxState * state);
 
+#if 0 //disable CSS drawing
     ////////////////////////////////////////////////////
     // CSS drawing
     ////////////////////////////////////////////////////
@@ -226,20 +234,8 @@ protected:
             double * line_width_array, int line_width_count,
             const GfxRGB * line_color, const GfxRGB * fill_color, 
             void (*style_function)(void *, std::ostream &) = nullptr, void * style_function_data = nullptr );
+#endif //disable CSS drawing
 
-    ////////////////////////////////////////////////////
-    // Covered text handling
-    ////////////////////////////////////////////////////
-    /*
-     * Cue CoveredTextHandler that a character is drawn
-     * x, y: glyph-drawing position, in PDF text object space.
-     * ax, ay: glyph advance, in glyph space.
-     */
-    void add_char_bbox(GfxState *state, double x, double y, double ax, double ay);
-    /*
-     * Cue CoveredTextHandler that an image is drawn
-     */
-    void add_image_bbox(GfxState *state);
 
     ////////////////////////////////////////////////////
     // PDF stuffs
@@ -365,6 +361,7 @@ protected:
     static const std::string MANIFEST_FILENAME;
 
     CoveredTextHandler covered_text_handler;
+    DrawingTracer tracer;
 };
 
 } //namespace pdf2htmlEX
