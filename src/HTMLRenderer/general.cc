@@ -142,9 +142,6 @@ void HTMLRenderer::process(PDFDoc *doc)
             cur_page_filename = filled_template_filename;
         }
 
-        // We handle covered texts during doc->displayPage(this...),
-        // and bg_renderer->render_page() depends on the result, so it must be called after
-        // doc->displayPage(this...).
         doc->displayPage(this, i,
                 text_zoom_factor() * DEFAULT_DPI, text_zoom_factor() * DEFAULT_DPI,
                 0,
@@ -152,8 +149,6 @@ void HTMLRenderer::process(PDFDoc *doc)
                 true,  // crop
                 false, // printing
                 nullptr, nullptr, nullptr, nullptr);
-
-
 
         if(param.split_pages)
         {
@@ -245,7 +240,7 @@ void HTMLRenderer::endPage() {
     {
         if (bg_renderer->render_page(cur_doc, pageNum))
             bg_renderer->embed_image(pageNum);
-        else
+        else if (fallback_bg_renderer != nullptr)
         {
             if (fallback_bg_renderer->render_page(cur_doc, pageNum))
                 fallback_bg_renderer->embed_image(pageNum);
