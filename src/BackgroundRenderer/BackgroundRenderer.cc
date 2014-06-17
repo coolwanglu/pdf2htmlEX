@@ -23,13 +23,13 @@ BackgroundRenderer * BackgroundRenderer::getBackgroundRenderer(const std::string
 #ifdef ENABLE_LIBPNG
     if(format == "png")
     {
-        return new SplashBackgroundRenderer(html_renderer, param);
+        return new SplashBackgroundRenderer(format, html_renderer, param);
     }
 #endif
 #ifdef ENABLE_LIBJPEG
     if(format == "jpg")
     {
-        return new SplashBackgroundRenderer(html_renderer, param);
+        return new SplashBackgroundRenderer(format, html_renderer, param);
     }
 #endif
 #if ENABLE_SVG
@@ -39,6 +39,13 @@ BackgroundRenderer * BackgroundRenderer::getBackgroundRenderer(const std::string
     }
 #endif
 
+    return nullptr;
+}
+
+BackgroundRenderer * BackgroundRenderer::getFallbackBackgroundRenderer(HTMLRenderer * html_renderer, const Param & param)
+{
+    if (param.bg_format == "svg" && param.svg_node_count_limit >= 0)
+        return new SplashBackgroundRenderer("", html_renderer, param);
     return nullptr;
 }
 
