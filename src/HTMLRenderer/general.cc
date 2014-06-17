@@ -153,12 +153,7 @@ void HTMLRenderer::process(PDFDoc *doc)
                 false, // printing
                 nullptr, nullptr, nullptr, nullptr);
 
-        if(param.process_nontext)
-        {
-            fallback_bg_required = !bg_renderer->render_page(doc, i);
-            if (fallback_bg_required && fallback_bg_renderer != nullptr)
-                fallback_bg_renderer->render_page(doc, i);
-        }
+
 
         if(param.split_pages)
         {
@@ -207,13 +202,15 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state, XRef * xref)
 
     this->pageNum = pageNum;
 
-    double pageWidth = state->getPageWidth();
-    double pageHeight = state->getPageHeight();
+    html_text_page.set_page_size(state->getPageWidth(), state->getPageHeight());
 
-    html_text_page.set_page_size(pageWidth, pageHeight);
+    reset_state();
+}
 
-    long long wid = all_manager.width.install(pageWidth);
-    long long hid = all_manager.height.install(pageHeight);
+void HTMLRenderer::endPage() {
+    long long wid = all_manager.width.install(html_text_page.get_width());
+    long long hid = all_manager.height.install(html_text_page.get_height());
+
     (*f_curpage)
         << "<div id=\"" << CSS::PAGE_FRAME_CN << pageNum
             << "\" class=\"" << CSS::PAGE_FRAME_CN
@@ -246,16 +243,15 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state, XRef * xref)
 
     if(param.process_nontext)
     {
-        if (!fallback_bg_required)
+        if (bg_renderer->render_page(cur_doc, pageNum))
             bg_renderer->embed_image(pageNum);
-        else if (fallback_bg_renderer != nullptr)
-            fallback_bg_renderer->embed_image(pageNum);
+        else
+        {
+            if (fallback_bg_renderer->render_page(cur_doc, pageNum))
+                fallback_bg_renderer->embed_image(pageNum);
+        }
     }
 
-    reset_state();
-}
-
-void HTMLRenderer::endPage() {
     // dump all text
     html_text_page.dump_text(*f_curpage);
     html_text_page.dump_css(f_css.fs);

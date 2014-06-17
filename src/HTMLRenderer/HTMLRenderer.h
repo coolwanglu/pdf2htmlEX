@@ -347,7 +347,6 @@ protected:
 #endif
     BackgroundRenderer * bg_renderer;
     BackgroundRenderer * fallback_bg_renderer;
-    bool fallback_bg_required;
 
     struct {
         std::ofstream fs;
