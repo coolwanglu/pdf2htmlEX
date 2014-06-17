@@ -24,17 +24,12 @@ namespace pdf2htmlEX {
 class CairoBackgroundRenderer : public BackgroundRenderer, CairoOutputDev 
 {
 public:
-  CairoBackgroundRenderer(HTMLRenderer * html_renderer, const Param & param)
-      : CairoOutputDev()
-      , html_renderer(html_renderer)
-      , param(param)
-      , surface(nullptr)
-  { }
+  CairoBackgroundRenderer(HTMLRenderer * html_renderer, const Param & param);
 
   virtual ~CairoBackgroundRenderer() { }
 
   virtual void init(PDFDoc * doc);
-  virtual void render_page(PDFDoc * doc, int pageno);
+  virtual bool render_page(PDFDoc * doc, int pageno);
   virtual void embed_image(int pageno);
 
   // Does this device use beginType3Char/endType3Char?  Otherwise,
