@@ -46,7 +46,7 @@ void HTMLRenderer::updateFont(GfxState * state)
 void HTMLRenderer::updateCTM(GfxState * state, double m11, double m12, double m21, double m22, double m31, double m32) 
 {
     ctm_changed = true; 
-    tracer.set_ctm(state);
+    tracer.update_ctm(state, m11, m12, m21, m22, m31, m32);
 }
 void HTMLRenderer::updateTextMat(GfxState * state) 
 {

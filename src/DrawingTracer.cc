@@ -41,19 +41,21 @@ void DrawingTracer::finish()
     }
 }
 
-void DrawingTracer::set_ctm(GfxState *state)
+// Poppler won't inform us its initial CTM, and the initial CTM is affected by zoom level.
+// OutputDev::clip() may be called before OutputDev::updateCTM(), so we can't rely on GfxState::getCTM(),
+// and should trace ctm changes ourself (via cairo).
+void DrawingTracer::update_ctm(GfxState *state, double m11, double m12, double m21, double m22, double m31, double m32)
 {
     if (!param.process_covered_text)
         return;
-    double * ctm = state->getCTM();
     cairo_matrix_t matrix;
-    matrix.xx = ctm[0];
-    matrix.yx = ctm[1];
-    matrix.xy = ctm[2];
-    matrix.yy = ctm[3];
-    matrix.x0 = ctm[4];
-    matrix.y0 = ctm[5];
-    cairo_set_matrix(cairo, &matrix);
+    matrix.xx = m11;
+    matrix.yx = m12;
+    matrix.xy = m21;
+    matrix.yy = m22;
+    matrix.x0 = m31;
+    matrix.y0 = m32;
+    cairo_transform(cairo, &matrix);
 }
 
 void DrawingTracer::clip(GfxState * state, bool even_odd)
@@ -154,7 +156,7 @@ void DrawingTracer::draw_non_char_bbox(GfxState * state, double * bbox)
     cairo_clip_extents(cairo, cbox, cbox + 1, cbox + 2, cbox + 3);
     if(bbox_intersect(cbox, bbox, bbox))
     {
-        tm_transform_bbox(state->getCTM(), bbox);
+        transform_bbox_by_ctm(bbox);
         if (on_non_char_drawn)
             on_non_char_drawn(bbox);
     }
@@ -188,7 +190,7 @@ void DrawingTracer::draw_char_bbox(GfxState * state, double * bbox)
             cairo_clip_extents(cairo, cbox, cbox + 1, cbox + 2, cbox + 3);
             bbox_intersect(cbox, bbox, bbox);
         }
-        tm_transform_bbox(state->getCTM(), bbox);
+        transform_bbox_by_ctm(bbox);
         if (pt_in < 4)
         {
             if(on_char_clipped)
@@ -245,6 +247,14 @@ void DrawingTracer::draw_char(GfxState *state, double x, double y, double ax, do
     }
     tm_transform_bbox(final_m, bbox);
     draw_char_bbox(state, bbox);
+}
+
+void DrawingTracer::transform_bbox_by_ctm(double * bbox)
+{
+    cairo_matrix_t mat;
+    cairo_get_matrix(cairo, &mat);
+    double mat_a[6] {mat.xx, mat.yx, mat.xy, mat.yy, mat.x0, mat.y0};
+    tm_transform_bbox(mat_a, bbox);
 }
 
 } /* namespace pdf2htmlEX */

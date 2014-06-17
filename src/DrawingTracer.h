@@ -46,7 +46,7 @@ public:
      * An image is drawing
      */
     void draw_image(GfxState * state);
-    void set_ctm(GfxState * state);
+    void update_ctm(GfxState * state, double m11, double m12, double m21, double m22, double m31, double m32);
     void clip(GfxState * state, bool even_odd = false);
     void clip_to_stroke_path(GfxState * state);
     void fill(GfxState * state, bool even_odd = false);
@@ -60,6 +60,7 @@ private:
     void do_path(GfxState * state, GfxPath * path);
     void draw_non_char_bbox(GfxState * state, double * bbox);
     void draw_char_bbox(GfxState * state, double * bbox);
+    void transform_bbox_by_ctm(double * bbox);
 
     const Param & param;
     cairo_t * cairo = nullptr;
