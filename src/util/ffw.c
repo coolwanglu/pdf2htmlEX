@@ -83,13 +83,13 @@ void ffw_finalize(void)
     while(enc_head)
     {
         Encoding * next = enc_head->next;
-        free(enc_head->enc_name);
+        free((void*)enc_head->enc_name);
         free(enc_head->unicode);
         if(enc_head->psnames)
         {
             int i;
             for(i = 0; i < enc_head->char_cnt; ++i)
-                free(enc_head->psnames[i]);
+                free((void*)enc_head->psnames[i]);
             free(enc_head->psnames);
         }
         free(enc_head);
@@ -99,7 +99,7 @@ void ffw_finalize(void)
 
 long ffw_get_version(void)
 {
-    return library_version_configuration.library_source_versiondate;
+    return FONTFORGE_VERSIONDATE_RAW;
 }
 
 void ffw_new_font()
@@ -253,7 +253,7 @@ void ffw_reencode_raw2(char ** mapping, int mapping_len, int force)
     enc->enc_name = strcopy("");
     enc->char_cnt = mapping_len;
     enc->unicode = (int32_t*)malloc(mapping_len * sizeof(int32_t));
-    enc->psnames = (char**)calloc(mapping_len, sizeof(char*));
+    enc->psnames = (const char**)calloc(mapping_len, sizeof(char*));
     int i;
     for(i = 0; i < mapping_len; ++i)
     {

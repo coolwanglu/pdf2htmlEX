@@ -272,7 +272,7 @@ protected:
   cairo_filter_t getFilterForSurface(cairo_surface_t *image,
 				     GBool interpolate);
   GBool getStreamData (Stream *str, char **buffer, int *length);
-  void setMimeData(Stream *str, Object *ref, cairo_surface_t *image);
+  virtual void setMimeData(Stream *str, Object *ref, cairo_surface_t *image);
   void fillToStrokePathClip(GfxState *state);
   void alignStrokeCoords(GfxSubpath *subpath, int i, double *x, double *y);
 

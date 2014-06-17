@@ -28,6 +28,29 @@ using std::unique_ptr;
 
 const SplashColor SplashBackgroundRenderer::white = {255,255,255};
 
+SplashBackgroundRenderer::SplashBackgroundRenderer(const string & imgFormat, HTMLRenderer * html_renderer, const Param & param)
+    : SplashOutputDev(splashModeRGB8, 4, gFalse, (SplashColorPtr)(&white), gTrue, gTrue)
+    , html_renderer(html_renderer)
+    , param(param)
+    , format(imgFormat)
+{
+    bool supported = false;
+#ifdef ENABLE_LIBPNG
+    if (format.empty())
+        format = "png";
+    supported = supported || format == "png";
+#endif
+#ifdef ENABLE_LIBJPEG
+    if (format.empty())
+        format = "jpg";
+    supported = supported || format == "jpg";
+#endif
+    if (!supported)
+    {
+        throw string("Image format not supported: ") + format;
+    }
+}
+
 /*
  * SplashOutputDev::startPage would paint the whole page with the background color
  * And thus have modified region set to the whole page area
@@ -65,6 +88,13 @@ void SplashBackgroundRenderer::drawChar(GfxState *state, double x, double y,
     {
         SplashOutputDev::drawChar(state,x,y,dx,dy,originX,originY,code,nBytes,u,uLen);
     }
+    // If a char is treated as image, it is not subject to cover test
+    // (see HTMLRenderer::drawString), so don't increase drawn_char_count.
+    else if (param.process_covered_text) {
+        if (html_renderer->get_chars_covered()[drawn_char_count])
+            SplashOutputDev::drawChar(state,x,y,dx,dy,originX,originY,code,nBytes,u,uLen);
+        drawn_char_count++;
+    }
 }
 
 void SplashBackgroundRenderer::init(PDFDoc * doc)
@@ -76,14 +106,16 @@ static GBool annot_cb(Annot *, void * pflag) {
     return (*((bool*)pflag)) ? gTrue : gFalse;
 };
 
-void SplashBackgroundRenderer::render_page(PDFDoc * doc, int pageno)
+bool SplashBackgroundRenderer::render_page(PDFDoc * doc, int pageno)
 {
+    drawn_char_count = 0;
     bool process_annotation = param.process_annotation;
     doc->displayPage(this, pageno, param.h_dpi, param.v_dpi,
             0, 
             (!(param.use_cropbox)),
             false, false,
             nullptr, nullptr, &annot_cb, &process_annotation);
+    return true;
 }
 
 void SplashBackgroundRenderer::embed_image(int pageno)
@@ -96,7 +128,7 @@ void SplashBackgroundRenderer::embed_image(int pageno)
     if((xmin <= xmax) && (ymin <= ymax))
     {
         {
-            auto fn = html_renderer->str_fmt("%s/bg%x.%s", (param.embed_image ? param.tmp_dir : param.dest_dir).c_str(), pageno, param.bg_format.c_str());
+            auto fn = html_renderer->str_fmt("%s/bg%x.%s", (param.embed_image ? param.tmp_dir : param.dest_dir).c_str(), pageno, format.c_str());
             if(param.embed_image)
                 html_renderer->tmp_files.add((char*)fn);
 
@@ -118,21 +150,21 @@ void SplashBackgroundRenderer::embed_image(int pageno)
 
         if(param.embed_image)
         {
-            auto path = html_renderer->str_fmt("%s/bg%x.%s", param.tmp_dir.c_str(), pageno, param.bg_format.c_str());
+            auto path = html_renderer->str_fmt("%s/bg%x.%s", param.tmp_dir.c_str(), pageno, format.c_str());
             ifstream fin((char*)path, ifstream::binary);
             if(!fin)
                 throw string("Cannot read background image ") + (char*)path;
 
-            auto iter = FORMAT_MIME_TYPE_MAP.find(param.bg_format);
+            auto iter = FORMAT_MIME_TYPE_MAP.find(format);
             if(iter == FORMAT_MIME_TYPE_MAP.end())
-                throw string("Image format not supported: ") + param.bg_format;
+                throw string("Image format not supported: ") + format;
 
             string mime_type = iter->second;
             f_page << "data:" << mime_type << ";base64," << Base64Stream(fin);
         }
         else
         {
-            f_page << (char*)html_renderer->str_fmt("bg%x.%s", pageno, param.bg_format.c_str());
+            f_page << (char*)html_renderer->str_fmt("bg%x.%s", pageno, format.c_str());
         }
         f_page << "\"/>";
     }
@@ -155,20 +187,20 @@ void SplashBackgroundRenderer::dump_image(const char * filename, int x1, int y1,
 
     if(false) { }
 #ifdef ENABLE_LIBPNG
-    else if(param.bg_format == "png")
+    else if(format == "png")
     {
         writer = unique_ptr<ImgWriter>(new PNGWriter);
     }
 #endif
 #ifdef ENABLE_LIBJPEG
-    else if(param.bg_format == "jpg")
+    else if(format == "jpg")
     {
         writer = unique_ptr<ImgWriter>(new JpegWriter);
     }
 #endif
     else
     {
-        throw string("Image format not supported: ") + param.bg_format;
+        throw string("Image format not supported: ") + format;
     }
 
     if(!writer->init(f, width, height, param.h_dpi, param.v_dpi))

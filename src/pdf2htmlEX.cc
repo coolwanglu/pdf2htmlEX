@@ -56,7 +56,7 @@ void show_usage_and_exit(const char * dummy = nullptr)
 void show_version_and_exit(const char * dummy = nullptr)
 {
     cerr << "pdf2htmlEX version " << PDF2HTMLEX_VERSION << endl;
-    cerr << "Copyright 2012-2014 Lu Wang <coolwanglu@gmail.com> and other contributers" << endl;
+    cerr << "Copyright 2012-2014 Lu Wang <coolwanglu@gmail.com> and other contributors" << endl;
     cerr << "Libraries: " << endl;
     cerr << "  poppler " << POPPLER_VERSION << endl;
     cerr << "  libfontforge " << ffw_get_version() << endl;
@@ -187,9 +187,13 @@ void parse_options (int argc, char **argv)
         .add("space-as-offset", &param.space_as_offset, 0, "treat space characters as offsets")
         .add("tounicode", &param.tounicode, 0, "how to handle ToUnicode CMaps (0=auto, 1=force, -1=ignore)")
         .add("optimize-text", &param.optimize_text, 0, "try to reduce the number of HTML elements used for text")
+        .add("process-covered-text", &param.process_covered_text, 0, "try to detect texts covered by other graphics and properly arrange them")
 
         // background image
         .add("bg-format", &param.bg_format, "png", "specify background image format")
+        .add("svg-node-count-limit", &param.svg_node_count_limit, -1, "if node count in a svg background image exceeds this limit,"
+                " fall back this page to bitmap background; negative value means no limit.")
+        .add("svg-embed-bitmap", &param.svg_embed_bitmap, 1, "1: embed bitmaps in svg background; 0: dump bitmaps to external files if possible.")
 
         // encryption
         .add("owner-password,o", &param.owner_password, "", "owner password (for encrypted files)", true)

@@ -39,6 +39,9 @@ public:
     void set_page_size(double width, double height);
     void clip(const HTMLClipState & clip_state);
 
+    double get_width() { return page_width; }
+    double get_height() { return page_height; }
+
 private:
     void optimize(void);
 

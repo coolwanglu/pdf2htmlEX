@@ -11,6 +11,7 @@
 #include <cmath>
 #include <algorithm>
 #include <vector>
+#include <functional>
 
 #include <GlobalParams.h>
 
@@ -46,6 +47,7 @@ HTMLRenderer::HTMLRenderer(const Param & param)
     ,html_text_page(param, all_manager)
     ,preprocessor(param)
     ,tmp_files(param)
+    ,tracer(param)
 {
     if(!(param.debug))
     {
@@ -76,6 +78,13 @@ HTMLRenderer::HTMLRenderer(const Param & param)
     all_manager.height      .set_eps(EPS);
     all_manager.width       .set_eps(EPS);
     all_manager.bottom      .set_eps(EPS);
+
+    tracer.on_char_drawn =
+            [this](double * box) { covered_text_handler.add_char_bbox(box); };
+    tracer.on_char_clipped =
+            [this](double * box, bool partial) { covered_text_handler.add_char_bbox_clipped(box, partial); };
+    tracer.on_non_char_drawn =
+            [this](double * box) { covered_text_handler.add_non_char_bbox(box); };
 }
 
 HTMLRenderer::~HTMLRenderer()
@@ -98,12 +107,17 @@ void HTMLRenderer::process(PDFDoc *doc)
     // Process pages
 
     bg_renderer = nullptr;
+    fallback_bg_renderer = nullptr;
     if(param.process_nontext)
     {
         bg_renderer = BackgroundRenderer::getBackgroundRenderer(param.bg_format, this, param);
         if(!bg_renderer)
             throw "Cannot initialize background renderer, unsupported format";
         bg_renderer->init(doc);
+
+        fallback_bg_renderer = BackgroundRenderer::getFallbackBackgroundRenderer(this, param);
+        if (fallback_bg_renderer)
+            fallback_bg_renderer->init(doc);
     }
 
     int page_count = (param.last_page - param.first_page + 1);
@@ -126,11 +140,6 @@ void HTMLRenderer::process(PDFDoc *doc)
             set_stream_flags((*f_curpage));
 
             cur_page_filename = filled_template_filename;
-        }
-
-        if(param.process_nontext)
-        {
-            bg_renderer->render_page(doc, i);
         }
 
         doc->displayPage(this, i,
@@ -163,6 +172,11 @@ void HTMLRenderer::process(PDFDoc *doc)
         delete bg_renderer;
         bg_renderer = nullptr;
     }
+    if(fallback_bg_renderer)
+    {
+        delete fallback_bg_renderer;
+        fallback_bg_renderer = nullptr;
+    }
 
     cerr << endl;
 }
@@ -178,15 +192,20 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
 void HTMLRenderer::startPage(int pageNum, GfxState *state, XRef * xref)
 #endif
 {
+    covered_text_handler.reset();
+    tracer.reset(state);
+
     this->pageNum = pageNum;
 
-    double pageWidth = state->getPageWidth();
-    double pageHeight = state->getPageHeight();
+    html_text_page.set_page_size(state->getPageWidth(), state->getPageHeight());
 
-    html_text_page.set_page_size(pageWidth, pageHeight);
+    reset_state();
+}
 
-    long long wid = all_manager.width.install(pageWidth);
-    long long hid = all_manager.height.install(pageHeight);
+void HTMLRenderer::endPage() {
+    long long wid = all_manager.width.install(html_text_page.get_width());
+    long long hid = all_manager.height.install(html_text_page.get_height());
+
     (*f_curpage)
         << "<div id=\"" << CSS::PAGE_FRAME_CN << pageNum
             << "\" class=\"" << CSS::PAGE_FRAME_CN
@@ -219,13 +238,15 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state, XRef * xref)
 
     if(param.process_nontext)
     {
-        bg_renderer->embed_image(pageNum);
+        if (bg_renderer->render_page(cur_doc, pageNum))
+            bg_renderer->embed_image(pageNum);
+        else if (fallback_bg_renderer != nullptr)
+        {
+            if (fallback_bg_renderer->render_page(cur_doc, pageNum))
+                fallback_bg_renderer->embed_image(pageNum);
+        }
     }
 
-    reset_state();
-}
-
-void HTMLRenderer::endPage() {
     // dump all text
     html_text_page.dump_text(*f_curpage);
     html_text_page.dump_css(f_css.fs);

@@ -14,6 +14,8 @@ namespace pdf2htmlEX {
 
 void HTMLRenderer::drawImage(GfxState * state, Object * ref, Stream * str, int width, int height, GfxImageColorMap * colorMap, GBool interpolate, int *maskColors, GBool inlineImg)
 {
+    tracer.draw_image(state);
+
     return OutputDev::drawImage(state,ref,str,width,height,colorMap,interpolate,maskColors,inlineImg);
 
 #if 0
@@ -60,6 +62,22 @@ void HTMLRenderer::drawImage(GfxState * state, Object * ref, Stream * str, int w
 
     ++ image_count;
 #endif
+}
+
+void HTMLRenderer::drawSoftMaskedImage(GfxState *state, Object *ref, Stream *str,
+                   int width, int height,
+                   GfxImageColorMap *colorMap,
+                   GBool interpolate,
+                   Stream *maskStr,
+                   int maskWidth, int maskHeight,
+                   GfxImageColorMap *maskColorMap,
+                   GBool maskInterpolate)
+{
+    tracer.draw_image(state);
+
+    return OutputDev::drawSoftMaskedImage(state,ref,str, // TODO really required?
+            width,height,colorMap,interpolate,
+            maskStr, maskWidth, maskHeight, maskColorMap, maskInterpolate);
 }
 
 } // namespace pdf2htmlEX

@@ -46,6 +46,7 @@ void HTMLRenderer::updateFont(GfxState * state)
 void HTMLRenderer::updateCTM(GfxState * state, double m11, double m12, double m21, double m22, double m31, double m32) 
 {
     ctm_changed = true; 
+    tracer.set_ctm(state);
 }
 void HTMLRenderer::updateTextMat(GfxState * state) 
 {
@@ -89,14 +90,17 @@ void HTMLRenderer::updateStrokeColor(GfxState * state)
 void HTMLRenderer::clip(GfxState * state)
 {
     clip_changed = true;
+    tracer.clip(state);
 }
 void HTMLRenderer::eoClip(GfxState * state)
 {
     clip_changed = true;
+    tracer.clip(state, true);
 }
 void HTMLRenderer::clipToStrokePath(GfxState * state)
 {
     clip_changed = true;
+    tracer.clip_to_stroke_path(state);
 }
 void HTMLRenderer::reset_state()
 {
@@ -118,6 +122,9 @@ void HTMLRenderer::reset_state()
     cur_line_state.x = 0;
     cur_line_state.y = 0;
     memcpy(cur_line_state.transform_matrix, ID_MATRIX, sizeof(cur_line_state.transform_matrix));
+
+    if (param.process_covered_text)
+        cur_line_state.chars_covered = &covered_text_handler.get_chars_covered();
 
     cur_clip_state.xmin = 0;
     cur_clip_state.xmax = 0;
@@ -500,6 +507,8 @@ void HTMLRenderer::prepare_text_line(GfxState * state)
     {
         // update position such that they will be recorded by text_line_buf
         state->transform(state->getCurX(), state->getCurY(), &cur_line_state.x, &cur_line_state.y);
+        if (param.process_covered_text)
+            cur_line_state.first_char_index = covered_text_handler.get_chars_covered().size();
         html_text_page.open_new_line(cur_line_state);
 
         cur_text_state.vertical_align = 0;

@@ -73,6 +73,8 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
             cerr << "TODO: non-zero origins" << endl;
         }
 
+        tracer.draw_char(state, dx, dy, dx1, dy1); //TODO dx dy seems not correct?
+
         bool is_space = false;
         if (n == 1 && *p == ' ') 
         {

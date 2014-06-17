@@ -30,6 +30,39 @@ using std::sqrt;
 using std::vector;
 using std::ostream;
 
+void HTMLRenderer::restoreState(GfxState * state)
+{
+    updateAll(state);
+    tracer.restore();
+}
+
+void HTMLRenderer::saveState(GfxState *state)
+{
+    tracer.save();
+}
+
+void HTMLRenderer::stroke(GfxState * state)
+{
+    tracer.stroke(state);
+}
+
+void HTMLRenderer::fill(GfxState * state)
+{
+    tracer.fill(state);
+}
+
+void HTMLRenderer::eoFill(GfxState * state)
+{
+    tracer.fill(state, true);
+}
+
+GBool HTMLRenderer::axialShadedFill(GfxState *state, GfxAxialShading *shading, double tMin, double tMax)
+{
+    tracer.fill(state); //TODO correct?
+    return true;
+}
+
+#if 0 //disable css drawing
 static bool is_horizontal_line(GfxSubpath * path)
 {
     return ((path->getNumPoints() == 2)
@@ -415,6 +448,7 @@ void HTMLRenderer::css_draw_rectangle(double x, double y, double w, double h, co
 
     (*f_curpage) << "\"></div>";
 }
+#endif //disable css drawing
 
 
 } // namespace pdf2htmlEX
