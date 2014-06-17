@@ -88,6 +88,13 @@ void SplashBackgroundRenderer::drawChar(GfxState *state, double x, double y,
     {
         SplashOutputDev::drawChar(state,x,y,dx,dy,originX,originY,code,nBytes,u,uLen);
     }
+    // If a char is treated as image, it is not subject to cover test
+    // (see HTMLRenderer::drawString), so don't increase drawn_char_count.
+    else if (param.process_covered_text) {
+        if (html_renderer->get_chars_covered()[drawn_char_count])
+            SplashOutputDev::drawChar(state,x,y,dx,dy,originX,originY,code,nBytes,u,uLen);
+        drawn_char_count++;
+    }
 }
 
 void SplashBackgroundRenderer::init(PDFDoc * doc)
@@ -101,6 +108,7 @@ static GBool annot_cb(Annot *, void * pflag) {
 
 bool SplashBackgroundRenderer::render_page(PDFDoc * doc, int pageno)
 {
+    drawn_char_count = 0;
     bool process_annotation = param.process_annotation;
     doc->displayPage(this, pageno, param.h_dpi, param.v_dpi,
             0, 
