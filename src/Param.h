@@ -63,6 +63,8 @@ struct Param
 
     // background image
     std::string bg_format;
+    int svg_node_count_limit;
+    int svg_embed_bitmap;
 
     // encryption
     std::string owner_password, user_password;

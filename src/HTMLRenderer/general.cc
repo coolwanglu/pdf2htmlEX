@@ -98,12 +98,17 @@ void HTMLRenderer::process(PDFDoc *doc)
     // Process pages
 
     bg_renderer = nullptr;
+    fallback_bg_renderer = nullptr;
     if(param.process_nontext)
     {
         bg_renderer = BackgroundRenderer::getBackgroundRenderer(param.bg_format, this, param);
         if(!bg_renderer)
             throw "Cannot initialize background renderer, unsupported format";
         bg_renderer->init(doc);
+
+        fallback_bg_renderer = BackgroundRenderer::getFallbackBackgroundRenderer(this, param);
+        if (fallback_bg_renderer)
+            fallback_bg_renderer->init(doc);
     }
 
     int page_count = (param.last_page - param.first_page + 1);
@@ -130,7 +135,9 @@ void HTMLRenderer::process(PDFDoc *doc)
 
         if(param.process_nontext)
         {
-            bg_renderer->render_page(doc, i);
+            fallback_bg_required = !bg_renderer->render_page(doc, i);
+            if (fallback_bg_required && fallback_bg_renderer != nullptr)
+                fallback_bg_renderer->render_page(doc, i);
         }
 
         doc->displayPage(this, i,
@@ -162,6 +169,11 @@ void HTMLRenderer::process(PDFDoc *doc)
     {
         delete bg_renderer;
         bg_renderer = nullptr;
+    }
+    if(fallback_bg_renderer)
+    {
+        delete fallback_bg_renderer;
+        fallback_bg_renderer = nullptr;
     }
 
     cerr << endl;
@@ -219,7 +231,10 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state, XRef * xref)
 
     if(param.process_nontext)
     {
-        bg_renderer->embed_image(pageNum);
+        if (!fallback_bg_required)
+            bg_renderer->embed_image(pageNum);
+        else if (fallback_bg_renderer != nullptr)
+            fallback_bg_renderer->embed_image(pageNum);
     }
 
     reset_state();

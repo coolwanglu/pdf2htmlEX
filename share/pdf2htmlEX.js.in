@@ -372,9 +372,8 @@ Viewer.prototype = {
         var _idx = idx;
         var xhr = new XMLHttpRequest();
         xhr.open('GET', url, true);
-        xhr.onreadystatechange = function(){
-          if (xhr.readyState != 4) return;
-          if (xhr.status === 200) {
+        xhr.onload = function(){
+          if (xhr.status === 200 || xhr.status === 0) {
             // find the page element in the data
             var div = document.createElement('div');
             div.innerHTML = xhr.responseText;
