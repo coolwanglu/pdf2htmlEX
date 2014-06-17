@@ -13,7 +13,7 @@
 namespace pdf2htmlEX
 {
 
-DrawingTracer::DrawingTracer(const Param & param):param(param)
+DrawingTracer::DrawingTracer(const Param & param): param(param), cairo(nullptr)
 {
 }
 

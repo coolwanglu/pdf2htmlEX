@@ -63,7 +63,7 @@ private:
     void transform_bbox_by_ctm(double * bbox);
 
     const Param & param;
-    cairo_t * cairo = nullptr;
+    cairo_t * cairo;
 };
 
 } /* namespace pdf2htmlEX */

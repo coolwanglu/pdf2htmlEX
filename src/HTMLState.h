@@ -63,8 +63,10 @@ struct HTMLLineState
     double x,y;
     double transform_matrix[4];
     // The page-cope char index(in drawing order) of the first char in this line.
-    int first_char_index = -1;
-    const std::vector<bool> * chars_covered = nullptr;
+    int first_char_index;
+    const std::vector<bool> * chars_covered;
+
+    HTMLLineState(): first_char_index(-1), chars_covered(nullptr) { }
 };
 
 struct HTMLClipState
