@@ -55,7 +55,7 @@ protected:
 private:
   // convert bitmap stream id to bitmap file name. No pageno prefix,
   // because a bitmap may be shared by multiple pages.
-  std::string & build_bitmap_path(int id, std::string & path);
+  std::string build_bitmap_path(int id);
   // map<id_of_bitmap_stream, usage_count_in_all_svgs>
   // note: if a svg bg fallbacks to bitmap bg, its bitmaps are not taken into account.
   std::unordered_map<int, int> bitmaps_ref_count;

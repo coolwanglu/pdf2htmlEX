@@ -177,13 +177,22 @@ void SplashBackgroundRenderer::dump_image(const char * filename, int x1, int y1,
     // use unique_ptr to auto delete the object upon exception
     unique_ptr<ImgWriter> writer;
 
-    if(format == "png")
+    if(false) { }
+#ifdef ENABLE_LIBPNG
+    else if(format == "png")
     {
         writer = unique_ptr<ImgWriter>(new PNGWriter);
     }
+#endif
+#ifdef ENABLE_LIBJPEG
     else if(format == "jpg")
     {
         writer = unique_ptr<ImgWriter>(new JpegWriter);
+    }
+#endif
+    else
+    {
+        throw string("Image format not supported: ") + format;
     }
 
     if(!writer->init(f, width, height, param.h_dpi, param.v_dpi))

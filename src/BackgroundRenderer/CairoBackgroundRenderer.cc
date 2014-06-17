@@ -38,8 +38,7 @@ CairoBackgroundRenderer::~CairoBackgroundRenderer()
     {
         if (itr->second == 0)
         {
-            string path;
-            html_renderer->tmp_files.add(this->build_bitmap_path(itr->first, path));
+            html_renderer->tmp_files.add(this->build_bitmap_path(itr->first));
         }
     }
 }
@@ -101,7 +100,7 @@ bool CairoBackgroundRenderer::render_page(PDFDoc * doc, int pageno)
     cairo_t * cr = cairo_create(surface);
     setCairo(cr);
 
-    bitmaps_in_current_page.resize(0);
+    bitmaps_in_current_page.clear();
 
     bool process_annotation = param.process_annotation;
     doc->displayPage(this, pageno, param.h_dpi, param.v_dpi,
@@ -189,10 +188,10 @@ void CairoBackgroundRenderer::embed_image(int pageno)
     f_page << "\"/>";
 }
 
-string & CairoBackgroundRenderer::build_bitmap_path(int id, string & path)
+string CairoBackgroundRenderer::build_bitmap_path(int id)
 {
-    // "po" for "PDF Object"
-    return path = html_renderer->str_fmt("%s/po-%d.jpg", param.dest_dir.c_str(), id);
+    // "o" for "PDF Object"
+    return string(html_renderer->str_fmt("%s/o%d.jpg", param.dest_dir.c_str(), id));
 }
 // Override CairoOutputDev::setMimeData() and dump bitmaps in SVG to external files.
 void CairoBackgroundRenderer::setMimeData(Stream *str, Object *ref, cairo_surface_t *image)
@@ -212,7 +211,7 @@ void CairoBackgroundRenderer::setMimeData(Stream *str, Object *ref, cairo_surfac
         return;
 
     int imgId = ref->getRef().num;
-    auto uri = strdup((char*) html_renderer->str_fmt("po-%d.jpg", imgId));
+    auto uri = strdup((char*) html_renderer->str_fmt("o%d.jpg", imgId));
     auto st = cairo_surface_set_mime_data(image, CAIRO_MIME_TYPE_URI,
         (unsigned char*) uri, strlen(uri), free, uri);
     if (st)
@@ -231,8 +230,7 @@ void CairoBackgroundRenderer::setMimeData(Stream *str, Object *ref, cairo_surfac
     int len;
     if (getStreamData(str->getNextStream(), &strBuffer, &len))
     {
-        string path;
-        ofstream imgfile(build_bitmap_path(imgId, path), ofstream::binary);
+        ofstream imgfile(build_bitmap_path(imgId), ofstream::binary);
         imgfile.write(strBuffer, len);
         free(strBuffer);
     }
