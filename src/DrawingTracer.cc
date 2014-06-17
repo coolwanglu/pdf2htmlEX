@@ -162,8 +162,8 @@ void DrawingTracer::draw_non_char_bbox(GfxState * state, double * bbox)
 
 void DrawingTracer::draw_char_bbox(GfxState * state, double * bbox)
 {
-    // Note: even if 4 corner of the char are all in the clip area,
-    // it still could be partially clipped.
+    // Note: even if 4 corners of the char are all in or all out of the clip area,
+    // it could still be partially clipped.
     // TODO better solution?
     int pt_in = 0;
     if (cairo_in_clip(cairo, bbox[0], bbox[1]))
@@ -216,11 +216,9 @@ void DrawingTracer::draw_char(GfxState *state, double x, double y, double ax, do
         return;
 
     Matrix tm, itm;
-    //memcpy(tm_ctm.m, this->cur_text_tm, sizeof(tm_ctm.m));
     memcpy(tm.m, state->getTextMat(), sizeof(tm.m));
-    double fs = state->getFontSize();
 
-    double cx = state->getCurX(), cy = state->getCurY(),
+    double cx = state->getCurX(), cy = state->getCurY(), fs = state->getFontSize(),
             ry = state->getRise(), h = state->getHorizScaling();
 
     //cx and cy has been transformed by text matrix, we need to reverse them.
@@ -229,10 +227,10 @@ void DrawingTracer::draw_char(GfxState *state, double x, double y, double ax, do
     itm.transform(cx, cy, &char_cx, &char_cy);
 
     //TODO Vertical? Currently vertical/type3 chars are treated as non-chars.
-    double tchar[6] {fs * h, 0, 0, fs, char_cx + x, char_cy + y + ry};
+    double char_m[6] {fs * h, 0, 0, fs, char_cx + x, char_cy + y + ry};
 
-    double tfinal[6];
-    tm_multiply(tfinal, tm.m, tchar);
+    double final_m[6];
+    tm_multiply(final_m, tm.m, char_m);
 
     auto font = state->getFont();
     double bbox[4] {0, 0, ax, ay};
@@ -245,7 +243,7 @@ void DrawingTracer::draw_char(GfxState *state, double x, double y, double ax, do
     else
     {//TODO Vertical?
     }
-    tm_transform_bbox(tfinal, bbox);
+    tm_transform_bbox(final_m, bbox);
     draw_char_bbox(state, bbox);
 }
 

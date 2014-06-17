@@ -20,8 +20,6 @@
 #include <GfxFont.h>
 #include <Annot.h>
 
-#include <cairo.h>
-
 #include "pdf2htmlEX-config.h"
 
 #include "Param.h"
