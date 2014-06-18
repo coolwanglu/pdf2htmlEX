@@ -2,7 +2,6 @@
 
 <!--
 [![Build Status](https://travis-ci.org/coolwanglu/pdf2htmlEX.png?branch=master)](https://travis-ci.org/coolwanglu/pdf2htmlEX)
-
 -->
 A beautiful demo is worth a thousand words:
 
@@ -13,29 +12,21 @@ A beautiful demo is worth a thousand words:
 - **Git Manual** (CJK support): [HTML](http://coolwanglu.github.com/pdf2htmlEX/demo/chn.html) / [PDF](http://files.cnblogs.com/phphuaibei/git%E6%90%AD%E5%BB%BA.pdf)
 - [Try your own files](https://github.com/coolwanglu/pdf2htmlEX/wiki/Try-Your-Own-Files)
 
-[Browser requirements](https://github.com/coolwanglu/pdf2htmlEX/wiki/Browser-Requirements)
- 
-### Introduction
-
 pdf2htmlEX renders PDF files in HTML, utilizing modern Web technologies.
-It aims to provide an accurate rendering, while keeping optimized for Web display.
+Academic papers with lots of formulas and figures? Magazines with complicated laytous? No problem!
 
-pdf2htmlEX is best for text-based PDF files, for example scientific papers with complicated formulas and figures.
-Text, fonts and formats are natively preserved in HTML such that you can still search and copy.
-The generated HTML file is static, with optional features powered by JavaScript.
+pdf2htmlEX is also an [online publishing tool](http://coolwanglu.github.io/pdf2htmlEX/doc/tb108wang.html) which is flexible for many different use cases. 
 
-pdf2htmlEX is not only a *converter*, but also an [*online publishing tool*](http://coolwanglu.github.io/pdf2htmlEX/doc/tb108wang.html) which is flexible for many different use cases. Learn more about [who](https://github.com/coolwanglu/pdf2htmlEX/wiki/Use-Cases) and [why](https://github.com/coolwanglu/pdf2htmlEX/wiki/Introduction) should use pdf2htmlEX.
+Learn more about [who](https://github.com/coolwanglu/pdf2htmlEX/wiki/Use-Cases) and [why](https://github.com/coolwanglu/pdf2htmlEX/wiki/Introduction) should use pdf2htmlEX.
 
 ### Features
 
-* Precise and native text in HTML
-* Flexible Output
-* Moderate Size
-* More PDF stuffs that you love: links, outlines & printing
-* SVG background output & Type 3 font conversion
+* Native HTML text with precise font and location.
+* Flexible output: all-in-one HTML or on demand page loading (needs JavaScript).
+* Moderate file size, sometimes even smaller than PDF.
+* Support for links, outlines (bookmarks), printing, SVG background, Type 3 fonts and [more...](https://github.com/coolwanglu/pdf2htmlEX/wiki/Feature-List)
 
-[Learn more](https://github.com/coolwanglu/pdf2htmlEX/wiki/Feature-List)   
-[Compare with others](https://github.com/coolwanglu/pdf2htmlEX/wiki/Comparison)
+[Compare to others](https://github.com/coolwanglu/pdf2htmlEX/wiki/Comparison)
 
 ### Wiki Portals
 
@@ -44,18 +35,28 @@ pdf2htmlEX is not only a *converter*, but also an [*online publishing tool*](htt
  * [Building](https://github.com/coolwanglu/pdf2htmlEX/wiki/Building)
  * [Quick Start](https://github.com/coolwanglu/pdf2htmlEX/wiki/Quick-Start)
  * [Report Issues / Ask for Help](https://github.com/coolwanglu/pdf2htmlEX/blob/master/CONTRIBUTING.md#guidance)
- * [FAQ](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ)
 
 ### Get in Touch
 
+Get quick answers for common questions:
+ * [FAQ](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ)
+
+Don't miss the latest news of the development:
  * [Development Blog](http://pdf2htmlex.blogspot.com) 
  * [@pdf2htmlEX](https://twitter.com/pdf2htmlEX) 
+
+Discuss with the developers and the users of pdf2htmlEX
  * [Mailing List](https://groups.google.com/forum/#!forum/pdf2htmlex)
-  - [中文邮件列表](https://groups.google.com/forum/#!forum/pdf2htmlex-cn)
- * Lead author: 王璐 (Lu Wang) <coolwanglu+no.support.for.pdf2htmlEX@gmail.com> or [@coolwanglu](https://twitter.com/coolwanglu)
-  - Questions about pdf2htmlEX? Use the mailling list instead.
-  - Accepting messages in **中文**, **English** or **日本語**
- * [Make a donation](http://coolwanglu.github.io/pdf2htmlEX/donate.html)
+ * [中文邮件列表](https://groups.google.com/forum/#!forum/pdf2htmlex-cn)
+ 
+Chat with the main author: 王璐 (Lu Wang)
+ * <coolwanglu+no.support.for.pdf2htmlEX@gmail.com>
+ * [@coolwanglu](https://twitter.com/coolwanglu)
+ * Questions about pdf2htmlEX? Use the mailling list instead.
+ * Accepting messages in **中文**, **English** or **日本語**
+ 
+Want to help without coding? Thank you!
+* [Make a donation](http://coolwanglu.github.io/pdf2htmlEX/donate.html)
  
 ### LICENSE
 
