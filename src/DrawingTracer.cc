@@ -232,6 +232,7 @@ void DrawingTracer::draw_char_bbox(GfxState * state, double * bbox)
 
     if (pt_in == 0)
     {
+        transform_bbox_by_ctm(bbox);
         if(on_char_clipped)
             on_char_clipped(bbox, false);
     }
@@ -255,6 +256,7 @@ void DrawingTracer::draw_char_bbox(GfxState * state, double * bbox)
                 on_char_drawn(bbox);
         }
     }
+    DT_DEBUG(printf("DrawingTracer::draw_char_bbox:[%f,%f,%f,%f]\n",bbox[0],bbox[1],bbox[2],bbox[3]));
 }
 
 void DrawingTracer::draw_image(GfxState *state)
