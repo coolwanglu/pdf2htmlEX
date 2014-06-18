@@ -10,6 +10,9 @@
 #include "util/math.h"
 #include "DrawingTracer.h"
 
+//#define DT_DEBUG(x)  (x)
+#define DT_DEBUG(x)
+
 namespace pdf2htmlEX
 {
 
@@ -128,14 +131,63 @@ void DrawingTracer::stroke(GfxState * state)
 {
     if (!param.process_covered_text)
         return;
-    // TODO
-    // 1. if stroke extents is large, break the path into pieces and handle each of them;
-    // 2. if the line width is small, could just ignore the path?
-    do_path(state, state->getPath());
+
+    DT_DEBUG(printf("DrawingTracer::stroke\n"));
+
     cairo_set_line_width(cairo, state->getLineWidth());
-    double sbox[4];
-    cairo_stroke_extents(cairo, sbox, sbox + 1, sbox + 2, sbox + 3);
-    draw_non_char_bbox(state, sbox);
+
+    // GfxPath is broken into steps, each step makes up a cairo path and its bbox is used for covering test.
+    // TODO
+    // 1. path steps that are not vertical or horizontal lines may still falsely "cover" many chars,
+    // can we slice those steps further?
+    // 2. if the line width is small, can we just ignore the path?
+    GfxPath * path = state->getPath();
+    for (int i = 0; i < path->getNumSubpaths(); ++i) {
+        GfxSubpath * subpath = path->getSubpath(i);
+        if (subpath->getNumPoints() <= 0)
+            continue;
+        double x = subpath->getX(0);
+        double y = subpath->getY(0);
+        //p: loop cursor; j: next point index
+        int p =1, j = 1;
+        int n = subpath->getNumPoints();
+        while (p <= n) {
+            cairo_new_path(cairo);
+            cairo_move_to(cairo, x, y);
+            if (subpath->getCurve(j)) {
+                x = subpath->getX(j+2);
+                y = subpath->getY(j+2);
+                cairo_curve_to(cairo,
+                    subpath->getX(j), subpath->getY(j),
+                    subpath->getX(j+1), subpath->getY(j+1),
+                    x, y);
+                p += 3;
+            } else {
+                x = subpath->getX(j);
+                y = subpath->getY(j);
+                cairo_line_to(cairo, x, y);
+                ++p;
+            }
+
+            DT_DEBUG(printf("DrawingTracer::stroke:new box:\n"));
+            double sbox[4];
+            cairo_stroke_extents(cairo, sbox, sbox + 1, sbox + 2, sbox + 3);
+            if (sbox[0] != sbox[2] && sbox[1] != sbox[3])
+                draw_non_char_bbox(state, sbox);
+            else
+                DT_DEBUG(printf("DrawingTracer::stroke:zero box!\n"));
+
+            if (p == n)
+            {
+                if (subpath->isClosed())
+                    j = 0; // if sub path is closed, go back to starting point
+                else
+                    break;
+            }
+            else
+                j = p;
+        }
+    }
 }
 
 void DrawingTracer::fill(GfxState * state, bool even_odd)
@@ -157,6 +209,7 @@ void DrawingTracer::draw_non_char_bbox(GfxState * state, double * bbox)
     if(bbox_intersect(cbox, bbox, bbox))
     {
         transform_bbox_by_ctm(bbox);
+        DT_DEBUG(printf("DrawingTracer::draw_non_char_bbox:[%f,%f,%f,%f]\n", bbox[0],bbox[1],bbox[2],bbox[3]));
         if (on_non_char_drawn)
             on_non_char_drawn(bbox);
     }
