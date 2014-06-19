@@ -1,4 +1,4 @@
-#![](http://coolwanglu.github.io/pdf2htmlEX/images/pdf2htmlEX-64x64.png)pdf2htmlEX 
+#![](http://coolwanglu.github.io/pdf2htmlEX/images/pdf2htmlEX-64x64.png) pdf2htmlEX 
 
 <!--
 [![Build Status](https://travis-ci.org/coolwanglu/pdf2htmlEX.png?branch=master)](https://travis-ci.org/coolwanglu/pdf2htmlEX)
@@ -13,7 +13,7 @@
 - [:point_right:Try your own files](https://github.com/coolwanglu/pdf2htmlEX/wiki/Try-Your-Own-Files)
 
 pdf2htmlEX renders PDF files in HTML, utilizing modern Web technologies.
-Academic papers with lots of formulas and figures? Magazines with complicated laytous? No problem!
+Academic papers with lots of formulas and figures? Magazines with complicated layouts? No problem!
 
 pdf2htmlEX is also an [online publishing tool](http://coolwanglu.github.io/pdf2htmlEX/doc/tb108wang.html) which is flexible for many different use cases. 
 
