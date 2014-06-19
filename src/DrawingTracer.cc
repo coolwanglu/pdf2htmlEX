@@ -141,6 +141,10 @@ void DrawingTracer::stroke(GfxState * state)
     // 1. path steps that are not vertical or horizontal lines may still falsely "cover" many chars,
     // can we slice those steps further?
     // 2. if the line width is small, can we just ignore the path?
+    // 3. line join feature can't be retained. We use line-cap-square to minimize the problem that
+    //   some chars actually covered by a line join are missed. However chars covered by a acute angle
+    //   with line-join-miter may be still recognized as not covered.
+    cairo_set_line_cap(cairo, CAIRO_LINE_CAP_SQUARE);
     GfxPath * path = state->getPath();
     for (int i = 0; i < path->getNumSubpaths(); ++i) {
         GfxSubpath * subpath = path->getSubpath(i);
