@@ -14,6 +14,9 @@
 #include "util/namespace.h"
 #include "util/unicode.h"
 
+//#define HR_DEBUG(x)  (x)
+#define HR_DEBUG(x)
+
 namespace pdf2htmlEX {
 
 using std::all_of;
@@ -61,16 +64,17 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
     //origin of current char, in glyph space
     double ox, oy;
 
-    int nChars = 0;
-    int nSpaces = 0;
     int uLen;
 
     CharCode code;
     Unicode *u = nullptr;
 
+    HR_DEBUG(printf("HTMLRenderer::drawString:len=%d\n", len));
+
     while (len > 0) 
     {
         auto n = font->getNextChar(p, len, &code, &u, &uLen, &ax, &ay, &ox, &oy);
+        HR_DEBUG(printf("HTMLRenderer::drawString:unicode=%d\n", u[0]));
 
         if(!(equal(ox, 0) && equal(oy, 0)))
         {
@@ -93,7 +97,7 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
              * There are always ugly PDF files with no useful info at all.
              */
             is_space = true;
-            ++nSpaces;
+            ddx += cur_word_space * cur_horiz_scaling;
         }
         
         if(is_space && (param.space_as_offset))
@@ -134,15 +138,9 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
         dx += ddx;
         dy += ddy;
 
-        ++nChars;
         p += n;
         len -= n;
     }
-
-    // horiz_scaling is merged into ctm now, 
-    // so the coordinate system is ugly
-    dx = (dx * cur_font_size + nChars * cur_letter_space + nSpaces * cur_word_space) * cur_horiz_scaling;
-    dy *= cur_font_size;
 
     cur_tx += dx;
     cur_ty += dy;
