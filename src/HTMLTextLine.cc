@@ -168,7 +168,7 @@ void HTMLTextLine::dump_text(ostream & out)
                 double actual_offset = 0;
 
                 //ignore near-zero offsets
-                if(abs(target) <= param.h_eps)
+                if(std::abs(target) <= param.h_eps)
                 {
                     actual_offset = 0;
                 }
@@ -179,7 +179,7 @@ void HTMLTextLine::dump_text(ostream & out)
                     if(!(state_iter1->hash_umask & State::umask_by_id(State::WORD_SPACE_ID)))
                     {
                         double space_off = state_iter1->single_space_offset();
-                        if(abs(target - space_off) <= param.h_eps)
+                        if(std::abs(target - space_off) <= param.h_eps)
                         {
                             Unicode u = ' ';
                             writeUnicodes(out, &u, 1);
@@ -351,7 +351,7 @@ void HTMLTextLine::optimize_normal(std::vector<HTMLTextLine*> & lines)
             {
                 const double target = off_iter->width;
                 auto iter = width_map.lower_bound(target-EPS);
-                if((iter != width_map.end()) && (abs(iter->first - target) <= EPS))
+                if((iter != width_map.end()) && (std::abs(iter->first - target) <= EPS))
                 {
                     ++ iter->second;
                 }

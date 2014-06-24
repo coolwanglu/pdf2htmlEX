@@ -44,7 +44,7 @@ public:
     // return the corresponding id
     long long install(double new_value, double * actual_value_ptr = nullptr) {
         auto iter = value_map.lower_bound(new_value - eps);
-        if((iter != value_map.end()) && (abs(iter->first - new_value) <= eps)) 
+        if((iter != value_map.end()) && (std::abs(iter->first - new_value) <= eps))
         {
             if(actual_value_ptr != nullptr)
                 *actual_value_ptr = iter->first;

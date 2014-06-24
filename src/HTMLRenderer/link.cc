@@ -230,7 +230,7 @@ void HTMLRenderer::processLink(AnnotLink * al)
                         x, y, w, h,
                         border_top_bottom_width, border_left_right_width);
 
-                if(abs(border_top_bottom_width - border_left_right_width) < EPS)
+                if(std::abs(border_top_bottom_width - border_left_right_width) < EPS)
                     (*f_curpage) << "border-width:" << round(border_top_bottom_width) << "px;";
                 else
                     (*f_curpage) << "border-width:" << round(border_top_bottom_width) << "px " << round(border_left_right_width) << "px;";
