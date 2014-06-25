@@ -24,6 +24,13 @@ static inline bool tm_equal(const double * tm1, const double * tm2, int size = 6
             return false;
     return true;
 }
+
+static inline void tm_init(double * tm)
+{
+    tm[0] = tm[3] = 1;
+    tm[1] = tm[2] = tm[4] = tm[5] = 0;
+}
+
 static inline void tm_multiply(double * result, const double * m1, const double * m2)
 {
     result[0] = m1[0] * m2[0] + m1[2] * m2[1];

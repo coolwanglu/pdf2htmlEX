@@ -11,7 +11,12 @@
 #include <functional>
 
 #include <GfxState.h>
+
+#include "pdf2htmlEX-config.h"
+
+#if ENABLE_SVG
 #include <cairo.h>
+#endif
 
 #include "Param.h"
 
@@ -60,10 +65,14 @@ private:
     void do_path(GfxState * state, GfxPath * path);
     void draw_non_char_bbox(GfxState * state, double * bbox);
     void draw_char_bbox(GfxState * state, double * bbox);
-    void transform_bbox_by_ctm(double * bbox);
+    // If cairo is available, parameter state is ignored
+    void transform_bbox_by_ctm(double * bbox, GfxState * state = nullptr);
 
     const Param & param;
+
+#if ENABLE_SVG
     cairo_t * cairo;
+#endif
 };
 
 } /* namespace pdf2htmlEX */
