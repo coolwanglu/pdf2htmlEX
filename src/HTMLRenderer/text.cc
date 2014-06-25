@@ -57,7 +57,7 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
     //accumulated displacement of chars in this string, in text object space
     double dx = 0;
     double dy = 0;
-    //displacement of current char, in text object space
+    //displacement of current char, in text object space, including letter space but not word space.
     double ddx, ddy;
     //advance of current char, in glyph space
     double ax, ay;
@@ -97,7 +97,6 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
              * There are always ugly PDF files with no useful info at all.
              */
             is_space = true;
-            ddx += cur_word_space * cur_horiz_scaling;
         }
         
         if(is_space && (param.space_as_offset))
@@ -137,6 +136,8 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
 
         dx += ddx;
         dy += ddy;
+        if (is_space)
+            dx += cur_word_space * cur_horiz_scaling;
 
         p += n;
         len -= n;
