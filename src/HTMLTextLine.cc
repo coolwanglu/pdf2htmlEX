@@ -36,7 +36,14 @@ HTMLTextLine::HTMLTextLine (const HTMLLineState & line_state, const Param & para
 
 void HTMLTextLine::append_unicodes(const Unicode * u, int l, double width)
 {
-    text.insert(text.end(), u, u+l);
+    if (l == 1)
+        text.push_back(min(u[0], (unsigned)INT_MAX));
+    else
+    {
+        text.push_back(- decomposed_text.size() - 1);
+        decomposed_text.emplace_back();
+        decomposed_text.back().assign(u, u + l);
+    }
     this->width += width;
 }
 
@@ -69,30 +76,54 @@ void HTMLTextLine::append_state(const HTMLTextState & text_state)
     last_state.font_size *= last_state.font_info->font_size_scale;
 }
 
-void HTMLTextLine::dump_chars(ostream & out, const Unicode * u, int uLen)
+void HTMLTextLine::dump_char(std::ostream & out, int pos)
 {
-    if (!line_state.chars_covered)
+    int c = text[pos];
+    if (c > 0)
     {
-        writeUnicodes(out, u, uLen);
+        Unicode u = c;
+        writeUnicodes(out, &u, 1);
+    }
+    else if (c < 0)
+    {
+        auto dt = decomposed_text[- c - 1];
+        writeUnicodes(out, &dt.front(), dt.size());
+    }
+}
+
+void HTMLTextLine::dump_chars(ostream & out, int begin, int len)
+{
+    if (line_state.first_char_index < 0)
+    {
+        for (int i = 0; i < len; i++)
+            dump_char(out, begin + i);
         return;
     }
 
-    //TODO merge sibling invisiable spans
-    int start = this->line_state.first_char_index + dumped_char_count;
-    for(int i = 0; i < uLen; i++)
+    bool invisible_group_open = false;
+    for(int i = 0; i < len; i++)
     {
-        if (!(*line_state.chars_covered)[start + i]) //visible
+        if (!line_state.is_char_covered(line_state.first_char_index + begin + i)) //visible
         {
-            writeUnicodes(out, u + i, 1);
+            if (invisible_group_open)
+            {
+                invisible_group_open = false;
+                out << "</span>";
+            }
+            dump_char(out, begin + i);
         }
         else
         {
-            out << "<span style=\"color:transparent\">";
-            writeUnicodes(out, u + i, 1);
-            out << "</span>";
+            if (!invisible_group_open)
+            {
+                out << "<span style=\"color:transparent\">";
+                invisible_group_open = true;
+            }
+            dump_char(out, begin + i);
         }
     }
-    dumped_char_count += uLen;
+    if (invisible_group_open)
+        out << "</span>";
 }
 
 void HTMLTextLine::dump_text(ostream & out)
@@ -109,8 +140,6 @@ void HTMLTextLine::dump_text(ostream & out)
         cerr << "Warning: text without a style! Must be a bug in pdf2htmlEX" << endl;
         return;
     }
-
-    dumped_char_count = 0;
 
     // Start Output
     {
@@ -244,7 +273,7 @@ void HTMLTextLine::dump_text(ostream & out)
                 size_t next_text_idx = text_idx2;
                 if((cur_offset_iter != offsets.end()) && (cur_offset_iter->start_idx) < next_text_idx)
                     next_text_idx = cur_offset_iter->start_idx;
-                dump_chars(out, (&text.front()) + cur_text_idx, next_text_idx - cur_text_idx);
+                dump_chars(out, cur_text_idx, next_text_idx - cur_text_idx);
                 cur_text_idx = next_text_idx;
             }
         }

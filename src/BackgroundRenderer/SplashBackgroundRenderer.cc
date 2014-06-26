@@ -91,7 +91,7 @@ void SplashBackgroundRenderer::drawChar(GfxState *state, double x, double y,
     // If a char is treated as image, it is not subject to cover test
     // (see HTMLRenderer::drawString), so don't increase drawn_char_count.
     else if (param.process_covered_text) {
-        if (html_renderer->get_chars_covered()[drawn_char_count])
+        if (html_renderer->is_char_covered(drawn_char_count))
             SplashOutputDev::drawChar(state,x,y,dx,dy,originX,originY,code,nBytes,u,uLen);
         drawn_char_count++;
     }

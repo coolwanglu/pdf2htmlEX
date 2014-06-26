@@ -74,7 +74,7 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
     while (len > 0) 
     {
         auto n = font->getNextChar(p, len, &code, &u, &uLen, &ax, &ay, &ox, &oy);
-        HR_DEBUG(printf("HTMLRenderer::drawString:unicode=%d\n", u[0]));
+        HR_DEBUG(printf("HTMLRenderer::drawString:unicode=%lc(%d)\n", (wchar_t)u[0], u[0]));
 
         if(!(equal(ox, 0) && equal(oy, 0)))
         {
@@ -101,6 +101,7 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
         
         if(is_space && (param.space_as_offset))
         {
+            html_text_page.get_cur_line()->append_padding_char();
             // ignore horiz_scaling, as it has been merged into CTM
             html_text_page.get_cur_line()->append_offset((ax * cur_font_size + cur_letter_space + cur_word_space) * draw_text_scale);
         }
@@ -148,6 +149,18 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
         
     draw_tx += dx;
     draw_ty += dy;
+}
+
+bool HTMLRenderer::is_char_covered(int index)
+{
+    auto covered = covered_text_handler.get_chars_covered();
+    if (index < 0 || index >= (int)covered.size())
+    {
+        std::cerr << "Warning: HTMLRenderer::is_char_covered: index out of bound: "
+                << index << ", size: " << covered.size() <<endl;
+        return false;
+    }
+    return covered[index];
 }
 
 } // namespace pdf2htmlEX

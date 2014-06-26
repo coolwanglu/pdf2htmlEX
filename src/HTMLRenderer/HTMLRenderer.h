@@ -150,7 +150,14 @@ public:
     bool can_stroke(GfxState *state) { return false; } ////{ return css_do_path(state, false, true); }
     bool can_fill(GfxState *state) { return false; } ////{ return css_do_path(state, true, true); }
 
-    const std::vector<bool> & get_chars_covered() { return covered_text_handler.get_chars_covered(); }
+    /*
+     * Covered text handling.
+     */
+    // Is a char (actually a glyph) covered by non-char's. Index in drawing order in current page.
+    // Does not fail on out-of-bound conditions, but return false.
+    bool is_char_covered(int index);
+    // Currently drawn char (glyph) count in current page.
+    int get_char_count() { return (int)covered_text_handler.get_chars_covered().size(); }
 
 protected:
     ////////////////////////////////////////////////////

@@ -5,6 +5,8 @@
 #ifndef HTMLSTATE_H__
 #define HTMLSTATE_H__
 
+#include <functional>
+
 #include "Color.h"
 
 namespace pdf2htmlEX {
@@ -64,9 +66,10 @@ struct HTMLLineState
     double transform_matrix[4];
     // The page-cope char index(in drawing order) of the first char in this line.
     int first_char_index;
-    const std::vector<bool> * chars_covered;
+    // A function to determine whether a char is covered at a given index.
+    std::function<bool(int)> is_char_covered;
 
-    HTMLLineState(): first_char_index(-1), chars_covered(nullptr) { }
+    HTMLLineState(): first_char_index(-1) { }
 };
 
 struct HTMLClipState
