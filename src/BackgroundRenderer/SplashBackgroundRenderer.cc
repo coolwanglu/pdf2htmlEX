@@ -78,7 +78,7 @@ void SplashBackgroundRenderer::drawChar(GfxState *state, double x, double y,
     // - OR there is special filling method
     // - OR using a writing mode font
     // - OR using a Type 3 font while param.process_type3 is not enabled
-    if((param.fallback)
+    if((param.fallback || param.proof)
        || ( (state->getFont()) 
             && ( (state->getFont()->getWMode())
                  || ((state->getFont()->getType() == fontType3) && (!param.process_type3))
@@ -88,6 +88,20 @@ void SplashBackgroundRenderer::drawChar(GfxState *state, double x, double y,
     {
         SplashOutputDev::drawChar(state,x,y,dx,dy,originX,originY,code,nBytes,u,uLen);
     }
+}
+
+void SplashBackgroundRenderer::beginString(GfxState *state, GooString * str)
+{
+    if (param.proof == 2)
+        proof_begin_string(state);
+    SplashOutputDev::beginString(state, str);
+}
+
+void SplashBackgroundRenderer::endTextObject(GfxState *state)
+{
+    if (param.proof == 2)
+        proof_end_text_object(state);
+    SplashOutputDev::endTextObject(state);
 }
 
 void SplashBackgroundRenderer::init(PDFDoc * doc)

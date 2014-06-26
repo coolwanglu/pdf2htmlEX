@@ -60,6 +60,10 @@ public:
           SplashOutputDev::fill(state);
   }
 
+  //for proof
+  void beginString(GfxState *state, GooString * str);
+  void endTextObject(GfxState *state);
+
 protected:
   void dump_image(const char * filename, int x1, int y1, int x2, int y2);
   HTMLRenderer * html_renderer;

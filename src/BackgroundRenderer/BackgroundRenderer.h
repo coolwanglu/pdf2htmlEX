@@ -12,6 +12,7 @@
 #include <string>
 
 class PDFDoc;
+class GfxState;
 
 namespace pdf2htmlEX {
 
@@ -26,14 +27,20 @@ public:
     // Currently only svg bg format might need a bitmap fallback.
     static BackgroundRenderer * getFallbackBackgroundRenderer(HTMLRenderer * html_renderer, const Param & param);
 
-    BackgroundRenderer() {}
-    virtual ~BackgroundRenderer() {}
+    BackgroundRenderer(): proof_state(nullptr) {}
+    virtual ~BackgroundRenderer();
 
     virtual void init(PDFDoc * doc) = 0;
     //return true on success, false otherwise (e.g. need a fallback)
     virtual bool render_page(PDFDoc * doc, int pageno) = 0;
     virtual void embed_image(int pageno) = 0;
 
+    // for proof output
+protected:
+    void proof_begin_string(GfxState *state);
+    void proof_end_text_object(GfxState *state);
+private:
+    GfxState * proof_state;
 };
 
 } // namespace pdf2htmlEX

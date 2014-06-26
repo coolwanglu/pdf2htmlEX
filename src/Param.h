@@ -76,6 +76,7 @@ struct Param
     std::string tmp_dir;
     int css_draw;
     int debug;
+    int proof;
 
     std::string input_filename, output_filename;
 };
