@@ -38,7 +38,7 @@ void HTMLTextLine::append_unicodes(const Unicode * u, int l, double width)
 {
     if (l == 1)
         text.push_back(min(u[0], (unsigned)INT_MAX));
-    else
+    else if (l > 1)
     {
         text.push_back(- decomposed_text.size() - 1);
         decomposed_text.emplace_back();
@@ -93,6 +93,8 @@ void HTMLTextLine::dump_char(std::ostream & out, int pos)
 
 void HTMLTextLine::dump_chars(ostream & out, int begin, int len)
 {
+    static const Color transparent { true, {0, 0, 0} };
+
     if (line_state.first_char_index < 0)
     {
         for (int i = 0; i < len; i++)
@@ -116,7 +118,9 @@ void HTMLTextLine::dump_chars(ostream & out, int begin, int len)
         {
             if (!invisible_group_open)
             {
-                out << "<span style=\"color:transparent\">";
+                out << "<span class=\"" << all_manager.fill_color.get_css_class_name()
+                    << all_manager.fill_color.install(transparent) << " " << all_manager.stroke_color.get_css_class_name()
+                    << all_manager.stroke_color.install(transparent) << "\">";
                 invisible_group_open = true;
             }
             dump_char(out, begin + i);
