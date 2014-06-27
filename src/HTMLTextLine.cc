@@ -93,7 +93,7 @@ void HTMLTextLine::dump_char(std::ostream & out, int pos)
 
 void HTMLTextLine::dump_chars(ostream & out, int begin, int len)
 {
-    static const Color transparent { true, {0, 0, 0} };
+    static const Color transparent(0, 0, 0, true);
 
     if (line_state.first_char_index < 0)
     {
