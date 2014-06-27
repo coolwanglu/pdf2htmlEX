@@ -26,9 +26,9 @@ struct Color
             return true;
         return ((rgb.r == c.rgb.r) && (rgb.g == c.rgb.g) && (rgb.b == c.rgb.b));
     }
-    void get_gfx_color(GfxColor & gc);
+    void get_gfx_color(GfxColor & gc) const;
     // Color distance, [0,1].
-    double distance(const Color & other);
+    double distance(const Color & other) const;
 };
 
 std::ostream & operator << (std::ostream & out, const Color & color);

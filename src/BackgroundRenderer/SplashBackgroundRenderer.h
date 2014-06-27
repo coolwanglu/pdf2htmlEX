@@ -61,6 +61,7 @@ public:
   }
 
   //for proof
+  void beginTextObject(GfxState *state);
   void beginString(GfxState *state, GooString * str);
   void endTextObject(GfxState *state);
 

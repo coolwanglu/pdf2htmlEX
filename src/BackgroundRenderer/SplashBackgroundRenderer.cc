@@ -90,6 +90,13 @@ void SplashBackgroundRenderer::drawChar(GfxState *state, double x, double y,
     }
 }
 
+void SplashBackgroundRenderer::beginTextObject(GfxState *state)
+{
+    if (param.proof == 2)
+        proof_begin_text_object(state, this);
+    SplashOutputDev::beginTextObject(state);
+}
+
 void SplashBackgroundRenderer::beginString(GfxState *state, GooString * str)
 {
     if (param.proof == 2)

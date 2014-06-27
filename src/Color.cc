@@ -33,14 +33,14 @@ ostream & operator << (ostream & out, const Color & color)
     return out;
 }
 
-void Color::get_gfx_color(GfxColor & gc)
+void Color::get_gfx_color(GfxColor & gc) const
 {
     gc.c[0] = rgb.r;
     gc.c[1] = rgb.g;
     gc.c[2] = rgb.b;
 }
 
-double Color::distance(const Color & other)
+double Color::distance(const Color & other) const
 {
     double dr = (double)rgb.r - other.rgb.r,
             dg = (double)rgb.g - other.rgb.g,

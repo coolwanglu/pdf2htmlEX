@@ -39,6 +39,7 @@ public:
 
     // for proof output
 protected:
+    void proof_begin_text_object(GfxState * state, OutputDev * dev);
     void proof_begin_string(GfxState * state, OutputDev * dev);
     void proof_end_text_object(GfxState * state, OutputDev * dev);
 private:

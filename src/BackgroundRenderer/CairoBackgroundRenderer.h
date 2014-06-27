@@ -45,6 +45,7 @@ public:
       CharCode code, int nBytes, Unicode *u, int uLen);
 
   //for proof
+  void beginTextObject(GfxState *state);
   void beginString(GfxState *state, GooString * str);
   void endTextObject(GfxState *state);
 
