@@ -68,14 +68,14 @@ void CairoBackgroundRenderer::drawChar(GfxState *state, double x, double y,
 void CairoBackgroundRenderer::beginString(GfxState *state, GooString * str)
 {
     if (param.proof == 2)
-        proof_begin_string(state);
+        proof_begin_string(state, this);
     CairoOutputDev::beginString(state, str);
 }
 
 void CairoBackgroundRenderer::endTextObject(GfxState *state)
 {
     if (param.proof == 2)
-        proof_end_text_object(state);
+        proof_end_text_object(state, this);
     CairoOutputDev::endTextObject(state);
 }
 

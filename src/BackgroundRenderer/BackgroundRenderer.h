@@ -10,9 +10,11 @@
 #define BACKGROUND_RENDERER_H__
 
 #include <string>
+#include <memory>
 
 class PDFDoc;
 class GfxState;
+class OutputDev;
 
 namespace pdf2htmlEX {
 
@@ -27,8 +29,8 @@ public:
     // Currently only svg bg format might need a bitmap fallback.
     static BackgroundRenderer * getFallbackBackgroundRenderer(HTMLRenderer * html_renderer, const Param & param);
 
-    BackgroundRenderer(): proof_state(nullptr) {}
-    virtual ~BackgroundRenderer();
+    BackgroundRenderer() {}
+    virtual ~BackgroundRenderer() {}
 
     virtual void init(PDFDoc * doc) = 0;
     //return true on success, false otherwise (e.g. need a fallback)
@@ -37,10 +39,10 @@ public:
 
     // for proof output
 protected:
-    void proof_begin_string(GfxState *state);
-    void proof_end_text_object(GfxState *state);
+    void proof_begin_string(GfxState * state, OutputDev * dev);
+    void proof_end_text_object(GfxState * state, OutputDev * dev);
 private:
-    GfxState * proof_state;
+    std::unique_ptr<GfxState> proof_state;
 };
 
 } // namespace pdf2htmlEX
