@@ -44,6 +44,11 @@ public:
       double originX, double originY,
       CharCode code, int nBytes, Unicode *u, int uLen);
 
+  //for proof
+  void beginTextObject(GfxState *state);
+  void beginString(GfxState *state, GooString * str);
+  void endTextObject(GfxState *state);
+
 protected:
   virtual void setMimeData(Stream *str, Object *ref, cairo_surface_t *image);
 

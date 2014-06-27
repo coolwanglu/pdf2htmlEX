@@ -49,4 +49,80 @@ BackgroundRenderer * BackgroundRenderer::getFallbackBackgroundRenderer(HTMLRende
     return nullptr;
 }
 
+void BackgroundRenderer::proof_begin_text_object(GfxState *state, OutputDev * dev)
+{
+    if (!proof_state)
+    {
+        PDFRectangle rect(0, 0, state->getPageWidth(), state->getPageHeight());
+        proof_state.reset(new GfxState(state->getHDPI(), state->getVDPI(), &rect, state->getRotate(), dev->upsideDown()));
+        proof_state->setFillColorSpace(new GfxDeviceRGBColorSpace());
+        proof_state->setStrokeColorSpace(new GfxDeviceRGBColorSpace());
+    }
+
+    int render = state->getRender();
+
+    // Save original render mode in proof_state, and restore in proof_end_text_object()
+    // This is due to poppler's OutputDev::updateRender() actually has no effect, we have to
+    // modify state directly, see proof_begin_string().
+    proof_state->setRender(render);
+}
+
+void BackgroundRenderer::proof_begin_string(GfxState *state, OutputDev * dev)
+{
+    int render = proof_state->getRender();
+    if (render == 3 || state->getRender() == 3) // hidden
+        return;
+
+    double lx = state->getFontSize() / 50, ly = lx;
+    tm_transform(state->getTextMat(), lx, ly, true);
+    proof_state->setLineWidth(std::min(fabs(lx), fabs(ly)));
+
+    static const Color red(1, 0, 0), green(0, 1, 0), blue(0, 0, 1), yellow(1, 1, 0), white(1, 1, 1);
+    Color fc, sc;
+    const Color *pfc, *psc;
+    state->getFillRGB(&fc.rgb);
+    state->getStrokeRGB(&sc.rgb);
+
+    if (render == 0 || render == 2) //has fill
+        pfc = fc.distance(red) >  0.4 ? &red : &green;
+    else
+        pfc = &red;
+
+    if (render == 1 || render == 2) // has stroke
+        psc = sc.distance(blue) >  0.4 ?  &blue : &yellow;
+    else if(render == 0) // fill only
+        psc = &white;
+    else
+        psc = &blue;
+
+    GfxColor gfc, gsc;
+    pfc->get_gfx_color(gfc);
+    psc->get_gfx_color(gsc);
+    proof_state->setFillColor(&gfc);
+    proof_state->setStrokeColor(&gsc);
+
+    if (state->getFillColorSpace()->getMode() != csDeviceRGB)
+        dev->updateFillColorSpace(proof_state.get());
+    if (state->getStrokeColorSpace()->getMode() != csDeviceRGB)
+        dev->updateStrokeColorSpace(proof_state.get());
+
+    dev->updateLineWidth(proof_state.get());
+    dev->updateFillColor(proof_state.get());
+    dev->updateStrokeColor(proof_state.get());
+
+    state->setRender(2); // fill & stroke
+    dev->updateRender(state);
+}
+
+void BackgroundRenderer::proof_end_text_object(GfxState *state, OutputDev * dev)
+{
+    state->setRender(proof_state->getRender());
+    dev->updateRender(state);
+    dev->updateLineWidth(state);
+    dev->updateFillColorSpace(state);
+    dev->updateStrokeColorSpace(state);
+    dev->updateFillColor(state);
+    dev->updateStrokeColor(state);
+}
+
 } // namespace pdf2htmlEX

@@ -296,6 +296,12 @@ Experimental and unsupported CSS drawing
 .B --debug <0|1> (Default: 0)
 Print debug information.
 
+.TP
+.B --proof <0|1|2> (Default: 0)
+Output a proof version. If a positive value is specified, texts are drawn on both text layer and background image for comparision.
+If 2 is specified, texts on background are in different colors. If png/jpg background format is used,
+a higher hdpi/vdpi (e.g. 288) is recommended for legibility.
+
 .SS Meta
 
 .TP

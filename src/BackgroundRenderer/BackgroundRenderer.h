@@ -10,8 +10,11 @@
 #define BACKGROUND_RENDERER_H__
 
 #include <string>
+#include <memory>
 
 class PDFDoc;
+class GfxState;
+class OutputDev;
 
 namespace pdf2htmlEX {
 
@@ -34,6 +37,13 @@ public:
     virtual bool render_page(PDFDoc * doc, int pageno) = 0;
     virtual void embed_image(int pageno) = 0;
 
+    // for proof output
+protected:
+    void proof_begin_text_object(GfxState * state, OutputDev * dev);
+    void proof_begin_string(GfxState * state, OutputDev * dev);
+    void proof_end_text_object(GfxState * state, OutputDev * dev);
+private:
+    std::unique_ptr<GfxState> proof_state;
 };
 
 } // namespace pdf2htmlEX

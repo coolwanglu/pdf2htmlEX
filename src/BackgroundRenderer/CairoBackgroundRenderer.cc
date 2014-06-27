@@ -53,8 +53,8 @@ void CairoBackgroundRenderer::drawChar(GfxState *state, double x, double y,
     // - OR there is special filling method
     // - OR using a writing mode font
     // - OR using a Type 3 font while param.process_type3 is not enabled
-    if((param.fallback)
-       || ( (state->getFont()) 
+    if((param.fallback || param.proof)
+        || ( (state->getFont())
             && ( (state->getFont()->getWMode())
                  || ((state->getFont()->getType() == fontType3) && (!param.process_type3))
                )
@@ -63,6 +63,27 @@ void CairoBackgroundRenderer::drawChar(GfxState *state, double x, double y,
     {
         CairoOutputDev::drawChar(state,x,y,dx,dy,originX,originY,code,nBytes,u,uLen);
     }
+}
+
+void CairoBackgroundRenderer::beginTextObject(GfxState *state)
+{
+    if (param.proof == 2)
+        proof_begin_text_object(state, this);
+    CairoOutputDev::beginTextObject(state);
+}
+
+void CairoBackgroundRenderer::beginString(GfxState *state, GooString * str)
+{
+    if (param.proof == 2)
+        proof_begin_string(state, this);
+    CairoOutputDev::beginString(state, str);
+}
+
+void CairoBackgroundRenderer::endTextObject(GfxState *state)
+{
+    if (param.proof == 2)
+        proof_end_text_object(state, this);
+    CairoOutputDev::endTextObject(state);
 }
 
 void CairoBackgroundRenderer::init(PDFDoc * doc)
