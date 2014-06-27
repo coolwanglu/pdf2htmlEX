@@ -14,7 +14,7 @@
 #define DT_DEBUG(x)
 
 #if !ENABLE_SVG
-#warning "Cairo is disabled because ENABLE_SVG is off, --process-covered-text has limited functionality."
+#warning "Cairo is disabled because ENABLE_SVG is off, --correct-text-visibility has limited functionality."
 #endif
 
 namespace pdf2htmlEX
@@ -34,7 +34,7 @@ DrawingTracer::~DrawingTracer()
 
 void DrawingTracer::reset(GfxState *state)
 {
-    if (!param.process_covered_text)
+    if (!param.correct_text_visibility)
         return;
     finish();
 
@@ -61,7 +61,7 @@ void DrawingTracer::finish()
 // and should trace ctm changes ourself (via cairo).
 void DrawingTracer::update_ctm(GfxState *state, double m11, double m12, double m21, double m22, double m31, double m32)
 {
-    if (!param.process_covered_text)
+    if (!param.correct_text_visibility)
         return;
 
 #if ENABLE_SVG
@@ -78,7 +78,7 @@ void DrawingTracer::update_ctm(GfxState *state, double m11, double m12, double m
 
 void DrawingTracer::clip(GfxState * state, bool even_odd)
 {
-    if (!param.process_covered_text)
+    if (!param.correct_text_visibility)
         return;
 #if ENABLE_SVG
     do_path(state, state->getPath());
@@ -89,14 +89,14 @@ void DrawingTracer::clip(GfxState * state, bool even_odd)
 
 void DrawingTracer::clip_to_stroke_path(GfxState * state)
 {
-    if (!param.process_covered_text)
+    if (!param.correct_text_visibility)
         return;
     // TODO cairo_stroke_to_path() ?
 }
 
 void DrawingTracer::save()
 {
-    if (!param.process_covered_text)
+    if (!param.correct_text_visibility)
         return;
 #if ENABLE_SVG
     cairo_save(cairo);
@@ -104,7 +104,7 @@ void DrawingTracer::save()
 }
 void DrawingTracer::restore()
 {
-    if (!param.process_covered_text)
+    if (!param.correct_text_visibility)
         return;
 #if ENABLE_SVG
     cairo_restore(cairo);
@@ -153,7 +153,7 @@ void DrawingTracer::do_path(GfxState * state, GfxPath * path)
 void DrawingTracer::stroke(GfxState * state)
 {
 #if ENABLE_SVG
-    if (!param.process_covered_text)
+    if (!param.correct_text_visibility)
         return;
 
     DT_DEBUG(printf("DrawingTracer::stroke\n"));
@@ -221,7 +221,7 @@ void DrawingTracer::stroke(GfxState * state)
 
 void DrawingTracer::fill(GfxState * state, bool even_odd)
 {
-    if (!param.process_covered_text)
+    if (!param.correct_text_visibility)
         return;
 
 #if ENABLE_SVG
@@ -301,7 +301,7 @@ void DrawingTracer::draw_char_bbox(GfxState * state, double * bbox)
 
 void DrawingTracer::draw_image(GfxState *state)
 {
-    if (!param.process_covered_text)
+    if (!param.correct_text_visibility)
         return;
     double bbox[4] {0, 0, 1, 1};
     draw_non_char_bbox(state, bbox);
@@ -309,7 +309,7 @@ void DrawingTracer::draw_image(GfxState *state)
 
 void DrawingTracer::draw_char(GfxState *state, double x, double y, double ax, double ay)
 {
-    if (!param.process_covered_text)
+    if (!param.correct_text_visibility)
         return;
 
     Matrix tm, itm;

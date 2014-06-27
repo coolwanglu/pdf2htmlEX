@@ -508,8 +508,10 @@ void HTMLRenderer::prepare_text_line(GfxState * state)
         double rise_x, rise_y;
         state->textTransformDelta(0, state->getRise(), &rise_x, &rise_y);
         state->transform(state->getCurX() + rise_x, state->getCurY() + rise_y, &cur_line_state.x, &cur_line_state.y);
-        if (param.process_covered_text)
+
+        if (param.correct_text_visibility)
             cur_line_state.first_char_index = get_char_count();
+
         html_text_page.open_new_line(cur_line_state);
 
         cur_text_state.vertical_align = 0;

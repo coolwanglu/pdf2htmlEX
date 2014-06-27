@@ -38,7 +38,7 @@ struct Param
     int process_nontext;
     int process_outline;
     int process_annotation;
-    int process_covered_text;
+    int correct_text_visibility;
     int printing;
     int fallback;
     int tmp_file_size_limit;

@@ -65,7 +65,7 @@ void CairoBackgroundRenderer::drawChar(GfxState *state, double x, double y,
     }
     // If a char is treated as image, it is not subject to cover test
     // (see HTMLRenderer::drawString), so don't increase drawn_char_count.
-    else if (param.process_covered_text) {
+    else if (param.correct_text_visibility) {
         if (html_renderer->is_char_covered(drawn_char_count))
             CairoOutputDev::drawChar(state,x,y,dx,dy,originX,originY,code,nBytes,u,uLen);
         drawn_char_count++;
