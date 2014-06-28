@@ -382,9 +382,9 @@ void HTMLRenderer::check_state_change(GfxState * state)
         }
         // else: different rotation: force new line
 
-        if(merged)
+        if(merged && !equal(state->getHorizScaling(), 0))
         {
-            html_text_page.get_cur_line()->append_offset(dx * old_draw_text_scale);
+            html_text_page.get_cur_line()->append_offset(dx * old_draw_text_scale / state->getHorizScaling());
             if(equal(dy, 0))
             {
                 cur_text_state.vertical_align = 0;

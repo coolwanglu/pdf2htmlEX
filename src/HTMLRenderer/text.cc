@@ -26,7 +26,6 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
         return;
 
     auto font = state->getFont();
-    // unscaled
     double cur_letter_space = state->getCharSpace();
     double cur_word_space   = state->getWordSpace();
     double cur_horiz_scaling = state->getHorizScaling();
@@ -98,8 +97,7 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
         {
             if((param.decompose_ligature) && (uLen > 1) && all_of(u, u+uLen, isLegalUnicode))
             {
-                // TODO: why multiply cur_horiz_scaling here?
-                html_text_page.get_cur_line()->append_unicodes(u, uLen, (dx1 * cur_font_size + cur_letter_space) * cur_horiz_scaling);
+                html_text_page.get_cur_line()->append_unicodes(u, uLen, (dx1 * cur_font_size + cur_letter_space));
             }
             else
             {
@@ -112,8 +110,7 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
                 {
                     uu = unicode_from_font(code, font);
                 }
-                // TODO: why multiply cur_horiz_scaling here?
-                html_text_page.get_cur_line()->append_unicodes(&uu, 1, (dx1 * cur_font_size + cur_letter_space) * cur_horiz_scaling);
+                html_text_page.get_cur_line()->append_unicodes(&uu, 1, (dx1 * cur_font_size + cur_letter_space));
                 /*
                  * In PDF, word_space is appended if (n == 1 and *p = ' ')
                  * but in HTML, word_space is appended if (uu == ' ')
@@ -136,9 +133,7 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
 
     // horiz_scaling is merged into ctm now, 
     // so the coordinate system is ugly
-    // TODO: why multiply cur_horiz_scaling here
     dx = (dx * cur_font_size + nChars * cur_letter_space + nSpaces * cur_word_space) * cur_horiz_scaling;
-    
     dy *= cur_font_size;
 
     cur_tx += dx;

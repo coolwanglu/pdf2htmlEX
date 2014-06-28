@@ -163,7 +163,6 @@
 }
 .@CSS_LINE_CN@ span { /* text blocks within a line */
   position:relative;
-  vertical-align: baseline;
   /* _<id> for spaces may need display:inline, which will override this */ 
   display:inline-block;
   unicode-bidi:bidi-override; /* For rtl lanauges, e.g. Hebrew, we don't want the default Unicode behaviour */
