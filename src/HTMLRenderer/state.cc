@@ -257,7 +257,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
     }
 
     // draw_text_tm, draw_text_scale
-    // depends: font size & ctm & text_ctm & hori scale
+    // depends: font size & ctm & text_ctm & hori scale & rise
     if(need_rescale_font)
     {
         /*
@@ -499,7 +499,9 @@ void HTMLRenderer::prepare_text_line(GfxState * state)
     if(new_line_state >= NLS_NEWLINE)
     {
         // update position such that they will be recorded by text_line_buf
-        state->transform(state->getCurX(), state->getCurY(), &cur_line_state.x, &cur_line_state.y);
+        double rise_x, rise_y;
+        state->textTransformDelta(0, state->getRise(), &rise_x, &rise_y);
+        state->transform(state->getCurX() + rise_x, state->getCurY() + rise_y, &cur_line_state.x, &cur_line_state.y);
         html_text_page.open_new_line(cur_line_state);
 
         cur_text_state.vertical_align = 0;
