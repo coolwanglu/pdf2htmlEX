@@ -1,5 +1,5 @@
 /*
- * CoveredTextHandler.h
+ * CoveredTextDetector.h
  *
  *  Created on: 2014-6-14
  *      Author: duanyao
@@ -58,4 +58,4 @@ private:
 
 }
 
-#endif /* COVEREDTEXTHANDLER_H__ */
+#endif /* COVEREDTEXTDETECTOR_H__ */

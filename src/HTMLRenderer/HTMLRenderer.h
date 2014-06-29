@@ -31,7 +31,7 @@
 #include "HTMLTextPage.h"
 
 #include "BackgroundRenderer/BackgroundRenderer.h"
-#include "CoveredTextHandler.h"
+#include "CoveredTextDetector.h"
 #include "DrawingTracer.h"
 
 #include "util/const.h"

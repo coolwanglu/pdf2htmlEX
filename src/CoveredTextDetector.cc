@@ -1,11 +1,11 @@
 /*
- * CoveredTextHandler.cc
+ * CoveredTextDetector.cc
  *
  *  Created on: 2014-6-14
  *      Author: duanyao
  */
 
-#include "CoveredTextHandler.h"
+#include "CoveredTextDetector.h"
 
 #include "util/math.h"
 
