@@ -80,7 +80,7 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
         {
             cerr << "TODO: non-zero origins" << endl;
         }
-        ddx = (ax * cur_font_size + cur_letter_space) * cur_horiz_scaling;
+        ddx = ax * cur_font_size + cur_letter_space;
         ddy = ay * cur_font_size;
         tracer.draw_char(state, dx, dy, ax, ay);
 
@@ -135,7 +135,7 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
             }
         }
 
-        dx += ddx;
+        dx += ddx * cur_horiz_scaling;
         dy += ddy;
         if (is_space)
             dx += cur_word_space * cur_horiz_scaling;
