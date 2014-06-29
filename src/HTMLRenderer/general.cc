@@ -80,11 +80,11 @@ HTMLRenderer::HTMLRenderer(const Param & param)
     all_manager.bottom      .set_eps(EPS);
 
     tracer.on_char_drawn =
-            [this](double * box) { covered_text_handler.add_char_bbox(box); };
+            [this](double * box) { covered_text_detecor.add_char_bbox(box); };
     tracer.on_char_clipped =
-            [this](double * box, bool partial) { covered_text_handler.add_char_bbox_clipped(box, partial); };
+            [this](double * box, bool partial) { covered_text_detecor.add_char_bbox_clipped(box, partial); };
     tracer.on_non_char_drawn =
-            [this](double * box) { covered_text_handler.add_non_char_bbox(box); };
+            [this](double * box) { covered_text_detecor.add_non_char_bbox(box); };
 }
 
 HTMLRenderer::~HTMLRenderer()
@@ -192,7 +192,7 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state)
 void HTMLRenderer::startPage(int pageNum, GfxState *state, XRef * xref)
 #endif
 {
-    covered_text_handler.reset();
+    covered_text_detecor.reset();
     tracer.reset(state);
 
     this->pageNum = pageNum;

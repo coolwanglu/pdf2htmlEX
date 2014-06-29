@@ -11,19 +11,19 @@
 
 namespace pdf2htmlEX {
 
-void CoveredTextHandler::reset()
+void CoveredTextDetector::reset()
 {
     char_bboxes.clear();
     chars_covered.clear();
 }
 
-void CoveredTextHandler::add_char_bbox(double * bbox)
+void CoveredTextDetector::add_char_bbox(double * bbox)
 {
     char_bboxes.insert(char_bboxes.end(), bbox, bbox + 4);
     chars_covered.push_back(false);
 }
 
-void CoveredTextHandler::add_char_bbox_clipped(double * bbox, bool patially)
+void CoveredTextDetector::add_char_bbox_clipped(double * bbox, bool patially)
 {
     char_bboxes.insert(char_bboxes.end(), bbox, bbox + 4);
     chars_covered.push_back(true);
@@ -31,7 +31,7 @@ void CoveredTextHandler::add_char_bbox_clipped(double * bbox, bool patially)
         add_non_char_bbox(bbox, chars_covered.size() - 1);
 }
 
-void CoveredTextHandler::add_non_char_bbox(double * bbox, int index)
+void CoveredTextDetector::add_non_char_bbox(double * bbox, int index)
 {
     if (index < 0)
         index = chars_covered.size();

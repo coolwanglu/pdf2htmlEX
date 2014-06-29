@@ -5,8 +5,8 @@
  *      Author: duanyao
  */
 
-#ifndef COVEREDTEXTHANDLER_H__
-#define COVEREDTEXTHANDLER_H__
+#ifndef COVEREDTEXTDETECTOR_H__
+#define COVEREDTEXTDETECTOR_H__
 
 #include <vector>
 
@@ -15,7 +15,7 @@ namespace pdf2htmlEX {
 /**
  * Detect characters that are covered by non-char graphics on a page.
  */
-class CoveredTextHandler
+class CoveredTextDetector
 {
 public:
 
