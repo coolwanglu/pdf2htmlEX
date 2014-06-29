@@ -18,8 +18,6 @@ namespace pdf2htmlEX {
 class CoveredTextHandler
 {
 public:
-    CoveredTextHandler();
-    virtual ~CoveredTextHandler();
 
     /**
      * Reset to initial state. Should be called when start drawing a page.

@@ -11,17 +11,6 @@
 
 namespace pdf2htmlEX {
 
-CoveredTextHandler::CoveredTextHandler()
-{
-    // TODO Auto-generated constructor stub
-
-}
-
-CoveredTextHandler::~CoveredTextHandler()
-{
-    // TODO Auto-generated destructor stub
-}
-
 void CoveredTextHandler::reset()
 {
     char_bboxes.clear();
