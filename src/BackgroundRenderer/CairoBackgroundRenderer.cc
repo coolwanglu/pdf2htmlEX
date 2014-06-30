@@ -86,6 +86,13 @@ void CairoBackgroundRenderer::endTextObject(GfxState *state)
     CairoOutputDev::endTextObject(state);
 }
 
+void CairoBackgroundRenderer::updateRender(GfxState *state)
+{
+    if (param.proof == 2)
+        proof_update_render(state, this);
+    CairoOutputDev::updateRender(state);
+}
+
 void CairoBackgroundRenderer::init(PDFDoc * doc)
 {
     startDoc(doc);

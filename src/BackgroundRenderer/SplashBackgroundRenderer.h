@@ -64,6 +64,7 @@ public:
   void beginTextObject(GfxState *state);
   void beginString(GfxState *state, GooString * str);
   void endTextObject(GfxState *state);
+  void updateRender(GfxState *state);
 
 protected:
   void dump_image(const char * filename, int x1, int y1, int x2, int y2);

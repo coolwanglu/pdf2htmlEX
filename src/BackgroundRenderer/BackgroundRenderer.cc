@@ -59,23 +59,21 @@ void BackgroundRenderer::proof_begin_text_object(GfxState *state, OutputDev * de
         proof_state->setStrokeColorSpace(new GfxDeviceRGBColorSpace());
     }
 
-    int render = state->getRender();
-
     // Save original render mode in proof_state, and restore in proof_end_text_object()
     // This is due to poppler's OutputDev::updateRender() actually has no effect, we have to
     // modify state directly, see proof_begin_string().
-    proof_state->setRender(render);
+    proof_state->setRender(state->getRender());
 }
 
 void BackgroundRenderer::proof_begin_string(GfxState *state, OutputDev * dev)
 {
     int render = proof_state->getRender();
-    if (render == 3 || state->getRender() == 3) // hidden
+    if (render == 3) // hidden
         return;
 
-    double lx = state->getFontSize() / 50, ly = lx;
+    double lx = state->getFontSize() / 70, ly = lx;
     tm_transform(state->getTextMat(), lx, ly, true);
-    proof_state->setLineWidth(std::min(fabs(lx), fabs(ly)));
+    proof_state->setLineWidth(sqrt(lx * lx + ly * ly));
 
     static const Color red(1, 0, 0), green(0, 1, 0), blue(0, 0, 1), yellow(1, 1, 0), white(1, 1, 1);
     Color fc, sc;
@@ -111,18 +109,22 @@ void BackgroundRenderer::proof_begin_string(GfxState *state, OutputDev * dev)
     dev->updateStrokeColor(proof_state.get());
 
     state->setRender(2); // fill & stroke
-    dev->updateRender(state);
 }
 
 void BackgroundRenderer::proof_end_text_object(GfxState *state, OutputDev * dev)
 {
     state->setRender(proof_state->getRender());
-    dev->updateRender(state);
     dev->updateLineWidth(state);
     dev->updateFillColorSpace(state);
     dev->updateStrokeColorSpace(state);
     dev->updateFillColor(state);
     dev->updateStrokeColor(state);
+}
+
+void BackgroundRenderer::proof_update_render(GfxState *state, OutputDev * dev)
+{
+    // Save render mode in proof_state in cases it is changed inside a text object
+    proof_state->setRender(state->getRender());
 }
 
 } // namespace pdf2htmlEX

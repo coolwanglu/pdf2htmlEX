@@ -48,6 +48,7 @@ public:
   void beginTextObject(GfxState *state);
   void beginString(GfxState *state, GooString * str);
   void endTextObject(GfxState *state);
+  void updateRender(GfxState *state);
 
 protected:
   virtual void setMimeData(Stream *str, Object *ref, cairo_surface_t *image);

@@ -111,6 +111,13 @@ void SplashBackgroundRenderer::endTextObject(GfxState *state)
     SplashOutputDev::endTextObject(state);
 }
 
+void SplashBackgroundRenderer::updateRender(GfxState *state)
+{
+    if (param.proof == 2)
+        proof_update_render(state, this);
+    SplashOutputDev::updateRender(state);
+}
+
 void SplashBackgroundRenderer::init(PDFDoc * doc)
 {
     startDoc(doc);
