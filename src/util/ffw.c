@@ -253,7 +253,7 @@ void ffw_reencode_raw2(char ** mapping, int mapping_len, int force)
     enc->enc_name = strcopy("");
     enc->char_cnt = mapping_len;
     enc->unicode = (int32_t*)malloc(mapping_len * sizeof(int32_t));
-    enc->psnames = (const char**)calloc(mapping_len, sizeof(char*));
+    enc->psnames = (char**)calloc(mapping_len, sizeof(char*));
     int i;
     for(i = 0; i < mapping_len; ++i)
     {
