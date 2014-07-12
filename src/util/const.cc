@@ -35,9 +35,9 @@ const std::map<std::string, EmbedStringEntry> EMBED_STRING_MAP({
              "\"></script>" }},
     {".png", {&Param::embed_image,
              "<img alt=\"\" src=\"data:image/png;base64,", 
-             "\">", true,
+             "\"/>", true,
              "<img alt=\"\" src=\"",
-             "\">" }}
+             "\"/>" }}
 });
 
 const std::map<std::string, std::string> FORMAT_MIME_TYPE_MAP({
