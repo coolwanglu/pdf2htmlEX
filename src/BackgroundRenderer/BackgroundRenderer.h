@@ -42,6 +42,7 @@ protected:
     void proof_begin_text_object(GfxState * state, OutputDev * dev);
     void proof_begin_string(GfxState * state, OutputDev * dev);
     void proof_end_text_object(GfxState * state, OutputDev * dev);
+    void proof_update_render(GfxState * state, OutputDev * dev);
 private:
     std::unique_ptr<GfxState> proof_state;
 };
