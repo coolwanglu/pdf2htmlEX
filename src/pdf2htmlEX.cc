@@ -56,7 +56,7 @@ void show_usage_and_exit(const char * dummy = nullptr)
 void show_version_and_exit(const char * dummy = nullptr)
 {
     cerr << "pdf2htmlEX version " << PDF2HTMLEX_VERSION << endl;
-    cerr << "Copyright 2012-2014 Lu Wang <coolwanglu@gmail.com> and other contributers" << endl;
+    cerr << "Copyright 2012-2014 Lu Wang <coolwanglu@gmail.com> and other contributors" << endl;
     cerr << "Libraries: " << endl;
     cerr << "  poppler " << POPPLER_VERSION << endl;
     cerr << "  libfontforge " << ffw_get_version() << endl;
@@ -159,7 +159,7 @@ void parse_options (int argc, char **argv)
         .add("split-pages", &param.split_pages, 0, "split pages into separate files")
         .add("dest-dir", &param.dest_dir, ".", "specify destination directory")
         .add("css-filename", &param.css_filename, "", "filename of the generated css file")
-        .add("page-filename", &param.page_filename, "", "filename template for splitted pages ")
+        .add("page-filename", &param.page_filename, "", "filename template for split pages ")
         .add("outline-filename", &param.outline_filename, "", "filename of the generated outline file")
         .add("process-nontext", &param.process_nontext, 1, "render graphics in addition to text")
         .add("process-outline", &param.process_outline, 1, "show outline in HTML")
@@ -197,7 +197,7 @@ void parse_options (int argc, char **argv)
 
         // misc.
         .add("clean-tmp", &param.clean_tmp, 1, "remove temporary files after conversion")
-        .add("tmp-dir", &param.tmp_dir, param.tmp_dir, "specify the location of tempory directory.")
+        .add("tmp-dir", &param.tmp_dir, param.tmp_dir, "specify the location of temporary directory.")
         .add("data-dir", &param.data_dir, param.data_dir, "specify data directory")
         // TODO: css drawings are hidden on print, for annot links, need to fix it for other drawings
 //        .add("css-draw", &param.css_draw, 0, "[experimental and unsupported] CSS drawing")
@@ -351,7 +351,18 @@ int main(int argc, char **argv)
     param.data_dir = get_exec_dir(argv[0]);
     param.tmp_dir  = get_tmp_dir();
 #else
-    param.tmp_dir = "/tmp";
+    char const* tmp = getenv("TMPDIR");
+#ifdef P_tmpdir
+    if (!tmp)
+        tmp = P_tmpdir;
+#endif
+#ifdef _PATH_TMP
+    if (!tmp)
+        tmp = _PATH_TMP;
+#endif
+    if (!tmp)
+        tmp = "/tmp";
+    param.tmp_dir = string(tmp);
     param.data_dir = PDF2HTMLEX_DATA_PATH;
 #endif
 

@@ -168,7 +168,7 @@ string HTMLRenderer::dump_embedded_font (GfxFont * font, FontInfo & info)
     }
     catch(int) 
     {
-        cerr << "Someting wrong when trying to dump font " << hex << fn_id << dec << endl;
+        cerr << "Something wrong when trying to dump font " << hex << fn_id << dec << endl;
     }
 
     obj2.free();
@@ -240,7 +240,7 @@ string HTMLRenderer::dump_type3_font (GfxFont * font, FontInfo & info)
         cairo_surface_set_fallback_resolution(surface, param.h_dpi, param.v_dpi);
         cairo_t * cr = cairo_create(surface);
 
-        // track the positio of the origin
+        // track the position of the origin
         double ox, oy;
         ox = oy = 0.0;
 
@@ -792,7 +792,7 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
 
     /* 
      * Step 5 
-     * Generate the font, load the metrics and set the embeddig bits (fstype)
+     * Generate the font, load the metrics and set the embedding bits (fstype)
      *
      * Ascent/Descent are not used in PDF, and the values in PDF may be wrong or inconsistent (there are 3 sets of them)
      * We need to reload in order to retrieve/fix accurate ascent/descent, some info won't be written to the font by fontforge until saved.

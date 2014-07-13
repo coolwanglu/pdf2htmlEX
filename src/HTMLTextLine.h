@@ -57,7 +57,7 @@ public:
         long long ids[ID_COUNT];
 
         size_t start_idx; // index of the first Text using this state
-        // for optimzation
+        // for optimization
         long long hash_value;
         long long hash_umask; // some states may not be actually used
         bool need_close;

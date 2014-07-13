@@ -75,7 +75,7 @@ v0.8
 * New UI style 
 * New options:
  --optimize-text : HTML optimization, see above
- --fallback : the most accurate way, but costy (larger file sizes)
+ --fallback : the most accurate way, but costly (larger file sizes)
  --printing : enable or disable CSS for printing
  --page-file: specify page filenames when split-pages is on
 * Deprecated options:

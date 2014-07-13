@@ -67,7 +67,7 @@ HTMLRenderer::HTMLRenderer(const Param & param)
     all_manager.whitespace    .set_eps(param.h_eps);
     all_manager.left          .set_eps(param.h_eps);
     /*
-     * For othere states, we need accurate values
+     * For other states, we need accurate values
      * optimization will be done separately
      */
     all_manager.font_size   .set_eps(EPS);

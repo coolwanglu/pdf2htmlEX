@@ -16,7 +16,7 @@
   overflow:auto;
 }
 #page-container { /* PDF container */
-  position:absolute; /* required for calulating relative positions of pages in pdf2htmlEX.js */
+  position:absolute; /* required for calculating relative positions of pages in pdf2htmlEX.js */
   top:0;
   left:0px;
   margin:0; 
@@ -154,7 +154,7 @@
   transform-origin:0% 100%;
   -ms-transform-origin:0% 100%;
   -webkit-transform-origin:0% 100%;
-  unicode-bidi:bidi-override;/* For rtl lanauges, e.g. Hebrew, we don't want the default Unicode behaviour */
+  unicode-bidi:bidi-override;/* For rtl languages, e.g. Hebrew, we don't want the default Unicode behaviour */
   -moz-font-feature-settings:"liga" 0;/* We don't want Firefox to recognize ligatures */
 }
 .@CSS_LINK_CN span { /* text blocks within a line */
@@ -162,7 +162,7 @@
   vertical-align: baseline;
   /* _<id> for spaces may need display:inline, which will override this */ 
   display:inline-block;
-  unicode-bidi:bidi-override; /* For rtl lanauges, e.g. Hebrew, we don't want the default Unicode behaviour */
+  unicode-bidi:bidi-override; /* For rtl languages, e.g. Hebrew, we don't want the default Unicode behaviour */
 }
 .@CSS_WHITESPACE_CN@ { /* text shift */
   color:transparent;

@@ -259,5 +259,4 @@ if __name__=="__main__":
         print >> sys.stderr, "Cannot locate pdf2htmlEX executable. Make sure source was built before running this test."
         exit(1)
 
-    suite = unittest.loader.TestLoader().loadTestsFromTestCase(OutputNamingTests)
-    unittest.TextTestRunner(verbosity=2).run(suite)
+    unittest.main()

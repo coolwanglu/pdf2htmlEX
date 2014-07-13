@@ -37,7 +37,7 @@ bool isLegalUnicode(Unicode u)
         /*
          * 9, 10 and 13 are interpreted as white-spaces in HTML
          * `word-spacing` may be applied on them
-         * and the browser may not use the actualy glyphs in the font
+         * and the browser may not use the actual glyphs in the font
          * So mark them as illegal
          *
          * The problem is that the correct value can not be copied out in this way

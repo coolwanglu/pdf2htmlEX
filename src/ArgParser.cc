@@ -166,7 +166,7 @@ ArgParser::ArgEntryBase::ArgEntryBase(const char * name, const char * descriptio
         }
         else
         {
-            cerr << "Warning: argument '" << this->name << "' cannnot be parsed as a short option" << endl;
+            cerr << "Warning: argument '" << this->name << "' cannot be parsed as a short option" << endl;
         }
     }
 }

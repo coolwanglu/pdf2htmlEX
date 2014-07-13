@@ -264,7 +264,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
          * Rescale the font
          * If the font-size is 1, and the matrix is [10,0,0,10,0,0], we would like to change it to
          * font-size == 10 and matrix == [1,0,0,1,0,0], 
-         * such that it will be easy and natrual for web browsers
+         * such that it will be easy and natural for web browsers
          */
         double new_draw_text_tm[6];
         memcpy(new_draw_text_tm, cur_text_tm, sizeof(new_draw_text_tm));
@@ -357,7 +357,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
                 dy = inverted[1] * lhs1 + inverted[3] * lhs2;
                 if(equal(dy, 0))
                 {
-                    // text on a same horizontal line, we can insert positive or negaive x-offsets
+                    // text on a same horizontal line, we can insert positive or negative x-offsets
                     merged = true;
                 }
                 else if(param.optimize_text)

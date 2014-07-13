@@ -291,7 +291,7 @@ void HTMLTextLine::optimize(std::vector<HTMLTextLine*> & lines)
  */
 void HTMLTextLine::optimize_normal(std::vector<HTMLTextLine*> & lines)
 {
-    // remove unuseful states in the end
+    // remove useless states in the end
     while((!states.empty()) && (states.back().start_idx >= text.size()))
         states.pop_back();
 
@@ -416,9 +416,9 @@ void HTMLTextLine::optimize_normal(std::vector<HTMLTextLine*> & lines)
 
         // Optimize word space
         
-        // In some PDF files all spaces are converted into positionig shift
+        // In some PDF files all spaces are converted into positioning shift
         // We may try to change (some of) them to ' ' by adjusting word_space
-        // for now, we cosider only the no-space scenario
+        // for now, we consider only the no-space scenario
         // which also includes the case when param.space_as_offset is set
 
         // get the text segment covered by current state (*state_iter1)
@@ -554,7 +554,7 @@ void HTMLTextLine::State::begin (ostream & out, const State * prev_state)
             else
                 out << ids[i];
         }
-        // veritcal align
+        // vertical align
         if(!equal(vertical_align, 0))
         {
             // so we have to dump it
