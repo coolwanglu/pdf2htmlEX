@@ -26,178 +26,178 @@ Other objects are rendered as images and also embedded.
 .SS Pages
 
 .TP
-.B -f, --first-page <num> (Default: 1)
+.B \-f, \-\-first\-page <num> (Default: 1)
 Specify the first page to process
 
 .TP
-.B -l, --last-page <num> (Default: last page)
+.B \-l, \-\-last\-page <num> (Default: last page)
 Specify the last page to process
 
 .SS Dimensions
 
 .TP
-.B --zoom <ratio>, --fit-width <width>, --fit-height <height>
---zoom specifies the zoom factor directly; --fit-width/height specifies the maximum width/height of a page, the values are in pixels.
+.B \-\-zoom <ratio>, \-\-fit\-width <width>, \-\-fit\-height <height>
+\-\-zoom specifies the zoom factor directly; \-\-fit\-width/height specifies the maximum width/height of a page, the values are in pixels.
 
 If multiple values are specified, the minimum one will be used.
 
 If none is specified, pages will be rendered as 72DPI.
 
 .TP
-.B --use-cropbox <0|1> (Default: 1)
+.B \-\-use\-cropbox <0|1> (Default: 1)
 Use CropBox instead of MediaBox for output.
 
 .TP
-.B --hdpi <dpi>, --vdpi <dpi> (Default: 144)
+.B \-\-hdpi <dpi>, \-\-vdpi <dpi> (Default: 144)
 Specify the horizontal and vertical DPI for images
 
 
 .SS Output 
 
-.B --embed <string>
+.B \-\-embed <string>
 .br
-.B --embed-css <0|1> (Default: 1)
+.B \-\-embed\-css <0|1> (Default: 1)
 .br
-.B --embed-font <0|1> (Default: 1)
+.B \-\-embed\-font <0|1> (Default: 1)
 .br
-.B --embed-image <0|1> (Default: 1)
+.B \-\-embed\-image <0|1> (Default: 1)
 .br
-.B --embed-javascript <0|1> (Default: 1)
+.B \-\-embed\-javascript <0|1> (Default: 1)
 .br
-.B --embed-outline <0|1> (Default: 1)
+.B \-\-embed\-outline <0|1> (Default: 1)
 .RS
 Specify which elements should be embedded into the output HTML file.
 
 If switched off, separated files will be generated along with the HTML file for the corresponding elements.
 
---embed accepts a string as argument. Each letter of the string must be one of `cCfFiIjJoO`, which corresponds
-to one of the --embed-*** switches. Lower case letters for 0 and upper case letters for 1. For example,
-`--embed cFIJo` means to embed everything but CSS files and outlines.
+\-\-embed accepts a string as argument. Each letter of the string must be one of `cCfFiIjJoO`, which corresponds
+to one of the \-\-embed\-*** switches. Lower case letters for 0 and upper case letters for 1. For example,
+`\-\-embed cFIJo` means to embed everything but CSS files and outlines.
 .RE
 .TP
-.B --split-pages <0|1> (Default: 0)
+.B \-\-split\-pages <0|1> (Default: 0)
 If turned on, the content of each page is stored in a separated file.
 
-This switch is useful if you want pages to be loaded separately & dynamically -- a supporting server might be necessary.
+This switch is useful if you want pages to be loaded separately & dynamically \-\- a supporting server might be necessary.
 
-Also see --page-filename.
+Also see \-\-page\-filename.
 
 .TP
-.B --dest-dir <dir> (Default: .)
+.B \-\-dest\-dir <dir> (Default: .)
 Specify destination folder.
 
 .TP
-.B --css-filename <filename> (Default: <none>)
+.B \-\-css\-filename <filename> (Default: <none>)
 Specify the filename of the generated css file, if not embedded.
 
 If it's empty, the file name will be determined automatically.
 
 .TP
-.B --page-filename <filename> (Default: <none>)
-Specify the filename template for pages when --split-pages is 1
+.B \-\-page\-filename <filename> (Default: <none>)
+Specify the filename template for pages when \-\-split\-pages is 1
 
 A %d placeholder may be included in `filename` to indicate where the page number should be placed. The placeholder supports a limited subset of normal numerical placeholders, including specified width and zero padding.
 
 If `filename` does not contain a placeholder for the page number, the page number will be inserted directly before the file extension. If the filename does not have an extension, the page number will be placed at the end of the file name.
 
-If --page-filename is not specified, <input-filename> will be used for the output filename, replacing the extension with .page and adding the page number directly before the extension.
+If \-\-page\-filename is not specified, <input\-filename> will be used for the output filename, replacing the extension with .page and adding the page number directly before the extension.
 
 .B Examples
 
-.B pdf2htmlEX --split-pages 1 foo.pdf
+.B pdf2htmlEX \-\-split\-pages 1 foo.pdf
 
   Yields page files foo1.page, foo2.page, etc.
 
-.B pdf2htmlEX --split-pages 1 foo.pdf --page-filename bar.baz
+.B pdf2htmlEX \-\-split\-pages 1 foo.pdf \-\-page\-filename bar.baz
 
   Yields page files bar1.baz, bar2.baz, etc.
 
-.B pdf2htmlEX --split-pages 1 foo.pdf --page-filename page%dbar.baz
+.B pdf2htmlEX \-\-split\-pages 1 foo.pdf \-\-page\-filename page%dbar.baz
 
   Yields page files page1bar.baz, page2bar.baz, etc.
 
-.B pdf2htmlEX --split-pages 1 foo.pdf --page-filename bar%03d.baz
+.B pdf2htmlEX \-\-split\-pages 1 foo.pdf \-\-page\-filename bar%03d.baz
 
   Yields page files bar001.baz, bar002.baz, etc.
 
 .TP
-.B --outline-filename <filename> (Default: <none>)
+.B \-\-outline\-filename <filename> (Default: <none>)
 Specify the filename of the generated outline file, if not embedded. 
 
 If it's empty, the file name will be determined automatically.
 
 .TP
-.B --process-nontext <0|1> (Default: 1)
-Whether to process non-text objects (as images)
+.B \-\-process\-nontext <0|1> (Default: 1)
+Whether to process non\-text objects (as images)
 
 .TP
-.B --process-outline <0|1> (Default: 1)
+.B \-\-process\-outline <0|1> (Default: 1)
 Whether to show outline in the generated HTML
 
 .TP
-.B --process-annotation <0|1> (Default: 0)
+.B \-\-process-annotation <0|1> (Default: 0)
 Whether to show annotation in the generated HTML
 
 .TP
-.B --printing <0|1> (Default: 1)
+.B \-\-printing <0|1> (Default: 1)
 Enable printing support. Disabling this option may reduce the size of CSS.
 
 .TP
-.B --fallback <0|1> (Default: 0)
+.B \-\-fallback <0|1> (Default: 0)
 Output in fallback mode, for better accuracy and browser compatibility, but the size becomes larger.
 
 .TP
-.B --tmp-file-size-limit <limit> (Default: -1)
+.B \-\-tmp\-file\-size\-limit <limit> (Default: \-1)
 This limits the total size (in KB) of the temporary files which will also limit the total size of the output file.
 This is an estimate and it will stop after a page, once the total temporary files size is greater than this number.
 
--1 means no limit and is the default.
+\-1 means no limit and is the default.
 
 
 .SS Fonts
 
 .TP
-.B --embed-external-font <0|1> (Default: 1)
+.B \-\-embed\-external\-font <0|1> (Default: 1)
 Specify whether the local matched fonts, for fonts not embedded in PDF, should be embedded into HTML. 
 
 If this switch is off, only font names are exported such that web browsers may try to find proper fonts themselves, and that might cause issues about incorrect font metrics.
 
 .TP
-.B --font-format <format> (Default: woff)
+.B \-\-font\-format <format> (Default: woff)
 Specify the format of fonts extracted from the PDF file.
 
 .TP
-.B --decompose-ligature <0|1> (Default: 0)
-Decompose ligatures. For example 'fi' -> 'f''i'.
+.B \-\-decompose\-ligature <0|1> (Default: 0)
+Decompose ligatures. For example 'fi' \-> 'f''i'.
 
 .TP
-.B --auto-hint <0|1> (Default: 0)
+.B \-\-auto\-hint <0|1> (Default: 0)
 If set to 1, hints will be generated for the fonts using FontForge. 
 
-This may be preceded by --external-hint-tool.
+This may be preceded by \-\-external\-hint\-tool.
 
 .TP
-.B --external-hint-tool <tool> (Default: <none>)
-If specified, the tool will be called in order to enhanced hinting for fonts, this will precede --auto-hint.
+.B \-\-external\-hint\-tool <tool> (Default: <none>)
+If specified, the tool will be called in order to enhanced hinting for fonts, this will precede \-\-auto\-hint.
 
-The tool will be called as '<tool> <in.suffix> <out.suffix>', where suffix will be the same as specified for --font-format.
+The tool will be called as '<tool> <in.suffix> <out.suffix>', where suffix will be the same as specified for \-\-font\-format.
 
 .TP
-.B --stretch-narrow-glyph <0|1> (Default: 0)
+.B \-\-stretch\-narrow\-glyph <0|1> (Default: 0)
 If set to 1, glyphs narrower than described in PDF will be stretched; otherwise space will be padded to the right of the glyphs
 
 .TP
-.B --squeeze-wide-glyph <0|1> (Default: 1)
+.B \-\-squeeze\-wide\-glyph <0|1> (Default: 1)
 If set to 1, glyphs wider than described in PDF will be squeezed; otherwise it will be truncated.
 
 .TP
-.B --override-fstype <0|1> (Default: 0)
+.B \-\-override\-fstype <0|1> (Default: 0)
 Clear the fstype bits in TTF/OTF fonts. 
 
 Turn this on if Internet Explorer complains about 'Permission must be Installable' AND you have permission to do so.
 
 .TP
-.B --process-type3 <0|1> (Default: 0)
+.B \-\-process\-type3 <0|1> (Default: 0)
 If turned on, pdf2htmlEX will try to convert Type 3 fonts such that text can be rendered natively in HTML.
 Otherwise all text with Type 3 fonts will be rendered as image.
 
@@ -206,17 +206,17 @@ This feature is highly experimental.
 .SS Text
 
 .TP
-.B --heps <len>, --veps <len> (Default: 1)
+.B \-\-heps <len>, \-\-veps <len> (Default: 1)
 Specify the maximum tolerable horizontal/vertical offset (in pixels).
 
 pdf2htmlEX would try to optimize the generated HTML file moving Text within this distance.
 
 .TP
-.B --space-threshold <ratio> (Default: 0.125)
+.B \-\-space\-threshold <ratio> (Default: 0.125)
 pdf2htmlEX would insert a whitespace character ' ' if the distance between two consecutive letters in the same line is wider than ratio * font_size.
 
 .TP
-.B --font-size-multiplier <ratio> (Default: 4.0)
+.B \-\-font\-size\-multiplier <ratio> (Default: 4.0)
 Many web browsers limit the minimum font size, and many would round the given font size, which results in incorrect rendering.
 
 Specify a ratio greater than 1 would resolve this issue, however it might freeze some browsers.
@@ -224,52 +224,52 @@ Specify a ratio greater than 1 would resolve this issue, however it might freeze
 For some versions of Firefox, however, there will be a problem when the font size is too large, in which case a smaller value should be specified here.
 
 .TP
-.B --space-as-offset <0|1> (Default: 0)
+.B \-\-space\-as\-offset <0|1> (Default: 0)
 If set to 1, space characters will be treated as offsets, which allows a better optimization. 
 
 For PDF files with bad encodings, turning on this option may cause losing characters.
 
 .TP
-.B --tounicode <-1|0|1> (Default: 0)
+.B \-\-tounicode <\-1|0|1> (Default: 0)
 A ToUnicode map may be provided for each font in PDF which indicates the 'meaning' of the characters. However often there is better "ToUnicode" info in Type 0/1 fonts, and sometimes the ToUnicode map provided is wrong. 
 If this value is set to 1, the ToUnicode Map is always applied, if provided in PDF, and characters may not render correctly in HTML if there are collisions.
 
-If set to -1, a customized map is used such that rendering will be correct in HTML (visually the same), but you may not get correct characters by select & copy & paste.
+If set to \-1, a customized map is used such that rendering will be correct in HTML (visually the same), but you may not get correct characters by select & copy & paste.
 
 If set to 0, pdf2htmlEX would try its best to balance the two methods above.
 
 .TP
-.B --optimize-text <0|1> (Default: 0)
+.B \-\-optimize\-text <0|1> (Default: 0)
 If set to 1, pdf2htmlEX will try to reduce the number of HTML elements used for text. Turn it off if anything goes wrong.
 
 .SS Background Image
 
 .TP
-.B --bg-format <format> (Default: png)
-Specify the background image format. Run `pdf2htmlEX -v` to check all supported formats.
+.B \-\-bg\-format <format> (Default: png)
+Specify the background image format. Run `pdf2htmlEX \-v` to check all supported formats.
 
 .TP
-.B --svg-node-count-limit <limit> (Default: -1)
+.B \-\-svg\-node\-count\-limit <limit> (Default: -1)
 If node count in a svg background image exceeds this limit, fall back this page to bitmap background; negative value means no limit.
-This option is only useful when '--bg-format svg' is specified. Note that node count in svg is just calculated approximately.
+This option is only useful when '\-\-bg\-format svg' is specified. Note that node count in svg is just calculated approximately.
 
 .TP
-.B --svg-embed-bitmap <0|1> (Default: 1)
+.B \-\-svg\-embed\-bitmap <0|1> (Default: 1)
 Whether embed bitmaps in svg background image. 1: embed bitmaps in svg background; 0: dump bitmaps to external files if possible.
-JPEG images in a PDF are most possibly dumped. This option is only useful when '--bg-format svg' is specified.
+JPEG images in a PDF are most possibly dumped. This option is only useful when '\-\-bg\-format svg' is specified.
 
 .SS PDF Protection
 
 .TP
-.B -o, --owner-password <password>
+.B \-o, \-\-owner\-password <password>
 Specify owner password
 
 .TP
-.B -u, --user-password <password>
+.B \-u, \-\-user\-password <password>
 Specify user password
 
 .TP
-.B --no-drm <0|1> (Default: 0)
+.B \-\-no\-drm <0|1> (Default: 0)
 Override document DRM settings
 
 Turn this on only when you have permission.
@@ -277,27 +277,27 @@ Turn this on only when you have permission.
 .SS Misc.
 
 .TP
-.B --clean-tmp <0|1> (Default: 1)
+.B \-\-clean\-tmp <0|1> (Default: 1)
 If switched off, intermediate files won't be cleaned in the end.
 
 .TP
-.B --data-dir <dir> (Default: @CMAKE_INSTALL_PREFIX@/share/pdf2htmlEX)
+.B \-\-data\-dir <dir> (Default: @CMAKE_INSTALL_PREFIX@/share/pdf2htmlEX)
 Specify the folder holding the manifest and other files (see below for the manifest file)`
 
 .TP
-.B --tmp-dir <dir> (Default: /tmp)
+.B \-\-tmp\-dir <dir> (Default: /tmp or $TMPDIR if set)
 Specify the temporary folder to use for temporary files
 
 .TP
-.B --css-draw <0|1> (Default: 0)
+.B \-\-css\-draw <0|1> (Default: 0)
 Experimental and unsupported CSS drawing
 
 .TP
-.B --debug <0|1> (Default: 0)
+.B \-\-debug <0|1> (Default: 0)
 Print debug information.
 
 .TP
-.B --proof <0|1|2> (Default: 0)
+.B \-\-proof <0|1|2> (Default: 0)
 Output a proof version. If a positive value is specified, texts are drawn on both text layer and background image for comparision.
 If 2 is specified, texts on background are in different colors. If png/jpg background format is used,
 a higher hdpi/vdpi (e.g. 288) is recommended for legibility.
@@ -305,31 +305,31 @@ a higher hdpi/vdpi (e.g. 288) is recommended for legibility.
 .SS Meta
 
 .TP
-.B -v, --version
+.B \-v, \-\-version
 Print copyright and version info
 
 .TP
-.B --help
+.B \-\-help
 Print usage information
 
-.SH MANIFEST and DATA-DIR
-When split-pages is 0, the manifest file describes how the final html page should be generated.
+.SH MANIFEST and DATA\-DIR
+When split\-pages is 0, the manifest file describes how the final html page should be generated.
 
-By default, pdf2htmlEX will use the manifest in the default data-dir (run `pdf2htmlEX -v` to check), which gives a simple demo of its syntax.
+By default, pdf2htmlEX will use the manifest in the default data\-dir (run `pdf2htmlEX \-v` to check), which gives a simple demo of its syntax.
 
-You can modify the default one, or you can create a new one and specify the correct data-dir in the command line. 
+You can modify the default one, or you can create a new one and specify the correct data\-dir in the command line. 
 
-All files referred by the manifest must be located in the data-dir.
+All files referred by the manifest must be located in the data\-dir.
 
 .SH EXAMPLE
 .TP
 .B pdf2htmlEX /path/to/file.pdf
 Convert file.pdf into file.html
 .TP
-.B pdf2htmlEX --clean-tmp 0 --debug 1 /path/to/file.pdf
+.B pdf2htmlEX \-\-clean\-tmp 0 \-\-debug 1 /path/to/file.pdf
 Convert file.pdf and leave all intermediate files.
 .TP
-.B pdf2htmlEX --dest-dir out --embed fi /path/to/file.pdf
+.B pdf2htmlEX \-\-dest\-dir out \-\-embed fi /path/to/file.pdf
 Convert file.pdf into out/file.html and leave font/image files separated.
 
 .SH COPYRIGHT

@@ -26,7 +26,7 @@ set(CSS_STROKE_COLOR_CN     "sc") # Stroke Color
 
 set(CSS_LETTER_SPACE_CN     "ls") # Letter Space
 set(CSS_WORD_SPACE_CN       "ws") # Word Space
-set(CSS_VERTICAL_ALIGN_CN   "v") # Vertial align
+set(CSS_VERTICAL_ALIGN_CN   "v") # Vertical align
 set(CSS_WHITESPACE_CN       "_") # whitespace
 set(CSS_LEFT_CN             "x") # X
 set(CSS_HEIGHT_CN           "h") # Height

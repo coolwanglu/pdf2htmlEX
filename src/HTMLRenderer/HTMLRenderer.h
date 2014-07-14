@@ -188,7 +188,7 @@ protected:
     void reset_state();
     // reset all ***_changed flags
     void reset_state_change();
-    // check updated states, and determine new_line_stauts
+    // check updated states, and determine new_line_status
     // make sure this function can be called several times consecutively without problem
     void check_state_change(GfxState * state);
     // prepare the line context, (close old tags, open new tags)

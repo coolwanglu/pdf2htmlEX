@@ -49,7 +49,7 @@ void ffw_add_empty_char(int32_t unicode, int width);
 // metrics
 int ffw_get_em_size(void);
 // manipulate ascent and descent
-// asscent is between 0 and 1
+// ascent is between 0 and 1
 // descent is between -1 and 0
 void ffw_fix_metric();
 // get ascent/descent based on the shape

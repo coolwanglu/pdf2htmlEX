@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh -ex
 
 # convert raw SVG into png of different sizes
 convert -background none -resize 64x64^ pdf2htmlEX.svg pdf2htmlEX-64x64.png

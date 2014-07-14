@@ -84,7 +84,7 @@ protected:
 
 // Be careful about the mixed usage of Matrix and const double *
 // the input is usually double *, which might be changed, so we have to copy the content out
-// in the map we use Matrix instead of double * such that the array may be automatically release when deconstructign
+// in the map we use Matrix instead of double * such that the array may be automatically release when deconstructing
 template <class Imp>
 class StateManager<Matrix, Imp>
 {
@@ -302,7 +302,7 @@ public:
     void dump_value(std::ostream & out, const Matrix & matrix) { 
         // always ignore tm[4] and tm[5] because
         // we have already shifted the origin
-        // TODO: recognize common matices
+        // TODO: recognize common matrices
         const auto & m = matrix.m;
         auto prefixes = {"", "-ms-", "-webkit-"};
         if(tm_equal(m, ID_MATRIX, 4))
