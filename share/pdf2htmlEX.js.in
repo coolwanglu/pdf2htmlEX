@@ -273,7 +273,7 @@ Viewer.prototype = {
       var nodes = this.outline.childNodes;
       for (var i = 0, l = nodes.length; i < l; ++i) {
         var cur_node = nodes[i];
-        if (cur_node.nodeName === 'UL') {
+        if (cur_node.nodeName.toLowerCase() === 'ul') {
           empty = false;
           break;
         }
