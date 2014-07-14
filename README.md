@@ -59,7 +59,7 @@ Want to help without coding? Thank you!
  
 ### LICENSE
 
-pdf2htmlEX, as a whole package, is licensed under GPLv3.
+pdf2htmlEX, as a whole package, is licensed under GPLv3+.
 Some resource files are released with relaxed licenses, read `LICENSE` for more details.
 
 ### Acknowledgements
