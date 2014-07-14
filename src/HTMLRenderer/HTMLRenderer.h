@@ -31,9 +31,12 @@
 #include "HTMLTextPage.h"
 
 #include "BackgroundRenderer/BackgroundRenderer.h"
+#include "CoveredTextDetector.h"
+#include "DrawingTracer.h"
 
 #include "util/const.h"
 #include "util/misc.h"
+
 
 namespace pdf2htmlEX {
 
@@ -89,7 +92,9 @@ public:
      * We just mark as changed, and recheck if they have been changed when we are about to output a new string
      */
 
-    virtual void restoreState(GfxState * state) { updateAll(state); }
+    virtual void restoreState(GfxState * state);
+
+    virtual void saveState(GfxState *state);
 
     virtual void updateAll(GfxState * state);
 
@@ -125,15 +130,34 @@ public:
 
     virtual void drawImage(GfxState * state, Object * ref, Stream * str, int width, int height, GfxImageColorMap * colorMap, GBool interpolate, int *maskColors, GBool inlineImg);
 
-    virtual void stroke(GfxState *state) { css_do_path(state, false); }
-    virtual void fill(GfxState *state) { css_do_path(state, true); }
+    virtual void drawSoftMaskedImage(GfxState *state, Object *ref, Stream *str,
+                       int width, int height,
+                       GfxImageColorMap *colorMap,
+                       GBool interpolate,
+                       Stream *maskStr,
+                       int maskWidth, int maskHeight,
+                       GfxImageColorMap *maskColorMap,
+                       GBool maskInterpolate);
+
+    virtual void stroke(GfxState *state); ////{ css_do_path(state, false); }
+    virtual void fill(GfxState *state); ////{ css_do_path(state, true); }
+    virtual void eoFill(GfxState *state);
     virtual GBool axialShadedFill(GfxState *state, GfxAxialShading *shading, double tMin, double tMax);
 
     virtual void processLink(AnnotLink * al);
 
     /* capacity test */
-    bool can_stroke(GfxState *state) { return css_do_path(state, false, true); }
-    bool can_fill(GfxState *state) { return css_do_path(state, true, true); }
+    bool can_stroke(GfxState *state) { return false; } ////{ return css_do_path(state, false, true); }
+    bool can_fill(GfxState *state) { return false; } ////{ return css_do_path(state, true, true); }
+
+    /*
+     * Covered text handling.
+     */
+    // Is a char (actually a glyph) covered by non-char's. Index in drawing order in current page.
+    // Does not fail on out-of-bound conditions, but return false.
+    bool is_char_covered(int index);
+    // Currently drawn char (glyph) count in current page.
+    int get_char_count() { return (int)covered_text_detecor.get_chars_covered().size(); }
 
 protected:
     ////////////////////////////////////////////////////
@@ -195,6 +219,7 @@ protected:
     // make sure the current HTML style consistent with PDF
     void prepare_text_line(GfxState * state);
 
+#if 0 //disable CSS drawing
     ////////////////////////////////////////////////////
     // CSS drawing
     ////////////////////////////////////////////////////
@@ -214,6 +239,7 @@ protected:
             double * line_width_array, int line_width_count,
             const GfxRGB * line_color, const GfxRGB * fill_color, 
             void (*style_function)(void *, std::ostream &) = nullptr, void * style_function_data = nullptr );
+#endif //disable CSS drawing
 
 
     ////////////////////////////////////////////////////
@@ -328,7 +354,6 @@ protected:
 #endif
     BackgroundRenderer * bg_renderer;
     BackgroundRenderer * fallback_bg_renderer;
-    bool fallback_bg_required;
 
     struct {
         std::ofstream fs;
@@ -338,6 +363,9 @@ protected:
     std::string cur_page_filename;
 
     static const std::string MANIFEST_FILENAME;
+
+    CoveredTextDetector covered_text_detecor;
+    DrawingTracer tracer;
 };
 
 } //namespace pdf2htmlEX

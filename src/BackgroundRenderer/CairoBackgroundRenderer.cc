@@ -63,6 +63,13 @@ void CairoBackgroundRenderer::drawChar(GfxState *state, double x, double y,
     {
         CairoOutputDev::drawChar(state,x,y,dx,dy,originX,originY,code,nBytes,u,uLen);
     }
+    // If a char is treated as image, it is not subject to cover test
+    // (see HTMLRenderer::drawString), so don't increase drawn_char_count.
+    else if (param.correct_text_visibility) {
+        if (html_renderer->is_char_covered(drawn_char_count))
+            CairoOutputDev::drawChar(state,x,y,dx,dy,originX,originY,code,nBytes,u,uLen);
+        drawn_char_count++;
+    }
 }
 
 void CairoBackgroundRenderer::beginTextObject(GfxState *state)
@@ -104,6 +111,7 @@ static GBool annot_cb(Annot *, void * pflag) {
 
 bool CairoBackgroundRenderer::render_page(PDFDoc * doc, int pageno)
 {
+    drawn_char_count = 0;
     double page_width;
     double page_height;
     if(param.use_cropbox)

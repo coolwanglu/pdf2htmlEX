@@ -71,6 +71,7 @@ protected:
   HTMLRenderer * html_renderer;
   const Param & param;
   std::string format;
+  int drawn_char_count;
 };
 
 } // namespace pdf2htmlEX

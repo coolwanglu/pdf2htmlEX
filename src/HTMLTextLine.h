@@ -73,7 +73,16 @@ public:
         double width;
     };
 
+    /**
+     * Append a drawn char (glyph)'s unicode. l > 1 mean this glyph correspond to
+     * multiple code points.
+     */
     void append_unicodes(const Unicode * u, int l, double width);
+    /**
+     * Append a special padding char with 0 width, in order to keep char index consistent.
+     * The padding char is ignored during output.
+     */
+    void append_padding_char() { text.push_back(0); }
     void append_offset(double width);
     void append_state(const HTMLTextState & text_state);
     void dump_text(std::ostream & out);
@@ -92,6 +101,13 @@ private:
     void optimize_normal(std::vector<HTMLTextLine*> &);
     void optimize_aggressive(std::vector<HTMLTextLine*> &);
 
+    /**
+     * Dump chars' unicode to output stream.
+     * begin/pos is the index in 'text'.
+     */
+    void dump_chars(std::ostream & out, int begin, int len);
+    void dump_char(std::ostream & out, int pos);
+
     const Param & param;
     AllStateManager & all_manager;
 
@@ -102,7 +118,16 @@ private:
 
     std::vector<State> states;
     std::vector<Offset> offsets;
-    std::vector<Unicode> text;
+
+    /**
+     * Drawn chars (glyph) in this line are stored in 'text'. For each element c in 'text':
+     * - If c > 0, it is the unicode code point corresponds to the glyph;
+     * - If c == 0, it is a padding char, and ignored during output (TODO some bad PDFs utilize 0?);
+     * - If c < -1, this glyph corresponds to more than one unicode code points,
+     *   which are stored in 'decomposed_text', and (-c-1) is the index in 'decomposed_text'.
+     */
+    std::vector<int> text;
+    std::vector<std::vector<Unicode> > decomposed_text;
 };
 
 } // namespace pdf2htmlEX
