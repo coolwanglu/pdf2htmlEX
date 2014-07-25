@@ -1,12 +1,19 @@
-Developing v0.12
+v0.12
+2014.07.24
 
+* Recognize and hide covered text 
+* Proof mode that allows easy comparison of HTML and PDF
 * Do not support Fontforge < 2.0.0 any more
+* Output is now XHTML
 * New options
  --process-annotation
+ --correct-text-visibility
+ --proof
+* Removed options
+ --css-draw
 
 v0.11
 2014.01.19
-
 
 * Compress JS with closure-compiler
 * Compress CSS with YUI Compressor

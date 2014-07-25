@@ -211,8 +211,6 @@ void parse_options (int argc, char **argv)
         .add("version,v", "print copyright and version info", &show_version_and_exit)
         .add("help,h", "print usage information", &show_usage_and_exit)
 
-        // deprecated
-
         .add("", &param.input_filename, "", "")
         .add("", &param.output_filename, "", "")
         ;
