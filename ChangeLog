@@ -5,10 +5,13 @@ v0.12
 * Proof mode that allows easy comparison of HTML and PDF
 * Do not support Fontforge < 2.0.0 any more
 * Output is now XHTML
+* Other bug fixed and improvements
 * New options
  --process-annotation
  --correct-text-visibility
  --proof
+ --svg-node-count-limit
+ --svg-embed-bitmap
 * Removed options
  --css-draw
 
