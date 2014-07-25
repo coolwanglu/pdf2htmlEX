@@ -259,4 +259,6 @@ if __name__=="__main__":
         print >> sys.stderr, "Cannot locate pdf2htmlEX executable. Make sure source was built before running this test."
         exit(1)
 
+    # we want to run pdf2htmlEX without installing it
+    shutil.copy(os.path.join(TEST_DIR, '../3rdparty/PDF.js/compatibility.min.js'), DATA_DIR)
     unittest.main()
