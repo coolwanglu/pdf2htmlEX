@@ -139,16 +139,12 @@ public:
                        GfxImageColorMap *maskColorMap,
                        GBool maskInterpolate);
 
-    virtual void stroke(GfxState *state); ////{ css_do_path(state, false); }
-    virtual void fill(GfxState *state); ////{ css_do_path(state, true); }
+    virtual void stroke(GfxState *state); 
+    virtual void fill(GfxState *state);
     virtual void eoFill(GfxState *state);
     virtual GBool axialShadedFill(GfxState *state, GfxAxialShading *shading, double tMin, double tMax);
 
     virtual void processLink(AnnotLink * al);
-
-    /* capacity test */
-    bool can_stroke(GfxState *state) { return false; } ////{ return css_do_path(state, false, true); }
-    bool can_fill(GfxState *state) { return false; } ////{ return css_do_path(state, true, true); }
 
     /*
      * Covered text handling.
@@ -218,29 +214,6 @@ protected:
     // prepare the line context, (close old tags, open new tags)
     // make sure the current HTML style consistent with PDF
     void prepare_text_line(GfxState * state);
-
-#if 0 //disable CSS drawing
-    ////////////////////////////////////////////////////
-    // CSS drawing
-    ////////////////////////////////////////////////////
-    /*
-     * test_only is for capacity check
-     */
-    bool css_do_path(GfxState *state, bool fill, bool test_only = false);
-    /*
-     * coordinates are to transformed by state->getCTM()
-     * (x,y) should be the bottom-left corner INCLUDING border
-     * w,h should be the metrics WITHOUT border
-     *
-     * line_color & fill_color may be specified as nullptr to indicate none
-     * style_function & style_function_data may be provided to provide more styles
-     */
-    void css_draw_rectangle(double x, double y, double w, double h, const double * tm,
-            double * line_width_array, int line_width_count,
-            const GfxRGB * line_color, const GfxRGB * fill_color, 
-            void (*style_function)(void *, std::ostream &) = nullptr, void * style_function_data = nullptr );
-#endif //disable CSS drawing
-
 
     ////////////////////////////////////////////////////
     // PDF stuffs

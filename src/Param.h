@@ -75,7 +75,6 @@ struct Param
     int clean_tmp;
     std::string data_dir;
     std::string tmp_dir;
-    int css_draw;
     int debug;
     int proof;
 

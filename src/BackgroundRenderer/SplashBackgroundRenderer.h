@@ -50,16 +50,6 @@ public:
       double originX, double originY,
       CharCode code, int nBytes, Unicode *u, int uLen);
 
-  virtual void stroke(GfxState *state) {
-      if(!html_renderer->can_stroke(state))
-          SplashOutputDev::stroke(state);
-  }
-
-  virtual void fill(GfxState *state) { 
-      if(!html_renderer->can_fill(state))
-          SplashOutputDev::fill(state);
-  }
-
   //for proof
   void beginTextObject(GfxState *state);
   void beginString(GfxState *state, GooString * str);

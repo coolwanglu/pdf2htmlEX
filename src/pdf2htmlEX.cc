@@ -204,8 +204,6 @@ void parse_options (int argc, char **argv)
         .add("clean-tmp", &param.clean_tmp, 1, "remove temporary files after conversion")
         .add("tmp-dir", &param.tmp_dir, param.tmp_dir, "specify the location of temporary directory.")
         .add("data-dir", &param.data_dir, param.data_dir, "specify data directory")
-        // TODO: css drawings are hidden on print, for annot links, need to fix it for other drawings
-//        .add("css-draw", &param.css_draw, 0, "[experimental and unsupported] CSS drawing")
         .add("debug", &param.debug, 0, "print debugging information")
         .add("proof", &param.proof, 0, "texts are drawn on both text layer and background for proof.")
 
