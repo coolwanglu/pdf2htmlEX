@@ -344,6 +344,12 @@ void check_param()
     {
         cerr << "Warning: No hint tool is specified for truetype fonts, the result may be rendered poorly in some circumstances." << endl;
     }
+
+    if (param.embed_image && (param.bg_format == "svg") && !param.svg_embed_bitmap)
+    {
+        cerr << "Warning: --svg-embed-bitmap is forced on because --embed-image is on, or the dumped bitmaps can't be loaded." << endl;
+        param.svg_embed_bitmap = 1;
+    }
 }
 
 int main(int argc, char **argv)
