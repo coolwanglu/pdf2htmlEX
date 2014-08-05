@@ -246,6 +246,34 @@ void CairoBackgroundRenderer::setMimeData(Stream *str, Object *ref, cairo_surfac
     if (ref == nullptr || !ref->isRef())
         return;
 
+    // We only dump rgb or gray jpeg without /Decode array.
+    //
+    // Although jpeg support CMYK, PDF readers do color conversion incompatibly with most other
+    // programs (including browsers): other programs invert CMYK color if 'Adobe' marker (app14) presents
+    // in a jpeg file; while PDF readers don't, they solely rely on /Decode array to invert color.
+    // It's a bit complicated to decide whether a CMYK jpeg is safe to dump, so we don't dump at all.
+    // See also:
+    //   JPEG file embedded in PDF (CMYK) https://forums.adobe.com/thread/975777
+    //   http://stackoverflow.com/questions/3123574/how-to-convert-from-cmyk-to-rgb-in-java-correctly
+    //
+    // In PDF, jpeg stream objects can also specify other color spaces like DeviceN and Separation,
+    // It is also not safe to dump them directly.
+    Object obj;
+    str->getDict()->lookup("ColorSpace", &obj);
+    if (!obj.isName() || (strcmp(obj.getName(), "DeviceRGB") && strcmp(obj.getName(), "DeviceGray")) )
+    {
+        obj.free();
+        return;
+    }
+    obj.free();
+    str->getDict()->lookup("Decode", &obj);
+    if (obj.isArray())
+    {
+        obj.free();
+        return;
+    }
+    obj.free();
+
     int imgId = ref->getRef().num;
     auto uri = strdup((char*) html_renderer->str_fmt("o%d.jpg", imgId));
     auto st = cairo_surface_set_mime_data(image, CAIRO_MIME_TYPE_URI,
