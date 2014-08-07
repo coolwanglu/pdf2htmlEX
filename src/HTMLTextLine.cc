@@ -52,12 +52,19 @@ void HTMLTextLine::append_offset(double width)
     /*
      * If the last offset is very thin, we can ignore it and directly use it
      * But this should not happen often, and we will also filter near-zero offsets when outputting them
-     * So don't check it
+     * So don't check it.
+     *
+     * Offset must be appended immediately after the last real (non-padding) char, or the text optimizing
+     * algorithm may be confused: it may wrongly convert offsets at the beginning of a line to word-space.
      */
-    if((!offsets.empty()) && (offsets.back().start_idx == text.size()))
+
+    auto offset_idx = text.size();
+    while (offset_idx > 0 && text[offset_idx - 1] == 0)
+        --offset_idx;
+    if((!offsets.empty()) && (offsets.back().start_idx == offset_idx))
         offsets.back().width += width;
     else
-        offsets.emplace_back(text.size(), width);
+        offsets.emplace_back(offset_idx, width);
     this->width += width;
 }
 
