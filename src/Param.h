@@ -62,6 +62,9 @@ struct Param
     int tounicode;
     int optimize_text;
 
+    // adobe form
+    int include_forms;
+
     // background image
     std::string bg_format;
     int svg_node_count_limit;

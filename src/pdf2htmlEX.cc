@@ -189,6 +189,9 @@ void parse_options (int argc, char **argv)
         .add("optimize-text", &param.optimize_text, 0, "try to reduce the number of HTML elements used for text")
         .add("correct-text-visibility", &param.correct_text_visibility, 0, "try to detect texts covered by other graphics and properly arrange them")
 
+        // adobe forms
+        .add("include-forms", &param.include_forms, 0, "include text fields and such")
+
         // background image
         .add("bg-format", &param.bg_format, "png", "specify background image format")
         .add("svg-node-count-limit", &param.svg_node_count_limit, -1, "if node count in a svg background image exceeds this limit,"

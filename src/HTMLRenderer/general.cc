@@ -252,6 +252,10 @@ void HTMLRenderer::endPage() {
     html_text_page.dump_css(f_css.fs);
     html_text_page.clear();
 
+    // process form
+    if(param.include_forms)
+        process_form(*f_curpage);
+    
     // process links before the page is closed
     cur_doc->processLinks(this, pageNum);
 
