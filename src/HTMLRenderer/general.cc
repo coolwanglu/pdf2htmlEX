@@ -395,6 +395,12 @@ void HTMLRenderer::pre_process(PDFDoc * doc)
 void HTMLRenderer::post_process(void)
 {
     dump_css();
+    
+    if (param.include_forms)
+    {
+       dump_form_css(f_css.fs); 
+    }
+    
     // close files if they opened
     // it's better to brace single liner LLVM complains
     if (param.process_outline)

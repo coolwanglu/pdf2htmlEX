@@ -24,7 +24,6 @@ void HTMLRenderer::process_form(ostream & out)
 {
     FormPageWidgets * widgets = cur_catalog->getPage(pageNum)->getFormWidgets();
     int num = widgets->getNumWidgets();
-    std::ostringstream derp;
 
     for(int i = 0; i < num; i++)
     {
@@ -61,25 +60,14 @@ void HTMLRenderer::process_form(ostream & out)
                 << " style=\"opacity:0.0; position: absolute; left: " << std::to_string(x1) << 
                 "px; bottom: " << std::to_string(y1) << "px;" <<
                 "width: " << std::to_string(width) << "px; height: " << std::to_string(height) << 
-                "px;  font-size: 20px; \" class=\"checkbox-" <<
+                "px;  font-size: 20px; \" class=\"checkbox checkbox-" <<
                 std::to_string(pageNum) << "\">X</div>" << endl;
 
         }
     }
 
-    //output, at the end, the necessary css
+    //output, at the end, the necessary js
     if(num > 0) {
-        //this is usable by the whole document and as such should be in dump_css
-        out << "<style>" <<
-            ".text_input {" <<
-            "border: none; " << 
-            "background-color: rgba(255, 255, 255, 0.0);" <<
-            "}" << endl <<
-            ".checkbox-" << std::to_string(pageNum) << ":hover {" <<
-            "cursor: pointer;" <<
-            "}" <<
-            "</style>" << endl;
-        
         //this is currently page specific
         out << "<script type=\"text/javascript\">" << endl << 
             "var checkboxes = document.getElementsByClassName(\"checkbox-" <<
@@ -96,8 +84,18 @@ void HTMLRenderer::process_form(ostream & out)
             "});" << endl <<
             "}" << endl <<
             "</script>" << endl;
-        
     }
+}
+
+void HTMLRenderer::dump_form_css(ostream & out)
+{
+    out << ".text_input {" <<
+        "border: none; " << 
+        "background-color: rgba(255, 255, 255, 0.0);" <<
+        "}" << endl <<
+        ".checkbox:hover {" <<
+        "cursor: pointer;" <<
+        "}" << endl;
 }
 
 }

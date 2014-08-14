@@ -170,7 +170,8 @@ protected:
     void process_outline_items(GooList * items);
 
     void process_form(std::ostream & out);
-    
+    void dump_form_css(std::ostream & out);
+
     void set_stream_flags (std::ostream & out);
 
     void dump_css(void);
