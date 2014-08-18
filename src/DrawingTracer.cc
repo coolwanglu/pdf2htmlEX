@@ -10,12 +10,11 @@
 #include "util/math.h"
 #include "DrawingTracer.h"
 
-//#define DT_DEBUG(x)  (x)
-#define DT_DEBUG(x)
-
 #if !ENABLE_SVG
 #warning "Cairo is disabled because ENABLE_SVG is off, --correct-text-visibility has limited functionality."
 #endif
+
+static constexpr bool DT_DEBUG = false;
 
 namespace pdf2htmlEX
 {
@@ -39,9 +38,18 @@ void DrawingTracer::reset(GfxState *state)
     finish();
 
 #if ENABLE_SVG
-    cairo_rectangle_t page_box {0, 0, width:state->getPageWidth(), height:state->getPageHeight()};
+    // pbox is defined in device space, which is affected by zooming;
+    // We want to trace in page space which is stable, so invert pbox by ctm.
+    double pbox[] { 0, 0, state->getPageWidth(), state->getPageHeight() };
+    Matrix ctm, ictm;
+    state->getCTM(&ctm);
+    ctm.invertTo(&ictm);
+    tm_transform_bbox(ictm.m, pbox);
+    cairo_rectangle_t page_box { pbox[0], pbox[1], pbox[2] - pbox[0], pbox[3] - pbox[1] };
     cairo_surface_t * surface = cairo_recording_surface_create(CAIRO_CONTENT_COLOR_ALPHA, &page_box);
     cairo = cairo_create(surface);
+    if (DT_DEBUG)
+        printf("DrawingTracer::reset:page bbox:[%f,%f,%f,%f]\n",pbox[0], pbox[1], pbox[2], pbox[3]);
 #endif
 }
 
@@ -73,6 +81,13 @@ void DrawingTracer::update_ctm(GfxState *state, double m11, double m12, double m
     matrix.x0 = m31;
     matrix.y0 = m32;
     cairo_transform(cairo, &matrix);
+
+    if (DT_DEBUG)
+    {
+        cairo_matrix_t mat;
+        cairo_get_matrix(cairo, &mat);
+        printf("DrawingTracer::update_ctm:ctm:[%f,%f,%f,%f,%f,%f]\n", mat.xx, mat.yx, mat.xy, mat.yy, mat.x0, mat.y0);
+    }
 #endif
 }
 
@@ -84,6 +99,13 @@ void DrawingTracer::clip(GfxState * state, bool even_odd)
     do_path(state, state->getPath());
     cairo_set_fill_rule(cairo, even_odd? CAIRO_FILL_RULE_EVEN_ODD : CAIRO_FILL_RULE_WINDING);
     cairo_clip (cairo);
+
+    if (DT_DEBUG)
+    {
+        double cbox[4];
+        cairo_clip_extents(cairo, cbox, cbox + 1, cbox + 2, cbox + 3);
+        printf("DrawingTracer::clip:extents:[%f,%f,%f,%f]\n", cbox[0],cbox[1],cbox[2],cbox[3]);
+    }
 #endif
 }
 
@@ -100,6 +122,8 @@ void DrawingTracer::save()
         return;
 #if ENABLE_SVG
     cairo_save(cairo);
+    if (DT_DEBUG)
+        printf("DrawingTracer::save\n");
 #endif
 }
 void DrawingTracer::restore()
@@ -108,6 +132,8 @@ void DrawingTracer::restore()
         return;
 #if ENABLE_SVG
     cairo_restore(cairo);
+    if (DT_DEBUG)
+        printf("DrawingTracer::restore\n");
 #endif
 }
 
@@ -119,12 +145,16 @@ void DrawingTracer::do_path(GfxState * state, GfxPath * path)
     int i, j;
     double x, y;
     cairo_new_path(cairo);
+    if (DT_DEBUG)
+        printf("DrawingTracer::do_path:new_path\n");
     for (i = 0; i < path->getNumSubpaths(); ++i) {
         subpath = path->getSubpath(i);
         if (subpath->getNumPoints() > 0) {
             x = subpath->getX(0);
             y = subpath->getY(0);
             cairo_move_to(cairo, x, y);
+            if (DT_DEBUG)
+                printf("DrawingTracer::do_path:move_to[%f,%f]\n",x,y);
             j = 1;
             while (j < subpath->getNumPoints()) {
                 if (subpath->getCurve(j)) {
@@ -134,16 +164,22 @@ void DrawingTracer::do_path(GfxState * state, GfxPath * path)
                         subpath->getX(j), subpath->getY(j),
                         subpath->getX(j+1), subpath->getY(j+1),
                         x, y);
+                    if (DT_DEBUG)
+                        printf("DrawingTracer::do_path:curve_to[%f,%f]\n",x,y);
                     j += 3;
                 } else {
                     x = subpath->getX(j);
                     y = subpath->getY(j);
                     cairo_line_to(cairo, x, y);
+                    if (DT_DEBUG)
+                        printf("DrawingTracer::do_path:line_to[%f,%f]\n",x,y);
                     ++j;
                 }
             }
             if (subpath->isClosed()) {
                 cairo_close_path (cairo);
+                if (DT_DEBUG)
+                    printf("DrawingTracer::do_path:close\n");
             }
         }
     }
@@ -156,7 +192,8 @@ void DrawingTracer::stroke(GfxState * state)
     if (!param.correct_text_visibility)
         return;
 
-    DT_DEBUG(printf("DrawingTracer::stroke\n"));
+    if (DT_DEBUG)
+        printf("DrawingTracer::stroke\n");
 
     cairo_set_line_width(cairo, state->getLineWidth());
 
@@ -197,13 +234,14 @@ void DrawingTracer::stroke(GfxState * state)
                 ++p;
             }
 
-            DT_DEBUG(printf("DrawingTracer::stroke:new box:\n"));
+            if (DT_DEBUG)
+                printf("DrawingTracer::stroke:new box:\n");
             double sbox[4];
             cairo_stroke_extents(cairo, sbox, sbox + 1, sbox + 2, sbox + 3);
             if (sbox[0] != sbox[2] && sbox[1] != sbox[3])
                 draw_non_char_bbox(state, sbox);
-            else
-                DT_DEBUG(printf("DrawingTracer::stroke:zero box!\n"));
+            else if (DT_DEBUG)
+                printf("DrawingTracer::stroke:zero box!\n");
 
             if (p == n)
             {
@@ -243,7 +281,8 @@ void DrawingTracer::draw_non_char_bbox(GfxState * state, double * bbox)
 #endif
     {
         transform_bbox_by_ctm(bbox, state);
-        DT_DEBUG(printf("DrawingTracer::draw_non_char_bbox:[%f,%f,%f,%f]\n", bbox[0],bbox[1],bbox[2],bbox[3]));
+        if (DT_DEBUG)
+            printf("DrawingTracer::draw_non_char_bbox:[%f,%f,%f,%f]\n", bbox[0],bbox[1],bbox[2],bbox[3]);
         if (on_non_char_drawn)
             on_non_char_drawn(bbox);
     }
@@ -296,7 +335,8 @@ void DrawingTracer::draw_char_bbox(GfxState * state, double * bbox)
     if (on_char_drawn)
         on_char_drawn(bbox);
 #endif
-    DT_DEBUG(printf("DrawingTracer::draw_char_bbox:[%f,%f,%f,%f]\n",bbox[0],bbox[1],bbox[2],bbox[3]));
+    if (DT_DEBUG)
+        printf("DrawingTracer::draw_char_bbox:[%f,%f,%f,%f]\n",bbox[0],bbox[1],bbox[2],bbox[3]);
 }
 
 void DrawingTracer::draw_image(GfxState *state)
