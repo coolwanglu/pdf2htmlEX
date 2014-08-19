@@ -247,7 +247,11 @@ void HTMLTextLine::dump_text(ostream & out)
                     if(!(state_iter1->hash_umask & State::umask_by_id(State::WORD_SPACE_ID)))
                     {
                         double space_off = state_iter1->single_space_offset();
-                        if(std::abs(target - space_off) <= param.h_eps)
+                        if((std::abs(target - space_off) <= param.h_eps)
+                                // Chrome/webkit don't apply CSS word-spacing to leading spaces, so we don't
+                                // convert leading offsets to spaces. See also issue #412 and chromium issue #404444.
+                                // TODO after browsers having this bug have vanished, just remove the line below.
+                                && ((state_iter1->word_space == 0) || (cur_offset_iter->start_idx != 0)))
                         {
                             Unicode u = ' ';
                             writeUnicodes(out, &u, 1);
