@@ -17,7 +17,7 @@ pdf2htmlEX is a utility that converts PDF files to HTML files.
 
 pdf2htmlEX tries its best to render the PDF precisely, maintain proper styling, while retaining text and optimizing for Web.
 
-Fonts are extracted form PDF and then embedded into HTML (Type 3 fonts are not supported). Text in the converted HTML file is usually selectable and copyable. 
+Fonts are extracted form PDF and then embedded into HTML, text in the converted HTML file is usually selectable and copyable. 
 
 Other objects are rendered as images and also embedded.
 
