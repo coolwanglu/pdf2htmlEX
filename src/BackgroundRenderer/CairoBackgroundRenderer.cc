@@ -53,10 +53,12 @@ void CairoBackgroundRenderer::drawChar(GfxState *state, double x, double y,
     // - OR there is special filling method
     // - OR using a writing mode font
     // - OR using a Type 3 font while param.process_type3 is not enabled
+    // - OR the text is used as path
     if((param.fallback || param.proof)
         || ( (state->getFont())
             && ( (state->getFont()->getWMode())
                  || ((state->getFont()->getType() == fontType3) && (!param.process_type3))
+                 || (state->getRender() >= 4)
                )
           )
       )
