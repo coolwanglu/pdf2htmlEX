@@ -52,7 +52,7 @@ Chat with the main author: 王璐 (Lu Wang)
  * <coolwanglu@gmail.com>
  * [@coolwanglu](https://twitter.com/coolwanglu)
  * :bangbang:Questions about pdf2htmlEX? Use the mailling list instead.:bangbang:
- * Accepting messages in :cn::us::gb::jp:.
+ * Accepting messages in :cn::us::gb::jp: (languages).
 
 Want to help without coding? Thank you!
 * [:moneybag:Make a donation](http://coolwanglu.github.io/pdf2htmlEX/donate.html)
