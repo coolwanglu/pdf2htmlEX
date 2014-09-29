@@ -11,6 +11,7 @@ share/base.css
 share/fancy.css
 share/js_src/css_class_names.js
 share/pdf2htmlEX.js
+share/pdf2htmlEX.min.js
 src/pdf2htmlEX-config.h
 src/util/css_const.h
 test/*
@@ -20,3 +21,4 @@ doc/*
 /"\\"
 /share/base.min.css
 /share/fancy.min.css
+
