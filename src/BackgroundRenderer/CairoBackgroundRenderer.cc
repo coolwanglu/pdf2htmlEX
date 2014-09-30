@@ -170,21 +170,44 @@ bool CairoBackgroundRenderer::render_page(PDFDoc * doc, int pageno)
     }
 
     //check node count in the svg file, fall back to bitmap_renderer if necessary.
-    if (param.svg_node_count_limit >= 0)
+    if (param.svg_node_count_limit >= 0 || param.svg_image_count_limit >= 0)
     {
         int n = 0;
+        int images = 0;
         char c;
         ifstream svgfile(fn);
         //count of '<' in the file should be an approximation of node count.
         while(svgfile >> c)
         {
-            if (c == '<')
+            if (c == '<') {
                 ++n;
-            if (n > param.svg_node_count_limit)
-            {
-                html_renderer->tmp_files.add(fn);
-                return false;
-            }
+                int p = 0;
+                // count number of image tags
+                while (svgfile.get(c) && c == "image "[p]) {
+                    p++;
+                }
+                if (c) {
+                    if (p == 6) {
+                        images++;
+                    } else {
+                        svgfile.putback(c);
+                    }
+                } else {
+                    break;
+                }
+                if ((param.svg_node_count_limit >= 0 && n > param.svg_node_count_limit) ||
+                    (param.svg_image_count_limit >= 0 && images > param.svg_image_count_limit))
+                {
+                    html_renderer->tmp_files.add(fn);
+                    if (param.debug) {
+                        std::cerr << "Page: " << pageno << ", node count: " << n << ", image count: " << images << " = threshold exceeded\n";
+                    }
+                    return false;
+                }
+            } 
+        }
+        if (param.debug) {
+            std::cerr << "Page: " << pageno << ", node count: " << n << ", image count: " << images << "\n";
         }
     }
 
