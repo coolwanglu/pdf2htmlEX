@@ -164,6 +164,7 @@ void parse_options (int argc, char **argv)
         .add("process-nontext", &param.process_nontext, 1, "render graphics in addition to text")
         .add("process-outline", &param.process_outline, 1, "show outline in HTML")
         .add("process-annotation", &param.process_annotation, 0, "show annotation in HTML")
+        .add("process-forms", &param.process_forms, 0, "include text fields and radio buttons")
         .add("printing", &param.printing, 1, "enable printing support")
         .add("fallback", &param.fallback, 0, "output in fallback mode")
         .add("tmp-file-size-limit", &param.tmp_file_size_limit, -1, "Maximum size (in KB) used by temporary files, -1 for no limit.")
@@ -188,9 +189,6 @@ void parse_options (int argc, char **argv)
         .add("tounicode", &param.tounicode, 0, "how to handle ToUnicode CMaps (0=auto, 1=force, -1=ignore)")
         .add("optimize-text", &param.optimize_text, 0, "try to reduce the number of HTML elements used for text")
         .add("correct-text-visibility", &param.correct_text_visibility, 0, "try to detect texts covered by other graphics and properly arrange them")
-
-        // adobe forms
-        .add("include-forms", &param.include_forms, 0, "include text fields and such")
 
         // background image
         .add("bg-format", &param.bg_format, "png", "specify background image format")

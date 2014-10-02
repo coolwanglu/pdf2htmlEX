@@ -253,7 +253,7 @@ void HTMLRenderer::endPage() {
     html_text_page.clear();
 
     // process form
-    if(param.include_forms)
+    if(param.process_forms)
         process_form(*f_curpage);
     
     // process links before the page is closed
@@ -395,11 +395,6 @@ void HTMLRenderer::pre_process(PDFDoc * doc)
 void HTMLRenderer::post_process(void)
 {
     dump_css();
-    
-    if (param.include_forms)
-    {
-       dump_form_css(f_css.fs); 
-    }
     
     // close files if they opened
     // it's better to brace single liner LLVM complains

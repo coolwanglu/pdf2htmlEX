@@ -34,3 +34,5 @@ set(CSS_WIDTH_CN            "w") # Width
 set(CSS_BOTTTOM_CN          "y") # Y
 set(CSS_CSS_DRAW_CN         "d") # Draw
 set(CSS_LINK_CN             "l") # Link
+set(CSS_INPUT_TEXT_CN       "it") # Text input
+set(CSS_INPUT_RADIO_CN      "ir") # Radio button

@@ -50,7 +50,7 @@ void HTMLRenderer::process_form(ostream & out)
                 "px; bottom: " << std::to_string(y1) << "px;" <<
                 "width: " << std::to_string(width) << "px; height: " << std::to_string(height) << 
                 "px; line-height: " << std::to_string(height) << "px; font-size: " 
-                << std::to_string(font_size) << "px;\" class=\"text_input\" />" << endl;
+                << std::to_string(font_size) << "px;\" class=\"" << CSS::INPUT_TEXT_CN << "\" />" << endl;
         }
 
         if(w->getType() == formButton)
@@ -60,42 +60,10 @@ void HTMLRenderer::process_form(ostream & out)
                 << " style=\"opacity:0.0; position: absolute; left: " << std::to_string(x1) << 
                 "px; bottom: " << std::to_string(y1) << "px;" <<
                 "width: " << std::to_string(width) << "px; height: " << std::to_string(height) << 
-                "px;  font-size: 20px; \" class=\"checkbox checkbox-" <<
-                std::to_string(pageNum) << "\">X</div>" << endl;
+                "px; font-size: 20px; \" class=\"" << CSS::INPUT_RADIO_CN << "\">X</div>" << endl;
 
         }
     }
-
-    //output, at the end, the necessary js
-    if(num > 0) {
-        //this is currently page specific
-        out << "<script type=\"text/javascript\">" << endl << 
-            "var checkboxes = document.getElementsByClassName(\"checkbox-" <<
-            std::to_string(pageNum) << "\");" << endl <<
-            "var c = checkboxes.item(0);" << endl <<
-            "console.log(c);" << endl <<
-            "for(var i = 0; i < checkboxes.length; i++) {" << endl <<
-            "var c = checkboxes[i];" << endl <<
-            "c.addEventListener('click', function() {" << endl <<
-            "if(this.style.opacity == 1)" << endl << 
-            "this.style.opacity = 0;" << endl <<
-            "else" << endl << 
-            "this.style.opacity = 1;" << endl <<
-            "});" << endl <<
-            "}" << endl <<
-            "</script>" << endl;
-    }
-}
-
-void HTMLRenderer::dump_form_css(ostream & out)
-{
-    out << ".text_input {" <<
-        "border: none; " << 
-        "background-color: rgba(255, 255, 255, 0.0);" <<
-        "}" << endl <<
-        ".checkbox:hover {" <<
-        "cursor: pointer;" <<
-        "}" << endl;
 }
 
 }

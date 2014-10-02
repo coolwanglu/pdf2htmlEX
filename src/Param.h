@@ -38,6 +38,7 @@ struct Param
     int process_nontext;
     int process_outline;
     int process_annotation;
+    int process_forms;
     int correct_text_visibility;
     int printing;
     int fallback;
@@ -61,9 +62,6 @@ struct Param
     int space_as_offset;
     int tounicode;
     int optimize_text;
-
-    // adobe form
-    int include_forms;
 
     // background image
     std::string bg_format;
