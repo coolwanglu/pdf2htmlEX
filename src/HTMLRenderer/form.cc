@@ -55,12 +55,15 @@ void HTMLRenderer::process_form(ostream & out)
 
         if(w->getType() == formButton)
         {
+            width += 3;
+            height += 3;
+
             out << "<div id=\"cb-" << std::to_string(pageNum) << "-" 
                 << std::to_string(i) << "\"" 
-                << " style=\"opacity:0.0; position: absolute; left: " << std::to_string(x1) << 
+                << " style=\"position: absolute; left: " << std::to_string(x1) << 
                 "px; bottom: " << std::to_string(y1) << "px;" <<
                 "width: " << std::to_string(width) << "px; height: " << std::to_string(height) << 
-                "px; font-size: 20px; \" class=\"" << CSS::INPUT_RADIO_CN << "\">X</div>" << endl;
+                "px; \" class=\"" << CSS::INPUT_RADIO_CN << "\"></div>" << endl;
 
         }
     }

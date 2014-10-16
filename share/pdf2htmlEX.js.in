@@ -267,10 +267,10 @@ Viewer.prototype = {
       var r = elements[i];
 
       r.addEventListener('click', function() {
-        if(this.style.opacity == 1)
-          this.style.opacity = 0;
+        if(this.className.search("checked") == -1)
+          this.className += " checked";
         else
-          this.style.opacity = 1;
+          this.className = "ir";
       });
     }
   },
