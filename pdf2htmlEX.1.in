@@ -259,6 +259,11 @@ If node count in a svg background image exceeds this limit, fall back this page 
 This option is only useful when '\-\-bg\-format svg' is specified. Note that node count in svg is just calculated approximately.
 
 .TP
+.B \-\-svg\-image\-count\-limit <limit> (Default: -1)
+If the number of images in the svg background exceeds this limit, fall back this page to bitmap background; negative value means no limit.
+This option is only useful when '\-\-bg\-format svg' is specified.
+
+.TP
 .B \-\-svg\-embed\-bitmap <0|1> (Default: 1)
 Whether embed bitmaps in svg background image. 1: embed bitmaps in svg background; 0: dump bitmaps to external files if possible.
 
