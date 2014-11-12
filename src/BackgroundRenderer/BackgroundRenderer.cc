@@ -44,7 +44,7 @@ BackgroundRenderer * BackgroundRenderer::getBackgroundRenderer(const std::string
 
 BackgroundRenderer * BackgroundRenderer::getFallbackBackgroundRenderer(HTMLRenderer * html_renderer, const Param & param)
 {
-    if (param.bg_format == "svg" && param.svg_node_count_limit >= 0)
+    if (param.bg_format == "svg" && (param.svg_node_count_limit >= 0 || param.svg_image_count_limit >= 0))
         return new SplashBackgroundRenderer("", html_renderer, param);
     return nullptr;
 }
