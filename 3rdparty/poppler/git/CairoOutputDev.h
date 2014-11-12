@@ -276,7 +276,8 @@ protected:
   cairo_filter_t getFilterForSurface(cairo_surface_t *image,
 				     GBool interpolate);
   GBool getStreamData (Stream *str, char **buffer, int *length);
-  void setMimeData(GfxState *state, Stream *str, Object *ref, cairo_surface_t *image);
+  // pdf2htmlEX: Add virtual here to allow CairoBackgroundRenderer to override setMimeData()
+  virtual void setMimeData(GfxState *state, Stream *str, Object *ref, cairo_surface_t *image);
   void fillToStrokePathClip(GfxState *state);
   void alignStrokeCoords(GfxSubpath *subpath, int i, double *x, double *y);
 
