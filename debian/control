@@ -2,13 +2,24 @@ Source: pdf2htmlex
 Section: universe/web
 Priority: extra
 Maintainer: WANG Lu <coolwanglu@gmail.com>
-Build-Depends: cmake (>= 2.6.0), pkg-config, debhelper (>= 8), libpoppler-dev (>= 0.20.3), libpng12-dev, libjpeg-dev, libfontforge-dev, libspiro-dev, python-dev, default-jre-headless (>= 1.6), libcairo2-dev, libpango1.0-dev
+Build-Depends: cmake (>= 2.6.0),
+               debhelper (>= 8),
+               default-jre-headless (>= 1.6),
+               libcairo2-dev,
+               libfontforge-dev,
+               libjpeg-dev,
+               libpango1.0-dev,
+               libpng12-dev,
+               libpoppler-dev (>= 0.20.3),
+               libspiro-dev,
+               pkg-config,
+               python-dev
 Standards-Version: 3.9.3
 Homepage: http://github.com/coolwanglu/pdf2htmlEX
 
 Package: pdf2htmlex
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
+Depends: ${misc:Depends}, ${shlibs:Depends}
 Suggests: ttfautohint
 Description: Converts PDF to HTML without losing format
  pdf2htmlEX converts PDF to HTML while retaining text, format & style as much as possible
