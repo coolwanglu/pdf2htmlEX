@@ -18,7 +18,7 @@
 // Copyright (C) 2005, 2006 Kristian Høgsberg <krh@redhat.com>
 // Copyright (C) 2005 Nickolay V. Shmyrev <nshmyrev@yandex.ru>
 // Copyright (C) 2006-2011, 2013 Carlos Garcia Campos <carlosgc@gnome.org>
-// Copyright (C) 2008, 2009, 2011-2013 Adrian Johnson <ajohnson@redneon.com>
+// Copyright (C) 2008, 2009, 2011-2014 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2008 Michael Vrable <mvrable@cs.ucsd.edu>
 // Copyright (C) 2010-2013 Thomas Freitag <Thomas.Freitag@alfa.de>
 //
@@ -120,6 +120,10 @@ public:
   // Does this device use beginType3Char/endType3Char?  Otherwise,
   // text in Type 3 fonts will be drawn with drawChar/drawString.
   virtual GBool interpretType3Chars() { return gFalse; }
+
+  // Does this device need to clip pages to the crop box even when the
+  // box is the crop box?
+  virtual GBool needClipToCropBox() { return gTrue; }
 
   //----- initialization and control
 
@@ -272,7 +276,8 @@ protected:
   cairo_filter_t getFilterForSurface(cairo_surface_t *image,
 				     GBool interpolate);
   GBool getStreamData (Stream *str, char **buffer, int *length);
-  virtual void setMimeData(Stream *str, Object *ref, cairo_surface_t *image);
+  // pdf2htmlEX: Add virtual here to allow CairoBackgroundRenderer to override setMimeData()
+  virtual void setMimeData(GfxState *state, Stream *str, Object *ref, cairo_surface_t *image);
   void fillToStrokePathClip(GfxState *state);
   void alignStrokeCoords(GfxSubpath *subpath, int i, double *x, double *y);
 
