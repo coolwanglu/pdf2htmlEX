@@ -1,3 +1,27 @@
+pdf2htmlex (0.12-1~git201411121058r1a6ec-0ubuntu1) trusty; urgency=medium
+
+  * Disable test for PPA
+
+ -- WANG Lu <coolwanglu@gmail.com>  Wed, 12 Nov 2014 10:58:17 +0800
+
+pdf2htmlex (0.12-1~git201411121022reb4de-0ubuntu1) trusty; urgency=medium
+
+  * Added libpango1.0-dev as building dependency 
+
+ -- WANG Lu <coolwanglu@gmail.com>  Wed, 12 Nov 2014 09:54:57 +0800
+
+pdf2htmlex (0.12-1~git201411120945reb4de-0ubuntu1) trusty; urgency=medium
+
+  * Added libcairo-dev as building dependency 
+
+ -- WANG Lu <coolwanglu@gmail.com>  Wed, 12 Nov 2014 09:45:54 +0800
+
+pdf2htmlex (0.12-1~git201411120106r4f417-0ubuntu1) saucy; urgency=medium
+
+  * Trying with PPA dependency
+
+ -- WANG Lu <coolwanglu@gmail.com>  Wed, 12 Nov 2014 01:02:35 +0800
+
 pdf2htmlex (0.11-1~git201311150048r23755-0ubuntu1) saucy; urgency=low
 
   * Fix packaging

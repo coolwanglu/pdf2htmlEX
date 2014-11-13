@@ -234,7 +234,7 @@ void SplashBackgroundRenderer::dump_image(const char * filename, int x1, int y1,
     }
 
     if(!writer->init(f, width, height, param.h_dpi, param.v_dpi))
-        throw "Cannot initialize PNGWriter";
+        throw "Cannot initialize image writer";
         
     auto * bitmap = getBitmap();
     assert(bitmap->getMode() == splashModeRGB8);

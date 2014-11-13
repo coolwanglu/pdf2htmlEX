@@ -21,4 +21,4 @@ script:
 branches:
   only:
     - master
-    - travis
+    - incoming
