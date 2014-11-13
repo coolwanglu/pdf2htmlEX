@@ -186,11 +186,7 @@ void HTMLRenderer::setDefaultCTM(double *ctm)
     memcpy(default_ctm, ctm, sizeof(default_ctm));
 }
 
-#if POPPLER_OLDER_THAN_0_23_0
-void HTMLRenderer::startPage(int pageNum, GfxState *state)
-#else
 void HTMLRenderer::startPage(int pageNum, GfxState *state, XRef * xref)
-#endif
 {
     covered_text_detecor.reset();
     tracer.reset(state);

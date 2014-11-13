@@ -78,11 +78,7 @@ public:
     virtual void setDefaultCTM(double *ctm);
 
     // Start a page.
-#if POPPLER_OLDER_THAN_0_23_0
-    virtual void startPage(int pageNum, GfxState *state);
-#else
     virtual void startPage(int pageNum, GfxState *state, XRef * xref);
-#endif
 
     // End a page.
     virtual void endPage();

@@ -1,3 +1,10 @@
+Developing
+
+* Do not support Poppler < 0.25.0 any more
+* ENABLE_SVG is enabled by default
+* Improved DrawingTracer
+* Workarounds for chrome/webkit
+
 v0.12
 2014.07.24
 

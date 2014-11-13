@@ -5,7 +5,7 @@ set(CMAKE_BUILD_TYPE Release CACHE STRING "Build configuration (Debug, Release, 
 project(pdf2htmlEX)
 cmake_minimum_required(VERSION 2.6.0 FATAL_ERROR)
 
-option(ENABLE_SVG "Enable SVG support, for generating SVG background images and converting Type 3 fonts" OFF)
+option(ENABLE_SVG "Enable SVG support, for generating SVG background images and converting Type 3 fonts" ON)
 
 include_directories(${CMAKE_SOURCE_DIR}/src)
 
@@ -19,21 +19,7 @@ add_custom_target(dist
 find_package(PkgConfig)
 
 
-pkg_check_modules(POPPLER poppler>=0.25.0)
-if(POPPLER_FOUND)
-    set(POPPLER_OLDER_THAN_0_25_0 0)
-    set(POPPLER_OLDER_THAN_0_23_0 0)
-else()
-    set(POPPLER_OLDER_THAN_0_25_0 1)
-    pkg_check_modules(POPPLER poppler>=0.23.0)
-    if(POPPLER_FOUND)
-        set(POPPLER_OLDER_THAN_0_23_0 0)
-    else()
-        set(POPPLER_OLDER_THAN_0_23_0 1)
-        pkg_check_modules(POPPLER REQUIRED poppler>=0.20.0)
-    endif()
-endif()
-
+pkg_check_modules(POPPLER REQUIRED poppler>=0.25.0)
 include_directories(${POPPLER_INCLUDE_DIRS})
 link_directories(${POPPLER_LIBRARY_DIRS})
 set(PDF2HTMLEX_LIBS ${PDF2HTMLEX_LIBS} ${POPPLER_LIBRARIES})
@@ -47,11 +33,7 @@ if(ENABLE_SVG)
         link_directories(${CAIRO_LIBRARY_DIRS})
         set(PDF2HTMLEX_LIBS ${PDF2HTMLEX_LIBS} ${CAIRO_LIBRARIES})
         set(ENABLE_SVG 1)
-        if(POPPLER_OLDER_THAN_0_23_0)
-            set(CAIROOUTPUTDEV_PATH 3rdparty/poppler/0.22.5)
-        else()
-            set(CAIROOUTPUTDEV_PATH 3rdparty/poppler/git)
-        endif()
+        set(CAIROOUTPUTDEV_PATH 3rdparty/poppler/git)
         include_directories(${CAIROOUTPUTDEV_PATH})
         set(PDF2HTMLEX_SRC ${PDF2HTMLEX_SRC}
             ${CAIROOUTPUTDEV_PATH}/CairoFontEngine.h
