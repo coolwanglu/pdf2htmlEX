@@ -114,6 +114,7 @@ static GBool annot_cb(Annot *, void * pflag) {
 bool CairoBackgroundRenderer::render_page(PDFDoc * doc, int pageno)
 {
     drawn_char_count = 0;
+    image_count = 0;
     double page_width;
     double page_height;
     if(param.use_cropbox)
@@ -171,11 +172,15 @@ bool CairoBackgroundRenderer::render_page(PDFDoc * doc, int pageno)
             throw string("Error in cairo: ") + cairo_status_to_string(status);
     }
 
+    bool fallback = false;
     //check node count in the svg file, fall back to bitmap_renderer if necessary.
-    if (param.svg_node_count_limit >= 0 || param.svg_image_count_limit >= 0)
-    {
+    if (param.svg_image_count_limit >= 0 && image_count > param.svg_image_count_limit) {
+        fallback = true;
+        if (param.debug) {
+            std::cerr << "Page: " << pageno << ", image count: " << image_count << " = threshold exceeded\n";
+        }
+    } else if (param.svg_node_count_limit >= 0) {
         int n = 0;
-        int images = 0;
         char c;
         ifstream svgfile(fn);
         //count of '<' in the file should be an approximation of node count.
@@ -183,34 +188,23 @@ bool CairoBackgroundRenderer::render_page(PDFDoc * doc, int pageno)
         {
             if (c == '<') {
                 ++n;
-                int p = 0;
-                // count number of image tags
-                while (svgfile.get(c) && c == "image "[p]) {
-                    p++;
-                }
-                if (c) {
-                    if (p == 6) {
-                        images++;
-                    } else {
-                        svgfile.putback(c);
+                if (n > param.svg_node_count_limit) {
+                    fallback = true;
+                    if (param.debug) {
+                        std::cerr << "Page: " << pageno << ", node count: " << n << " = threshold exceeded\n";
                     }
-                } else {
                     break;
                 }
-                if ((param.svg_node_count_limit >= 0 && n > param.svg_node_count_limit) ||
-                    (param.svg_image_count_limit >= 0 && images > param.svg_image_count_limit))
-                {
-                    html_renderer->tmp_files.add(fn);
-                    if (param.debug) {
-                        std::cerr << "Page: " << pageno << ", node count: " << n << ", image count: " << images << " = threshold exceeded\n";
-                    }
-                    return false;
-                }
-            } 
+            }
         }
+    }
+
+    if (fallback) {
+        html_renderer->tmp_files.add(fn);
         if (param.debug) {
-            std::cerr << "Page: " << pageno << ", node count: " << n << ", image count: " << images << "\n";
+            std::cerr << "Page: " << pageno << " too complex - falling back to raster background\n";
         }
+        return false;
     }
 
     // the svg file is actually used, so add its bitmaps' ref count.
@@ -262,6 +256,8 @@ string CairoBackgroundRenderer::build_bitmap_path(int id)
 // Override CairoOutputDev::setMimeData() and dump bitmaps in SVG to external files.
 void CairoBackgroundRenderer::setMimeData(GfxState *state, Stream *str, Object *ref, cairo_surface_t *image)
 {
+    image_count++;
+
     if (param.svg_embed_bitmap)
     {
         CairoOutputDev::setMimeData(state, str, ref, image);

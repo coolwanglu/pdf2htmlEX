@@ -68,6 +68,7 @@ private:
   // id of bitmaps' stream used by current page
   std::vector<int> bitmaps_in_current_page;
   int drawn_char_count;
+  int image_count;
 };
 
 }
