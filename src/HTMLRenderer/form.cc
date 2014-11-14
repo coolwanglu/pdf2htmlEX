@@ -17,10 +17,10 @@
 
 namespace pdf2htmlEX {
    
-using std::ostream;
+using std::ofstream;
 using std::cerr;
 
-void HTMLRenderer::process_form(ostream & out)
+void HTMLRenderer::process_form(ofstream & out)
 {
     FormPageWidgets * widgets = cur_catalog->getPage(pageNum)->getFormWidgets();
     int num = widgets->getNumWidgets();
@@ -28,8 +28,8 @@ void HTMLRenderer::process_form(ostream & out)
     for(int i = 0; i < num; i++)
     {
         FormWidget * w = widgets->getWidget(i);
-        double x1, y1, x2, y2;
-        int width, height, font_size;
+        double x1, y1, x2, y2, width, font_size;
+        int height;
 
         w->getRect(&x1, &y1, &x2, &y2);
         x1 = x1 * param.zoom;
@@ -44,13 +44,15 @@ void HTMLRenderer::process_form(ostream & out)
         {
             font_size = height / 2;
 
-            out << "<input id=\"text-" << std::to_string(pageNum) << "-" 
-                << std::to_string(i) << "\" type=\"text\" value=\"\""
-                << " style=\"position: absolute; left: " << std::to_string(x1) << 
-                "px; bottom: " << std::to_string(y1) << "px;" <<
-                "width: " << std::to_string(width) << "px; height: " << std::to_string(height) << 
-                "px; line-height: " << std::to_string(height) << "px; font-size: " 
-                << std::to_string(font_size) << "px;\" class=\"" << CSS::INPUT_TEXT_CN << "\" />" << endl;
+            out 
+                << "<input id=\"text-" << pageNum << "-" 
+                    << i << "\" type=\"text\" value=\"\""
+                    << " style=\"position: absolute; left: " << x1 
+                    << "px; bottom: " << y1 << "px;" 
+                    << " width: " << width << "px; height: " << std::to_string(height) 
+                    << "px; line-height: " << std::to_string(height) << "px; font-size: " 
+                    << font_size << "px;\" class=\"" 
+                    << CSS::INPUT_TEXT_CN << "\" />" << endl;
         }
 
         if(w->getType() == formButton)
@@ -58,12 +60,13 @@ void HTMLRenderer::process_form(ostream & out)
             width += 3;
             height += 3;
 
-            out << "<div id=\"cb-" << std::to_string(pageNum) << "-" 
-                << std::to_string(i) << "\"" 
-                << " style=\"position: absolute; left: " << std::to_string(x1) << 
-                "px; bottom: " << std::to_string(y1) << "px;" <<
-                "width: " << std::to_string(width) << "px; height: " << std::to_string(height) << 
-                "px; \" class=\"" << CSS::INPUT_RADIO_CN << "\"></div>" << endl;
+            out 
+                << "<div id=\"cb-" << pageNum << "-" << i << "\"" 
+                    << " style=\"position: absolute; left: " << x1 
+                    << "px; bottom: " << y1 << "px;" 
+                    << " width: " << width << "px; height: " 
+                    << std::to_string(height) << "px; \" class=\"" 
+                    << CSS::INPUT_RADIO_CN << "\"></div>" << endl;
 
         }
     }

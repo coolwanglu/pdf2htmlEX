@@ -253,7 +253,7 @@ void HTMLRenderer::endPage() {
     html_text_page.clear();
 
     // process form
-    if(param.process_forms)
+    if(param.process_form)
         process_form(*f_curpage);
     
     // process links before the page is closed

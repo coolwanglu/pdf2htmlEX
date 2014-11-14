@@ -169,7 +169,7 @@ protected:
     void process_outline(void);
     void process_outline_items(GooList * items);
 
-    void process_form(std::ostream & out);
+    void process_form(std::ofstream & out);
     
     void set_stream_flags (std::ostream & out);
 
