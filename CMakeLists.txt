@@ -203,5 +203,4 @@ install (FILES ${PDF2HTMLEX_RESOURCE} DESTINATION share/pdf2htmlEX)
 install (FILES pdf2htmlEX.1 DESTINATION share/man/man1)
 
 enable_testing()
-add_test(test_naming
-    python ${CMAKE_SOURCE_DIR}/test/test_naming.py)
+add_test(test python ${CMAKE_SOURCE_DIR}/test/test.py)

@@ -1,16 +1,10 @@
 language: cpp
 compiler: gcc
 before_install:
+  - sudo add-apt-repository ppa:fontforge/fontforge --yes
   - sudo add-apt-repository ppa:coolwanglu/pdf2htmlex --yes
   - sudo apt-get update -qq
-  - sudo apt-get install -qq libpoppler-dev libspiro-dev libcairo-dev libfreetype6-dev libltdl-dev
-install:
-  - export LIBRARY_PATH=/usr/local/lib
-  - export LD_LIBRARY_PATH=/usr/local/lib
-  - pushd ..
-  - wget 'https://github.com/coolwanglu/fontforge/archive/pdf2htmlEX.tar.gz' -O - | tar -zxf -
-  - pushd fontforge-pdf2htmlEX && ./autogen.sh && ./configure && make && sudo make install && popd
-  - popd
+  - sudo apt-get install -qq libpoppler-dev libspiro-dev libcairo-dev libfreetype6-dev libltdl-dev libfontforge-dev libpango1.0-dev 
 before_script: 
   - cmake -DENABLE_SVG=ON .
 script:
