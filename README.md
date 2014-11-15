@@ -3,7 +3,7 @@
 <!--
 [![Build Status](https://travis-ci.org/coolwanglu/pdf2htmlEX.png?branch=master)](https://travis-ci.org/coolwanglu/pdf2htmlEX)
 -->
->一图胜千言<br>A beautiful demo is worth a thousand words:
+>一图胜千言<br>A beautiful demo is worth a thousand words
 
 - **Bible de Genève, 1564** (fonts and typography): [HTML](http://coolwanglu.github.com/pdf2htmlEX/demo/geneve.html) / [PDF](https://github.com/raphink/geneve_1564/raw/master/geneve_1564.pdf)
 - **Cheat Sheet** (math formulas): [HTML](http://coolwanglu.github.com/pdf2htmlEX/demo/cheat.html) / [PDF](http://www.tug.org/texshowcase/cheat.pdf)
