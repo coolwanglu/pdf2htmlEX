@@ -10,8 +10,7 @@ before_script:
 script:
   - make
   - make test
-  - ls
-  - find . -iname "LastTest.log"
+  - pwd
   - sudo make install
   - /usr/local/bin/pdf2htmlEX -v
 branches:
