@@ -14,6 +14,8 @@ class Common(object):
     PDF2HTMLEX_PATH = os.path.join(SRC_DIR, 'pdf2htmlEX')
 
     SAVE_TMP = os.environ.get('P2H_TEST_SAVE_TMP')
+    GENERATING_MODE = os.environ.get('P2H_TEST_GEN')
+
     CANONICAL_TEMPDIR = '/tmp/pdf2htmlEX_test'
     
     def setUp(self):
@@ -83,14 +85,23 @@ if __name__ == '__main__':
         exit(1)
     suites = []
     loader = unittest.TestLoader()
-    test_names = list(map(lambda x: 'T.'+x, sys.argv[1:]))
-    for module_name in ['test_naming', 'test_conversion']:
+    all_modules = ['test_output', 'test_local_browser']
+    test_names = []
+    for name in sys.argv[1:]:
+        if name in all_modules or name.find('.') != -1:
+            test_names.append(name)
+        else:
+            for m in all_modules:
+                test_names.append(m + '.' + name)
+    
+    for module_name in all_modules:
         __import__(module_name)
         if len(test_names) > 0:
-            try:
-                suites.append(loader.loadTestsFromNames(test_names, sys.modules[module_name]))
-            except:
-                pass
+            for n in test_names:
+                try:
+                    suites.append(loader.loadTestsFromName(n, sys.modules[module_name]))
+                except:
+                    pass
         else:
             suites.append(loader.loadTestsFromModule(sys.modules[module_name]))
 
