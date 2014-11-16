@@ -11,7 +11,7 @@ class T(Common, unittest.TestCase):
     def run_test_case(self, input_file, expected_output_files, args=[]):
         args = list(args)
         args.insert(0, os.path.join(self.TEST_DIR, 'test_naming', input_file))
-        self.assertItemsEquals(self.run_pdf2htmlEX(args)['output_files'], expected_output_files)
+        self.assertItemsEqual(self.run_pdf2htmlEX(args)['output_files'], expected_output_files)
 
     def test_generate_single_html_default_name_single_page_pdf(self):
         self.run_test_case('1-page.pdf', ['1-page.html'])

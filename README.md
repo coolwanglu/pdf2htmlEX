@@ -24,7 +24,7 @@ Learn more about [who](https://github.com/coolwanglu/pdf2htmlEX/wiki/Use-Cases) 
 * Native HTML text with precise font and location.
 * Flexible output: all-in-one HTML or on demand page loading (needs JavaScript).
 * Moderate file size, sometimes even smaller than PDF.
-* Support for links, outlines (bookmarks), printing, SVG background, Type 3 fonts and [more...](https://github.com/coolwanglu/pdf2htmlEX/wiki/Feature-List)
+* Supporting links, outlines (bookmarks), printing, SVG background, Type 3 fonts and [more...](https://github.com/coolwanglu/pdf2htmlEX/wiki/Feature-List)
 
 [Compare to others](https://github.com/coolwanglu/pdf2htmlEX/wiki/Comparison)
 
