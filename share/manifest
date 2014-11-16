@@ -31,9 +31,7 @@
 @base.min.css
 
 # fancy CSS styles - Optional
-#TEST_IGNORE_BEGIN
 @fancy.min.css
-#TEST_IGNORE_END
 
 # PDF specific CSS styles - Do not modify
 $css
