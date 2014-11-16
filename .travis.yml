@@ -11,6 +11,7 @@ script:
   - make
   - make test
   - pwd
+  - cat Testing/Temporary/LastTest.log
   - sudo make install
   - /usr/local/bin/pdf2htmlEX -v
 branches:
