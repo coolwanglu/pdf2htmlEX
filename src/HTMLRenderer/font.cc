@@ -394,8 +394,8 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
     GfxCIDFont * font_cid = nullptr;
 
     string suffix = get_suffix(filepath);
-    for(auto iter = suffix.begin(); iter != suffix.end(); ++iter)
-        *iter = tolower(*iter);
+    for(auto & c : suffix)
+        c = tolower(c);
 
     /*
      * if parm->tounicode is 0, try the provided tounicode map first
@@ -483,7 +483,7 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
             unordered_set<string> nameset;
             bool name_conflict_warned = false;
 
-            memset(cur_mapping2, 0, 0x100 * sizeof(char*));
+            std::fill(cur_mapping2.begin(), cur_mapping2.end(), (char*)nullptr);
 
             for(int i = 0; i < 256; ++i)
             {
@@ -512,7 +512,7 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
                 }
             }
 
-            ffw_reencode_raw2(cur_mapping2, 256, 0);
+            ffw_reencode_raw2(cur_mapping2.data(), 256, 0);
         }
     }
     else
@@ -576,8 +576,8 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
         bool name_conflict_warned = false;
 
         auto ctu = font->getToUnicode();
-        memset(cur_mapping, -1, 0x10000 * sizeof(*cur_mapping));
-        memset(width_list, -1, 0x10000 * sizeof(*width_list));
+        std::fill(cur_mapping.begin(), cur_mapping.end(), -1);
+        std::fill(width_list.begin(), width_list.end(), -1);
 
         if(code2GID)
             maxcode = min<int>(maxcode, code2GID_len - 1);
@@ -639,9 +639,8 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
                         retried = true;
                         codeset.clear();
                         info.use_tounicode = false;
-                        //TODO: constant for the length
-                        memset(cur_mapping, -1, 0x10000 * sizeof(*cur_mapping));
-                        memset(width_list, -1, 0x10000 * sizeof(*width_list));
+                        std::fill(cur_mapping.begin(), cur_mapping.end(), -1);
+                        std::fill(width_list.begin(), width_list.end(), -1);
                         cur_code = -1;
                         if(param.debug)
                         {
@@ -700,9 +699,9 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
             }
         }
 
-        ffw_set_widths(width_list, max_key + 1, param.stretch_narrow_glyph, param.squeeze_wide_glyph);
+        ffw_set_widths(width_list.data(), max_key + 1, param.stretch_narrow_glyph, param.squeeze_wide_glyph);
         
-        ffw_reencode_raw(cur_mapping, max_key + 1, 1);
+        ffw_reencode_raw(cur_mapping.data(), max_key + 1, 1);
 
         // In some space offsets in HTML, we insert a ' ' there in order to improve text copy&paste
         // We need to make sure that ' ' is in the font, otherwise it would be very ugly if you select the text
@@ -1061,8 +1060,8 @@ void HTMLRenderer::export_local_font(const FontInfo & info, GfxFont * font, cons
     f_css.fs << "font-family:" << ((cssfont == "") ? (original_font_name + "," + general_font_family(font)) : cssfont) << ";";
 
     string fn = original_font_name;
-    for(auto iter = fn.begin(); iter != fn.end(); ++iter)
-        *iter = tolower(*iter);
+    for(auto & c : fn)
+        c = tolower(c);
 
     if(font->isBold() || (fn.find("bold") != string::npos))
         f_css.fs << "font-weight:bold;";

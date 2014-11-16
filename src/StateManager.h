@@ -59,19 +59,19 @@ public:
     }
 
     void dump_css(std::ostream & out) {
-        for(auto iter = value_map.begin(); iter != value_map.end(); ++iter)
+        for(auto & p : value_map)
         {
-            out << "." << imp->get_css_class_name() << iter->second << "{";
-            imp->dump_value(out, iter->first);
+            out << "." << imp->get_css_class_name() << p.second << "{";
+            imp->dump_value(out, p.first);
             out << "}" << std::endl;
         }
     }
 
     void dump_print_css(std::ostream & out, double scale) {
-        for(auto iter = value_map.begin(); iter != value_map.end(); ++iter)
+        for(auto & p : value_map)
         {
-            out << "." << imp->get_css_class_name() << iter->second << "{";
-            imp->dump_print_value(out, iter->first, scale);
+            out << "." << imp->get_css_class_name() << p.second << "{";
+            imp->dump_print_value(out, p.first, scale);
             out << "}" << std::endl;
         }
     }
@@ -109,10 +109,10 @@ public:
     }
 
     void dump_css(std::ostream & out) {
-        for(auto iter = value_map.begin(); iter != value_map.end(); ++iter)
+        for(auto & p : value_map)
         {
-            out << "." << imp->get_css_class_name() << iter->second << "{";
-            imp->dump_value(out, iter->first);
+            out << "." << imp->get_css_class_name() << p.second << "{";
+            imp->dump_value(out, p.first);
             out << "}" << std::endl;
         }
     }
@@ -166,10 +166,10 @@ public:
         imp->dump_transparent(out);
         out << "}" << std::endl;
 
-        for(auto iter = value_map.begin(); iter != value_map.end(); ++iter)
+        for(auto & p : value_map)
         {
-            out << "." << imp->get_css_class_name() << iter->second << "{";
-            imp->dump_value(out, iter->first);
+            out << "." << imp->get_css_class_name() << p.second << "{";
+            imp->dump_value(out, p.first);
             out << "}" << std::endl;
         }
     }
@@ -307,15 +307,15 @@ public:
         auto prefixes = {"", "-ms-", "-webkit-"};
         if(tm_equal(m, ID_MATRIX, 4))
         {
-            for(auto iter = prefixes.begin(); iter != prefixes.end(); ++iter)
-                out << *iter << "transform:none;";
+            for(auto & s : prefixes)
+                out << s << "transform:none;";
         }
         else
         {
-            for(auto iter = prefixes.begin(); iter != prefixes.end(); ++iter)
+            for(auto & s : prefixes)
             {
                 // PDF use a different coordinate system from Web
-                out << *iter << "transform:matrix("
+                out << s << "transform:matrix("
                     << round(m[0]) << ','
                     << round(-m[1]) << ','
                     << round(-m[2]) << ','
@@ -332,10 +332,10 @@ public:
     static const char * get_css_class_name (void) { return CSS::FILL_COLOR_CN; }
     /* override base's method, as we need some workaround in CSS */ 
     void dump_css(std::ostream & out) { 
-        for(auto iter = value_map.begin(); iter != value_map.end(); ++iter)
+        for(auto & p : value_map)
         {
-            out << "." << get_css_class_name() << iter->second 
-                << "{color:" << iter->first << ";}" << std::endl;
+            out << "." << get_css_class_name() << p.second 
+                << "{color:" << p.first << ";}" << std::endl;
         }
     }
 };
@@ -348,24 +348,24 @@ public:
     void dump_css(std::ostream & out) { 
         // normal CSS
         out << "." << get_css_class_name() << CSS::INVALID_ID << "{text-shadow:none;}" << std::endl;
-        for(auto iter = value_map.begin(); iter != value_map.end(); ++iter)
+        for(auto & p : value_map)
         {
             // TODO: take the stroke width from the graphics state,
             //       currently using 0.015em as a good default
-            out << "." << get_css_class_name() << iter->second << "{text-shadow:" 
-                << "-0.015em 0 "  << iter->first << "," 
-                << "0 0.015em "   << iter->first << ","
-                << "0.015em 0 "   << iter->first << ","
-                << "0 -0.015em  " << iter->first << ";"
+            out << "." << get_css_class_name() << p.second << "{text-shadow:" 
+                << "-0.015em 0 "  << p.first << "," 
+                << "0 0.015em "   << p.first << ","
+                << "0.015em 0 "   << p.first << ","
+                << "0 -0.015em  " << p.first << ";"
                 << "}" << std::endl;
         }
         // webkit
         out << CSS::WEBKIT_ONLY << "{" << std::endl;
         out << "." << get_css_class_name() << CSS::INVALID_ID << "{-webkit-text-stroke:0px transparent;}" << std::endl;
-        for(auto iter = value_map.begin(); iter != value_map.end(); ++iter)
+        for(auto & p : value_map)
         {
-            out << "." << get_css_class_name() << iter->second 
-                << "{-webkit-text-stroke:0.015em " << iter->first << ";text-shadow:none;}" << std::endl;
+            out << "." << get_css_class_name() << p.second 
+                << "{-webkit-text-stroke:0.015em " << p.first << ";text-shadow:none;}" << std::endl;
         }
         out << "}" << std::endl;
     }
@@ -385,20 +385,20 @@ public:
     }
 
     void dump_css(std::ostream & out) {
-        for(auto iter = value_map.begin(); iter != value_map.end(); ++iter)
+        for(auto & p : value_map)
         {
-            const auto & s = iter->second;
-            out << "." << CSS::PAGE_CONTENT_BOX_CN << iter->first << "{";
+            const auto & s = p.second;
+            out << "." << CSS::PAGE_CONTENT_BOX_CN << p.first << "{";
             out << "background-size:" << round(s.first) << "px " << round(s.second) << "px;";
             out << "}" << std::endl;
         }
     }
 
     void dump_print_css(std::ostream & out, double scale) {
-        for(auto iter = value_map.begin(); iter != value_map.end(); ++iter)
+        for(auto & p : value_map)
         {
-            const auto & s = iter->second;
-            out << "." << CSS::PAGE_CONTENT_BOX_CN << iter->first << "{";
+            const auto & s = p.second;
+            out << "." << CSS::PAGE_CONTENT_BOX_CN << p.first << "{";
             out << "background-size:" << round(s.first * scale) << "pt " << round(s.second * scale) << "pt;";
             out << "}" << std::endl;
         }

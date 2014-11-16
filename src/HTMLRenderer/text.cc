@@ -153,7 +153,7 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
 
 bool HTMLRenderer::is_char_covered(int index)
 {
-    auto covered = covered_text_detecor.get_chars_covered();
+    auto covered = covered_text_detector.get_chars_covered();
     if (index < 0 || index >= (int)covered.size())
     {
         std::cerr << "Warning: HTMLRenderer::is_char_covered: index out of bound: "

@@ -10,6 +10,7 @@
 #include <unordered_map>
 #include <cstdint>
 #include <fstream>
+#include <memory>
 
 #include <OutputDev.h>
 #include <GfxState.h>
@@ -40,9 +41,8 @@
 
 namespace pdf2htmlEX {
 
-class HTMLRenderer : public OutputDev
+struct HTMLRenderer : OutputDev
 {
-public:
     HTMLRenderer(const Param & param);
     virtual ~HTMLRenderer();
 
@@ -149,7 +149,7 @@ public:
     // Does not fail on out-of-bound conditions, but return false.
     bool is_char_covered(int index);
     // Currently drawn char (glyph) count in current page.
-    int get_char_count() { return (int)covered_text_detecor.get_chars_covered().size(); }
+    int get_char_count() { return (int)covered_text_detector.get_chars_covered().size(); }
 
 protected:
     ////////////////////////////////////////////////////
@@ -304,9 +304,9 @@ protected:
     } new_line_state;
     
     // for font reencoding
-    int32_t * cur_mapping;
-    char ** cur_mapping2;
-    int * width_list;
+    std::vector<int32_t> cur_mapping; 
+    std::vector<char*> cur_mapping2;
+    std::vector<int> width_list; // width of each char
 
     Preprocessor preprocessor;
 
@@ -321,8 +321,8 @@ protected:
 #if ENABLE_SVG
     friend class CairoBackgroundRenderer; // ugly!
 #endif
-    BackgroundRenderer * bg_renderer;
-    BackgroundRenderer * fallback_bg_renderer;
+
+    std::unique_ptr<BackgroundRenderer> bg_renderer, fallback_bg_renderer;
 
     struct {
         std::ofstream fs;
@@ -333,7 +333,7 @@ protected:
 
     static const std::string MANIFEST_FILENAME;
 
-    CoveredTextDetector covered_text_detecor;
+    CoveredTextDetector covered_text_detector;
     DrawingTracer tracer;
 };
 

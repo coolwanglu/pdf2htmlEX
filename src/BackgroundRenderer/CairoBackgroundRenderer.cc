@@ -34,11 +34,11 @@ CairoBackgroundRenderer::CairoBackgroundRenderer(HTMLRenderer * html_renderer, c
 
 CairoBackgroundRenderer::~CairoBackgroundRenderer()
 {
-    for(auto itr = bitmaps_ref_count.begin(); itr != bitmaps_ref_count.end(); ++itr)
+    for(auto const& p : bitmaps_ref_count)
     {
-        if (itr->second == 0)
+        if (p.second == 0)
         {
-            html_renderer->tmp_files.add(this->build_bitmap_path(itr->first));
+            html_renderer->tmp_files.add(this->build_bitmap_path(p.first));
         }
     }
 }
@@ -186,8 +186,8 @@ bool CairoBackgroundRenderer::render_page(PDFDoc * doc, int pageno)
     }
 
     // the svg file is actually used, so add its bitmaps' ref count.
-    for (auto itr = bitmaps_in_current_page.begin(); itr != bitmaps_in_current_page.end(); itr++)
-        ++bitmaps_ref_count[*itr];
+    for (auto id : bitmaps_in_current_page)
+        ++bitmaps_ref_count[id];
 
     return true;
 }

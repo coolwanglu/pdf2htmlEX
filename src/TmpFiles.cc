@@ -46,8 +46,9 @@ double TmpFiles::get_total_size() const
 {
     double total_size = 0;
     struct stat st;
-    for(auto iter = tmp_files.begin(); iter != tmp_files.end(); ++iter) {
-        stat(iter->c_str(), &st);
+    for(auto & fn : tmp_files)
+    {
+        stat(fn.c_str(), &st);
         total_size += st.st_size;
     }
 
@@ -60,9 +61,8 @@ void TmpFiles::clean()
     if(!param.clean_tmp)
         return;
 
-    for(auto iter = tmp_files.begin(); iter != tmp_files.end(); ++iter)
+    for(auto & fn : tmp_files)
     {
-        const string & fn = *iter;
         remove(fn.c_str());
         if(param.debug)
             cerr << "Remove temporary file: " << fn << endl;
