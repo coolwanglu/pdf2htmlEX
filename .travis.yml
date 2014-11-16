@@ -22,3 +22,4 @@ branches:
   only:
     - master
     - incoming
+    - travis
