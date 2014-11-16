@@ -4,7 +4,7 @@ before_install:
   - sudo add-apt-repository ppa:fontforge/fontforge --yes
   - sudo add-apt-repository ppa:coolwanglu/pdf2htmlex --yes
   - sudo apt-get update -qq
-  - sudo apt-get install -qq libpoppler-dev libpoppler-private-dev libspiro-dev libcairo-dev libpango1.0-dev libfreetype6-dev libltdl-dev libfontforge-dev python-imaging 
+  - sudo apt-get install -qq libpoppler-dev libpoppler-private-dev libspiro-dev libcairo-dev libpango1.0-dev libfreetype6-dev libltdl-dev libfontforge-dev python-imaging ttfautohint
 install:
   - wget 'http://downloads.sourceforge.net/project/wkhtmltopdf/0.12.1/wkhtmltox-0.12.1_linux-precise-amd64.deb' -O wkhtmltox.deb
   - sudo dpkg -i wkhtmltox.deb
@@ -12,9 +12,7 @@ before_script:
   - cmake -DENABLE_SVG=ON .
 script:
   - make
-  - make test
-  - pwd
-  - cat Testing/Temporary/LastTest.log
+  - ctest --output-on-failure
   - sudo make install
   - /usr/local/bin/pdf2htmlEX -v
 branches:
