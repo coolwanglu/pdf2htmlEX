@@ -3,38 +3,42 @@
 import unittest
 import os
 import subprocess
+import shutil
 
 from PIL import Image, ImageChops
+from selenium import webdriver
 from test import Common
 
-class T(Common, unittest.TestCase):
-    GENERATING_MODE = os.environ.get('P2H_TEST_GEN')
-
-    WKHTML2IMAGE = 'wkhtmltoimage'
+class test_local_browser(Common, unittest.TestCase):
     TTFAUTOHINT = 'ttfautohint'
-    TEST_DATA_DIR = os.path.join(Common.TEST_DIR, 'test_conversion')
+    TEST_DATA_DIR = os.path.join(Common.TEST_DIR, 'test_local_browser')
 
     DEFAULT_PDF2HTMLEX_ARGS = [
         '--external-hint-tool', 'ttfautohint',
         '--fit-width', 800,
         '--last-page', 1,
         '--correct-text-visibility', 1,
+        '--embed', 'fi', # avoid base64 to make it faster
     ]
 
-    DEFAULT_WKHTML2IMAGE_ARGS = [
-        '-f', 'png',
-        '--height', 600,
-        '--width', 800,
-        '--quality', 0,
-        '--quiet'
-    ]  
+    BROWSER_WIDTH=800
+    BROWSER_HEIGHT=1200
 
     @classmethod
     def setUpClass(cls):
-        subprocess.check_call([cls.WKHTML2IMAGE, '--version'])
-        subprocess.check_call([cls.TTFAUTOHINT, '--version'])
+        exit_code = subprocess.call([cls.TTFAUTOHINT, '--version'])
+        assert (exit_code == 0), 'Cannot execute ' + cls.TTFAUTOHINT
+        cls.browser = webdriver.Firefox()
+        cls.browser.maximize_window()
+        size = cls.browser.get_window_size()
+        assert ((size['width'] >= cls.BROWSER_WIDTH) and (size['height'] >= cls.BROWSER_HEIGHT)), 'Screen is not large enough'
+        cls.browser.set_window_size(cls.BROWSER_WIDTH, cls.BROWSER_HEIGHT)
 
-    def run_test_case(self, filename, pdf2htmlEX_args=[], wkhtml2image_args=[]):
+    @classmethod
+    def tearDownClass(cls):
+        cls.browser.quit()
+
+    def run_test_case(self, filename, pdf2htmlEX_args=[]):
         basefilename, extension = os.path.splitext(filename)
         htmlfilename = basefilename + '.html'
         pngfilename = basefilename + '.png'
@@ -56,21 +60,14 @@ class T(Common, unittest.TestCase):
         pngfilename_out_fullpath = os.path.join(png_out_dir, pngfilename)
         pngfilename_raw_fullpath = os.path.join(self.TEST_DATA_DIR, pngfilename)
 
-        wkhtml2image_args = [self.WKHTML2IMAGE] \
-            + self.DEFAULT_WKHTML2IMAGE_ARGS \
-            + list(wkhtml2image_args) + [
-                os.path.join(self.cur_output_dir, htmlfilename),
-                pngfilename_out_fullpath
-            ]
+        self.generate_image(os.path.join(self.cur_output_dir, htmlfilename), pngfilename_out_fullpath)
 
-        return_code = subprocess.call(list(map(str, wkhtml2image_args)))
-        self.assertEquals(return_code, 0, 'cannot execute ' + self.WKHTML2IMAGE)
 
         if self.GENERATING_MODE:
             shutil.copy(pngfilename_out_fullpath, pngfilename_raw_fullpath)
         else:
-            original_img = Image.open(pngfilename_raw_fullpath)
             new_img = Image.open(pngfilename_out_fullpath)
+            original_img = Image.open(pngfilename_raw_fullpath)
 
             diff_img = ImageChops.difference(original_img, new_img);
 
@@ -81,18 +78,16 @@ class T(Common, unittest.TestCase):
                     diff_img.convert('RGB').save(os.path.join(png_out_dir, basefilename + '.diff.png'))
                 self.fail('PNG files differ')
 
+    def generate_image(self, html_file, png_file):
+        self.browser.get('file://' + html_file)
+        self.browser.save_screenshot(png_file)
+
     def test_basic_text(self):
-        self.run_test_case('basic_text.pdf', 
-            wkhtml2image_args=[
-                '--crop-x', 180,
-                '--crop-y', 150,
-                '--crop-w', 220,
-                '--crop-h', 260
-            ])
+        self.run_test_case('basic_text.pdf')
 
     def test_geneve_1564(self):
-        self.run_test_case('geneve_1564.pdf', wkhtml2image_args=['--height', 1100])
+        self.run_test_case('geneve_1564.pdf')
 
     def test_text_visibility(self):
-        self.run_test_case('text_visibility.pdf', wkhtml2image_args=['--height', 1200])
+        self.run_test_case('text_visibility.pdf')
 

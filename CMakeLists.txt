@@ -84,10 +84,20 @@ else()
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
 endif()
 
-include(CheckCXXCompilerFlag)
-check_cxx_compiler_flag("${CMAKE_CXX_FLAGS}" CXX0X_SUPPORT)
+# check the C++11 features we need
+include(CheckCXXSourceCompiles)
+check_cxx_source_compiles("
+#include <vector>
+int main()
+{
+  char * ptr = nullptr;
+  std::vector<int> v;
+  auto f = [&](){ for(auto & i : v) ++i; };
+  f();
+}
+" CXX0X_SUPPORT)
 if(NOT CXX0X_SUPPORT)
-    message(FATAL_ERROR "Error: your compiler does not support C++0x, please update it.")
+    message(FATAL_ERROR "Error: your compiler does not support C++0x/C++11, please update it.")
 endif()
 
 

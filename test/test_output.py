@@ -1,16 +1,18 @@
 #!/usr/bin/env python
 
-# Test --split-page and --page-filename
+# Test output files
 
 import unittest
 import os
 
 from test import Common
 
-class T(Common, unittest.TestCase):
+class test_output(Common, unittest.TestCase):
     def run_test_case(self, input_file, expected_output_files, args=[]):
+        if self.GENERATING_MODE:
+            self.skipTest("Skipping test_output test cases in generating mode")
         args = list(args)
-        args.insert(0, os.path.join(self.TEST_DIR, 'test_naming', input_file))
+        args.insert(0, os.path.join(self.TEST_DIR, 'test_output', input_file))
         self.assertItemsEqual(self.run_pdf2htmlEX(args)['output_files'], expected_output_files)
 
     def test_generate_single_html_default_name_single_page_pdf(self):
