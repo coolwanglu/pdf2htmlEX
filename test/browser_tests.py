@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-import unittest
 import os
 import subprocess
 import shutil
@@ -9,11 +8,9 @@ from PIL import Image, ImageChops
 from test import Common
 
 class BrowserTests(Common):
-    TTFAUTOHINT = 'ttfautohint'
     TEST_DATA_DIR = os.path.join(Common.TEST_DIR, 'browser_tests')
 
     DEFAULT_PDF2HTMLEX_ARGS = [
-        '--external-hint-tool', 'ttfautohint',
         '--fit-width', 800,
         '--last-page', 1,
         '--correct-text-visibility', 1,
@@ -25,8 +22,7 @@ class BrowserTests(Common):
 
     @classmethod
     def setUpClass(cls):
-        exit_code = subprocess.call([cls.TTFAUTOHINT, '--version'])
-        assert (exit_code == 0), 'Cannot execute ' + cls.TTFAUTOHINT
+        pass
 
     @classmethod
     def tearDownClass(cls):
@@ -75,7 +71,7 @@ class BrowserTests(Common):
             if self.SAVE_TMP:
                 # save the diff image
                 # http://stackoverflow.com/questions/15721484/saving-in-png-using-pil-library-after-taking-imagechops-difference-of-two-png
-                diff_img.convert('RGB').save(os.path.join(png_out_dir, basefilename + '.diff.png'))
+                diff_img.crop(diff_img.getbbox()).convert('RGB').save(os.path.join(png_out_dir, basefilename + '.diff.png'))
             self.fail('PNG files differ')
 
     def test_basic_text(self):

@@ -1,11 +1,7 @@
 #!/usr/bin/env python
 
 import unittest
-import os
-import subprocess
-import shutil
 
-from PIL import Image, ImageChops
 from selenium import webdriver
 from browser_tests import BrowserTests
 
