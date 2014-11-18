@@ -13,7 +13,6 @@ class BrowserTests(Common):
     DEFAULT_PDF2HTMLEX_ARGS = [
         '--fit-width', 800,
         '--last-page', 1,
-        '--correct-text-visibility', 1,
         '--embed', 'fi', # avoid base64 to make it faster
     ]
 
@@ -81,5 +80,5 @@ class BrowserTests(Common):
         self.run_test_case('geneve_1564.pdf')
 
     def test_text_visibility(self):
-        self.run_test_case('text_visibility.pdf')
+        self.run_test_case('text_visibility.pdf', ['--correct-text-visibility', 1])
 

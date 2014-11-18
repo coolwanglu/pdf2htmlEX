@@ -12,10 +12,11 @@
 - Run selected test suites:
   - `./test.py test_local_browser`
 - Run selected test case:
-  - `./test.py test_basic_text
+  - `./test.py test_local_browser.test_basic_text`
+  - Or `./test.py test_basic_text
 - Environment variables:
-  - set `P2H_TEST_SAVE_TMP=1` to keep the temporary files
-  - set `P2H_TEST_GEN=1` to generate new reference images instead of comparing with old ones
+  - set `P2H_TEST_SAVE_TMP=1` to keep the temporary files in `/tmp/pdf2htmlEX_test`
+  - set `P2H_TEST_GEN=1` to generate new reference files
 
 ### Guidelines for test cases
 
