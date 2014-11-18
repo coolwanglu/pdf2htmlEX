@@ -27,7 +27,5 @@ class test_local_browser(BrowserTests, unittest.TestCase):
         super(test_local_browser, cls).tearDownClass()
 
     def generate_image(self, html_file, png_file):
-        assert not self.GENERATING_MODE
         self.browser.get('file://' + html_file)
         self.browser.save_screenshot(png_file)
-
