@@ -20,4 +20,4 @@ branches:
   only:
     - master
     - incoming
-    - travis
+    - wl
