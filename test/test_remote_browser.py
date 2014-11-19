@@ -103,7 +103,7 @@ class test_remote_browser_base(BrowserTests):
                 name='pdf2htmlEX',
                 passed=passed,
                 public='public restricted',
-                tags = [pull_request] if pull_request else [branch]
+                tags = [pull_request] if pull_request != 'false' else [branch]
             )
         except:
             pass
