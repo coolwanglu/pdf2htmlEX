@@ -85,21 +85,30 @@ if __name__ == '__main__':
         exit(1)
     suites = []
     loader = unittest.TestLoader()
-    all_modules = ['test_output', 'test_local_browser']
+
+    all_modules = []
+    all_modules.append(__import__('test_output'))
+    all_modules.append(__import__('test_local_browser'))
+    all_classes = ['test_output', 'test_local_browser']
+
+    if os.environ.get('P2H_TEST_REMOTE'):
+        m = __import__('test_remote_browser')
+        all_modules.append(m)
+        all_classes += m.test_classnames
+
     test_names = []
     for name in sys.argv[1:]:
-        if name in all_modules or name.find('.') != -1:
+        if name.find('.') != -1:
             test_names.append(name)
         else:
-            for m in all_modules:
+            for m in all_classes:
                 test_names.append(m + '.' + name)
     
-    for module_name in all_modules:
-        __import__(module_name)
+    for module in all_modules:
         if len(test_names) > 0:
             for n in test_names:
                 try:
-                    suites.append(loader.loadTestsFromName(n, sys.modules[module_name]))
+                    suites.append(loader.loadTestsFromName(n, module))
                 except:
                     pass
         else:

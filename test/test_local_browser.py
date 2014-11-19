@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+# Run browsers tests with a local Firefox
+
 import unittest
 
 from selenium import webdriver
