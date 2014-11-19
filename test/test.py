@@ -112,7 +112,7 @@ if __name__ == '__main__':
                 except:
                     pass
         else:
-            suites.append(loader.loadTestsFromModule(sys.modules[module_name]))
+            suites.append(loader.loadTestsFromModule(module))
 
     if len(suites) == 0:
         print >>sys.stderr, 'No test found'
