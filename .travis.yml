@@ -10,7 +10,7 @@ before_install:
   - sudo pip install selenium
   - export DISPLAY=:99.0
   - test/start_xvfb.sh
-  - pushd tests/browser_tests
+  - pushd test/browser_tests
   - python -m SimpleHTTPServer 8000 &
   - popd
   - sleep 5
