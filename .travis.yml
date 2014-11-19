@@ -7,7 +7,7 @@ before_install:
   - sudo add-apt-repository ppa:coolwanglu/pdf2htmlex --yes
   - sudo apt-get update -qq
   - sudo apt-get install -qq libpoppler-dev libpoppler-private-dev libspiro-dev libcairo-dev libpango1.0-dev libfreetype6-dev libltdl-dev libfontforge-dev python-imaging python-pip firefox xvfb
-  - sudo pip install selenium
+  - sudo pip install selenium sauceclient
   - export DISPLAY=:99.0
   - test/start_xvfb.sh
   - pushd test/browser_tests
