@@ -10,7 +10,7 @@ before_install:
   - sudo pip install selenium sauceclient
   - export DISPLAY=:99.0
   - test/start_xvfb.sh
-  - pushd test/browser_tests
+  - pushd /
   - python -m SimpleHTTPServer 8000 &
   - popd
   - sleep 5
