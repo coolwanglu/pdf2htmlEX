@@ -18,6 +18,7 @@
   - Set `P2H_TEST_SAVE_TMP=1` to keep the temporary files in `/tmp/pdf2htmlEX_test`
   - Set `P2H_TEST_GEN=1` to generate new reference files
   - Set `P2H_TEST_REMOTE=1` to test different browsers using Sauce Labs
+    - Install `sauceclient` for Python
     - Set correct values for `SAUCE_USERNAME` and `SAUCE_ACCESS_KEY`
     - Setup a HTTP server at `/` on port 8000
     - Enable Sauce Connect
