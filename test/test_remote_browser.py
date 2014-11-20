@@ -23,7 +23,6 @@ SAUCE_OPTIONS = {
     'record-video': False,
     'record-screenshots': True,
     'record-logs': False,
-    'sauce-advisor': False,
 }
 
 # we want to test the latest stable version
