@@ -20,9 +20,10 @@ ACCESS_KEY = os.environ.get('SAUCE_ACCESS_KEY')
 BASEURL='http://localhost:8000/'
 
 SAUCE_OPTIONS = {
-    'record-video': False,
-    'record-screenshots': True,
-    'record-logs': False,
+    'record-video': 'false',
+    'record-screenshots': 'true',
+    'record-logs': 'false',
+    'sauce-advisor': 'false',
 }
 
 # we want to test the latest stable version
@@ -115,16 +116,15 @@ test_classnames = []
 
 def generate_classes():
     module = globals()
-    for browser in BROWSER_MATRIX:
+    for browser_name, browser_caps in BROWSER_MATRIX:
         d = dict(test_remote_browser_base.__dict__)
-        #caps = SAUCE_OPTIONS.copy()
-        caps = {}
-        caps.update(browser[1])
+        caps = SAUCE_OPTIONS.copy()
+        caps.update(browser_caps)
         tunnel_identifier = os.environ.get('TRAVIS_JOB_NUMBER')
         if tunnel_identifier:
             caps['tunnel-identifier'] = tunnel_identifier
         d['desired_capabilities'] = caps
-        name = "test_remote_%s" % (browser[0], )
+        name = "test_remote_%s" % (browser_name, )
         module[name] = type(name, (test_remote_browser_base, unittest.TestCase), d)
         test_classnames.append(name)
 
