@@ -13,8 +13,8 @@ class Common(object):
     DATA_DIR = os.path.join(SRC_DIR, 'share')
     PDF2HTMLEX_PATH = os.path.join(SRC_DIR, 'pdf2htmlEX')
 
-    SAVE_TMP = os.environ.get('P2H_TEST_SAVE_TMP')
-    GENERATING_MODE = os.environ.get('P2H_TEST_GEN')
+    SAVE_TMP = bool(os.environ.get('P2H_TEST_SAVE_TMP'))
+    GENERATING_MODE = bool(os.environ.get('P2H_TEST_GEN'))
 
     CANONICAL_TEMPDIR = '/tmp/pdf2htmlEX_test'
     
@@ -91,7 +91,7 @@ if __name__ == '__main__':
     all_modules.append(__import__('test_local_browser'))
     all_classes = ['test_output', 'test_local_browser']
 
-    if os.environ.get('P2H_TEST_REMOTE'):
+    if bool(os.environ.get('P2H_TEST_REMOTE')):
         m = __import__('test_remote_browser')
         all_modules.append(m)
         all_classes += m.test_classnames
