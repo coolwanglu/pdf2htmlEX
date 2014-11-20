@@ -66,6 +66,7 @@ BROWSER_MATRIX = [
     }),
 ]
 
+@unittest.skipIf((not (USERNAME and ACCESS_KEY)), 'Sauce Labs is not available')
 class test_remote_browser_base(BrowserTests):
     @classmethod
     def setUpClass(cls):
