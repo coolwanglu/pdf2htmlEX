@@ -21,9 +21,6 @@ BASEURL='http://localhost:8000/'
 
 SAUCE_OPTIONS = {
     'record-video': 'false',
-    'record-screenshots': 'true',
-    'record-logs': 'false',
-    'sauce-advisor': 'false',
 }
 
 # we want to test the latest stable version
