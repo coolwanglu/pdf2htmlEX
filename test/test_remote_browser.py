@@ -99,7 +99,7 @@ class test_remote_browser_base(BrowserTests):
             branch = os.environ.get('TRAVIS_BRANCH', 'manual')
             pull_request = os.environ.get('TRAVIS_PULL_REQUEST')
             self.sauce.jobs.update_job(self.browser.session_id, 
-                build_num=os.environ.get('TRAVIS_BUILD_NUMBER', 0),
+                build_num=os.environ.get('TRAVIS_BUILD_NUMBER', '0'),
                 name='pdf2htmlEX',
                 passed=passed,
                 public='public restricted',

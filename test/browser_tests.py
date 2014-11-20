@@ -3,6 +3,7 @@
 import os
 import subprocess
 import shutil
+import unittest
 
 from PIL import Image, ImageChops
 from test import Common
@@ -72,6 +73,14 @@ class BrowserTests(Common):
                 # http://stackoverflow.com/questions/15721484/saving-in-png-using-pil-library-after-taking-imagechops-difference-of-two-png
                 diff_img.crop(diff_img.getbbox()).convert('RGB').save(os.path.join(png_out_dir, basefilename + '.diff.png'))
             self.fail('PNG files differ')
+
+    @unittest.skipIf(Common.GENERATING_MODE, 'Do not auto generate reference for test_fail')
+    def test_fail(self):
+        # The HTML reference is generated manually, which mismatches the PDF 
+        # To test if the environment can detect any errors
+        # E.g. when network is down, 404 message is shown for any HTML message
+        with self.assertRaises(AssertionError):
+            self.run_test_case('test_fail.pdf')
 
     def test_basic_text(self):
         self.run_test_case('basic_text.pdf')
