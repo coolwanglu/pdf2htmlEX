@@ -21,7 +21,7 @@ BASEURL='http://localhost:8000/'
 
 SAUCE_OPTIONS = {
     'record-video': False,
-    'record-screenshots': False,
+    'record-screenshots': True,
     'record-logs': False,
     'sauce-advisor': False,
 }
