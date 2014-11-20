@@ -117,7 +117,8 @@ def generate_classes():
     module = globals()
     for browser in BROWSER_MATRIX:
         d = dict(test_remote_browser_base.__dict__)
-        caps = SAUCE_OPTIONS.copy()
+        #caps = SAUCE_OPTIONS.copy()
+        caps = {}
         caps.update(browser[1])
         tunnel_identifier = os.environ.get('TRAVIS_JOB_NUMBER')
         if tunnel_identifier:
