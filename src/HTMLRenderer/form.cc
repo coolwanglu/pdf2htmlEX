@@ -65,7 +65,7 @@ void HTMLRenderer::process_form(ofstream & out)
                     << " style=\"position: absolute; left: " << x1 
                     << "px; bottom: " << y1 << "px;" 
                     << " width: " << width << "px; height: " 
-                    << std::to_string(height) << "px; \" class=\"" 
+                    << std::to_string(height) << "px; background-size: cover;\" class=\"" 
                     << CSS::INPUT_RADIO_CN << "\"></div>" << endl;
 
         }
