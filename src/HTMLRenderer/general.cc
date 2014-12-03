@@ -252,6 +252,10 @@ void HTMLRenderer::endPage() {
     html_text_page.dump_css(f_css.fs);
     html_text_page.clear();
 
+    // process form
+    if(param.process_form)
+        process_form(*f_curpage);
+    
     // process links before the page is closed
     cur_doc->processLinks(this, pageNum);
 
@@ -391,6 +395,7 @@ void HTMLRenderer::pre_process(PDFDoc * doc)
 void HTMLRenderer::post_process(void)
 {
     dump_css();
+    
     // close files if they opened
     // it's better to brace single liner LLVM complains
     if (param.process_outline)

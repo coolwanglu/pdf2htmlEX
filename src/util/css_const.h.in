@@ -56,6 +56,10 @@ const char * const BOTTOM_CN           = "@CSS_BOTTTOM_CN@";
 const char * const CSS_DRAW_CN         = "@CSS_CSS_DRAW_CN@";
 const char * const LINK_CN             = "@CSS_LINK_CN@";
 
+const char * const INPUT_TEXT_CN       = "@CSS_INPUT_TEXT_CN@";
+const char * const INPUT_RADIO_CN      = "@CSS_INPUT_RADIO_CN@";
+const char * const RADIO_CHECKED_CN    = "@CSS_RADIO_CHECKED_CN@";
+
 }
 }
 

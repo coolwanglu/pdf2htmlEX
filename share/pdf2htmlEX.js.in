@@ -260,7 +260,24 @@ Viewer.prototype = {
     this.pre_hide_pages();
   },
 
+  initialize_radio_button : function() {
+    var elements = document.getElementsByClassName('ir');
+    
+    for(var i = 0; i < elements.length; i++) {
+      var r = elements[i];
+
+      r.addEventListener('click', function() {
+        if(this.className.search("checked") == -1)
+          this.className += " checked";
+        else
+          this.className = "ir";
+      });
+    }
+  },
+
   init_after_loading_content : function() {
+    this.initialize_radio_button();
+    
     this.sidebar = document.getElementById(this.config['sidebar_id']);
     this.outline = document.getElementById(this.config['outline_id']);
     this.container = document.getElementById(this.config['container_id']);
