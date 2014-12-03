@@ -21,6 +21,10 @@
 #include <GfxFont.h>
 #include <Annot.h>
 
+// for form.cc
+#include <Page.h>
+#include <Form.h>
+
 #include "pdf2htmlEX-config.h"
 
 #include "Param.h"
@@ -161,6 +165,8 @@ protected:
     void process_outline(void);
     void process_outline_items(GooList * items);
 
+    void process_form(std::ofstream & out);
+    
     void set_stream_flags (std::ostream & out);
 
     void dump_css(void);

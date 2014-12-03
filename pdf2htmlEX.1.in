@@ -139,6 +139,10 @@ Whether to show outline in the generated HTML
 Whether to show annotation in the generated HTML
 
 .TP
+.B \-\-process-form <0|1> (Default: 0)
+Whether to include text fields and radio buttons in the generated HTML
+
+.TP
 .B \-\-printing <0|1> (Default: 1)
 Enable printing support. Disabling this option may reduce the size of CSS.
 

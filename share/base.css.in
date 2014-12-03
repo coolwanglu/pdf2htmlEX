@@ -190,4 +190,14 @@
   -ms-transform-origin:0% 100%;
   -webkit-transform-origin:0% 100%;
 }
+/* for the forms */
+.@CSS_INPUT_TEXT_CN@ {
+  border: none;
+  background-color: rgba(255, 255, 255, 0.0);
+}
+
+.@CSS_INPUT_RADIO_CN@:hover {
+  cursor: pointer;
+}
+
 /* Base CSS END */
