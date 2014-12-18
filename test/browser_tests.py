@@ -44,7 +44,7 @@ class BrowserTests(Common):
                 os.path.join(self.TEST_DATA_DIR, filename),
                 htmlfilename
             ]
-        
+
         result = self.run_pdf2htmlEX(pdf2htmlEX_args)
         self.assertIn(htmlfilename, result['output_files'], 'HTML file is not generated')
 
@@ -76,7 +76,7 @@ class BrowserTests(Common):
 
     @unittest.skipIf(Common.GENERATING_MODE, 'Do not auto generate reference for test_fail')
     def test_fail(self):
-        # The HTML reference is generated manually, which mismatches the PDF 
+        # The HTML reference is generated manually, which mismatches the PDF
         # To test if the environment can detect any errors
         # E.g. when network is down, 404 message is shown for any HTML message
         with self.assertRaises(AssertionError):
@@ -90,4 +90,7 @@ class BrowserTests(Common):
 
     def test_text_visibility(self):
         self.run_test_case('text_visibility.pdf', ['--correct-text-visibility', 1])
+
+    def test_process_form(self):
+        self.run_test_case('with_form.pdf', ['--process-form', 1])
 
