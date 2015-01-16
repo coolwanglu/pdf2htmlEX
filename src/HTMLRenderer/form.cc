@@ -44,30 +44,34 @@ void HTMLRenderer::process_form(ofstream & out)
         {
             font_size = height / 2;
 
-            out 
-                << "<input id=\"text-" << pageNum << "-" 
-                    << i << "\" type=\"text\" value=\"\""
-                    << " style=\"position: absolute; left: " << x1 
-                    << "px; bottom: " << y1 << "px;" 
-                    << " width: " << width << "px; height: " << std::to_string(height) 
-                    << "px; line-height: " << std::to_string(height) << "px; font-size: " 
-                    << font_size << "px;\" class=\"" 
-                    << CSS::INPUT_TEXT_CN << "\" />" << endl;
-        }
-
-        if(w->getType() == formButton)
+            out << "<input id=\"text-" << pageNum << "-" << i 
+                << "\" class=\"" << CSS::INPUT_TEXT_CN 
+                << "\" type=\"text\" value=\"\""
+                << " style=\"position: absolute; left: " << x1 
+                << "px; bottom: " << y1 << "px;" 
+                << " width: " << width << "px; height: " << std::to_string(height) 
+                << "px; line-height: " << std::to_string(height) << "px; font-size: " 
+                << font_size << "px;\" />" << endl;
+        } 
+        else if(w->getType() == formButton)
         {
+            //Ideally would check w->getButtonType()
+            //for more specific rendering
             width += 3;
             height += 3;
 
-            out 
-                << "<div id=\"cb-" << pageNum << "-" << i << "\"" 
-                    << " style=\"position: absolute; left: " << x1 
-                    << "px; bottom: " << y1 << "px;" 
-                    << " width: " << width << "px; height: " 
-                    << std::to_string(height) << "px; background-size: cover;\" class=\"" 
-                    << CSS::INPUT_RADIO_CN << "\"></div>" << endl;
-
+            out << "<div id=\"cb-" << pageNum << "-" << i 
+                << "\" class=\"" << CSS::INPUT_RADIO_CN 
+                << "\" style=\"position: absolute; left: " << x1 
+                << "px; bottom: " << y1 << "px;" 
+                << " width: " << width << "px; height: " 
+                << std::to_string(height) << "px; background-size: cover;\" ></div>" << endl;
+        }
+        else if(w->getType() == formChoice ||
+                w->getType() == formSignature ||
+                w->getType() == formUndef)
+        {
+            cerr << "Unsupported form field detected" << endl;
         }
     }
 }

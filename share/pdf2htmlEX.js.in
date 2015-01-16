@@ -267,17 +267,15 @@ Viewer.prototype = {
       var r = elements[i];
 
       r.addEventListener('click', function() {
-        if(this.className.search("checked") == -1)
-          this.className += " checked";
+        if(!this.classList.contains("checked"))
+          this.classList.add("checked");
         else
-          this.className = "ir";
+          this.classList.remove("checked");
       });
     }
   },
 
   init_after_loading_content : function() {
-    this.initialize_radio_button();
-    
     this.sidebar = document.getElementById(this.config['sidebar_id']);
     this.outline = document.getElementById(this.config['outline_id']);
     this.container = document.getElementById(this.config['container_id']);
@@ -329,6 +327,7 @@ Viewer.prototype = {
       ele.addEventListener('click', self.link_handler.bind(self), false);
     });
 
+    this.initialize_radio_button();
     this.render();
   },
 
