@@ -267,10 +267,7 @@ Viewer.prototype = {
       var r = elements[i];
 
       r.addEventListener('click', function() {
-        if(!this.classList.contains("checked"))
-          this.classList.add("checked");
-        else
-          this.classList.remove("checked");
+        this.classList.toggle("checked");
       });
     }
   },

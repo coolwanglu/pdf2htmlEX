@@ -67,9 +67,7 @@ void HTMLRenderer::process_form(ofstream & out)
                 << " width: " << width << "px; height: " 
                 << std::to_string(height) << "px; background-size: cover;\" ></div>" << endl;
         }
-        else if(w->getType() == formChoice ||
-                w->getType() == formSignature ||
-                w->getType() == formUndef)
+        else 
         {
             cerr << "Unsupported form field detected" << endl;
         }
