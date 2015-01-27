@@ -28,8 +28,7 @@ void HTMLRenderer::process_form(ofstream & out)
     for(int i = 0; i < num; i++)
     {
         FormWidget * w = widgets->getWidget(i);
-        double x1, y1, x2, y2, width, font_size;
-        int height;
+        double x1, y1, x2, y2;
 
         w->getRect(&x1, &y1, &x2, &y2);
         x1 = x1 * param.zoom;
@@ -37,12 +36,12 @@ void HTMLRenderer::process_form(ofstream & out)
         y1 = y1 * param.zoom;
         y2 = y2 * param.zoom;
 
-        width = x2 - x1;
-        height = y2 - y1;
+        double width = x2 - x1;
+        double height = y2 - y1;
         
         if(w->getType() == formText)
         {
-            font_size = height / 2;
+            double font_size = height / 2;
 
             out << "<input id=\"text-" << pageNum << "-" << i 
                 << "\" class=\"" << CSS::INPUT_TEXT_CN 
