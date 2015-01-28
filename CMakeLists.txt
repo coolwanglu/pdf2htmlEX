@@ -119,6 +119,7 @@ set(PDF2HTMLEX_SRC ${PDF2HTMLEX_SRC}
     src/HTMLRenderer/general.cc
     src/HTMLRenderer/image.cc
     src/HTMLRenderer/font.cc
+    src/HTMLRenderer/form.cc
     src/HTMLRenderer/link.cc
     src/HTMLRenderer/outline.cc
     src/HTMLRenderer/state.cc
