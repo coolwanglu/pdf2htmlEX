@@ -29,7 +29,7 @@ using std::unique_ptr;
 const SplashColor SplashBackgroundRenderer::white = {255,255,255};
 
 SplashBackgroundRenderer::SplashBackgroundRenderer(const string & imgFormat, HTMLRenderer * html_renderer, const Param & param)
-    : SplashOutputDev(splashModeRGB8, 4, gFalse, (SplashColorPtr)(&white), gTrue, gTrue)
+    : SplashOutputDev(splashModeRGB8, 4, gFalse, (SplashColorPtr)(&white), gTrue)
     , html_renderer(html_renderer)
     , param(param)
     , format(imgFormat)

@@ -882,7 +882,7 @@ const FontInfo * HTMLRenderer::install_font(GfxFont * font)
      * which does not make much sense in our case
      * If we specify gFalse here, font_loc->locaType cannot be gfxFontLocResident
      */
-    if(auto * font_loc = font->locateFont(xref, gFalse))
+    if(auto * font_loc = font->locateFont(xref, nullptr))
     {
         switch(font_loc -> locType)
         {
@@ -937,7 +937,7 @@ void HTMLRenderer::install_external_font(GfxFont * font, FontInfo & info)
         cerr << "Warning: workaround for font names in bad encodings." << endl;
     }
 
-    GfxFontLoc * localfontloc = font->locateFont(xref, gFalse);
+    GfxFontLoc * localfontloc = font->locateFont(xref, nullptr);
 
     if(param.embed_external_font)
     {
