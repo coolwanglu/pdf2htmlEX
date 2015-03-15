@@ -49,7 +49,7 @@ BROWSER_MATRIX = [
     ('mac_chrome', {
         'platform': 'OS X 10.9',
         'browserName': 'chrome',
-        'version': '38', # beta is not supported
+        'version': '40.0', # beta is not supported
     }),
     ('linux_firefox', {
         'platform': 'Linux',

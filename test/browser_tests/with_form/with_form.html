@@ -6,210 +6,11 @@
 <meta name="generator" content="pdf2htmlEX"/>
 <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
 <style type="text/css">
-/* vim: set shiftwidth=2 tabstop=2 autoindent cindent expandtab filetype=css: */
 /*! 
  * Base CSS for pdf2htmlEX
  * Copyright 2012,2013 Lu Wang <coolwanglu@gmail.com> 
  * https://github.com/coolwanglu/pdf2htmlEX/blob/master/share/LICENSE
- */
-/* Part 1: Web Page Layout: Free to modify, except for a few of them which are required by pdf2htmlEX.js, see the comments */
-#sidebar { /* Sidebar */
-  position:absolute;
-  top:0;
-  left:0;
-  bottom:0;
-  width:250px;
-  padding:0;
-  margin:0px;
-  overflow:auto;
-}
-#page-container { /* PDF container */
-  position:absolute; /* required for calculating relative positions of pages in pdf2htmlEX.js */
-  top:0;
-  left:0px;
-  margin:0; 
-  padding:0;
-  border:0; /* required for lazy page loading in pdf2htmlEX.js (page visibility test) */
-}
-@media screen {
-  /* for sidebar */
-  #sidebar.opened + #page-container { left:250px; }
-  #page-container {
-    /* `bottom' and `right' are required for lazy page loading in pdf2htmlEX.js (page visibility test)
-     * alternatively you may set width and height
-     */
-    bottom:0;
-    right:0;
-    overflow:auto;
-  }
-  .loading-indicator {
-    display:none;
-  }
-  .loading-indicator.active {
-    display:block;
-    position:absolute;
-    width:64px;
-    height:64px;
-    top:50%;
-    left:50%;
-    margin-top:-32px;
-    margin-left:-32px;
-  }
-  .loading-indicator img {
-    position:absolute;
-    top:0;
-    left:0;
-    bottom:0;
-    right:0;
-  }
-}
-@media print { 
-  @page { margin:0; }
-  html { margin:0; }
-  body { 
-    margin:0; 
-    -webkit-print-color-adjust:exact; /* enable printing background images for WebKit */
-  }
-  #sidebar { display:none; }
-  #page-container {
-    width:auto;
-    height:auto;
-    overflow:visible;
-    background-color:transparent;
-  }
-  .d { display:none; }
-}
-/* Part 2: Page Elements: Modify with caution
- * The followings are base classes, some of which are meant to be override by PDF specific classes
- * So do not increase the specificity (e.g. ".classname" -> "#page-container .classname")
- */
-.pf { /* page */
-  position:relative;
-  background-color:white;
-  overflow: hidden;
-  margin:0; 
-  border:0; /* required by pdf2htmlEX.js for page visibility test */
-}
-.pc { /* content of a page */
-  position:absolute;
-  border:0;
-  padding:0;
-  margin:0;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  overflow:hidden;
-  display:block;
-  /* set transform-origin for scaling */
-  transform-origin:0% 0%;
-  -ms-transform-origin:0% 0%;
-  -webkit-transform-origin:0% 0%;
-}
-.pc.opened { /* used by pdf2htmlEX.js, to show/hide pages */
-  display:block;
-}
-.bf { /* images that occupies the whole page */
-  position:absolute;
-  border:0;
-  margin:0;
-  top:0;
-  bottom:0;
-  width:100%;
-  height:100%;
-  -ms-user-select:none;
-  -moz-user-select:none;
-  -webkit-user-select:none;
-  user-select:none;
-}
-.bi { /* images that cover only a part of the page */
-  position:absolute;
-  border:0;
-  margin:0;
-  -ms-user-select:none;
-  -moz-user-select:none;
-  -webkit-user-select:none;
-  user-select:none;
-}
-@media print {
-  .pf {
-    margin:0;
-    box-shadow:none;
-    page-break-after:always;
-    page-break-inside:avoid;
-  }
-  @-moz-document url-prefix() {
-    /* fix page truncation for FireFox */
-    .pf {
-      overflow:visible;
-      border:1px solid #FFFFFF;
-    }
-    .pc {overflow:visible;}
-  }
-}
-.c { /* clip box */
-  position:absolute;
-  border:0;
-  padding:0;
-  margin:0;
-  overflow:hidden;
-  display:block;
-}
-.t { /* text line */
-  position:absolute;
-  white-space:pre;
-  font-size:1px;
-  transform-origin:0% 100%;
-  -ms-transform-origin:0% 100%;
-  -webkit-transform-origin:0% 100%;
-  unicode-bidi:bidi-override;/* For rtl languages, e.g. Hebrew, we don't want the default Unicode behaviour */
-  -moz-font-feature-settings:"liga" 0;/* We don't want Firefox to recognize ligatures */
-}
-.t:after {
-  /* Workaround for https://bugs.webkit.org/show_bug.cgi?id=35443 */
-  content: '';
-}
-.t span { /* text blocks within a line */
-  position:relative;
-  /* _<id> for spaces may need display:inline, which will override this */ 
-  /*display:inline-block;*/
-  unicode-bidi:bidi-override; /* For rtl languages, e.g. Hebrew, we don't want the default Unicode behaviour */
-}
-._ { /* text shift */
-  color:transparent;
-  z-index:-1;
-}
-/* selection background should not be opaque, for fallback mode */
-::selection{
-  background: rgba(127,255,255,0.4);
-}
-::-moz-selection{
-  background: rgba(127,255,255,0.4);
-}
-.pi { /* info for Javascript */
-  display:none;
-}
-.l { /* annotation links */
-}
-/* transparent color - WebKit */
-.d { /* css drawing */
-  position:absolute;
-  transform-origin:0% 100%;
-  -ms-transform-origin:0% 100%;
-  -webkit-transform-origin:0% 100%;
-}
-/* for the forms */
-.it {
-  border: none;
-  background-color: rgba(255, 255, 255, 0.0);
-}
-
-.ir:hover {
-  cursor: pointer;
-}
-
-/* Base CSS END */
-</style>
+ */#sidebar{position:absolute;top:0;left:0;bottom:0;width:250px;padding:0;margin:0;overflow:auto}#page-container{position:absolute;top:0;left:0;margin:0;padding:0;border:0}@media screen{#sidebar.opened+#page-container{left:250px}#page-container{bottom:0;right:0;overflow:auto}.loading-indicator{display:none}.loading-indicator.active{display:block;position:absolute;width:64px;height:64px;top:50%;left:50%;margin-top:-32px;margin-left:-32px}.loading-indicator img{position:absolute;top:0;left:0;bottom:0;right:0}}@media print{@page{margin:0}html{margin:0}body{margin:0;-webkit-print-color-adjust:exact}#sidebar{display:none}#page-container{width:auto;height:auto;overflow:visible;background-color:transparent}.d{display:none}}.pf{position:relative;background-color:white;overflow:hidden;margin:0;border:0}.pc{position:absolute;border:0;padding:0;margin:0;top:0;left:0;width:100%;height:100%;overflow:hidden;display:block;transform-origin:0 0;-ms-transform-origin:0 0;-webkit-transform-origin:0 0}.pc.opened{display:block}.bf{position:absolute;border:0;margin:0;top:0;bottom:0;width:100%;height:100%;-ms-user-select:none;-moz-user-select:none;-webkit-user-select:none;user-select:none}.bi{position:absolute;border:0;margin:0;-ms-user-select:none;-moz-user-select:none;-webkit-user-select:none;user-select:none}@media print{.pf{margin:0;box-shadow:none;page-break-after:always;page-break-inside:avoid}@-moz-document url-prefix(){.pf{overflow:visible;border:1px solid #fff}.pc{overflow:visible}}}.c{position:absolute;border:0;padding:0;margin:0;overflow:hidden;display:block}.t{position:absolute;white-space:pre;font-size:1px;transform-origin:0 100%;-ms-transform-origin:0 100%;-webkit-transform-origin:0 100%;unicode-bidi:bidi-override;-moz-font-feature-settings:"liga" 0}.t:after{content:''}.t span{position:relative;display:inline-block;unicode-bidi:bidi-override}._{color:transparent;z-index:-1}::selection{background:rgba(127,255,255,0.4)}::-moz-selection{background:rgba(127,255,255,0.4)}.pi{display:none}.d{position:absolute;transform-origin:0 100%;-ms-transform-origin:0 100%;-webkit-transform-origin:0 100%}.it{border:0;background-color:rgba(255,255,255,0.0)}.ir:hover{cursor:pointer}</style>
 <style type="text/css">
 /* CSS for test cases */
 #page-container {
@@ -242,19 +43,19 @@
 .ws2{word-spacing:108.590400px;}
 ._9{display:inline;margin-left:-123.403200px;}
 ._6{display:inline;margin-left:-118.555200px;}
-._8{display:inline;margin-left:-99.360000px;}
-._5{display:inline;margin-left:-94.512000px;}
-._c{display:inline;margin-left:-13.520000px;}
+._8{display:inline;margin-left:-99.052000px;}
+._5{display:inline;margin-left:-94.204000px;}
+._d{display:inline;margin-left:-13.177000px;}
 ._7{display:inline;margin-left:-11.280000px;}
 ._3{display:inline;margin-left:-6.240000px;}
-._a{display:inline;margin-left:-4.996000px;}
+._b{display:inline;margin-left:-3.910600px;}
 ._0{display:inline;margin-left:-2.640000px;}
-._e{display:inline;margin-left:-1.560000px;}
-._1{display:inline-block;width:9.412000px;}
-._d{display:inline-block;width:31.564000px;}
+._c{display:inline;margin-left:-1.560000px;}
+._1{display:inline-block;width:9.657000px;}
+._e{display:inline-block;width:31.564000px;}
 ._2{display:inline-block;width:49.400000px;}
-._4{display:inline-block;width:103.728000px;}
-._b{display:inline-block;width:108.576000px;}
+._4{display:inline-block;width:104.036000px;}
+._a{display:inline-block;width:108.884000px;}
 .fc1{color:rgb(255,255,255);}
 .fc0{color:rgb(0,0,0);}
 .fs1{font-size:28.000000px;}
@@ -266,18 +67,11 @@
 .y0{bottom:39.869281px;}
 .y1{bottom:51.602614px;}
 .y3{bottom:52.972549px;}
-.y1b{bottom:74.683660px;}
-.y1a{bottom:102.134641px;}
-.y19{bottom:135.467974px;}
-.y18{bottom:190.369935px;}
-.y17{bottom:223.703268px;}
-.y16{bottom:278.605229px;}
-.y15{bottom:306.056209px;}
-.y14{bottom:339.389542px;}
-.y13{bottom:394.291503px;}
-.y12{bottom:427.624837px;}
-.y1c{bottom:449.921569px;}
-.y11{bottom:482.526797px;}
+.y14{bottom:135.467974px;}
+.y13{bottom:223.703268px;}
+.y12{bottom:339.389542px;}
+.y11{bottom:427.624837px;}
+.y15{bottom:449.921569px;}
 .y10{bottom:515.860131px;}
 .yf{bottom:598.213072px;}
 .ye{bottom:623.703268px;}
@@ -302,10 +96,9 @@
 .w1{width:682.352941px;}
 .w0{width:800.000000px;}
 .x0{left:47.058824px;}
-.x8{left:89.175817px;}
+.x7{left:89.175817px;}
 .x5{left:91.424837px;}
 .x6{left:117.568627px;}
-.x7{left:156.784314px;}
 .x1{left:185.962092px;}
 .x2{left:367.098039px;}
 .x4{left:438.899346px;}
@@ -321,19 +114,19 @@
 .ws2{word-spacing:110.762208pt;}
 ._9{display:inline;margin-left:-125.871264pt;}
 ._6{display:inline;margin-left:-120.926304pt;}
-._8{display:inline;margin-left:-101.347200pt;}
-._5{display:inline;margin-left:-96.402240pt;}
-._c{display:inline;margin-left:-13.790400pt;}
+._8{display:inline;margin-left:-101.033040pt;}
+._5{display:inline;margin-left:-96.088080pt;}
+._d{display:inline;margin-left:-13.440540pt;}
 ._7{display:inline;margin-left:-11.505600pt;}
 ._3{display:inline;margin-left:-6.364800pt;}
-._a{display:inline;margin-left:-5.095920pt;}
+._b{display:inline;margin-left:-3.988812pt;}
 ._0{display:inline;margin-left:-2.692800pt;}
-._e{display:inline;margin-left:-1.591200pt;}
-._1{display:inline-block;width:9.600240pt;}
-._d{display:inline-block;width:32.195280pt;}
+._c{display:inline;margin-left:-1.591200pt;}
+._1{display:inline-block;width:9.850140pt;}
+._e{display:inline-block;width:32.195280pt;}
 ._2{display:inline-block;width:50.388000pt;}
-._4{display:inline-block;width:105.802560pt;}
-._b{display:inline-block;width:110.747520pt;}
+._4{display:inline-block;width:106.116720pt;}
+._a{display:inline-block;width:111.061680pt;}
 .fs1{font-size:28.560000pt;}
 .fs0{font-size:48.960000pt;}
 .fs4{font-size:53.040000pt;}
@@ -343,18 +136,11 @@
 .y0{bottom:40.666667pt;}
 .y1{bottom:52.634667pt;}
 .y3{bottom:54.032000pt;}
-.y1b{bottom:76.177333pt;}
-.y1a{bottom:104.177333pt;}
-.y19{bottom:138.177333pt;}
-.y18{bottom:194.177333pt;}
-.y17{bottom:228.177333pt;}
-.y16{bottom:284.177333pt;}
-.y15{bottom:312.177333pt;}
-.y14{bottom:346.177333pt;}
-.y13{bottom:402.177333pt;}
-.y12{bottom:436.177333pt;}
-.y1c{bottom:458.920000pt;}
-.y11{bottom:492.177333pt;}
+.y14{bottom:138.177333pt;}
+.y13{bottom:228.177333pt;}
+.y12{bottom:346.177333pt;}
+.y11{bottom:436.177333pt;}
+.y15{bottom:458.920000pt;}
 .y10{bottom:526.177333pt;}
 .yf{bottom:610.177333pt;}
 .ye{bottom:636.177333pt;}
@@ -379,10 +165,9 @@
 .w1{width:696.000000pt;}
 .w0{width:816.000000pt;}
 .x0{left:48.000000pt;}
-.x8{left:90.959333pt;}
+.x7{left:90.959333pt;}
 .x5{left:93.253333pt;}
 .x6{left:119.920000pt;}
-.x7{left:159.920000pt;}
 .x1{left:189.681333pt;}
 .x2{left:374.440000pt;}
 .x4{left:447.677333pt;}
@@ -393,22 +178,22 @@
 </head>
 <body>
 <div id="page-container">
-<div id="pf1" class="pf w0 h0" data-page-no="1"><div class="pc pc1 w0 h0"><img class="bi x0 y0 w1 h1" alt="" src="bg1.png"/><div class="t m0 x1 h2 y1 ff1 fs0 fc0 sc0 ls0 ws0">Éditions « <span class="_ _0"></span>À Reproduire »                           Internet : www<span class="_ _0"></span>.en<span class="_ _0"></span>volee.com</div><div class="t m0 x2 h3 y2 ff2 fs1 fc0 sc0 ls0 ws0">Question de textes 4</div><div class="t m0 x3 h4 y3 ff3 fs2 fc1 sc0 ls0 ws0">7</div><div class="t m0 x4 h2 y4 ff1 fs0 fc0 sc0 ls0 ws0">Nom</div><div class="t m0 x5 h5 y5 ff4 fs3 fc1 sc0 ls0 ws0">Mona veut un chien</div><div class="t m0 x6 h6 y6 ff5 fs4 fc0 sc0 ls0 ws0"> <span class="_ _1"> </span><span class="ff3 fc1">4</span> <span class="_ _2"> </span>Que veut dire la mère de Mona quand elle dit : « C’est beaucoup de travail, avoir un chien » <span class="_ _3"></span>?</div><div class="t m0 x6 h7 y7 ff6 fs0 fc0 sc0 ls0 ws0"> <span class="_ _4"> </span>a) <span class="_ _1"> </span>Mona doit faire plus de recherche avant d’être prête à avoir un chien.</div><div class="t m0 x6 h7 y8 ff6 fs0 fc0 sc0 ls0 ws1"> b) <span class="_ _5"></span> <span class="_ _6"></span><span class="ls1 ws0">Les chiens travaillent fort aﬁ<span class="_ _7"></span> <span class="_ _0"></span>n d’être de bons animaux de compagnie pour les gens.</span></div><div class="t m0 x6 h7 y9 ff6 fs0 fc0 sc0 ls0 ws2"> c) <span class="_ _8"></span> <span class="_ _9"></span><span class="ls1 ws0">Les chiens ont besoin de nourriture et d’exercice.  Il faut aussi ramasser leurs dégâts.</span></div><div class="t m0 x6 h7 ya ff6 fs0 fc0 sc0 ls0 ws0"> <span class="_ _4"> </span>d) <span class="_ _1"> </span>Mona devra se reposer plus si elle a un chien.</div><div class="t m0 x6 h6 yb ff5 fs4 fc0 sc0 ls0 ws0"> <span class="_ _1"> </span><span class="ff3 fc1">5</span> <span class="_ _2"> </span>Comment Mona a-t-elle acquis autant de connaissances sur les chiens <span class="_ _3"></span>?</div><div class="t m0 x6 h7 yc ff6 fs0 fc0 sc0 ls0 ws0"> <span class="_ _4"> </span>a) <span class="_ _1"> </span>En écoutant son enseignante à l’école.</div><div class="t m0 x6 h7 yd ff6 fs0 fc0 sc0 ls0 ws0"> <span class="_ _4"> </span>b) <span class="_ _1"> </span>En visitant un site W<span class="_ _a"></span>eb.</div><div class="t m0 x6 h7 ye ff6 fs0 fc0 sc0 ls0 ws0"> <span class="_ _b"> </span>c) <span class="_ _1"> </span>En écrivant à la Société protectrice des animaux.</div><div class="t m0 x6 h7 yf ff6 fs0 fc0 sc0 ls0 ws0"> <span class="_ _4"> </span>d) <span class="_ _1"> </span>En regardant une vidéo sur les chiens.</div><div class="t m0 x6 h6 y10 ff5 fs4 fc0 sc0 ls0 ws0"> <span class="_ _1"> </span><span class="ff3 fc1">6</span> <span class="_ _2"> </span>Pourquoi Mona veut-elle un Jack Russell <span class="_ _3"></span>?</div><div class="t m0 x6 h7 y11 ff6 fs0 fc0 sc0 ls2 ws0">  </div><div class="t m0 x6 h6 y12 ff3 fs4 fc1 sc0 ls3 ws0"> 7<span class="_ _a"></span><span class="ff5 fc0 ls0"> <span class="_ _2"> </span>Que devra faire Mona même si elle est fatiguée ou qu’il pleut <span class="_ _3"></span>?</span></div><div class="t m0 x6 h7 y13 ff6 fs0 fc0 sc0 ls2 ws0">  </div><div class="t m0 x6 h6 y14 ff5 fs4 fc0 sc0 ls0 ws0"> <span class="_ _1"> </span><span class="ff3 fc1">8</span> <span class="_ _2"> </span>Décris physiquement le chien que Mona veut choisir<span class="_ _0"></span>.</div><div class="t m0 x6 h7 y15 ff6 fs0 fc0 sc0 ls2 ws0">  </div><div class="t m0 x7 h7 y16 ff6 fs0 fc0 sc0 ls0 ws0"> </div><div class="t m0 x6 h6 y17 ff3 fs4 fc1 sc0 ls3 ws0"> 9<span class="_ _a"></span><span class="ff5 fc0 ls0"> <span class="_ _2"> </span>Quand fait-elle ses recherches sur le Web <span class="_ _3"></span>?</span></div><div class="t m0 x6 h7 y18 ff6 fs0 fc0 sc0 ls2 ws0">  </div><div class="t m0 x6 h6 y19 ff3 fs4 fc1 sc0 ls0 ws0"> <span class="_ _c"></span>10<span class="ff5 fc0"> <span class="_ _d"> </span>Que contient le site W<span class="_ _e"></span>eb préféré de Mona <span class="_ _3"></span>?  Nomme deux éléments.</span></div><div class="t m0 x6 h7 y1a ff6 fs0 fc0 sc0 ls2 ws0">  </div><div class="t m0 x7 h7 y1b ff6 fs0 fc0 sc0 ls0 ws0"> </div><div class="t m1 x8 h7 y1c ff6 fs0 fc0 sc0 ls0 ws0">REPÉRAGE</div><input id="text-1-0" type="text" value="" style="position: absolute; left: 0.000000px; bottom: 0.000000px; width: 0.000000px; height: 0px; line-height: 0px; font-size: 0.000000px;" class="it" />
-<div id="cb-1-1" style="position: absolute; left: 0.000000px; bottom: 0.000000px; width: 3.000000px; height: 3px; background-size: cover;" class="ir"></div>
-<div id="cb-1-2" style="position: absolute; left: 0.000000px; bottom: 0.000000px; width: 3.000000px; height: 3px; background-size: cover;" class="ir"></div>
-<div id="cb-1-3" style="position: absolute; left: 0.000000px; bottom: 0.000000px; width: 3.000000px; height: 3px; background-size: cover;" class="ir"></div>
-<div id="cb-1-4" style="position: absolute; left: 0.000000px; bottom: 0.000000px; width: 3.000000px; height: 3px; background-size: cover;" class="ir"></div>
-<input id="text-1-5" type="text" value="" style="position: absolute; left: 0.000000px; bottom: 0.000000px; width: 0.000000px; height: 0px; line-height: 0px; font-size: 0.000000px;" class="it" />
-<input id="text-1-6" type="text" value="" style="position: absolute; left: 0.000000px; bottom: 0.000000px; width: 0.000000px; height: 0px; line-height: 0px; font-size: 0.000000px;" class="it" />
-<input id="text-1-7" type="text" value="" style="position: absolute; left: 0.000000px; bottom: 0.000000px; width: 0.000000px; height: 0px; line-height: 0px; font-size: 0.000000px;" class="it" />
-<input id="text-1-8" type="text" value="" style="position: absolute; left: 0.000000px; bottom: 0.000000px; width: 0.000000px; height: 0px; line-height: 0px; font-size: 0.000000px;" class="it" />
-<input id="text-1-9" type="text" value="" style="position: absolute; left: 0.000000px; bottom: 0.000000px; width: 0.000000px; height: 0px; line-height: 0px; font-size: 0.000000px;" class="it" />
-<input id="text-1-a" type="text" value="" style="position: absolute; left: 0.000000px; bottom: 0.000000px; width: 0.000000px; height: 0px; line-height: 0px; font-size: 0.000000px;" class="it" />
-<div id="cb-1-b" style="position: absolute; left: 0.000000px; bottom: 0.000000px; width: 3.000000px; height: 3px; background-size: cover;" class="ir"></div>
-<div id="cb-1-c" style="position: absolute; left: 0.000000px; bottom: 0.000000px; width: 3.000000px; height: 3px; background-size: cover;" class="ir"></div>
-<div id="cb-1-d" style="position: absolute; left: 0.000000px; bottom: 0.000000px; width: 3.000000px; height: 3px; background-size: cover;" class="ir"></div>
-<div id="cb-1-e" style="position: absolute; left: 0.000000px; bottom: 0.000000px; width: 3.000000px; height: 3px; background-size: cover;" class="ir"></div>
-<input id="text-1-f" type="text" value="" style="position: absolute; left: 0.000000px; bottom: 0.000000px; width: 0.000000px; height: 0px; line-height: 0px; font-size: 0.000000px;" class="it" />
+<div id="pf1" class="pf w0 h0" data-page-no="1"><div class="pc pc1 w0 h0"><img class="bi x0 y0 w1 h1" alt="" src="bg1.png"/><div class="t m0 x1 h2 y1 ff1 fs0 fc0 sc0 ls0 ws0">Éditions « <span class="_ _0"></span>À Reproduire »                           Internet : www<span class="_ _0"></span>.en<span class="_ _0"></span>volee.com</div><div class="t m0 x2 h3 y2 ff2 fs1 fc0 sc0 ls0 ws0">Question de textes 4</div><div class="t m0 x3 h4 y3 ff3 fs2 fc1 sc0 ls0 ws0">7</div><div class="t m0 x4 h2 y4 ff1 fs0 fc0 sc0 ls0 ws0">Nom</div><div class="t m0 x5 h5 y5 ff4 fs3 fc1 sc0 ls0 ws0">Mona veut un chien</div><div class="t m0 x6 h6 y6 ff3 fs4 fc1 sc0 ls0 ws0"><span class="_ _1"> </span>4<span class="ff5 fc0"> <span class="_ _2"> </span>Que veut dire la mère de Mona quand elle dit : « C’est beaucoup de travail, avoir un chien » <span class="_ _3"></span>?</span></div><div class="t m0 x6 h7 y7 ff6 fs0 fc0 sc0 ls0 ws0"><span class="_ _4"> </span>a) <span class="_ _1"> </span>Mona doit faire plus de recherche avant d’être prête à avoir un chien.</div><div class="t m0 x6 h7 y8 ff6 fs0 fc0 sc0 ls0 ws1">b) <span class="_ _5"></span> <span class="_ _6"></span><span class="ls1 ws0">Les chiens travaillent fort aﬁ<span class="_ _7"></span> <span class="_ _0"></span>n d’être de bons animaux de compagnie pour les gens.</span></div><div class="t m0 x6 h7 y9 ff6 fs0 fc0 sc0 ls0 ws2">c) <span class="_ _8"></span> <span class="_ _9"></span><span class="ls1 ws0">Les chiens ont besoin de nourriture et d’exercice.  Il faut aussi ramasser leurs dégâts.</span></div><div class="t m0 x6 h7 ya ff6 fs0 fc0 sc0 ls0 ws0"><span class="_ _4"> </span>d) <span class="_ _1"> </span>Mona devra se reposer plus si elle a un chien.</div><div class="t m0 x6 h6 yb ff3 fs4 fc1 sc0 ls0 ws0"><span class="_ _1"> </span>5<span class="ff5 fc0"> <span class="_ _2"> </span>Comment Mona a-t-elle acquis autant de connaissances sur les chiens <span class="_ _3"></span>?</span></div><div class="t m0 x6 h7 yc ff6 fs0 fc0 sc0 ls0 ws0"><span class="_ _4"> </span>a) <span class="_ _1"> </span>En écoutant son enseignante à l’école.</div><div class="t m0 x6 h7 yd ff6 fs0 fc0 sc0 ls0 ws0"><span class="_ _4"> </span>b) <span class="_ _1"> </span>En visitant un site W<span class="_ _3"></span>eb.</div><div class="t m0 x6 h7 ye ff6 fs0 fc0 sc0 ls0 ws0"><span class="_ _a"> </span>c) <span class="_ _1"> </span>En écrivant à la Société protectrice des animaux.</div><div class="t m0 x6 h7 yf ff6 fs0 fc0 sc0 ls0 ws0"><span class="_ _4"> </span>d) <span class="_ _1"> </span>En regardant une vidéo sur les chiens.</div><div class="t m0 x6 h6 y10 ff3 fs4 fc1 sc0 ls0 ws0"><span class="_ _1"> </span>6<span class="ff5 fc0"> <span class="_ _2"> </span>Pourquoi Mona veut-elle un Jack Russell <span class="_ _3"></span>?</span></div><div class="t m0 x6 h6 y11 ff3 fs4 fc1 sc0 ls3 ws0">7<span class="_ _b"></span><span class="ff5 fc0 ls0"> <span class="_ _2"> </span>Que devra faire Mona même si elle est fatiguée ou qu’il pleut <span class="_ _3"></span>?</span></div><div class="t m0 x6 h6 y12 ff3 fs4 fc1 sc0 ls0 ws0"><span class="_ _1"> </span>8<span class="ff5 fc0"> <span class="_ _2"> </span>Décris physiquement le chien que Mona veut choisir<span class="_ _0"></span>.</span></div><div class="t m0 x6 h6 y13 ff3 fs4 fc1 sc0 ls3 ws0">9<span class="_ _b"></span><span class="ff5 fc0 ls0"> <span class="_ _2"> </span>Quand fait-elle ses recherches sur le W<span class="_ _c"></span>eb <span class="_ _3"></span>?</span></div><div class="t m0 x6 h6 y14 ff3 fs4 fc1 sc0 ls0 ws0"><span class="_ _d"></span>10<span class="ff5 fc0"> <span class="_ _e"> </span>Que contient le site W<span class="_ _c"></span>eb préféré de Mona <span class="_ _3"></span>?  Nomme deux éléments.</span></div><div class="t m1 x7 h7 y15 ff6 fs0 fc0 sc0 ls0 ws0">REPÉRAGE</div><input id="text-1-0" class="it" type="text" value="" style="position: absolute; left: 0.000000px; bottom: 0.000000px; width: 0.000000px; height: 0.000000px; line-height: 0.000000px; font-size: 0.000000px;" />
+<div id="cb-1-1" class="ir" style="position: absolute; left: 0.000000px; bottom: 0.000000px; width: 3.000000px; height: 3.000000px; background-size: cover;" ></div>
+<div id="cb-1-2" class="ir" style="position: absolute; left: 0.000000px; bottom: 0.000000px; width: 3.000000px; height: 3.000000px; background-size: cover;" ></div>
+<div id="cb-1-3" class="ir" style="position: absolute; left: 0.000000px; bottom: 0.000000px; width: 3.000000px; height: 3.000000px; background-size: cover;" ></div>
+<div id="cb-1-4" class="ir" style="position: absolute; left: 0.000000px; bottom: 0.000000px; width: 3.000000px; height: 3.000000px; background-size: cover;" ></div>
+<input id="text-1-5" class="it" type="text" value="" style="position: absolute; left: 0.000000px; bottom: 0.000000px; width: 0.000000px; height: 0.000000px; line-height: 0.000000px; font-size: 0.000000px;" />
+<input id="text-1-6" class="it" type="text" value="" style="position: absolute; left: 0.000000px; bottom: 0.000000px; width: 0.000000px; height: 0.000000px; line-height: 0.000000px; font-size: 0.000000px;" />
+<input id="text-1-7" class="it" type="text" value="" style="position: absolute; left: 0.000000px; bottom: 0.000000px; width: 0.000000px; height: 0.000000px; line-height: 0.000000px; font-size: 0.000000px;" />
+<input id="text-1-8" class="it" type="text" value="" style="position: absolute; left: 0.000000px; bottom: 0.000000px; width: 0.000000px; height: 0.000000px; line-height: 0.000000px; font-size: 0.000000px;" />
+<input id="text-1-9" class="it" type="text" value="" style="position: absolute; left: 0.000000px; bottom: 0.000000px; width: 0.000000px; height: 0.000000px; line-height: 0.000000px; font-size: 0.000000px;" />
+<input id="text-1-a" class="it" type="text" value="" style="position: absolute; left: 0.000000px; bottom: 0.000000px; width: 0.000000px; height: 0.000000px; line-height: 0.000000px; font-size: 0.000000px;" />
+<div id="cb-1-b" class="ir" style="position: absolute; left: 0.000000px; bottom: 0.000000px; width: 3.000000px; height: 3.000000px; background-size: cover;" ></div>
+<div id="cb-1-c" class="ir" style="position: absolute; left: 0.000000px; bottom: 0.000000px; width: 3.000000px; height: 3.000000px; background-size: cover;" ></div>
+<div id="cb-1-d" class="ir" style="position: absolute; left: 0.000000px; bottom: 0.000000px; width: 3.000000px; height: 3.000000px; background-size: cover;" ></div>
+<div id="cb-1-e" class="ir" style="position: absolute; left: 0.000000px; bottom: 0.000000px; width: 3.000000px; height: 3.000000px; background-size: cover;" ></div>
+<input id="text-1-f" class="it" type="text" value="" style="position: absolute; left: 0.000000px; bottom: 0.000000px; width: 0.000000px; height: 0.000000px; line-height: 0.000000px; font-size: 0.000000px;" />
 </div><div class="pi" data-data='{"ctm":[1.307190,0.000000,0.000000,1.307190,0.000000,0.000000]}'></div></div>
 </div>
 </body>
