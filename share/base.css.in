@@ -161,15 +161,21 @@
   /* Workaround for https://bugs.webkit.org/show_bug.cgi?id=35443 */
   content: '';
 }
+.@CSS_LINE_CN@:before {
+  /* Workaround Blink(up to 41)/Webkit bug of word-spacing with leading spaces (chromium #404444 and pdf2htmlEX #412) */
+  content: '';
+  display: inline-block;
+}
 .@CSS_LINE_CN@ span { /* text blocks within a line */
+  /* Blink(up to 41)/Webkit have bug with negative word-spacing and inline-block (pdf2htmlEX #416), so keep normal span inline. */
   position:relative;
-  /* _<id> for spaces may need display:inline, which will override this */ 
-  display:inline-block;
   unicode-bidi:bidi-override; /* For rtl languages, e.g. Hebrew, we don't want the default Unicode behaviour */
 }
 .@CSS_WHITESPACE_CN@ { /* text shift */
-  color:transparent;
-  z-index:-1;
+  /* Blink(up to 41)/Webkit have bug with inline element, continuous spaces and word-spacing. Workaround by inline-block. */
+  display: inline-block;
+  color: transparent;
+  z-index: -1;
 }
 /* selection background should not be opaque, for fallback mode */
 ::selection{
