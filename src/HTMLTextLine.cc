@@ -37,17 +37,7 @@ HTMLTextLine::HTMLTextLine (const HTMLLineState & line_state, const Param & para
 void HTMLTextLine::append_unicodes(const Unicode * u, int l, double width)
 {
     if (l == 1) 
-    {
-        // Chromium #404444
-        // word-spacing is not applied for the leading space, so convert it to offset
-        if (u[0] == ' ' && text.empty())
-        {
-            append_offset(width);
-            return;
-        }
-        else
-          text.push_back(min(u[0], (unsigned)INT_MAX));
-    }
+        text.push_back(min(u[0], (unsigned)INT_MAX));
     else if (l > 1)
     {
         text.push_back(- decomposed_text.size() - 1);
