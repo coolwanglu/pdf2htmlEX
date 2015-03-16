@@ -110,7 +110,7 @@ If you are not sure, please try to answer the following questions:
 - What steps will reproduce the issue? &mdash; please try to remove unnecessary steps
 - What's the result and what did you expect? &mdash; e.g. you can post screenshots
 - What error messages did you see?
-- Where's the affected PDF file and which pages are causing the issue? &mdash; e.g. you may upload the file via Dropbox and post a link here
+- What's the affected PDF file and which pages are causing the issue? Create a pull request on [this repo](https://github.com/coolwanglu/pdf2htmlEX-testcase).
 
 Especially for issues regarding building pdf2htmlEX:
 - Which compiler are you using?
