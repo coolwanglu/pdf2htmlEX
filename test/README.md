@@ -13,7 +13,7 @@
   - `./test.py test_local_browser`
 - Run selected test case:
   - `./test.py test_local_browser.test_basic_text`
-  - Or `./test.py test_basic_text
+  - Or `./test.py test_basic_text`
 - Environment variables:
   - Set `P2H_TEST_SAVE_TMP=1` to keep the temporary files in `/tmp/pdf2htmlEX_test`
   - Set `P2H_TEST_GEN=1` to generate new reference files
