@@ -67,12 +67,15 @@ class BrowserTests(Common):
 
         diff_img = ImageChops.difference(ref_img, out_img);
 
-        if diff_img.getbbox() is not None:
+        diff_bbox = diff_img.getbbox()
+        if diff_bbox is not None:
+            diff_size = (diff_bbox[2] - diff_bbox[0]) * (diff_bbox[3] - diff_bbox[1])
+            img_size = ref_img.size[0] * ref_img.size[1]
             if self.SAVE_TMP:
                 # save the diff image
                 # http://stackoverflow.com/questions/15721484/saving-in-png-using-pil-library-after-taking-imagechops-difference-of-two-png
-                diff_img.crop(diff_img.getbbox()).convert('RGB').save(os.path.join(png_out_dir, basefilename + '.diff.png'))
-            self.fail('PNG files differ')
+                diff_img.convert('RGB').save(os.path.join(png_out_dir, basefilename + '.diff.png'))
+            self.fail('PNG files differ by <= %d pixels, (%f%% of %d pixels in total)' % (diff_size, 1.0*diff_size/img_size, img_size))
 
     @unittest.skipIf(Common.GENERATING_MODE, 'Do not auto generate reference for test_fail')
     def test_fail(self):

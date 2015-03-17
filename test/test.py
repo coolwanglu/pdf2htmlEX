@@ -68,7 +68,9 @@ class Common(object):
                '--dest-dir', self.cur_output_dir
               ] + args
 
-        return_code = subprocess.call(list(map(str, args)))
+        with open(os.devnull, 'w') as fnull:
+            return_code = subprocess.call(list(map(str, args)), stderr=fnull)
+
         self.assertEquals(return_code, 0, 'cannot execute pdf2htmlEX')
 
         files = os.listdir(self.cur_output_dir)
