@@ -11,7 +11,7 @@ before_install:
   - export DISPLAY=:99.0
   - test/start_xvfb.sh
   - pushd /
-  - python -m SimpleHTTPServer 8000 &
+  - python -m SimpleHTTPServer 8000 >/dev/null 2>&1 &
   - popd
   - sleep 5
 before_script: 
