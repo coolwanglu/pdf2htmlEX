@@ -85,43 +85,43 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
         tracer.draw_char(state, dx, dy, ax, ay);
 
         bool is_space = false;
-        if (n == 1 && *p == ' ') 
+        if (n == 1 && *p == ' ')
         {
             /*
-             * This is by standard
-             * however some PDF will use ' ' as a normal encoding slot
-             * such that it will be mapped to other unicodes
-             * In that case, when space_as_offset is on, we will simply ignore that character...
-             *
-             * Checking mapped unicode may or may not work
-             * There are always ugly PDF files with no useful info at all.
+             * is_space indicates an ASCII SPACE before decoding.
+             * This is by standard - only such characters are affected by "word space".
+             * However some PDF will use ' ' as a normal encoding slot,
+             * such that it will be mapped to other unicodes.
              */
             is_space = true;
         }
-        
-        if(is_space && (param.space_as_offset))
+
+        if((param.decompose_ligature) && (uLen > 1) && all_of(u, u+uLen, isLegalUnicode))
         {
-            html_text_page.get_cur_line()->append_padding_char();
-            // ignore horiz_scaling, as it has been merged into CTM
-            html_text_page.get_cur_line()->append_offset((ax * cur_font_size + cur_letter_space + cur_word_space) * draw_text_scale);
+            html_text_page.get_cur_line()->append_unicodes(u, uLen, ddx);
         }
         else
         {
-            if((param.decompose_ligature) && (uLen > 1) && all_of(u, u+uLen, isLegalUnicode))
+            Unicode uu;
+            if(cur_text_state.font_info->use_tounicode)
             {
-                html_text_page.get_cur_line()->append_unicodes(u, uLen, ddx);
+                uu = check_unicode(u, uLen, code, font);
             }
             else
             {
-                Unicode uu;
-                if(cur_text_state.font_info->use_tounicode)
-                {
-                    uu = check_unicode(u, uLen, code, font);
-                }
-                else
-                {
-                    uu = unicode_from_font(code, font);
-                }
+                uu = unicode_from_font(code, font);
+            }
+            // Mapping to unicode may be wrong in some PDFs, and uu == ' ' is actually a visible character.
+            // In that case, when space_as_offset is on, we will simply ignore that character.
+            if((param.space_as_offset) && (uu == ' '))
+            {
+                html_text_page.get_cur_line()->append_padding_char();
+                // ignore horiz_scaling, as it has been merged into CTM
+                double offset = ax * cur_font_size + cur_letter_space + (is_space ? cur_word_space : 0);
+                html_text_page.get_cur_line()->append_offset(offset * draw_text_scale);
+            }
+            else
+            {
                 html_text_page.get_cur_line()->append_unicodes(&uu, 1, ddx);
                 /*
                  * In PDF, word_space is appended if (n == 1 and *p = ' ')
