@@ -7,6 +7,9 @@ import sys
 import os
 
 from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions
 from sauceclient import SauceClient
 from browser_tests import BrowserTests
 
@@ -95,7 +98,7 @@ class test_remote_browser_base(BrowserTests):
         try:
             passed = (sys.exc_info() == (None, None, None))
             branch = os.environ.get('TRAVIS_BRANCH', 'manual')
-            pull_request = os.environ.get('TRAVIS_PULL_REQUEST')
+            pull_request = os.environ.get('TRAVIS_PULL_REQUEST', 'false')
             self.sauce.jobs.update_job(self.browser.session_id, 
                 build_num=os.environ.get('TRAVIS_BUILD_NUMBER', '0'),
                 name='pdf2htmlEX',
@@ -104,10 +107,16 @@ class test_remote_browser_base(BrowserTests):
                 tags = [pull_request] if pull_request != 'false' else [branch]
             )
         except:
+            raise
             pass
 
-    def generate_image(self, html_file, png_file):
+    def generate_image(self, html_file, png_file, page_must_load=True):
         self.browser.get(BASEURL + html_file)
+        try:
+            WebDriverWait(self.browser, 5).until(expected_conditions.presence_of_element_located((By.ID, 'page-container')))
+        except:
+            if page_must_load:
+                raise
         self.browser.save_screenshot(png_file)
 
 test_classnames = []

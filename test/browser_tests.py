@@ -28,7 +28,7 @@ class BrowserTests(Common):
     def tearDownClass(cls):
         pass
 
-    def run_test_case(self, filename, pdf2htmlEX_args=[]):
+    def run_test_case(self, filename, pdf2htmlEX_args=[], page_must_load=True):
         basefilename, extension = os.path.splitext(filename)
         htmlfilename = basefilename + '.html'
 
@@ -62,7 +62,7 @@ class BrowserTests(Common):
         out_img = Image.open(pngfilename_out_fullpath)
 
         pngfilename_ref_fullpath = os.path.join(png_out_dir, basefilename + '.ref.png')
-        self.generate_image(ref_htmlfilename, pngfilename_ref_fullpath)
+        self.generate_image(ref_htmlfilename, pngfilename_ref_fullpath, page_must_load=page_must_load)
         ref_img = Image.open(pngfilename_ref_fullpath)
 
         diff_img = ImageChops.difference(ref_img, out_img);
@@ -83,7 +83,7 @@ class BrowserTests(Common):
         # To test if the environment can detect any errors
         # E.g. when network is down, 404 message is shown for any HTML message
         with self.assertRaises(AssertionError):
-            self.run_test_case('test_fail.pdf')
+            self.run_test_case('test_fail.pdf', page_must_load=False)
 
     def test_basic_text(self):
         self.run_test_case('basic_text.pdf')
