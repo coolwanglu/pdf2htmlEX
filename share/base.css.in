@@ -157,12 +157,10 @@
   unicode-bidi:bidi-override;/* For rtl languages, e.g. Hebrew, we don't want the default Unicode behaviour */
   -moz-font-feature-settings:"liga" 0;/* We don't want Firefox to recognize ligatures */
 }
-.@CSS_LINE_CN@:after {
-  /* Workaround for https://bugs.webkit.org/show_bug.cgi?id=35443 */
+.@CSS_LINE_CN@:after { /* webkit #35443 */
   content: '';
 }
-.@CSS_LINE_CN@:before {
-  /* Workaround Blink(up to 41)/Webkit bug of word-spacing with leading spaces (chromium #404444 and pdf2htmlEX #412) */
+.@CSS_LINE_CN@:before { /* Workaround Blink(up to 41)/Webkit bug of word-spacing with leading spaces (chromium #404444 and pdf2htmlEX #412) */
   content: '';
   display: inline-block;
 }
