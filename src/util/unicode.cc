@@ -77,16 +77,14 @@ bool isLegalUnicode(Unicode u)
     if(u < max_small_unicode)
         return valid_small_unicode[u];
 
-    /*
-     * U+2029: Paragraph Separator
-     * TODO: check U+2028 etc
-     */
-    if(u == 0x2029)
-        return false;
 
-    /*
-     * Reserved code for utf-16
-     */
+    // * U+200B: zero width space
+    if(u == 0x200b) return false;
+
+    // * U+2029: paragraph separator
+    if(u == 0x2029) return false;
+
+    // Reserved code for utf-16
     if((u >= 0xd800) && (u <= 0xdfff))
         return false;
 
