@@ -19,7 +19,7 @@
 
 namespace pdf2htmlEX {
 
-using std::all_of;
+using std::none_of;
 using std::cerr;
 using std::endl;
 
@@ -107,7 +107,7 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
         }
         else
         {
-            if((param.decompose_ligature) && (uLen > 1) && all_of(u, u+uLen, isLegalUnicode))
+            if((param.decompose_ligature) && (uLen > 1) && none_of(u, u+uLen, is_illegal_unicode))
             {
                 html_text_page.get_cur_line()->append_unicodes(u, uLen, ddx);
             }
