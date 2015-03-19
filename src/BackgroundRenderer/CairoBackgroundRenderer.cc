@@ -12,8 +12,6 @@
 
 #include "Base64Stream.h"
 
-#if ENABLE_SVG
-
 #include "CairoBackgroundRenderer.h"
 #include "SplashBackgroundRenderer.h"
 
@@ -303,6 +301,4 @@ void CairoBackgroundRenderer::setMimeData(Stream *str, Object *ref, cairo_surfac
 }
 
 } // namespace pdf2htmlEX
-
-#endif // ENABLE_SVG
 
