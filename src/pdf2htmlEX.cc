@@ -17,17 +17,14 @@
 
 #include <poppler-config.h>
 #include <goo/GooString.h>
-
 #include <Object.h>
 #include <PDFDoc.h>
 #include <PDFDocFactory.h>
 #include <GlobalParams.h>
 
-#include "pdf2htmlEX-config.h"
-
-#if ENABLE_SVG
 #include <cairo.h>
-#endif
+
+#include "pdf2htmlEX-config.h"
 
 #include "ArgParser.h"
 #include "Param.h"
@@ -60,9 +57,7 @@ void show_version_and_exit(const char * dummy = nullptr)
     cerr << "Libraries: " << endl;
     cerr << "  poppler " << POPPLER_VERSION << endl;
     cerr << "  libfontforge " << ffw_get_version() << endl;
-#if ENABLE_SVG
     cerr << "  cairo " << cairo_version_string() << endl;
-#endif
     cerr << "Default data-dir: " << param.data_dir << endl;
     cerr << "Supported image format:";
 #ifdef ENABLE_LIBPNG
@@ -71,9 +66,7 @@ void show_version_and_exit(const char * dummy = nullptr)
 #ifdef ENABLE_LIBJPEG
     cerr << " jpg";
 #endif
-#if ENABLE_SVG
     cerr << " svg";
-#endif
     cerr << endl;
 
     // TODO: define constants

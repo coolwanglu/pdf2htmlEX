@@ -2,9 +2,6 @@
 %:
 	dh $@
 
-override_dh_auto_configure:
-	dh_auto_configure -- -DENABLE_SVG=ON
-
 override_dh_auto_test:
 
 
