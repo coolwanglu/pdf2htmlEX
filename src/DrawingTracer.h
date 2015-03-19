@@ -11,13 +11,9 @@
 #include <functional>
 
 #include <GfxState.h>
+#include <cairo.h>
 
 #include "pdf2htmlEX-config.h"
-
-#if ENABLE_SVG
-#include <cairo.h>
-#endif
-
 #include "Param.h"
 
 namespace pdf2htmlEX
@@ -70,9 +66,7 @@ private:
 
     const Param & param;
 
-#if ENABLE_SVG
     cairo_t * cairo;
-#endif
 };
 
 } /* namespace pdf2htmlEX */

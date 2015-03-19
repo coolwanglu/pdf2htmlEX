@@ -5,8 +5,6 @@ set(CMAKE_BUILD_TYPE Release CACHE STRING "Build configuration (Debug, Release, 
 project(pdf2htmlEX)
 cmake_minimum_required(VERSION 2.6.0 FATAL_ERROR)
 
-option(ENABLE_SVG "Enable SVG support, for generating SVG background images and converting Type 3 fonts" ON)
-
 include_directories(${CMAKE_SOURCE_DIR}/src)
 
 set(PDF2HTMLEX_VERSION "0.14.5")
@@ -24,34 +22,31 @@ include_directories(${POPPLER_INCLUDE_DIRS})
 link_directories(${POPPLER_LIBRARY_DIRS})
 set(PDF2HTMLEX_LIBS ${PDF2HTMLEX_LIBS} ${POPPLER_LIBRARIES})
 
-if(ENABLE_SVG)
-    pkg_check_modules(CAIRO REQUIRED cairo>=1.10.0)
-    message("Trying to locate cairo-svg...")
-    find_path(CAIRO_SVG_INCLUDE_PATH cairo-svg.h PATHS ${CAIRO_INCLUDE_DIRS} NO_DEFAULT_PATH)
-    if(CAIRO_SVG_INCLUDE_PATH)
-        include_directories(${CAIRO_INCLUDE_DIRS})
-        link_directories(${CAIRO_LIBRARY_DIRS})
-        set(PDF2HTMLEX_LIBS ${PDF2HTMLEX_LIBS} ${CAIRO_LIBRARIES})
-        set(ENABLE_SVG 1)
-        set(CAIROOUTPUTDEV_PATH 3rdparty/poppler/git)
-        include_directories(${CAIROOUTPUTDEV_PATH})
-        set(PDF2HTMLEX_SRC ${PDF2HTMLEX_SRC}
-            ${CAIROOUTPUTDEV_PATH}/CairoFontEngine.h
-            ${CAIROOUTPUTDEV_PATH}/CairoFontEngine.cc
-            ${CAIROOUTPUTDEV_PATH}/CairoRescaleBox.h
-            ${CAIROOUTPUTDEV_PATH}/CairoRescaleBox.cc
-            ${CAIROOUTPUTDEV_PATH}/CairoOutputDev.h
-            ${CAIROOUTPUTDEV_PATH}/CairoOutputDev.cc
-        )
-    else()
-        message(FATAL_ERROR "Error: no SVG support found in Cairo")
-    endif()
-
-    find_package(Freetype REQUIRED)
-    include_directories(${FREETYPE_INCLUDE_DIRS})
-    link_directories(${FREETYPE_LIBRARY_DIRS})
-    set(PDF2HTMLEX_LIBS ${PDF2HTMLEX_LIBS} ${FREETYPE_LIBRARIES})
+pkg_check_modules(CAIRO REQUIRED cairo>=1.10.0)
+message("Trying to locate cairo-svg...")
+find_path(CAIRO_SVG_INCLUDE_PATH cairo-svg.h PATHS ${CAIRO_INCLUDE_DIRS} NO_DEFAULT_PATH)
+if(CAIRO_SVG_INCLUDE_PATH)
+    include_directories(${CAIRO_INCLUDE_DIRS})
+    link_directories(${CAIRO_LIBRARY_DIRS})
+    set(PDF2HTMLEX_LIBS ${PDF2HTMLEX_LIBS} ${CAIRO_LIBRARIES})
+    set(CAIROOUTPUTDEV_PATH 3rdparty/poppler/git)
+    include_directories(${CAIROOUTPUTDEV_PATH})
+    set(PDF2HTMLEX_SRC ${PDF2HTMLEX_SRC}
+        ${CAIROOUTPUTDEV_PATH}/CairoFontEngine.h
+        ${CAIROOUTPUTDEV_PATH}/CairoFontEngine.cc
+        ${CAIROOUTPUTDEV_PATH}/CairoRescaleBox.h
+        ${CAIROOUTPUTDEV_PATH}/CairoRescaleBox.cc
+        ${CAIROOUTPUTDEV_PATH}/CairoOutputDev.h
+        ${CAIROOUTPUTDEV_PATH}/CairoOutputDev.cc
+    )
+else()
+    message(FATAL_ERROR "Error: no SVG support found in Cairo")
 endif()
+
+find_package(Freetype REQUIRED)
+include_directories(${FREETYPE_INCLUDE_DIRS})
+link_directories(${FREETYPE_LIBRARY_DIRS})
+set(PDF2HTMLEX_LIBS ${PDF2HTMLEX_LIBS} ${FREETYPE_LIBRARIES})
 
 # fontforge starts using pkg-config 'correctly' since 2.0.0
 pkg_check_modules(FONTFORGE REQUIRED libfontforge>=2.0.0)
