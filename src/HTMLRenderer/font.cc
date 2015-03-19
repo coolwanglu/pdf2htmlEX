@@ -16,6 +16,7 @@
 #include <GlobalParams.h>
 #include <fofi/FoFiTrueType.h>
 #include <CharCodeToUnicode.h>
+#include <Gfx.h>
 
 #include "Param.h"
 #include "HTMLRenderer.h"
@@ -31,14 +32,11 @@
 #include "util/unicode.h"
 #include "util/css_const.h"
 
-#if ENABLE_SVG
 #include <cairo.h>
 #include <cairo-ft.h>
 #include <cairo-svg.h>
 #include "CairoFontEngine.h"
 #include "CairoOutputDev.h"
-#include <Gfx.h>
-#endif
 
 namespace pdf2htmlEX {
 
@@ -190,7 +188,6 @@ string HTMLRenderer::dump_type3_font (GfxFont * font, FontInfo & info)
 {
     assert(info.is_type3);
 
-#if ENABLE_SVG
     long long fn_id = info.id;
 
     FT_Library ft_lib;
@@ -248,7 +245,7 @@ string HTMLRenderer::dump_type3_font (GfxFont * font, FontInfo & info)
 
 #if 1
         {
-            // pain the glyph
+            // paint the glyph
             cairo_set_font_face(cr, cur_font->getFontFace());
 
             cairo_matrix_t m1, m2, m3;
@@ -368,9 +365,6 @@ string HTMLRenderer::dump_type3_font (GfxFont * font, FontInfo & info)
     ffw_close();
 
     return font_filename;
-#else
-    return "";
-#endif
 }
 
 void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo & info, bool get_metric_only)
@@ -860,7 +854,6 @@ const FontInfo * HTMLRenderer::install_font(GfxFont * font)
 
     if(new_font_info.is_type3)
     {
-#if ENABLE_SVG
         if(param.process_type3)
         {
             install_embedded_font(font, new_font_info);
@@ -869,10 +862,6 @@ const FontInfo * HTMLRenderer::install_font(GfxFont * font)
         {
             export_remote_default_font(new_fn_id);
         }
-#else
-        cerr << "Type 3 fonts are unsupported and will be rendered as Image" << endl;
-        export_remote_default_font(new_fn_id);
-#endif
         return &new_font_info;
     }
     if(font->getWMode()) {

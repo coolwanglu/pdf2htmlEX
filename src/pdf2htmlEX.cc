@@ -308,22 +308,12 @@ void check_param()
 #ifdef ENABLE_LIBJPEG
     else if (param.bg_format == "jpg") { }
 #endif
-#if ENABLE_SVG
-    else if(param.bg_format == "svg") { }
-#endif
+    else if (param.bg_format == "svg") { }
     else
     {
         cerr << "Image format not supported: " << param.bg_format << endl;
         exit(EXIT_FAILURE);
     }
-
-#if not ENABLE_SVG
-    if(param.process_type3)
-    {
-        cerr << "process-type3 is enabled, however SVG support is not built in this version of pdf2htmlEX." << endl;
-        exit(EXIT_FAILURE);
-    }
-#endif
 
     if((param.font_format == "ttf") && (param.external_hint_tool == ""))
     {

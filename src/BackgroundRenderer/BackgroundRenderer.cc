@@ -12,9 +12,7 @@
 
 #include "BackgroundRenderer.h"
 #include "SplashBackgroundRenderer.h"
-#if ENABLE_SVG
 #include "CairoBackgroundRenderer.h"
-#endif
 
 namespace pdf2htmlEX {
 
@@ -32,12 +30,10 @@ std::unique_ptr<BackgroundRenderer> BackgroundRenderer::getBackgroundRenderer(co
         return std::unique_ptr<BackgroundRenderer>(new SplashBackgroundRenderer(format, html_renderer, param));
     }
 #endif
-#if ENABLE_SVG
     if (format == "svg")
     {
         return std::unique_ptr<BackgroundRenderer>(new CairoBackgroundRenderer(html_renderer, param));
     }
-#endif
 
     return nullptr;
 }
