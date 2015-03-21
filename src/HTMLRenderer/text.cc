@@ -103,7 +103,7 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
         {
             html_text_page.get_cur_line()->append_padding_char();
             // ignore horiz_scaling, as it has been merged into CTM
-            html_text_page.get_cur_line()->append_offset((ax * cur_font_size + cur_letter_space + cur_word_space) * draw_text_scale);
+            html_text_page.get_cur_line()->append_offset(ax * cur_font_size + cur_letter_space + cur_word_space);
         }
         else
         {
@@ -130,7 +130,7 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
                 int space_count = (is_space ? 1 : 0) - ((uu == ' ') ? 1 : 0);
                 if(space_count != 0)
                 {
-                    html_text_page.get_cur_line()->append_offset(cur_word_space * draw_text_scale * space_count);
+                    html_text_page.get_cur_line()->append_offset(cur_word_space * space_count);
                 }
             }
         }
