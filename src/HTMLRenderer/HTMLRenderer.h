@@ -12,6 +12,8 @@
 #include <fstream>
 #include <memory>
 
+#include <ft2build.h>
+#include FT_FREETYPE_H
 #include <OutputDev.h>
 #include <GfxState.h>
 #include <Stream.h>
@@ -42,6 +44,7 @@
 #include "util/const.h"
 #include "util/misc.h"
 
+class CairoFontEngine;
 
 namespace pdf2htmlEX {
 
@@ -217,6 +220,10 @@ protected:
     // make sure the current HTML style consistent with PDF
     void prepare_text_line(GfxState * state);
 
+    // Check whether this char has a non-empty glyph in this font. If not sure, return true.
+    // A char has an empty glyph or no glyph is usually a whitespace.
+    bool has_glyph(CharCode code, GfxFont* font);
+
     ////////////////////////////////////////////////////
     // PDF stuffs
     ////////////////////////////////////////////////////
@@ -341,6 +348,11 @@ protected:
 
     CoveredTextDetector covered_text_detector;
     DrawingTracer tracer;
+
+#if ENABLE_SVG
+    FT_Library ft_lib;
+    std::unique_ptr<CairoFontEngine> font_engine;
+#endif
 };
 
 } //namespace pdf2htmlEX

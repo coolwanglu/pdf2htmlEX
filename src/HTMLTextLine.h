@@ -107,6 +107,7 @@ private:
      */
     void dump_chars(std::ostream & out, int begin, int len);
     void dump_char(std::ostream & out, int pos);
+    void dump_unicode(std::ostream & out, Unicode u);
 
     const Param & param;
     AllStateManager & all_manager;
@@ -128,6 +129,8 @@ private:
      */
     std::vector<int> text;
     std::vector<std::vector<Unicode> > decomposed_text;
+
+    Unicode last_output_unicode; //last unicode written to html (chars in tags excluded)
 };
 
 } // namespace pdf2htmlEX

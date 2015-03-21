@@ -75,10 +75,12 @@ class CairoFreeTypeFont : public CairoFont {
 public:
   static CairoFreeTypeFont *create(GfxFont *gfxFont, XRef *xref, FT_Library lib, GBool useCIDs);
   virtual ~CairoFreeTypeFont();
-
+  // Caution: this function is added by pdf2htmlEX to determine whitespace. Please merge during update.
+  FT_Face get_ft_face() { return ft_face; }
 private:
-  CairoFreeTypeFont(Ref ref, cairo_font_face_t *cairo_font_face,
+  CairoFreeTypeFont(Ref ref, cairo_font_face_t *cairo_font_face, FT_Face ft_face,
 	    int *codeToGID, Guint codeToGIDLen, GBool substitute);
+  FT_Face ft_face;
 };
 
 //------------------------------------------------------------------------
