@@ -31,13 +31,10 @@ void HTMLRenderer::updateRise(GfxState * state)
 void HTMLRenderer::updateTextPos(GfxState * state) 
 {
     text_pos_changed = true;
-    cur_tx = state->getLineX(); 
-    cur_ty = state->getLineY(); 
 }
 void HTMLRenderer::updateTextShift(GfxState * state, double shift) 
 {
     text_pos_changed = true;
-    cur_tx -= shift * 0.001 * state->getFontSize() * state->getHorizScaling(); 
 }
 void HTMLRenderer::updateFont(GfxState * state) 
 {
@@ -128,7 +125,6 @@ void HTMLRenderer::reset_state()
     cur_clip_state.ymin = 0;
     cur_clip_state.ymax = 0;
 
-    cur_tx  = cur_ty  = 0;
     draw_tx = draw_ty = 0;
 
     reset_state_change();
@@ -311,6 +307,9 @@ void HTMLRenderer::check_state_change(GfxState * state)
          */
 
         bool merged = false;
+        // OVERHAUL TODO: cur_tx/ty have been removed
+        double cur_tx = draw_tx;
+        double cur_ty = draw_ty; 
         double dx = 0;
         double dy = 0;
         if(tm_equal(old_line_state.transform_matrix, cur_line_state.transform_matrix, 4))
@@ -373,8 +372,6 @@ void HTMLRenderer::check_state_change(GfxState * state)
                 cur_text_state.vertical_align = dy;
                 set_line_state(new_line_state, NLS_NEWSTATE);
             }
-            draw_tx = cur_tx;
-            draw_ty = cur_ty;
         }
         else
         {
@@ -486,21 +483,6 @@ void HTMLRenderer::prepare_text_line(GfxState * state)
         html_text_page.open_new_line(cur_line_state);
 
         cur_text_state.vertical_align = 0;
-
-        //resync position
-        draw_ty = cur_ty;
-        draw_tx = cur_tx;
-    }
-    else
-    {
-        // align horizontal position
-        // try to merge with the last line if possible
-        double target = (cur_tx - draw_tx);
-        if(!equal(target, 0))
-        {
-            html_text_page.get_cur_line()->append_offset(target);
-            draw_tx += target;
-        }
     }
 
     if(new_line_state != NLS_NONE)

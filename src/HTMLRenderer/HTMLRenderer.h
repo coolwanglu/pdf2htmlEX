@@ -240,7 +240,6 @@ protected:
     ////////////////////////////////////////////////////
     // track the original (unscaled) values to determine scaling and merge lines
     // current position
-    double cur_tx, cur_ty; // real text position, in text coords
     double cur_font_size;
     // this is CTM * TextMAT in PDF
     // as we'll calculate the position of the origin separately
