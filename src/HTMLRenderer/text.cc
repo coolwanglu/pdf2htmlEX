@@ -144,9 +144,6 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
         len -= n;
     }
 
-    cur_tx += dx;
-    cur_ty += dy;
-        
     draw_tx += dx;
     draw_ty += dy;
 }
