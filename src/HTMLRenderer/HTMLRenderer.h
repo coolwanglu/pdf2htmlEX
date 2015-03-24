@@ -256,7 +256,6 @@ protected:
     bool word_space_changed;
     bool letter_space_changed;
     bool stroke_color_changed;
-    bool clip_changed;
 
     ////////////////////////////////////////////////////
     // HTML states
@@ -294,7 +293,6 @@ protected:
         NLS_NONE,
         NLS_NEWSTATE, 
         NLS_NEWLINE,
-        NLS_NEWCLIP
     } new_line_state;
     
     // for font reencoding
