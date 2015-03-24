@@ -17,17 +17,14 @@
 
 #include <poppler-config.h>
 #include <goo/GooString.h>
-
 #include <Object.h>
 #include <PDFDoc.h>
 #include <PDFDocFactory.h>
 #include <GlobalParams.h>
 
-#include "pdf2htmlEX-config.h"
-
-#if ENABLE_SVG
 #include <cairo.h>
-#endif
+
+#include "pdf2htmlEX-config.h"
 
 #include "ArgParser.h"
 #include "Param.h"
@@ -60,9 +57,7 @@ void show_version_and_exit(const char * dummy = nullptr)
     cerr << "Libraries: " << endl;
     cerr << "  poppler " << POPPLER_VERSION << endl;
     cerr << "  libfontforge " << ffw_get_version() << endl;
-#if ENABLE_SVG
     cerr << "  cairo " << cairo_version_string() << endl;
-#endif
     cerr << "Default data-dir: " << param.data_dir << endl;
     cerr << "Supported image format:";
 #ifdef ENABLE_LIBPNG
@@ -71,9 +66,7 @@ void show_version_and_exit(const char * dummy = nullptr)
 #ifdef ENABLE_LIBJPEG
     cerr << " jpg";
 #endif
-#if ENABLE_SVG
     cerr << " svg";
-#endif
     cerr << endl;
 
     // TODO: define constants
@@ -324,22 +317,12 @@ void check_param()
 #ifdef ENABLE_LIBJPEG
     else if (param.bg_format == "jpg") { }
 #endif
-#if ENABLE_SVG
-    else if(param.bg_format == "svg") { }
-#endif
+    else if (param.bg_format == "svg") { }
     else
     {
         cerr << "Image format not supported: " << param.bg_format << endl;
         exit(EXIT_FAILURE);
     }
-
-#if not ENABLE_SVG
-    if(param.process_type3)
-    {
-        cerr << "process-type3 is enabled, however SVG support is not built in this version of pdf2htmlEX." << endl;
-        exit(EXIT_FAILURE);
-    }
-#endif
 
     if((param.font_format == "ttf") && (param.external_hint_tool == ""))
     {

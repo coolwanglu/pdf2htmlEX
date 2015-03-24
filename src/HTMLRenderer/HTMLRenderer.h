@@ -227,22 +227,10 @@ protected:
     int pageNum;
 
     double default_ctm[6];
-
-    /*
-     * The content of each page is first scaled with factor1 (>=1), then scale back with factor2(<=1)
-     *
-     * factor1 is use to multiplied with all metrics (height/width/font-size...), in order to improve accuracy
-     * factor2 is applied with css transform, and is exposed to Javascript
-     *
-     * factor1 & factor 2 are determined according to zoom and font-size-multiplier
-     *
-     */
-    double text_zoom_factor (void) const { return text_scale_factor1 * text_scale_factor2; }
-    double text_scale_factor1;
-    double text_scale_factor2;
+    double zoom_factor;
 
     // 1px on screen should be printed as print_scale()pt
-    double print_scale (void) const { return 96.0 / DEFAULT_DPI / text_zoom_factor(); }
+    double print_scale (void) const { return 96.0 / DEFAULT_DPI / zoom_factor; }
 
 
     const Param & param;
@@ -252,7 +240,6 @@ protected:
     ////////////////////////////////////////////////////
     // track the original (unscaled) values to determine scaling and merge lines
     // current position
-    double cur_tx, cur_ty; // real text position, in text coords
     double cur_font_size;
     // this is CTM * TextMAT in PDF
     // as we'll calculate the position of the origin separately
@@ -269,7 +256,6 @@ protected:
     bool word_space_changed;
     bool letter_space_changed;
     bool stroke_color_changed;
-    bool clip_changed;
 
     ////////////////////////////////////////////////////
     // HTML states
@@ -281,7 +267,8 @@ protected:
     
     // the actual tm used is `real tm in PDF` scaled by 1/draw_text_scale, 
     // so everything rendered should be multiplied by draw_text_scale
-    double draw_text_scale; 
+    // OVERHAUL TODO
+    // double draw_text_scale; 
 
     // the position of next char, in text coords
     // this is actual position (in HTML), which might be different from cur_tx/ty (in PDF)
@@ -306,7 +293,6 @@ protected:
         NLS_NONE,
         NLS_NEWSTATE, 
         NLS_NEWLINE,
-        NLS_NEWCLIP
     } new_line_state;
     
     // for font reencoding
@@ -324,9 +310,7 @@ protected:
 
     // render background image
     friend class SplashBackgroundRenderer; // ugly!
-#if ENABLE_SVG
     friend class CairoBackgroundRenderer; // ugly!
-#endif
 
     std::unique_ptr<BackgroundRenderer> bg_renderer, fallback_bg_renderer;
 

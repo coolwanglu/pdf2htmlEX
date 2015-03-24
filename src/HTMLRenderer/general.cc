@@ -140,7 +140,7 @@ void HTMLRenderer::process(PDFDoc *doc)
         }
 
         doc->displayPage(this, i,
-                text_zoom_factor() * DEFAULT_DPI, text_zoom_factor() * DEFAULT_DPI,
+                zoom_factor * DEFAULT_DPI, zoom_factor * DEFAULT_DPI,
                 0,
                 (!(param.use_cropbox)),
                 true,  // crop
@@ -301,10 +301,7 @@ void HTMLRenderer::pre_process(PDFDoc * doc)
             zoom_factors.push_back((param.fit_height) / preprocessor.get_max_height());
         }
 
-        double zoom = (zoom_factors.empty() ? 1.0 : (*min_element(zoom_factors.begin(), zoom_factors.end())));
-
-        text_scale_factor1 = max<double>(zoom, param.font_size_multiplier);
-        text_scale_factor2 = zoom / text_scale_factor1;
+        zoom_factor = (zoom_factors.empty() ? 1.0 : (*min_element(zoom_factors.begin(), zoom_factors.end())));
     }
 
     // we may output utf8 characters, so always use binary

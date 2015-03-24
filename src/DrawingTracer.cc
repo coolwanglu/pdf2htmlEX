@@ -10,21 +10,14 @@
 #include "util/math.h"
 #include "DrawingTracer.h"
 
-#if !ENABLE_SVG
-#warning "Cairo is disabled because ENABLE_SVG is off, --correct-text-visibility has limited functionality."
-#endif
-
 static constexpr bool DT_DEBUG = false;
 
-namespace pdf2htmlEX
-{
+namespace pdf2htmlEX {
 
-DrawingTracer::DrawingTracer(const Param & param): param(param)
-#if ENABLE_SVG
-, cairo(nullptr)
-#endif
-{
-}
+DrawingTracer::DrawingTracer(const Param & param)
+    : param(param)
+    , cairo(nullptr)
+{ }
 
 DrawingTracer::~DrawingTracer()
 {
@@ -37,7 +30,6 @@ void DrawingTracer::reset(GfxState *state)
         return;
     finish();
 
-#if ENABLE_SVG
     // pbox is defined in device space, which is affected by zooming;
     // We want to trace in page space which is stable, so invert pbox by ctm.
     double pbox[] { 0, 0, state->getPageWidth(), state->getPageHeight() };
@@ -50,18 +42,15 @@ void DrawingTracer::reset(GfxState *state)
     cairo = cairo_create(surface);
     if (DT_DEBUG)
         printf("DrawingTracer::reset:page bbox:[%f,%f,%f,%f]\n",pbox[0], pbox[1], pbox[2], pbox[3]);
-#endif
 }
 
 void DrawingTracer::finish()
 {
-#if ENABLE_SVG
     if (cairo)
     {
         cairo_destroy(cairo);
         cairo = nullptr;
     }
-#endif
 }
 
 // Poppler won't inform us its initial CTM, and the initial CTM is affected by zoom level.
@@ -72,7 +61,6 @@ void DrawingTracer::update_ctm(GfxState *state, double m11, double m12, double m
     if (!param.correct_text_visibility)
         return;
 
-#if ENABLE_SVG
     cairo_matrix_t matrix;
     matrix.xx = m11;
     matrix.yx = m12;
@@ -88,14 +76,12 @@ void DrawingTracer::update_ctm(GfxState *state, double m11, double m12, double m
         cairo_get_matrix(cairo, &mat);
         printf("DrawingTracer::update_ctm:ctm:[%f,%f,%f,%f,%f,%f]\n", mat.xx, mat.yx, mat.xy, mat.yy, mat.x0, mat.y0);
     }
-#endif
 }
 
 void DrawingTracer::clip(GfxState * state, bool even_odd)
 {
     if (!param.correct_text_visibility)
         return;
-#if ENABLE_SVG
     do_path(state, state->getPath());
     cairo_set_fill_rule(cairo, even_odd? CAIRO_FILL_RULE_EVEN_ODD : CAIRO_FILL_RULE_WINDING);
     cairo_clip (cairo);
@@ -106,7 +92,6 @@ void DrawingTracer::clip(GfxState * state, bool even_odd)
         cairo_clip_extents(cairo, cbox, cbox + 1, cbox + 2, cbox + 3);
         printf("DrawingTracer::clip:extents:[%f,%f,%f,%f]\n", cbox[0],cbox[1],cbox[2],cbox[3]);
     }
-#endif
 }
 
 void DrawingTracer::clip_to_stroke_path(GfxState * state)
@@ -120,26 +105,21 @@ void DrawingTracer::save()
 {
     if (!param.correct_text_visibility)
         return;
-#if ENABLE_SVG
     cairo_save(cairo);
     if (DT_DEBUG)
         printf("DrawingTracer::save\n");
-#endif
 }
 void DrawingTracer::restore()
 {
     if (!param.correct_text_visibility)
         return;
-#if ENABLE_SVG
     cairo_restore(cairo);
     if (DT_DEBUG)
         printf("DrawingTracer::restore\n");
-#endif
 }
 
 void DrawingTracer::do_path(GfxState * state, GfxPath * path)
 {
-#if ENABLE_SVG
     //copy from CairoOutputDev::doPath
     GfxSubpath *subpath;
     int i, j;
@@ -183,12 +163,10 @@ void DrawingTracer::do_path(GfxState * state, GfxPath * path)
             }
         }
     }
-#endif
 }
 
 void DrawingTracer::stroke(GfxState * state)
 {
-#if ENABLE_SVG
     if (!param.correct_text_visibility)
         return;
 
@@ -254,7 +232,6 @@ void DrawingTracer::stroke(GfxState * state)
                 j = p;
         }
     }
-#endif
 }
 
 void DrawingTracer::fill(GfxState * state, bool even_odd)
@@ -262,23 +239,19 @@ void DrawingTracer::fill(GfxState * state, bool even_odd)
     if (!param.correct_text_visibility)
         return;
 
-#if ENABLE_SVG
     do_path(state, state->getPath());
     //cairo_fill_extents don't take fill rule into account.
     //cairo_set_fill_rule (cairo, even_odd? CAIRO_FILL_RULE_EVEN_ODD : CAIRO_FILL_RULE_WINDING);
     double fbox[4];
     cairo_fill_extents(cairo, fbox, fbox + 1, fbox + 2, fbox + 3);
     draw_non_char_bbox(state, fbox);
-#endif
 }
 
 void DrawingTracer::draw_non_char_bbox(GfxState * state, double * bbox)
 {
-#if ENABLE_SVG
     double cbox[4];
     cairo_clip_extents(cairo, cbox, cbox + 1, cbox + 2, cbox + 3);
     if(bbox_intersect(cbox, bbox, bbox))
-#endif
     {
         transform_bbox_by_ctm(bbox, state);
         if (DT_DEBUG)
@@ -290,7 +263,6 @@ void DrawingTracer::draw_non_char_bbox(GfxState * state, double * bbox)
 
 void DrawingTracer::draw_char_bbox(GfxState * state, double * bbox)
 {
-#if ENABLE_SVG
     // Note: even if 4 corners of the char are all in or all out of the clip area,
     // it could still be partially clipped.
     // TODO better solution?
@@ -330,11 +302,6 @@ void DrawingTracer::draw_char_bbox(GfxState * state, double * bbox)
                 on_char_drawn(bbox);
         }
     }
-#else
-    transform_bbox_by_ctm(bbox, state);
-    if (on_char_drawn)
-        on_char_drawn(bbox);
-#endif
     if (DT_DEBUG)
         printf("DrawingTracer::draw_char_bbox:[%f,%f,%f,%f]\n",bbox[0],bbox[1],bbox[2],bbox[3]);
 }
@@ -387,14 +354,10 @@ void DrawingTracer::draw_char(GfxState *state, double x, double y, double ax, do
 
 void DrawingTracer::transform_bbox_by_ctm(double * bbox, GfxState * state)
 {
-#if ENABLE_SVG
     cairo_matrix_t mat;
     cairo_get_matrix(cairo, &mat);
     double mat_a[6] {mat.xx, mat.yx, mat.xy, mat.yy, mat.x0, mat.y0};
     tm_transform_bbox(mat_a, bbox);
-#else
-    tm_transform_bbox(state->getCTM(), bbox);
-#endif
 }
 
 } /* namespace pdf2htmlEX */

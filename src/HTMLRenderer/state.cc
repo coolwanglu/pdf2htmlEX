@@ -37,7 +37,7 @@ void HTMLRenderer::updateTextPos(GfxState * state)
 void HTMLRenderer::updateTextShift(GfxState * state, double shift) 
 {
     text_pos_changed = true;
-    cur_tx -= shift * 0.001 * state->getFontSize() * state->getHorizScaling(); 
+    cur_tx -= shift * 0.001 * state->getFontSize() * state->getHorizScaling();
 }
 void HTMLRenderer::updateFont(GfxState * state) 
 {
@@ -89,23 +89,18 @@ void HTMLRenderer::updateStrokeColor(GfxState * state)
 }
 void HTMLRenderer::clip(GfxState * state)
 {
-    clip_changed = true;
     tracer.clip(state);
 }
 void HTMLRenderer::eoClip(GfxState * state)
 {
-    clip_changed = true;
     tracer.clip(state, true);
 }
 void HTMLRenderer::clipToStrokePath(GfxState * state)
 {
-    clip_changed = true;
     tracer.clip_to_stroke_path(state);
 }
 void HTMLRenderer::reset_state()
 {
-    draw_text_scale = 1.0;
-
     cur_font_size = 0.0;
     
     memcpy(cur_text_tm, ID_MATRIX, sizeof(cur_text_tm));
@@ -117,7 +112,6 @@ void HTMLRenderer::reset_state()
     cur_text_state.stroke_color.transparent = true;
     cur_text_state.letter_space = 0;
     cur_text_state.word_space = 0;
-    cur_text_state.vertical_align = 0;
 
     cur_line_state.x = 0;
     cur_line_state.y = 0;
@@ -130,7 +124,6 @@ void HTMLRenderer::reset_state()
     cur_clip_state.ymin = 0;
     cur_clip_state.ymax = 0;
 
-    cur_tx  = cur_ty  = 0;
     draw_tx = draw_ty = 0;
 
     reset_state_change();
@@ -153,8 +146,6 @@ void HTMLRenderer::reset_state_change()
 
     fill_color_changed = false;
     stroke_color_changed = false;
-
-    clip_changed = false;
 }
 
 template<class NewLineState>
@@ -171,30 +162,14 @@ void HTMLRenderer::check_state_change(GfxState * state)
     
     new_line_state = NLS_NONE;
 
-    if(all_changed || clip_changed)
-    {
-        HTMLClipState new_clip_state;
-        state->getClipBBox(&new_clip_state.xmin, &new_clip_state.ymin, &new_clip_state.xmax, &new_clip_state.ymax);
-        if(!(equal(cur_clip_state.xmin, new_clip_state.xmin)
-                    && equal(cur_clip_state.xmax, new_clip_state.xmax)
-                    && equal(cur_clip_state.ymin, new_clip_state.ymin)
-                    && equal(cur_clip_state.ymax, new_clip_state.ymax)))
-        {
-            cur_clip_state = new_clip_state;
-            set_line_state(new_line_state, NLS_NEWCLIP);
-        }
-    }
-
     bool need_recheck_position = false;
     bool need_rescale_font = false;
-    bool draw_text_scale_changed = false;
 
     // save current info for later use
     auto old_text_state = cur_text_state;
     auto old_line_state = cur_line_state;
     double old_tm[6];
     memcpy(old_tm, cur_text_tm, sizeof(old_tm));
-    double old_draw_text_scale = draw_text_scale;
 
     // text position
     // we've been tracking the text position positively in the update*** functions
@@ -262,7 +237,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
         }
     }
 
-    // draw_text_tm, draw_text_scale
+    // draw_text_tm
     // depends: font size & ctm & text_ctm & hori scale & rise
     if(need_rescale_font)
     {
@@ -275,22 +250,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
         double new_draw_text_tm[6];
         memcpy(new_draw_text_tm, cur_text_tm, sizeof(new_draw_text_tm));
 
-        // see how the tm (together with text_scale_factor2) would change the vector (0,1)
-        double new_draw_text_scale = 1.0/text_scale_factor2 * hypot(new_draw_text_tm[2], new_draw_text_tm[3]);
-
         double new_draw_font_size = cur_font_size;
-
-        if(is_positive(new_draw_text_scale))
-        {
-            // scale both font size and matrix 
-            new_draw_font_size *= new_draw_text_scale;
-            for(int i = 0; i < 4; ++i)
-                new_draw_text_tm[i] /= new_draw_text_scale;
-        }
-        else
-        {
-            new_draw_text_scale = 1.0;
-        }
 
         if(is_positive(-new_draw_font_size))
         {
@@ -299,12 +259,6 @@ void HTMLRenderer::check_state_change(GfxState * state)
 
             for(int i = 0; i < 4; ++i)
                 new_draw_text_tm[i] *= -1;
-        }
-
-        if(!(equal(new_draw_text_scale, draw_text_scale)))
-        {
-            draw_text_scale_changed = true;
-            draw_text_scale = new_draw_text_scale;
         }
 
         if(!equal(new_draw_font_size, cur_text_state.font_size))
@@ -320,24 +274,25 @@ void HTMLRenderer::check_state_change(GfxState * state)
         }
     }
 
-    // see if the new line is compatible with the current line with proper position shift
+    // see if the new line is compatible with the current line with proper horizontal shift
     // don't bother doing the heavy job when (new_line_state == NLS_NEWLINE)
     // depends: text position & transformation
     if(need_recheck_position && (new_line_state < NLS_NEWLINE))
     {
         // TM[4] and/or TM[5] have been changed
-        // To find an offset (dx,dy), which would cancel the effect
+        // To find an offset (dx, 0), which would cancel the effect
         /*
          * CurTM * (cur_tx, cur_ty, 1)^T = OldTM * (draw_tx + dx, draw_ty + dy, 1)^T
          *
          * the first 4 elements of CurTM and OldTM should be the proportional
          * otherwise the following text cannot be parallel
          *
-         * NOTE:
-         * dx,dy are handled by the old state. so they should be multiplied by old_draw_text_scale
          */
 
         bool merged = false;
+        // OVERHAUL TODO: cur_tx/ty have been removed
+        double cur_tx = draw_tx;
+        double cur_ty = draw_ty; 
         double dx = 0;
         double dy = 0;
         if(tm_equal(old_line_state.transform_matrix, cur_line_state.transform_matrix, 4))
@@ -371,12 +326,12 @@ void HTMLRenderer::check_state_change(GfxState * state)
                     // otherwise we merge the lines only when
                     // - text are not shifted to the left too much
                     // - text are not moved too high or too low
-                    if((dx * old_draw_text_scale) >= -param.space_threshold * old_text_state.em_size() - EPS)
+                    if(dx >= -param.space_threshold * old_text_state.em_size() - EPS)
                     {
                         double oldymin = old_text_state.font_info->descent * old_text_state.font_size;
                         double oldymax = old_text_state.font_info->ascent * old_text_state.font_size;
-                        double ymin = dy * old_draw_text_scale + cur_text_state.font_info->descent * cur_text_state.font_size;
-                        double ymax = dy * old_draw_text_scale + cur_text_state.font_info->ascent * cur_text_state.font_size;
+                        double ymin = dy + cur_text_state.font_info->descent * cur_text_state.font_size;
+                        double ymax = dy + cur_text_state.font_info->ascent * cur_text_state.font_size;
                         if((ymin <= oldymax + EPS) && (ymax >= oldymin - EPS))
                         {
                             merged = true;
@@ -390,18 +345,16 @@ void HTMLRenderer::check_state_change(GfxState * state)
 
         if(merged && !equal(state->getHorizScaling(), 0))
         {
-            html_text_page.get_cur_line()->append_offset(dx * old_draw_text_scale / state->getHorizScaling());
+            html_text_page.get_cur_line()->append_offset(dx / state->getHorizScaling());
             if(equal(dy, 0))
             {
                 cur_text_state.vertical_align = 0;
             }
             else
             {
-                cur_text_state.vertical_align = (dy * old_draw_text_scale);
+                cur_text_state.vertical_align = dy;
                 set_line_state(new_line_state, NLS_NEWSTATE);
             }
-            draw_tx = cur_tx;
-            draw_ty = cur_ty;
         }
         else
         {
@@ -415,10 +368,9 @@ void HTMLRenderer::check_state_change(GfxState * state)
     }
 
     // letter space
-    // depends: draw_text_scale
-    if(all_changed || letter_space_changed || draw_text_scale_changed)
+    if(all_changed || letter_space_changed)
     {
-        double new_letter_space = state->getCharSpace() * draw_text_scale;
+        double new_letter_space = state->getCharSpace();
         if(!equal(new_letter_space, cur_text_state.letter_space))
         {
             cur_text_state.letter_space = new_letter_space;
@@ -427,10 +379,9 @@ void HTMLRenderer::check_state_change(GfxState * state)
     }
 
     // word space
-    // depends draw_text_scale
-    if(all_changed || word_space_changed || draw_text_scale_changed)
+    if(all_changed || word_space_changed)
     {
-        double new_word_space = state->getWordSpace() * draw_text_scale;
+        double new_word_space = state->getWordSpace();
         if(!equal(new_word_space, cur_text_state.word_space))
         {
             cur_text_state.word_space = new_word_space;
@@ -495,13 +446,8 @@ void HTMLRenderer::check_state_change(GfxState * state)
 void HTMLRenderer::prepare_text_line(GfxState * state)
 {
     if(!(html_text_page.get_cur_line()))
-        new_line_state = NLS_NEWCLIP;
+        new_line_state = NLS_NEWLINE;
 
-    if(new_line_state >= NLS_NEWCLIP)
-    {
-        html_text_page.clip(cur_clip_state);
-    }
-    
     if(new_line_state >= NLS_NEWLINE)
     {
         // update position such that they will be recorded by text_line_buf
@@ -515,21 +461,6 @@ void HTMLRenderer::prepare_text_line(GfxState * state)
         html_text_page.open_new_line(cur_line_state);
 
         cur_text_state.vertical_align = 0;
-
-        //resync position
-        draw_ty = cur_ty;
-        draw_tx = cur_tx;
-    }
-    else
-    {
-        // align horizontal position
-        // try to merge with the last line if possible
-        double target = (cur_tx - draw_tx) * draw_text_scale;
-        if(!equal(target, 0))
-        {
-            html_text_page.get_cur_line()->append_offset(target);
-            draw_tx += target / draw_text_scale;
-        }
     }
 
     if(new_line_state != NLS_NONE)

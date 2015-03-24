@@ -1,29 +1,120 @@
 /*
- * text.cc
- *
- * Handling text & font, and relative stuffs
- *
- * Copyright (C) 2012 Lu Wang <coolwanglu@gmail.com>
+ * TextPageBuilder.cc
+ * Copyright (C) 2015 Lu Wang <coolwanglu@gmail.com>
  */
 
+#include <cstring>
 
-#include <algorithm>
-
-#include "HTMLRenderer.h"
-
-#include "util/namespace.h"
-#include "util/unicode.h"
-
-//#define HR_DEBUG(x)  (x)
-#define HR_DEBUG(x)
+#include "TextPageBuilder.h"
 
 namespace pdf2htmlEX {
 
-using std::none_of;
-using std::cerr;
-using std::endl;
+void TextPageBuilder::setDefaultCTM(double * ctm)
+{
+    memcpy(page.default_ctm, ctm, sizeof(page.default_ctm));
+}
 
-void HTMLRenderer::drawString(GfxState * state, GooString * s)
+void TextPageBuilder::startPage(int pageNum, GfxState *state, XRef * xref)
+{
+    page.num = pageNum;
+    page.width = state->getPageWidth();
+    page.height = state->getPageHeight();
+}
+
+void TextPageBuilder::endPage()
+{
+    end_segment();
+    // run passes
+}
+
+void TextPageBuilder::restoreState(GfxState * state)
+{
+    updateAll(state);
+}
+
+void TextPageBuilder::saveState(GfxState * state)
+{
+}
+
+void TextPageBuilder::updateAll(GfxState * state) 
+{ 
+    new_segment(state, true);
+    updateTextPos(state);
+}
+void TextPageBuilder::updateRise(GfxState * state)
+{
+    new_word(state);
+}
+void TextPageBuilder::updateTextPos(GfxState * state) 
+{
+    new_word(state);
+    cur_tx = state->getLineX(); 
+    cur_ty = state->getLineY(); 
+}
+void TextPageBuilder::updateTextShift(GfxState * state, double shift) 
+{
+    new_word(state);
+    cur_tx -= shift * 0.001 * state->getFontSize() * state->getHorizScaling();
+}
+void TextPageBuilder::updateFont(GfxState * state) 
+{
+    new_segment(state);
+}
+void TextPageBuilder::updateCTM(GfxState * state, double m11, double m12, double m21, double m22, double m31, double m32) 
+{
+    new_segment(state);
+    //tracer.update_ctm(state, m11, m12, m21, m22, m31, m32);
+}
+void TextPageBuilder::updateTextMat(GfxState * state) 
+{
+    new_segment(state);
+}
+void TextPageBuilder::updateHorizScaling(GfxState * state)
+{
+    new_segment(state);
+}
+void TextPageBuilder::updateCharSpace(GfxState * state)
+{
+    new_segment(state);
+}
+void TextPageBuilder::updateWordSpace(GfxState * state)
+{
+    new_segment(state);
+}
+void TextPageBuilder::updateRender(GfxState * state) 
+{
+    new_segment(state);
+}
+void TextPageBuilder::updateFillColorSpace(GfxState * state) 
+{
+    new_segment(state);
+}
+void TextPageBuilder::updateStrokeColorSpace(GfxState * state) 
+{
+    new_segment(state);
+}
+void TextPageBuilder::updateFillColor(GfxState * state) 
+{
+    new_segment(state);
+}
+void TextPageBuilder::updateStrokeColor(GfxState * state) 
+{
+    new_segment(state);
+}
+void TextPageBuilder::clip(GfxState * state)
+{
+    //tracer.clip(state);
+}
+void TextPageBuilder::eoClip(GfxState * state)
+{
+    //tracer.clip(state, true);
+}
+void TextPageBuilder::clipToStrokePath(GfxState * state)
+{
+    //tracer.clip_to_stroke_path(state);
+}
+
+void TextPageBuilder::drawString(GfxState * state, GooString * s)
 {
     if(s->getLength() == 0)
         return;
@@ -33,10 +124,8 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
     double cur_word_space   = state->getWordSpace();
     double cur_horiz_scaling = state->getHorizScaling();
 
-
-    // Writing mode fonts and Type 3 fonts are rendered as images
+    // Writing mode fonts are rendered as images
     // I don't find a way to display writing mode fonts in HTML except for one div for each character, which is too costly
-    // For type 3 fonts, due to the font matrix, still it's hard to show it on HTML
     if( (font == nullptr) 
         || (font->getWMode())
         || ((font->getType() == fontType3) && (!param.process_type3))
@@ -44,10 +133,6 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
     {
         return;
     }
-
-    // see if the line has to be closed due to state change
-    check_state_change(state);
-    prepare_text_line(state);
 
     // Now ready to output
     // get the unicodes
@@ -69,16 +154,13 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
     CharCode code;
     Unicode *u = nullptr;
 
-    HR_DEBUG(printf("HTMLRenderer::drawString:len=%d\n", len));
-
     while (len > 0) 
     {
         auto n = font->getNextChar(p, len, &code, &u, &uLen, &ax, &ay, &ox, &oy);
-        HR_DEBUG(printf("HTMLRenderer::drawString:unicode=%lc(%d)\n", (wchar_t)u[0], u[0]));
 
         if(!(equal(ox, 0) && equal(oy, 0)))
         {
-            cerr << "TODO: non-zero origins" << endl;
+            log_once("TODO: non-zero origins, please file an issue on GitHub!");
         }
         ddx = ax * cur_font_size + cur_letter_space;
         ddy = ay * cur_font_size;
@@ -148,16 +230,51 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
     draw_ty += dy;
 }
 
-bool HTMLRenderer::is_char_covered(int index)
+bool TextPageBuilder::new_segment(GfxState * state, bool copy_state)
 {
-    auto covered = covered_text_detector.get_chars_covered();
-    if (index < 0 || index >= (int)covered.size())
+    if(!cur_segment)
     {
-        std::cerr << "Warning: HTMLRenderer::is_char_covered: index out of bound: "
-                << index << ", size: " << covered.size() <<endl;
-        return false;
+        cur_segment = new TextSegment();
+        copy_state(state);
+        return true;
     }
-    return covered[index];
+
+    if (copy_state)
+        copy_state(state);
+    return false;
 }
 
-} // namespace pdf2htmlEX
+void TextPageBuilder::end_segment()
+{
+    end_word();
+    if(cur_segment && !cur_segment->empty())
+    {
+        page.push_back(*cur_segment);
+        cur_segment = nullptr;
+    }
+}
+
+void TextPageBuilder::begin_word(GfxState * state)
+{
+    if(!cur_word)
+        cur_word = new TextWord();
+}
+
+void TextPageBuilder::end_word()
+{
+    if(cur_word && !cur_word->empty())
+    {
+        cur_segment->push_back(cur_word);
+        cur_word = nullptr;
+    }
+}
+
+void TextPageBuilder::copy_state(GfxState * state)
+{
+    auto & style = cur_segment->style;
+    // TODO
+
+}
+
+
+} //namespace pdf2htmlEX

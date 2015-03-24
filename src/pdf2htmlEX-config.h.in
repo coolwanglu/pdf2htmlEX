@@ -11,8 +11,6 @@
 
 #include <string>
 
-#define ENABLE_SVG @ENABLE_SVG@
-
 namespace pdf2htmlEX {
 
 static const std::string PDF2HTMLEX_VERSION = "@PDF2HTMLEX_VERSION@";
