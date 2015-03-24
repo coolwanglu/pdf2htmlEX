@@ -31,10 +31,13 @@ void HTMLRenderer::updateRise(GfxState * state)
 void HTMLRenderer::updateTextPos(GfxState * state) 
 {
     text_pos_changed = true;
+    cur_tx = state->getLineX(); 
+    cur_ty = state->getLineY(); 
 }
 void HTMLRenderer::updateTextShift(GfxState * state, double shift) 
 {
     text_pos_changed = true;
+    cur_tx -= shift * 0.001 * state->getFontSize() * state->getHorizScaling();
 }
 void HTMLRenderer::updateFont(GfxState * state) 
 {
@@ -86,17 +89,14 @@ void HTMLRenderer::updateStrokeColor(GfxState * state)
 }
 void HTMLRenderer::clip(GfxState * state)
 {
-    clip_changed = true;
     tracer.clip(state);
 }
 void HTMLRenderer::eoClip(GfxState * state)
 {
-    clip_changed = true;
     tracer.clip(state, true);
 }
 void HTMLRenderer::clipToStrokePath(GfxState * state)
 {
-    clip_changed = true;
     tracer.clip_to_stroke_path(state);
 }
 void HTMLRenderer::reset_state()
@@ -112,7 +112,6 @@ void HTMLRenderer::reset_state()
     cur_text_state.stroke_color.transparent = true;
     cur_text_state.letter_space = 0;
     cur_text_state.word_space = 0;
-    cur_text_state.vertical_align = 0;
 
     cur_line_state.x = 0;
     cur_line_state.y = 0;
@@ -147,8 +146,6 @@ void HTMLRenderer::reset_state_change()
 
     fill_color_changed = false;
     stroke_color_changed = false;
-
-    clip_changed = false;
 }
 
 template<class NewLineState>
@@ -164,20 +161,6 @@ void HTMLRenderer::check_state_change(GfxState * state)
     // don't adjust the order of state checking 
     
     new_line_state = NLS_NONE;
-
-    if(all_changed || clip_changed)
-    {
-        HTMLClipState new_clip_state;
-        state->getClipBBox(&new_clip_state.xmin, &new_clip_state.ymin, &new_clip_state.xmax, &new_clip_state.ymax);
-        if(!(equal(cur_clip_state.xmin, new_clip_state.xmin)
-                    && equal(cur_clip_state.xmax, new_clip_state.xmax)
-                    && equal(cur_clip_state.ymin, new_clip_state.ymin)
-                    && equal(cur_clip_state.ymax, new_clip_state.ymax)))
-        {
-            cur_clip_state = new_clip_state;
-            set_line_state(new_line_state, NLS_NEWCLIP);
-        }
-    }
 
     bool need_recheck_position = false;
     bool need_rescale_font = false;
@@ -291,13 +274,13 @@ void HTMLRenderer::check_state_change(GfxState * state)
         }
     }
 
-    // see if the new line is compatible with the current line with proper position shift
+    // see if the new line is compatible with the current line with proper horizontal shift
     // don't bother doing the heavy job when (new_line_state == NLS_NEWLINE)
     // depends: text position & transformation
     if(need_recheck_position && (new_line_state < NLS_NEWLINE))
     {
         // TM[4] and/or TM[5] have been changed
-        // To find an offset (dx,dy), which would cancel the effect
+        // To find an offset (dx, 0), which would cancel the effect
         /*
          * CurTM * (cur_tx, cur_ty, 1)^T = OldTM * (draw_tx + dx, draw_ty + dy, 1)^T
          *
@@ -463,13 +446,8 @@ void HTMLRenderer::check_state_change(GfxState * state)
 void HTMLRenderer::prepare_text_line(GfxState * state)
 {
     if(!(html_text_page.get_cur_line()))
-        new_line_state = NLS_NEWCLIP;
+        new_line_state = NLS_NEWLINE;
 
-    if(new_line_state >= NLS_NEWCLIP)
-    {
-        html_text_page.clip(cur_clip_state);
-    }
-    
     if(new_line_state >= NLS_NEWLINE)
     {
         // update position such that they will be recorded by text_line_buf
