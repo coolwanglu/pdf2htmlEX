@@ -131,8 +131,8 @@ string get_suffix(const string & path)
     else
     {
         string s = fn.substr(idx);
-        for(auto iter = s.begin(); iter != s.end(); ++iter)
-            *iter = tolower(*iter);
+        for(auto & c : s)
+            c = tolower(c);
         return s;
     }
 }

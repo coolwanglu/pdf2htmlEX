@@ -3,7 +3,7 @@
  *
  * Handling general stuffs
  *
- * Copyright (C) 2012,2013 Lu Wang <coolwanglu@gmail.com>
+ * Copyright (C) 2012,2013,2014 Lu Wang <coolwanglu@gmail.com>
  */
 
 #include <cstdio>
@@ -56,9 +56,10 @@ HTMLRenderer::HTMLRenderer(const Param & param)
     }
 
     ffw_init(param.debug);
-    cur_mapping = new int32_t [0x10000];
-    cur_mapping2 = new char* [0x100];
-    width_list = new int [0x10000];
+
+    cur_mapping.resize(0x10000);
+    cur_mapping2.resize(0x100);
+    width_list.resize(0x10000);
 
     /*
      * For these states, usually the error will not be accumulated
@@ -80,19 +81,16 @@ HTMLRenderer::HTMLRenderer(const Param & param)
     all_manager.bottom      .set_eps(EPS);
 
     tracer.on_char_drawn =
-            [this](double * box) { covered_text_detecor.add_char_bbox(box); };
+            [this](double * box) { covered_text_detector.add_char_bbox(box); };
     tracer.on_char_clipped =
-            [this](double * box, bool partial) { covered_text_detecor.add_char_bbox_clipped(box, partial); };
+            [this](double * box, bool partial) { covered_text_detector.add_char_bbox_clipped(box, partial); };
     tracer.on_non_char_drawn =
-            [this](double * box) { covered_text_detecor.add_non_char_bbox(box); };
+            [this](double * box) { covered_text_detector.add_non_char_bbox(box); };
 }
 
 HTMLRenderer::~HTMLRenderer()
 {
     ffw_finalize();
-    delete [] cur_mapping;
-    delete [] cur_mapping2;
-    delete [] width_list;
 }
 
 void HTMLRenderer::process(PDFDoc *doc)
@@ -106,8 +104,6 @@ void HTMLRenderer::process(PDFDoc *doc)
     ///////////////////
     // Process pages
 
-    bg_renderer = nullptr;
-    fallback_bg_renderer = nullptr;
     if(param.process_nontext)
     {
         bg_renderer = BackgroundRenderer::getBackgroundRenderer(param.bg_format, this, param);
@@ -132,6 +128,7 @@ void HTMLRenderer::process(PDFDoc *doc)
 
         if(param.split_pages)
         {
+            // copy the string out, since we will reuse the buffer soon
             string filled_template_filename = (char*)str_fmt(param.page_filename.c_str(), i);
             auto page_fn = str_fmt("%s/%s", param.dest_dir.c_str(), filled_template_filename.c_str());
             f_curpage = new ofstream((char*)page_fn, ofstream::binary);
@@ -143,7 +140,7 @@ void HTMLRenderer::process(PDFDoc *doc)
         }
 
         doc->displayPage(this, i,
-                text_zoom_factor() * DEFAULT_DPI, text_zoom_factor() * DEFAULT_DPI,
+                zoom_factor * DEFAULT_DPI, zoom_factor * DEFAULT_DPI,
                 0,
                 (!(param.use_cropbox)),
                 true,  // crop
@@ -167,16 +164,8 @@ void HTMLRenderer::process(PDFDoc *doc)
 
     post_process();
 
-    if(bg_renderer)
-    {
-        delete bg_renderer;
-        bg_renderer = nullptr;
-    }
-    if(fallback_bg_renderer)
-    {
-        delete fallback_bg_renderer;
-        fallback_bg_renderer = nullptr;
-    }
+    bg_renderer = nullptr;
+    fallback_bg_renderer = nullptr;
 
     cerr << endl;
 }
@@ -186,13 +175,9 @@ void HTMLRenderer::setDefaultCTM(double *ctm)
     memcpy(default_ctm, ctm, sizeof(default_ctm));
 }
 
-#if POPPLER_OLDER_THAN_0_23_0
-void HTMLRenderer::startPage(int pageNum, GfxState *state)
-#else
 void HTMLRenderer::startPage(int pageNum, GfxState *state, XRef * xref)
-#endif
 {
-    covered_text_detecor.reset();
+    covered_text_detector.reset();
     tracer.reset(state);
 
     this->pageNum = pageNum;
@@ -239,8 +224,10 @@ void HTMLRenderer::endPage() {
     if(param.process_nontext)
     {
         if (bg_renderer->render_page(cur_doc, pageNum))
+        {
             bg_renderer->embed_image(pageNum);
-        else if (fallback_bg_renderer != nullptr)
+        }
+        else if (fallback_bg_renderer)
         {
             if (fallback_bg_renderer->render_page(cur_doc, pageNum))
                 fallback_bg_renderer->embed_image(pageNum);
@@ -252,6 +239,10 @@ void HTMLRenderer::endPage() {
     html_text_page.dump_css(f_css.fs);
     html_text_page.clear();
 
+    // process form
+    if(param.process_form)
+        process_form(*f_curpage);
+    
     // process links before the page is closed
     cur_doc->processLinks(this, pageNum);
 
@@ -261,18 +252,20 @@ void HTMLRenderer::endPage() {
     // dump info for js
     // TODO: create a function for this
     // BE CAREFUL WITH ESCAPES
-    (*f_curpage) << "<div class=\"" << CSS::PAGE_DATA_CN << "\" data-data='{";
-
-    //default CTM
-    (*f_curpage) << "\"ctm\":[";
-    for(int i = 0; i < 6; ++i)
     {
-        if(i > 0) (*f_curpage) << ",";
-        (*f_curpage) << round(default_ctm[i]);
-    }
-    (*f_curpage) << "]";
+        (*f_curpage) << "<div class=\"" << CSS::PAGE_DATA_CN << "\" data-data='{";
 
-    (*f_curpage) << "}'></div>";
+        //default CTM
+        (*f_curpage) << "\"ctm\":[";
+        for(int i = 0; i < 6; ++i)
+        {
+            if(i > 0) (*f_curpage) << ",";
+            (*f_curpage) << round(default_ctm[i]);
+        }
+        (*f_curpage) << "]";
+
+        (*f_curpage) << "}'></div>";
+    }
 
     // close page
     (*f_curpage) << "</div>" << endl;
@@ -308,10 +301,7 @@ void HTMLRenderer::pre_process(PDFDoc * doc)
             zoom_factors.push_back((param.fit_height) / preprocessor.get_max_height());
         }
 
-        double zoom = (zoom_factors.empty() ? 1.0 : (*min_element(zoom_factors.begin(), zoom_factors.end())));
-
-        text_scale_factor1 = max<double>(zoom, param.font_size_multiplier);
-        text_scale_factor2 = zoom / text_scale_factor1;
+        zoom_factor = (zoom_factors.empty() ? 1.0 : (*min_element(zoom_factors.begin(), zoom_factors.end())));
     }
 
     // we may output utf8 characters, so always use binary
@@ -391,8 +381,8 @@ void HTMLRenderer::pre_process(PDFDoc * doc)
 void HTMLRenderer::post_process(void)
 {
     dump_css();
+    
     // close files if they opened
-    // it's better to brace single liner LLVM complains
     if (param.process_outline)
     {
         f_outline.fs.close();
@@ -546,7 +536,6 @@ void HTMLRenderer::embed_file(ostream & out, const string & path, const string &
     string fn = get_filename(path);
     string suffix = (type == "") ? get_suffix(fn) : type;
 
-    // TODO
     auto iter = EMBED_STRING_MAP.find(suffix);
     if(iter == EMBED_STRING_MAP.end())
     {

@@ -5,11 +5,9 @@ set(CMAKE_BUILD_TYPE Release CACHE STRING "Build configuration (Debug, Release, 
 project(pdf2htmlEX)
 cmake_minimum_required(VERSION 2.6.0 FATAL_ERROR)
 
-option(ENABLE_SVG "Enable SVG support, for generating SVG background images and converting Type 3 fonts" OFF)
-
 include_directories(${CMAKE_SOURCE_DIR}/src)
 
-set(PDF2HTMLEX_VERSION "0.12")
+set(PDF2HTMLEX_VERSION "0.13.6")
 set(ARCHIVE_NAME pdf2htmlex-${PDF2HTMLEX_VERSION})
 add_custom_target(dist
     COMMAND git archive --prefix=${ARCHIVE_NAME}/ HEAD
@@ -19,57 +17,36 @@ add_custom_target(dist
 find_package(PkgConfig)
 
 
-pkg_check_modules(POPPLER poppler>=0.25.0)
-if(POPPLER_FOUND)
-    set(POPPLER_OLDER_THAN_0_25_0 0)
-    set(POPPLER_OLDER_THAN_0_23_0 0)
-else()
-    set(POPPLER_OLDER_THAN_0_25_0 1)
-    pkg_check_modules(POPPLER poppler>=0.23.0)
-    if(POPPLER_FOUND)
-        set(POPPLER_OLDER_THAN_0_23_0 0)
-    else()
-        set(POPPLER_OLDER_THAN_0_23_0 1)
-        pkg_check_modules(POPPLER REQUIRED poppler>=0.20.0)
-    endif()
-endif()
-
+pkg_check_modules(POPPLER REQUIRED poppler>=0.25.0)
 include_directories(${POPPLER_INCLUDE_DIRS})
 link_directories(${POPPLER_LIBRARY_DIRS})
 set(PDF2HTMLEX_LIBS ${PDF2HTMLEX_LIBS} ${POPPLER_LIBRARIES})
 
-if(ENABLE_SVG)
-    pkg_check_modules(CAIRO REQUIRED cairo>=1.10.0)
-    message("Trying to locate cairo-svg...")
-    find_path(CAIRO_SVG_INCLUDE_PATH cairo-svg.h PATHS ${CAIRO_INCLUDE_DIRS} NO_DEFAULT_PATH)
-    if(CAIRO_SVG_INCLUDE_PATH)
-        include_directories(${CAIRO_INCLUDE_DIRS})
-        link_directories(${CAIRO_LIBRARY_DIRS})
-        set(PDF2HTMLEX_LIBS ${PDF2HTMLEX_LIBS} ${CAIRO_LIBRARIES})
-        set(ENABLE_SVG 1)
-        if(POPPLER_OLDER_THAN_0_23_0)
-            set(CAIROOUTPUTDEV_PATH 3rdparty/poppler/0.22.5)
-        else()
-            set(CAIROOUTPUTDEV_PATH 3rdparty/poppler/git)
-        endif()
-        include_directories(${CAIROOUTPUTDEV_PATH})
-        set(PDF2HTMLEX_SRC ${PDF2HTMLEX_SRC}
-            ${CAIROOUTPUTDEV_PATH}/CairoFontEngine.h
-            ${CAIROOUTPUTDEV_PATH}/CairoFontEngine.cc
-            ${CAIROOUTPUTDEV_PATH}/CairoRescaleBox.h
-            ${CAIROOUTPUTDEV_PATH}/CairoRescaleBox.cc
-            ${CAIROOUTPUTDEV_PATH}/CairoOutputDev.h
-            ${CAIROOUTPUTDEV_PATH}/CairoOutputDev.cc
-        )
-    else()
-        message(FATAL_ERROR "Error: no SVG support found in Cairo")
-    endif()
-
-    find_package(Freetype REQUIRED)
-    include_directories(${FREETYPE_INCLUDE_DIRS})
-    link_directories(${FREETYPE_LIBRARY_DIRS})
-    set(PDF2HTMLEX_LIBS ${PDF2HTMLEX_LIBS} ${FREETYPE_LIBRARIES})
+pkg_check_modules(CAIRO REQUIRED cairo>=1.10.0)
+message("Trying to locate cairo-svg...")
+find_path(CAIRO_SVG_INCLUDE_PATH cairo-svg.h PATHS ${CAIRO_INCLUDE_DIRS} NO_DEFAULT_PATH)
+if(CAIRO_SVG_INCLUDE_PATH)
+    include_directories(${CAIRO_INCLUDE_DIRS})
+    link_directories(${CAIRO_LIBRARY_DIRS})
+    set(PDF2HTMLEX_LIBS ${PDF2HTMLEX_LIBS} ${CAIRO_LIBRARIES})
+    set(CAIROOUTPUTDEV_PATH 3rdparty/poppler/git)
+    include_directories(${CAIROOUTPUTDEV_PATH})
+    set(PDF2HTMLEX_SRC ${PDF2HTMLEX_SRC}
+        ${CAIROOUTPUTDEV_PATH}/CairoFontEngine.h
+        ${CAIROOUTPUTDEV_PATH}/CairoFontEngine.cc
+        ${CAIROOUTPUTDEV_PATH}/CairoRescaleBox.h
+        ${CAIROOUTPUTDEV_PATH}/CairoRescaleBox.cc
+        ${CAIROOUTPUTDEV_PATH}/CairoOutputDev.h
+        ${CAIROOUTPUTDEV_PATH}/CairoOutputDev.cc
+    )
+else()
+    message(FATAL_ERROR "Error: no SVG support found in Cairo")
 endif()
+
+find_package(Freetype REQUIRED)
+include_directories(${FREETYPE_INCLUDE_DIRS})
+link_directories(${FREETYPE_LIBRARY_DIRS})
+set(PDF2HTMLEX_LIBS ${PDF2HTMLEX_LIBS} ${FREETYPE_LIBRARIES})
 
 # fontforge starts using pkg-config 'correctly' since 2.0.0
 pkg_check_modules(FONTFORGE REQUIRED libfontforge>=2.0.0)
@@ -102,10 +79,20 @@ else()
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
 endif()
 
-include(CheckCXXCompilerFlag)
-check_cxx_compiler_flag("${CMAKE_CXX_FLAGS}" CXX0X_SUPPORT)
+# check the C++11 features we need
+include(CheckCXXSourceCompiles)
+check_cxx_source_compiles("
+#include <vector>
+int main()
+{
+  char * ptr = nullptr;
+  std::vector<int> v;
+  auto f = [&](){ for(auto & i : v) ++i; };
+  f();
+}
+" CXX0X_SUPPORT)
 if(NOT CXX0X_SUPPORT)
-    message(FATAL_ERROR "Error: your compiler does not support C++0x, please update it.")
+    message(FATAL_ERROR "Error: your compiler does not support C++0x/C++11, please update it.")
 endif()
 
 
@@ -127,6 +114,7 @@ set(PDF2HTMLEX_SRC ${PDF2HTMLEX_SRC}
     src/HTMLRenderer/general.cc
     src/HTMLRenderer/image.cc
     src/HTMLRenderer/font.cc
+    src/HTMLRenderer/form.cc
     src/HTMLRenderer/link.cc
     src/HTMLRenderer/outline.cc
     src/HTMLRenderer/state.cc
@@ -221,5 +209,4 @@ install (FILES ${PDF2HTMLEX_RESOURCE} DESTINATION share/pdf2htmlEX)
 install (FILES pdf2htmlEX.1 DESTINATION share/man/man1)
 
 enable_testing()
-add_test(test_naming
-    python ${CMAKE_SOURCE_DIR}/test/test_naming.py)
+add_test(test python ${CMAKE_SOURCE_DIR}/test/test.py)

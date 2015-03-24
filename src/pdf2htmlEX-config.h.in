@@ -11,10 +11,6 @@
 
 #include <string>
 
-#define POPPLER_OLDER_THAN_0_25_0 @POPPLER_OLDER_THAN_0_25_0@
-#define POPPLER_OLDER_THAN_0_23_0 @POPPLER_OLDER_THAN_0_23_0@
-#define ENABLE_SVG @ENABLE_SVG@
-
 namespace pdf2htmlEX {
 
 static const std::string PDF2HTMLEX_VERSION = "@PDF2HTMLEX_VERSION@";

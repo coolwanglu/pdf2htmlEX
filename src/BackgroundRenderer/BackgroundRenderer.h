@@ -24,10 +24,10 @@ class BackgroundRenderer
 {
 public:
     // return nullptr upon failure
-    static BackgroundRenderer * getBackgroundRenderer(const std::string & format, HTMLRenderer * html_renderer, const Param & param);
+    static std::unique_ptr<BackgroundRenderer> getBackgroundRenderer(const std::string & format, HTMLRenderer * html_renderer, const Param & param);
     // Return a fallback bg renderer according to param.bg_format.
     // Currently only svg bg format might need a bitmap fallback.
-    static BackgroundRenderer * getFallbackBackgroundRenderer(HTMLRenderer * html_renderer, const Param & param);
+    static std::unique_ptr<BackgroundRenderer> getFallbackBackgroundRenderer(HTMLRenderer * html_renderer, const Param & param);
 
     BackgroundRenderer() {}
     virtual ~BackgroundRenderer() {}

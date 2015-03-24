@@ -12,8 +12,6 @@
 
 #include "Base64Stream.h"
 
-#if ENABLE_SVG
-
 #include "CairoBackgroundRenderer.h"
 #include "SplashBackgroundRenderer.h"
 
@@ -34,11 +32,11 @@ CairoBackgroundRenderer::CairoBackgroundRenderer(HTMLRenderer * html_renderer, c
 
 CairoBackgroundRenderer::~CairoBackgroundRenderer()
 {
-    for(auto itr = bitmaps_ref_count.begin(); itr != bitmaps_ref_count.end(); ++itr)
+    for(auto const& p : bitmaps_ref_count)
     {
-        if (itr->second == 0)
+        if (p.second == 0)
         {
-            html_renderer->tmp_files.add(this->build_bitmap_path(itr->first));
+            html_renderer->tmp_files.add(this->build_bitmap_path(p.first));
         }
     }
 }
@@ -53,10 +51,12 @@ void CairoBackgroundRenderer::drawChar(GfxState *state, double x, double y,
     // - OR there is special filling method
     // - OR using a writing mode font
     // - OR using a Type 3 font while param.process_type3 is not enabled
+    // - OR the text is used as path
     if((param.fallback || param.proof)
         || ( (state->getFont())
             && ( (state->getFont()->getWMode())
                  || ((state->getFont()->getType() == fontType3) && (!param.process_type3))
+                 || (state->getRender() >= 4)
                )
           )
       )
@@ -184,8 +184,8 @@ bool CairoBackgroundRenderer::render_page(PDFDoc * doc, int pageno)
     }
 
     // the svg file is actually used, so add its bitmaps' ref count.
-    for (auto itr = bitmaps_in_current_page.begin(); itr != bitmaps_in_current_page.end(); itr++)
-        ++bitmaps_ref_count[*itr];
+    for (auto id : bitmaps_in_current_page)
+        ++bitmaps_ref_count[id];
 
     return true;
 }
@@ -246,6 +246,34 @@ void CairoBackgroundRenderer::setMimeData(Stream *str, Object *ref, cairo_surfac
     if (ref == nullptr || !ref->isRef())
         return;
 
+    // We only dump rgb or gray jpeg without /Decode array.
+    //
+    // Although jpeg support CMYK, PDF readers do color conversion incompatibly with most other
+    // programs (including browsers): other programs invert CMYK color if 'Adobe' marker (app14) presents
+    // in a jpeg file; while PDF readers don't, they solely rely on /Decode array to invert color.
+    // It's a bit complicated to decide whether a CMYK jpeg is safe to dump, so we don't dump at all.
+    // See also:
+    //   JPEG file embedded in PDF (CMYK) https://forums.adobe.com/thread/975777
+    //   http://stackoverflow.com/questions/3123574/how-to-convert-from-cmyk-to-rgb-in-java-correctly
+    //
+    // In PDF, jpeg stream objects can also specify other color spaces like DeviceN and Separation,
+    // It is also not safe to dump them directly.
+    Object obj;
+    str->getDict()->lookup("ColorSpace", &obj);
+    if (!obj.isName() || (strcmp(obj.getName(), "DeviceRGB") && strcmp(obj.getName(), "DeviceGray")) )
+    {
+        obj.free();
+        return;
+    }
+    obj.free();
+    str->getDict()->lookup("Decode", &obj);
+    if (obj.isArray())
+    {
+        obj.free();
+        return;
+    }
+    obj.free();
+
     int imgId = ref->getRef().num;
     auto uri = strdup((char*) html_renderer->str_fmt("o%d.jpg", imgId));
     auto st = cairo_surface_set_mime_data(image, CAIRO_MIME_TYPE_URI,
@@ -273,6 +301,4 @@ void CairoBackgroundRenderer::setMimeData(Stream *str, Object *ref, cairo_surfac
 }
 
 } // namespace pdf2htmlEX
-
-#endif // ENABLE_SVG
 

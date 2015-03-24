@@ -17,7 +17,7 @@ pdf2htmlEX is a utility that converts PDF files to HTML files.
 
 pdf2htmlEX tries its best to render the PDF precisely, maintain proper styling, while retaining text and optimizing for Web.
 
-Fonts are extracted form PDF and then embedded into HTML (Type 3 fonts are not supported). Text in the converted HTML file is usually selectable and copyable. 
+Fonts are extracted form PDF and then embedded into HTML, text in the converted HTML file is usually selectable and copyable. 
 
 Other objects are rendered as images and also embedded.
 
@@ -137,6 +137,10 @@ Whether to show outline in the generated HTML
 .TP
 .B \-\-process-annotation <0|1> (Default: 0)
 Whether to show annotation in the generated HTML
+
+.TP
+.B \-\-process-form <0|1> (Default: 0)
+Whether to include text fields and radio buttons in the generated HTML
 
 .TP
 .B \-\-printing <0|1> (Default: 1)
@@ -261,7 +265,11 @@ This option is only useful when '\-\-bg\-format svg' is specified. Note that nod
 .TP
 .B \-\-svg\-embed\-bitmap <0|1> (Default: 1)
 Whether embed bitmaps in svg background image. 1: embed bitmaps in svg background; 0: dump bitmaps to external files if possible.
-JPEG images in a PDF are most possibly dumped. This option is only useful when '\-\-bg\-format svg' is specified.
+
+This option is only useful when '\-\-bg\-format svg' is specified and '\-\-embed\-image' is off.
+
+Currently, RGB or Gray JPEG bitmaps in a PDF can be dumped, while those in other formats or colorspaces are still embedded.
+If bitmaps are not dumped as expected, try pre-processing your PDF by ghostscript or acrobat and make sure bitmaps in it are converted to RGB/Gray JPEG format. See the project wiki for more details.
 
 .SS PDF Protection
 

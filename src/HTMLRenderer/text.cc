@@ -19,7 +19,7 @@
 
 namespace pdf2htmlEX {
 
-using std::all_of;
+using std::none_of;
 using std::cerr;
 using std::endl;
 
@@ -103,11 +103,11 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
         {
             html_text_page.get_cur_line()->append_padding_char();
             // ignore horiz_scaling, as it has been merged into CTM
-            html_text_page.get_cur_line()->append_offset((ax * cur_font_size + cur_letter_space + cur_word_space) * draw_text_scale);
+            html_text_page.get_cur_line()->append_offset(ax * cur_font_size + cur_letter_space + cur_word_space);
         }
         else
         {
-            if((param.decompose_ligature) && (uLen > 1) && all_of(u, u+uLen, isLegalUnicode))
+            if((param.decompose_ligature) && (uLen > 1) && none_of(u, u+uLen, is_illegal_unicode))
             {
                 html_text_page.get_cur_line()->append_unicodes(u, uLen, ddx);
             }
@@ -130,7 +130,7 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
                 int space_count = (is_space ? 1 : 0) - ((uu == ' ') ? 1 : 0);
                 if(space_count != 0)
                 {
-                    html_text_page.get_cur_line()->append_offset(cur_word_space * draw_text_scale * space_count);
+                    html_text_page.get_cur_line()->append_offset(cur_word_space * space_count);
                 }
             }
         }
@@ -144,16 +144,13 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
         len -= n;
     }
 
-    cur_tx += dx;
-    cur_ty += dy;
-        
     draw_tx += dx;
     draw_ty += dy;
 }
 
 bool HTMLRenderer::is_char_covered(int index)
 {
-    auto covered = covered_text_detecor.get_chars_covered();
+    auto covered = covered_text_detector.get_chars_covered();
     if (index < 0 || index >= (int)covered.size())
     {
         std::cerr << "Warning: HTMLRenderer::is_char_covered: index out of bound: "

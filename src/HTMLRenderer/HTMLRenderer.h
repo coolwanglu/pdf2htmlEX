@@ -10,6 +10,7 @@
 #include <unordered_map>
 #include <cstdint>
 #include <fstream>
+#include <memory>
 
 #include <OutputDev.h>
 #include <GfxState.h>
@@ -19,6 +20,10 @@
 #include <Object.h>
 #include <GfxFont.h>
 #include <Annot.h>
+
+// for form.cc
+#include <Page.h>
+#include <Form.h>
 
 #include "pdf2htmlEX-config.h"
 
@@ -40,9 +45,8 @@
 
 namespace pdf2htmlEX {
 
-class HTMLRenderer : public OutputDev
+struct HTMLRenderer : OutputDev
 {
-public:
     HTMLRenderer(const Param & param);
     virtual ~HTMLRenderer();
 
@@ -78,11 +82,7 @@ public:
     virtual void setDefaultCTM(double *ctm);
 
     // Start a page.
-#if POPPLER_OLDER_THAN_0_23_0
-    virtual void startPage(int pageNum, GfxState *state);
-#else
     virtual void startPage(int pageNum, GfxState *state, XRef * xref);
-#endif
 
     // End a page.
     virtual void endPage();
@@ -153,7 +153,7 @@ public:
     // Does not fail on out-of-bound conditions, but return false.
     bool is_char_covered(int index);
     // Currently drawn char (glyph) count in current page.
-    int get_char_count() { return (int)covered_text_detecor.get_chars_covered().size(); }
+    int get_char_count() { return (int)covered_text_detector.get_chars_covered().size(); }
 
 protected:
     ////////////////////////////////////////////////////
@@ -165,6 +165,8 @@ protected:
     void process_outline(void);
     void process_outline_items(GooList * items);
 
+    void process_form(std::ofstream & out);
+    
     void set_stream_flags (std::ostream & out);
 
     void dump_css(void);
@@ -225,22 +227,10 @@ protected:
     int pageNum;
 
     double default_ctm[6];
-
-    /*
-     * The content of each page is first scaled with factor1 (>=1), then scale back with factor2(<=1)
-     *
-     * factor1 is use to multiplied with all metrics (height/width/font-size...), in order to improve accuracy
-     * factor2 is applied with css transform, and is exposed to Javascript
-     *
-     * factor1 & factor 2 are determined according to zoom and font-size-multiplier
-     *
-     */
-    double text_zoom_factor (void) const { return text_scale_factor1 * text_scale_factor2; }
-    double text_scale_factor1;
-    double text_scale_factor2;
+    double zoom_factor;
 
     // 1px on screen should be printed as print_scale()pt
-    double print_scale (void) const { return 96.0 / DEFAULT_DPI / text_zoom_factor(); }
+    double print_scale (void) const { return 96.0 / DEFAULT_DPI / zoom_factor; }
 
 
     const Param & param;
@@ -250,7 +240,6 @@ protected:
     ////////////////////////////////////////////////////
     // track the original (unscaled) values to determine scaling and merge lines
     // current position
-    double cur_tx, cur_ty; // real text position, in text coords
     double cur_font_size;
     // this is CTM * TextMAT in PDF
     // as we'll calculate the position of the origin separately
@@ -267,7 +256,6 @@ protected:
     bool word_space_changed;
     bool letter_space_changed;
     bool stroke_color_changed;
-    bool clip_changed;
 
     ////////////////////////////////////////////////////
     // HTML states
@@ -279,7 +267,8 @@ protected:
     
     // the actual tm used is `real tm in PDF` scaled by 1/draw_text_scale, 
     // so everything rendered should be multiplied by draw_text_scale
-    double draw_text_scale; 
+    // OVERHAUL TODO
+    // double draw_text_scale; 
 
     // the position of next char, in text coords
     // this is actual position (in HTML), which might be different from cur_tx/ty (in PDF)
@@ -304,13 +293,12 @@ protected:
         NLS_NONE,
         NLS_NEWSTATE, 
         NLS_NEWLINE,
-        NLS_NEWCLIP
     } new_line_state;
     
     // for font reencoding
-    int32_t * cur_mapping;
-    char ** cur_mapping2;
-    int * width_list;
+    std::vector<int32_t> cur_mapping; 
+    std::vector<char*> cur_mapping2;
+    std::vector<int> width_list; // width of each char
 
     Preprocessor preprocessor;
 
@@ -322,11 +310,9 @@ protected:
 
     // render background image
     friend class SplashBackgroundRenderer; // ugly!
-#if ENABLE_SVG
     friend class CairoBackgroundRenderer; // ugly!
-#endif
-    BackgroundRenderer * bg_renderer;
-    BackgroundRenderer * fallback_bg_renderer;
+
+    std::unique_ptr<BackgroundRenderer> bg_renderer, fallback_bg_renderer;
 
     struct {
         std::ofstream fs;
@@ -337,7 +323,7 @@ protected:
 
     static const std::string MANIFEST_FILENAME;
 
-    CoveredTextDetector covered_text_detecor;
+    CoveredTextDetector covered_text_detector;
     DrawingTracer tracer;
 };
 
