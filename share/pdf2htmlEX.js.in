@@ -362,7 +362,7 @@ Viewer.prototype = {
       this.pages_loading[idx] = true;       // set semaphore
 
       // add a copy of the loading indicator
-      var new_loading_indicator = this.loading_indicator.cloneNode();
+      var new_loading_indicator = this.loading_indicator.cloneNode(true);
       new_loading_indicator.classList.add('active');
       cur_page_ele.appendChild(new_loading_indicator);
 
