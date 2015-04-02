@@ -361,10 +361,13 @@ Viewer.prototype = {
     if (url) {
       this.pages_loading[idx] = true;       // set semaphore
 
-      // add a copy of the loading indicator
-      var new_loading_indicator = this.loading_indicator.cloneNode();
-      new_loading_indicator.classList.add('active');
-      cur_page_ele.appendChild(new_loading_indicator);
+      // add a copy of the loading indicator if not already present
+      var new_loading_indicator = cur_page_ele.getElementsByClassName(this.config['loading_indicator_cls'])[0];
+      if (typeof new_loading_indicator === 'undefined'){
+        new_loading_indicator = this.loading_indicator.cloneNode(true);
+        new_loading_indicator.classList.add('active');
+        cur_page_ele.appendChild(new_loading_indicator);
+      }
 
       // load data
       {
