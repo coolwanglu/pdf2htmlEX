@@ -65,6 +65,7 @@ var DEFAULT_CONFIG = {
   'key_handler' : true,
   // register hashchange handler
   'hashchange_handler' : true,
+  'sidebar_toggle_button_id': 'sidebarToggle',
 
   '__dummy__'        : 'no comma'
 };
@@ -264,11 +265,12 @@ Viewer.prototype = {
     this.sidebar = document.getElementById(this.config['sidebar_id']);
     this.outline = document.getElementById(this.config['outline_id']);
     this.container = document.getElementById(this.config['container_id']);
+    this.sidebar_toggle_btn = document.getElementById(this.config['sidebar_toggle_button_id']);
     this.loading_indicator = document.getElementsByClassName(this.config['loading_indicator_cls'])[0];
 
     
     {
-      // Open the outline if nonempty
+      // show the toggle sidebar button if outline not empty
       var empty = true;
       var nodes = this.outline.childNodes;
       for (var i = 0, l = nodes.length; i < l; ++i) {
@@ -278,8 +280,10 @@ Viewer.prototype = {
           break;
         }
       }
-      if (!empty)
-        this.sidebar.classList.add('opened');
+      if (!empty){
+        this.sidebar_toggle_btn.classList.remove('hide');
+        this.sidebar_toggle_btn.classList.add('show');
+      }
     }
 
     this.find_pages();
