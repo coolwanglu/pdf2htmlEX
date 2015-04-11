@@ -7,17 +7,18 @@
 /* Part 1: Web Page Layout: Free to modify, except for a few of them which are required by pdf2htmlEX.js, see the comments */
 #sidebar { /* Sidebar */
   position:absolute;
-  top:0;
+  top:32px;
   left:0;
   bottom:0;
   width:250px;
   padding:0;
   margin:0px;
   overflow:auto;
+  display:none; /* we will show it when user toggle the sidebar from navbar */
 }
 #page-container { /* PDF container */
   position:absolute; /* required for calculating relative positions of pages in pdf2htmlEX.js */
-  top:0;
+  top:32px;
   left:0px;
   margin:0; 
   padding:0;
@@ -79,7 +80,7 @@
   position:relative;
   background-color:white;
   overflow: hidden;
-  margin:0; 
+  margin:0 auto; 
   border:0; /* required by pdf2htmlEX.js for page visibility test */
 }
 .@CSS_PAGE_CONTENT_BOX_CN@ { /* content of a page */
@@ -190,4 +191,165 @@
   -ms-transform-origin:0% 100%;
   -webkit-transform-origin:0% 100%;
 }
+/* Nav Bar CSS START */
+/* Mostly taken from the pdf.js styling */
+.pull-left {
+  float: left
+}
+.pull-right {
+  float: right;
+}
+.hide {
+  display: none !important;
+}
+.show {
+  display: inline-block !important;
+}
+nav.fixed-nav-bar {
+  box-shadow: 1px 0 0 hsla(0, 0%, 100%, 0.08) inset, 0 1px 1px hsla(0, 0%, 0%, 0.15) inset, 0 -1px 0 hsla(0, 0%, 100%, 0.05) inset, 0 1px 0 hsla(0, 0%, 0%, 0.15), 0 1px 1px hsla(0, 0%, 0%, 0.1);
+  height: 32px;
+  left: 0;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 9999;
+}
+nav.fixed-nav-bar ul {
+  list-style: none;
+  margin-top: 4px;
+}
+nav.fixed-nav-bar .splitToolbarButton {
+  display: inline-block;
+  margin: 0 2px 0 15px;
+}
+nav.fixed-nav-bar .splitToolbarButtonSeparator {
+  background-color: hsla(0, 0%, 0%, 0.5);
+  box-shadow: 0 0 0 1px hsla(0, 0%, 100%, 0.08);
+  display: inline-block;
+  padding: 8px 0;
+  width: 1px;
+  z-index: 99;
+}
+nav.fixed-nav-bar .toolbarButton {
+  background: none repeat scroll 0 0 rgba(0, 0, 0, 0);
+  border: 0 none;
+  height: 25px;
+  width: 32px;
+  cursor: default;
+}
+nav.fixed-nav-bar .toolbarButton:hover, nav.fixed-nav-bar .toolbarButton.active {
+  background-color: hsla(0,0%,0%,.12);
+  background-image: linear-gradient(hsla(0,0%,100%,.05), hsla(0,0%,100%,0));
+  background-clip: padding-box;
+  border: 1px solid hsla(0,0%,0%,.35);
+  border-color: hsla(0,0%,0%,.32) hsla(0,0%,0%,.38) hsla(0,0%,0%,.42);
+  box-shadow: 0 1px 0 hsla(0,0%,100%,.05) inset,
+    0 0 1px hsla(0,0%,100%,.15) inset,
+    0 1px 0 hsla(0,0%,100%,.05);
+  -webkit-transition-property: background-color, border-color, box-shadow;
+  -webkit-transition-duration: 150ms;
+  -webkit-transition-timing-function: ease;
+  transition-property: background-color, border-color, box-shadow;
+  transition-duration: 150ms;
+  transition-timing-function: ease;
+}
+nav.fixed-nav-bar .toolbarButton[disabled] {
+  opacity: 0.5;
+}
+
+nav.fixed-nav-bar .toolbarButton.sidebarToggle::before {
+  content: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAQAAAC1+jfqAAAAqElEQVR4Aa3QoQrCUBSH8W/3JdZtIqgPZPIxVoaGYVpcNwoGm0bBRxh2rZchw7C0e64Xxk7RYdn/FwYL34Fr+DMD/uxfAy4e42FBM2AOBmiR4ykpkgKJVr3tBqEFAwgyu2VlViL+2ksPSIABHG7aAODQ+Tcu6E4EAOgX6P5rAbSgG6cw5onJV2GJFiRYswuEu9rrQ9kHQk0VCJWqEfu0GEucR+lvcR7zAZWDlG3B7eMJAAAAAElFTkSuQmCC');
+}
+
+nav.fixed-nav-bar .toolbarButton.pageUp::before {
+  content: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAQAAAC1+jfqAAAAvUlEQVR4AZXPMcrCQBDF8WksLHMCz2Bh6YfgLSwtvIp4BFsLWwmRxMJGVFAQBAshEPkkBNEDJE2K54PssktcC/ObZtg/hJEfP6xIbAJbhAdF34IQGVLKELqCJZ/uSsqtFgT4x83gFtiBjwRxTQJfBwuuV4eYLyKctvSEcDG4E1/sD2fDfebJ0nQE5Q4HLe/kUuFozzn2WjEppMLRpgNssFWO6H/8Qrzx8DUr18yIyQieCVTCw7rqxD9pSUPkDcScIefy5+KaAAAAAElFTkSuQmCC');
+}
+nav.fixed-nav-bar .toolbarButton.pageDown::before {
+  content: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAQAAAC1+jfqAAAAtUlEQVR4AY3KQQqCQBTG8QdBJ6hFq+7gCTpEB4k6ULQQEUQYqBNI0CIIWgRFgZSFONLehX3F1PON2aL5LebB96c/HrqYIMXdSDDHACQIRG3qT8e4IHm54vZI7YS/zsHFmRWLglh1zIaIWXksiVXHqIeThZgcLeyFHYidqAcKsbG1xIYyATlaYdOkFTn0eU4eYl2XhzKbJAuwElnAs5VoH8s37duznXiIEGlP5mbialfmn8n3/ATF/vfFQRwIrAAAAABJRU5ErkJggg==');
+}
+nav.fixed-nav-bar .toolbarButton.search::before {
+  content: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAQAAAC1+jfqAAAA/ElEQVQYGZ3Bv0oCAQDH8d8QNCrkJm0NTunQmGtYtPQCprj1AG05mDnW2hM4BKVjCkXYP5SDAz0kRQfxEHuCrPPu26J4UQ31+Uh/Q4ISAwaU2dZ3HDHGZsgQmzHH+ootbLdXyW/s7O5V8m4Pm4T8JiX61ZzCWtKywtc5+pOy/FyLTiqimVSEjmvJzzFpd8Kaqa/Qdkz5vV7SfMto5iNNc3wlv8dDTK9FkgABkl4L8yKjBaLTBgYGFl26WBjmqUKaI+o1qE/vq9lR0ak5tVHx/EBrmmOdZ56md4W0VhVTXHHFFNKCd8ODc3uSUlA/ezl7rxT2FdSvItpUUP/zCZK2jEiR7TfaAAAAAElFTkSuQmCC');
+}
+nav.fixed-nav-bar .toolbarButton.presentationMode::before {
+  content: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAQAAAC1+jfqAAABCElEQVQoU2NgIAz+v4PCOrhIHUwMwn0CgpfmMijB9ShdnA0RhSh4BILfjvwXhpvA920PRBTCfXBp1sfD/x/+OwBR8p/v3/b/j76cvDzn/wOwgtOTGVTcnD4c/H/vRzqI/z3p//3Px0M8GVSBMhAbgZjVzWlHE4MMmC+1pxUozQ6VgQNWqDQIyIKlSQT/ef8Hwdlh/4WQpdJB0v/W/L/6PxIqffXfFpCS/+kQBRf/5/5b9f/Mp60NeiB+jsb7Df9P/9v8v+D/RYiCo//P/T/5abO/O9RprPaO79f9PwkUPQpRcBgEzzQjuZz1dANEFKLgIBie/J8Md1Xy/1MQUQjfAQrl4CbIwcUYAPaYrBx6Om1JAAAAAElFTkSuQmCC');
+}
+nav.fixed-nav-bar .toolbarButton.zoomOut::before {
+  content: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAQAAAC1+jfqAAAAH0lEQVR4AWMYUeD/OyyQAQSBCAwvYUIUBQwOWOAwAgBbHjPhdhuBHAAAAABJRU5ErkJggg==');
+}
+nav.fixed-nav-bar .toolbarButton.zoomIn::before {
+  content: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAQAAAC1+jfqAAAAT0lEQVR4AWOgO/j/DggZkCHLf1QV39C1sKDx/5CsgBFqxWMo/wsQ80DZssgmvAcRGGyEAsY8qC/6gOwifN48CYRo3qTUFwyoBjI4ACGVAQCo9CsjniAahgAAAABJRU5ErkJggg==');
+}
+nav.fixed-nav-bar .toolbarLabel {
+  -moz-user-select: none;
+  border: 1px solid transparent;
+  border-radius: 2px;
+  color: hsl(0, 0%, 85%);
+  cursor: default;
+  font-size: 12px;
+  line-height: 14px;
+  min-width: 16px;
+  padding-left: 5px;
+  text-align: left;
+  font: message-box;
+}
+nav.fixed-nav-bar .toolbarField.pageNumber {
+  -moz-appearance: textfield;
+  min-width: 16px;
+  text-align: right;
+  width: 40px;
+}
+nav.fixed-nav-bar .toolbarField {
+  -moz-border-bottom-colors: none;
+  -moz-border-left-colors: none;
+  -moz-border-right-colors: none;
+  -moz-border-top-colors: none;
+  background-clip: padding-box;
+  background-color: hsla(0, 0%, 100%, 0.09);
+  background-image: linear-gradient(hsla(0, 0%, 100%, 0.05), hsla(0, 0%, 100%, 0));
+  border-color: hsla(0, 0%, 0%, 0.32) hsla(0, 0%, 0%, 0.38) hsla(0, 0%, 0%, 0.42);
+  border-image: none;
+  border-radius: 2px;
+  border-style: solid;
+  border-width: 1px;
+  box-shadow: 0 1px 0 hsla(0, 0%, 0%, 0.05) inset, 0 1px 0 hsla(0, 0%, 100%, 0.05);
+  color: hsl(0, 0%, 95%);
+  font-size: 12px;
+  line-height: 14px;
+  outline-style: none;
+  padding: 3px 6px;
+  transition-duration: 150ms;
+  transition-property: background-color, border-color, box-shadow;
+  transition-timing-function: ease;
+}
+nav.fixed-nav-bar .left-menu {
+  float: left;
+  margin-left: 5px;
+  padding: 0px;
+}
+nav.fixed-nav-bar .right-menu {
+  float: right;
+  margin-right: 5px;
+  padding: 0px;
+}
+nav.fixed-nav-bar .middle-menu {
+  float: right;
+  margin-right: 50%;
+  padding: 0px;
+}
+nav.fixed-nav-bar .left-menu li {
+  float: left;
+}
+nav.fixed-nav-bar .right-menu li {
+  float: right;
+}
+.sbl_active{
+  color: #0cf !important;
+}
+/* disable text input type=number spin button */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+/* Nav Bar CSS END */
 /* Base CSS END */

@@ -9,19 +9,23 @@
 BASEDIR=$(dirname $0)
 CLOSURE_COMPILER_DIR="$BASEDIR/../3rdparty/closure-compiler"
 CLOSURE_COMPILER_JAR="$CLOSURE_COMPILER_DIR/compiler.jar"
-INPUT="$BASEDIR/pdf2htmlEX.js"
-OUTPUT_FN="pdf2htmlEX.min.js"
-OUTPUT="$BASEDIR/$OUTPUT_FN"
+build () {
+    INPUT="$BASEDIR/$1"
+    OUTPUT_FN="$2"
+    OUTPUT="$BASEDIR/$OUTPUT_FN"
 
-(echo "Building $OUTPUT_FN with closure-compiler..." && \
-    java -jar "$CLOSURE_COMPILER_JAR" \
-         --compilation_level ADVANCED_OPTIMIZATIONS \
-         --warning_level VERBOSE \
-         --output_wrapper "(function(){%output%})();" \
-         --js "$INPUT" \
-         --js_output_file "$OUTPUT" && \
-    echo 'Done.') || \
-(echo 'Failed. Read `3rdparty/closure-compiler/README` for more detail.' && \
-echo 'Using the uncompressed version.' && \
-cat "$INPUT" > "$OUTPUT")
+    (echo "Building $OUTPUT_FN with closure-compiler..." && \
+        java -jar "$CLOSURE_COMPILER_JAR" \
+             --compilation_level $3 \
+             --warning_level VERBOSE \
+             --output_wrapper "(function(){%output%})();" \
+             --js "$INPUT" \
+             --js_output_file "$OUTPUT" && \
+        echo 'Done.') || \
+    (echo 'Failed. Read `3rdparty/closure-compiler/README` for more detail.' && \
+    echo 'Using the uncompressed version.' && \
+    cat "$INPUT" > "$OUTPUT")
+}
 
+build "pdf2htmlEX.js.in" "pdf2htmlEX.min.js" "ADVANCED_OPTIMIZATIONS"
+build "navbar.js.in" "navbar.min.js" "SIMPLE_OPTIMIZATIONS"
