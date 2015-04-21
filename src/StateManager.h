@@ -245,8 +245,13 @@ public:
     static const char * get_css_class_name (void) { return CSS::WHITESPACE_CN; }
     double default_value(void) { return 0; }
     void dump_value(std::ostream & out, double value) { 
-        out << ((value > 0) ? "display:inline-block;width:" << round(value) << "px" 
-                            : "display:inline;");
+        if(value > 0){
+          out << "display:inline-block;width:"
+            << round(value)
+            << "px;";
+        } else {
+          out << "display:inline;";
+        }
         //out << ((value > 0) ? "display:inline-block;width:" 
         //                    : "display:inline;margin-left:")
         //    << round(value) << "px;";
@@ -254,8 +259,13 @@ public:
     void dump_print_value(std::ostream & out, double value, double scale) 
     {
         value *= scale;
-        out << ((value > 0) ? "display:inline-block;width:" << round(value) << "px" 
-                            : "display:inline;");
+        if(value > 0){
+          out << "display:inline-block;width:"
+            << round(value)
+            << "pt;";
+        } else {
+          out << "display:inline;";
+        }
         //out << ((value > 0) ? "display:inline-block;width:" 
         //                    : "display:inline;margin-left:")
         //    << round(value) << "pt;";
