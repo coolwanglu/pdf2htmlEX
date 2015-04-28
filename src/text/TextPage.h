@@ -10,21 +10,18 @@ namespace pdf2htmlEX {
 
 struct TextPage 
 {
-    ~TextPage() { segments.clear_and_dispose([](void *p){ delete p; }); }
-
     const double * get_default_ctm () const { return default_ctm; }
 
-    using iterator = TextSegmentList::iterator;
-    iterator begin() { return segments.begin(); }
-    iterator end() { return segments.end(); }
-    void push_back(TextSegment& segment) { segments.push_back(segment); }
-
 private:
+    TextCharList chars;
+    TextWordList words;
     TextSegmentList segments;
 
     int num;
     double width, height;
     double default_ctm[6];
+
+    friend struct TextPageBuilder;
 };
 
 }

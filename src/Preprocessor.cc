@@ -64,6 +64,8 @@ void Preprocessor::drawChar(GfxState *state, double x, double y,
       double originX, double originY,
       CharCode code, int nBytes, Unicode *u, int uLen)
 {
+    ++cur_char_count;
+
     GfxFont * font = state->getFont();
     if(!font) return;
 
@@ -87,21 +89,29 @@ void Preprocessor::drawChar(GfxState *state, double x, double y,
     cur_code_map[code] = 1;
 }
 
-void Preprocessor::startPage(int pageNum, GfxState *state)
-{
-    startPage(pageNum, state, nullptr);
-}
-
 void Preprocessor::startPage(int pageNum, GfxState *state, XRef * xref)
 {
     max_width = max<double>(max_width, state->getPageWidth());
     max_height = max<double>(max_height, state->getPageHeight());
+    cur_page_num = pageNum;
+    cur_char_count = 0;
+}
+
+void Preprocessor::endPage()
+{
+    char_counts.insert(std::make_pair(cur_page_num, cur_char_count));
 }
 
 const char * Preprocessor::get_code_map (long long font_id) const
 {
     auto iter = code_maps.find(font_id);
     return (iter == code_maps.end()) ? nullptr : (iter->second);
+}
+
+int Preprocessor::get_char_count (int page_num) const
+{
+    auto iter = char_counts.find(page_num);
+    return (iter == char_counts.end()) ? 0 : (iter->second);
 }
 
 } // namespace pdf2htmlEX

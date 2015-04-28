@@ -13,6 +13,8 @@ struct TextStyle
     // combination of CTM, TextMatrix, font_size, HorizontalScaling, rise
     cairo_matrix_t matrix;
 
+    // font 
+
     // matrix is that (combined) matrix in PDF scaled by 1/font_size
     // which is usually used for canonicalization/optimization
     double font_size;

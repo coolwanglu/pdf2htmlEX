@@ -1,28 +1,39 @@
-// CharNode: holds a char
+// TextChar: holds a char
 // Copyright (C) 2015 Lu Wang <coolwanglu@gmail.com>
 
-#ifndef CHARNODE_H__
-#define CHARNODE_H__
+#ifndef TEXTCHAR_H__
+#define TEXTCHAR_H__
 
-#include <cairo.h>
+#include <vector>
+
+#include "CharTypes.h"
 
 namespace pdf2htmlEX {
 
-struct CharNode
+struct TextChar
 {
+    TextStyle const* style = nullptr;
+    
     // the bounding box for the glyph, in text coordinates
-    cairo_rectangle_t bbox; 
+    // x0,y0,x1,y1
+    double bbox[4];
 
     // the location and shifts of the origin/base, in text coordinates
+    // font_size is applied
     double x, y, dx, dy; 
+
+    // the width of current char, as well as possibly letter_space and word_space
+    // font_size is applied
+    double width;
 
     int order_number;
 
-    // unicode's?
-    // original char code?
-    // font pointer?
+    // original char code
+    CharCode code;
+    std::vector<Unicode> unicodes;
 };
+
 
 } // namespace pdf2htmlEX
 
-#endif // CHARNODE_H__
+#endif // TEXTCHAR_H__

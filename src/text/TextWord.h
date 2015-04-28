@@ -5,31 +5,30 @@
 #define TextWord_H__
 
 #include <vector>
+#include <list>
 
-#include <boost/intrusive/list.hpp>
-
+#include "TextStyle.h"
 #include "TextChar.h"
 
 namespace pdf2htmlEX {
 
-// for boost::intrusive::list
-struct TextWordListTag;
-using TextWordBaseHook = boost::intrusive::list_base_hook< tag<TextWordListTag> >
-
-struct TextWord : TextWordBaseHook
+struct TextWord
 {
+    using TextCharList = std::vector<TextChar*>;
+    using iterator = TextCharList::iterator;
+    iterator begin() { return chars.begin(); }
+    iterator end() { return chars.end(); }
+    bool empty() const { return chars.empty(); }
+
 private:
-    std::vector<CharNode> chars;
+    TextStyle style;
+    TextCharList chars;
     // shift of text origin after this word and before the next word
     double shift_after_x = 0.0;
     double shift_after_y = 0.0;
-};
 
-using TextWordList = boost::intrusive::list< 
-    TextWord, 
-    TextWordBaseHook,
-    boost::intrusive::constant_time_size<false> 
->;
+    friend struct TextPageBuilder;
+};
 
 }
 

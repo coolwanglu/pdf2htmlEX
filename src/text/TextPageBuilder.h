@@ -12,11 +12,17 @@
 #include <Stream.h>
 #include <PDFDoc.h>
 
+#include "Preprocessor.h"
+
 namespace pdf2htmlEX {
 
 // Dump PDF instruction into nodes;
 struct TextPageBuilder : OutputDev
 {
+    TextPageBuilder(Preprocessor const& preprocessor) 
+        : preprocessor(preprocessor) 
+    { }
+
     ////////////////////////////////////////////////////
     // OutputDev interface
     ////////////////////////////////////////////////////
@@ -115,32 +121,28 @@ struct TextPageBuilder : OutputDev
     TextPage& get_page () { return page; }
 
 private:
-    // add a new empty segment
-    // the old one may be re-used if empty
-    // if copy_state if false and an old segment is used, we do not copy the states
-    // return if a new segment is created
-    bool begin_segment(GfxState * state, bool copy_state = false);
+    void begin_segment();
     void end_segment();
-    bool new_segment(GfxState * state, bool copy_state = false) { 
-        end_segment(); 
-        return begin_segment(state, copy_state);
-    }
+    void new_segment() { end_segment(); begin_segment(); }
 
-    void begin_word(GfxState * state);
+    void begin_word();
     void end_word();
-    void new_word(GfxState * state) { 
-        end_word(); 
-        begin_word(state); 
-    }
+    void new_word() { end_word(); begin_word(); }
 
     // copy GfxState to cur_segment.style
     void copy_state(GfxState * state);
 
+    Preprocessor const& preprocessor;
+
     PDFDoc * cur_doc;
     int pageNum;
 
+    TextStyle cur_style;
     TextWord * cur_word = nullptr;
     TextSegment * cur_segment = nullptr;
+
+    double cur_tx, cur_ty;
+    int cur_char_num = 0;
 
     TextPage page;
 };

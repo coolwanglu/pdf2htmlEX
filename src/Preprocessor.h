@@ -42,13 +42,14 @@ public:
       CharCode code, int nBytes, Unicode *u, int uLen);
 
     // Start a page.
-    // UGLY: These 2 versions are for different versions of poppler
-    virtual void startPage(int pageNum, GfxState *state);
     virtual void startPage(int pageNum, GfxState *state, XRef * xref);
+    virtual void endPage();
 
     const char * get_code_map (long long font_id) const;
     double get_max_width (void) const { return max_width; }
     double get_max_height (void) const { return max_height; }
+
+    int get_char_count (int page_num) const;
 
 protected:
     const Param & param;
@@ -58,7 +59,14 @@ protected:
     long long cur_font_id;
     char * cur_code_map;
 
+    // font id -> code map
     std::unordered_map<long long, char*> code_maps;
+
+    int cur_page_num;
+    int cur_char_count;
+
+    // page num -> char count
+    std::unordered_map<int, int> char_counts;
 };
 
 } // namespace pdf2htmlEX

@@ -4,36 +4,30 @@
 #ifndef TEXTSEGMENT_H__
 #define TEXTSEGMENT_H__
 
-#include <boost/intrusive/list.hpp>
+#include <list>
 
 #include "TextWord.h"
 #include "TextStyle.h"
 
 namespace pdf2htmlEX {
 
-// for boost::intrusive::list
-struct TextSegmentListTag;
-using TextSegmentBaseHook = boost::intrusive::list_base_hook< tag<SegmentListTag> >;
-
-struct TextSegment : TextSegmentBaseHook
+struct TextSegment 
 {
-    ~TextSegment() { words.clear_and_dispose([](void *p){ delete p; }); }
-
+    using TextWordList = std::list<TextWord>;
     using iterator = TextWordList::iterator;
-    iterator begin() { return words.begin(); }
-    iterator end() { return words.end(); }
-    bool empty() const { return words.empty();
+    iterator begin() { return begin_word; }
+    iterator end() { return end_word; }
+    bool empty() const { return begin_word == end_word; }
+    void clear() { begin_word = end_word; }
 
 private:
     TextStyle style;
-    TextWordList words;
+    iterator begin_word, end_word;
+
+    friend struct TextPageBuilder;
 };
 
-using TextSegmentList = boost::intrusive::list< 
-    TextSegment, 
-    TextSegmentBaseHook,
-    boost::intrusive::constant_time_size<false> 
->;
+using TextSegmentList = std::list<TextSegment>;
 
 }
 
