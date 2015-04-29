@@ -1,5 +1,9 @@
 Developing
 
+v0.13.6
+2015.04.29
+
+* Use micro versions
 * Do not support Poppler < 0.25.0 any more
 * ENABLE_SVG is enabled by default
 * Improved DrawingTracer
