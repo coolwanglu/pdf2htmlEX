@@ -143,9 +143,9 @@ void ArgParser::parse(int argc, char ** argv) const
 
 void ArgParser::show_usage(ostream & out) const
 {
-    for(auto iter = arg_entries.begin(); iter != arg_entries.end(); ++iter)
+    for(auto & entry : arg_entries)
     {
-        (*iter)->show_usage(out);
+        entry->show_usage(out);
     }
 }
 

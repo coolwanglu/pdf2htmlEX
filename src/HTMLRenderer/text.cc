@@ -19,7 +19,7 @@
 
 namespace pdf2htmlEX {
 
-using std::all_of;
+using std::none_of;
 using std::cerr;
 using std::endl;
 
@@ -107,7 +107,7 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
         }
         else
         {
-            if((param.decompose_ligature) && (uLen > 1) && all_of(u, u+uLen, isLegalUnicode))
+            if((param.decompose_ligature) && (uLen > 1) && none_of(u, u+uLen, is_illegal_unicode))
             {
                 html_text_page.get_cur_line()->append_unicodes(u, uLen, ddx);
             }
@@ -153,7 +153,7 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
 
 bool HTMLRenderer::is_char_covered(int index)
 {
-    auto covered = covered_text_detecor.get_chars_covered();
+    auto covered = covered_text_detector.get_chars_covered();
     if (index < 0 || index >= (int)covered.size())
     {
         std::cerr << "Warning: HTMLRenderer::is_char_covered: index out of bound: "

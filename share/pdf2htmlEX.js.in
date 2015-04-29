@@ -260,6 +260,18 @@ Viewer.prototype = {
     this.pre_hide_pages();
   },
 
+  initialize_radio_button : function() {
+    var elements = document.getElementsByClassName('ir');
+    
+    for(var i = 0; i < elements.length; i++) {
+      var r = elements[i];
+
+      r.addEventListener('click', function() {
+        this.classList.toggle("checked");
+      });
+    }
+  },
+
   init_after_loading_content : function() {
     this.sidebar = document.getElementById(this.config['sidebar_id']);
     this.outline = document.getElementById(this.config['outline_id']);
@@ -312,6 +324,7 @@ Viewer.prototype = {
       ele.addEventListener('click', self.link_handler.bind(self), false);
     });
 
+    this.initialize_radio_button();
     this.render();
   },
 

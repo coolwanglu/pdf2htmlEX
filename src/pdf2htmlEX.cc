@@ -164,6 +164,7 @@ void parse_options (int argc, char **argv)
         .add("process-nontext", &param.process_nontext, 1, "render graphics in addition to text")
         .add("process-outline", &param.process_outline, 1, "show outline in HTML")
         .add("process-annotation", &param.process_annotation, 0, "show annotation in HTML")
+        .add("process-form", &param.process_form, 0, "include text fields and radio buttons")
         .add("printing", &param.printing, 1, "enable printing support")
         .add("fallback", &param.fallback, 0, "output in fallback mode")
         .add("tmp-file-size-limit", &param.tmp_file_size_limit, -1, "Maximum size (in KB) used by temporary files, -1 for no limit.")
@@ -343,6 +344,12 @@ void check_param()
     if((param.font_format == "ttf") && (param.external_hint_tool == ""))
     {
         cerr << "Warning: No hint tool is specified for truetype fonts, the result may be rendered poorly in some circumstances." << endl;
+    }
+
+    if (param.embed_image && (param.bg_format == "svg") && !param.svg_embed_bitmap)
+    {
+        cerr << "Warning: --svg-embed-bitmap is forced on because --embed-image is on, or the dumped bitmaps can't be loaded." << endl;
+        param.svg_embed_bitmap = 1;
     }
 }
 
