@@ -255,7 +255,6 @@ void check_param()
         if(get_suffix(param.input_filename) == ".pdf")
         {
             param.output_filename = s.substr(0, s.size() - 4) + ".html";
-
         }
         else
         {
@@ -298,8 +297,7 @@ void check_param()
         }
         else
         {
-            if(!param.split_pages)
-                param.css_filename = s + ".css";
+            param.css_filename = s + ".css";
         }
     }
     if(param.outline_filename.empty())
