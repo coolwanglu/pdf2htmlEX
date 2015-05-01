@@ -76,13 +76,6 @@ void show_version_and_exit(const char * dummy = nullptr)
 #endif
     cerr << endl;
 
-    // TODO: define constants
-    if(ffw_get_version() < 20130101LL) 
-    {
-        cerr << endl 
-             << "Warning: pdf2htmlEX has been built with a too old version of Fontforge, which is not supported." << endl;
-    }
-    
     cerr << endl;
     exit(EXIT_SUCCESS);
 }
