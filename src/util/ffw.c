@@ -157,6 +157,13 @@ void ffw_prepare_font(void)
             }
         }
     }
+
+    /*
+     * Wipe out font name
+     * browsers may rejects fonts with malformed font names
+     */
+    free(sf->fontname);
+    sf->fontname = strcopy("");
 }
 
 void ffw_save(const char * filename)
