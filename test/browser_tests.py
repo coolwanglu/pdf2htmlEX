@@ -99,3 +99,6 @@ class BrowserTests(Common):
 
     def test_invalid_unicode_issue477(self):
         self.run_test_case('invalid_unicode_issue477.pdf')
+
+    def test_svg_background_with_page_rotation_issue402(self):
+        self.run_test_case('svg_background_with_page_rotation_issue402.pdf', ['--bg-format', 'svg'])
