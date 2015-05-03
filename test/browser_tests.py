@@ -102,3 +102,6 @@ class BrowserTests(Common):
 
     def test_svg_background_with_page_rotation_issue402(self):
         self.run_test_case('svg_background_with_page_rotation_issue402.pdf', ['--bg-format', 'svg'])
+
+    def test_fontfile3_opentype(self):
+        self.run_test_case('fontfile3_opentype.pdf', ['-l', 1])
