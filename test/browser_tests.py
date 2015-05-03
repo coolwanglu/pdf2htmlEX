@@ -97,3 +97,5 @@ class BrowserTests(Common):
     def test_process_form(self):
         self.run_test_case('with_form.pdf', ['--process-form', 1])
 
+    def test_invalid_unicode_issue477(self):
+        self.run_test_case('invalid_unicode_issue477.pdf')
