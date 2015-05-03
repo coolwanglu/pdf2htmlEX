@@ -183,6 +183,7 @@ add_custom_target(pdf2htmlEX_resources ALL DEPENDS
 add_custom_command(OUTPUT ${CMAKE_SOURCE_DIR}/share/pdf2htmlEX.min.js
     COMMAND ${CMAKE_SOURCE_DIR}/share/build_js.sh
     DEPENDS
+        ${CMAKE_SOURCE_DIR}/share/build_js.sh
         ${CMAKE_SOURCE_DIR}/share/pdf2htmlEX.js
     )
 
@@ -191,6 +192,7 @@ add_custom_command(OUTPUT
         ${CMAKE_SOURCE_DIR}/share/fancy.min.css
     COMMAND ${CMAKE_SOURCE_DIR}/share/build_css.sh
     DEPENDS
+        ${CMAKE_SOURCE_DIR}/share/build_css.sh
         ${CMAKE_SOURCE_DIR}/share/base.css
         ${CMAKE_SOURCE_DIR}/share/fancy.css
     )

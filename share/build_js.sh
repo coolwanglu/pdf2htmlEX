@@ -15,7 +15,7 @@ OUTPUT="$BASEDIR/$OUTPUT_FN"
 
 (echo "Building $OUTPUT_FN with closure-compiler..." && \
     java -jar "$CLOSURE_COMPILER_JAR" \
-         --compilation_level ADVANCED_OPTIMIZATIONS \
+         --compilation_level SIMPLE_OPTIMIZATIONS \
          --warning_level VERBOSE \
          --output_wrapper "(function(){%output%})();" \
          --js "$INPUT" \
