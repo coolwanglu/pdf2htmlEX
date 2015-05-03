@@ -14,7 +14,6 @@ class test_output(Common, unittest.TestCase):
         args = list(args)
         args.insert(0, os.path.join(self.TEST_DIR, 'test_output', input_file))
         result = self.run_pdf2htmlEX(args)
-        print result
         if expected_output_files:
             self.assertItemsEqual(result['output_files'], expected_output_files)
 
