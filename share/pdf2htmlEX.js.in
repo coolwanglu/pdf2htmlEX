@@ -760,13 +760,13 @@ Viewer.prototype = {
 
   fit_width : function () {
     var page_idx = this.cur_page_idx;
-    this.rescale(this.container.clientWidth / this.pages[page_idx].width(), false);
+    this.rescale(this.container.clientWidth / this.pages[page_idx].width(), true);
     this.scroll_to(page_idx);
   },
 
   fit_height : function () {
     var page_idx = this.cur_page_idx;
-    this.rescale(this.container.clientHeight / this.pages[page_idx].height(), false);
+    this.rescale(this.container.clientHeight / this.pages[page_idx].height(), true);
     this.scroll_to(page_idx);
   },
   /**
