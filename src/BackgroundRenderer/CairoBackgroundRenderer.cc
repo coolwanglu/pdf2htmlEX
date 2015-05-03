@@ -127,6 +127,9 @@ bool CairoBackgroundRenderer::render_page(PDFDoc * doc, int pageno)
         page_height = doc->getPageMediaHeight(pageno);
     }
 
+    if (doc->getPageRotate(pageno) == 90 || doc->getPageRotate(pageno) == 270)
+        std::swap(page_height, page_width);
+
     string fn = (char*)html_renderer->str_fmt("%s/bg%x.svg", (param.embed_image ? param.tmp_dir : param.dest_dir).c_str(), pageno);
     if(param.embed_image)
         html_renderer->tmp_files.add(fn);
