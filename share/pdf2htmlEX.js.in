@@ -38,6 +38,7 @@ var CSS_CLASS_NAMES = {
   page_data        : '@CSS_PAGE_DATA_CN@',
   background_image : '@CSS_BACKGROUND_IMAGE_CN@',
   link             : '@CSS_LINK_CN@',
+  input_radio      : '@CSS_INPUT_RADIO_CN@',
   __dummy__        : 'no comma'
 };
 
@@ -261,7 +262,7 @@ Viewer.prototype = {
   },
 
   initialize_radio_button : function() {
-    var elements = document.getElementsByClassName('ir');
+    var elements = document.getElementsByClassName(CSS_CLASS_NAMES.input_radio);
     
     for(var i = 0; i < elements.length; i++) {
       var r = elements[i];
