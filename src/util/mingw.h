@@ -14,6 +14,7 @@
 
 char *mkdtemp(char *temp);
 
+#include <direct.h>
 #define mkdir(A, B) _mkdir(A)
 #define stat _stat
 
