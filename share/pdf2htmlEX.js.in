@@ -66,6 +66,8 @@ var DEFAULT_CONFIG = {
   'key_handler' : true,
   // register hashchange handler, navigate to the location specified by the hash
   'hashchange_handler' : true,
+  // register view history handler, allowing going back to the previous location
+  'view_history_handler' : true,
 
   '__dummy__'        : 'no comma'
 };
@@ -310,6 +312,12 @@ Viewer.prototype = {
     if (this.config['hashchange_handler']) {
       window.addEventListener('hashchange', function(e) {
         self.navigate_to_dest(document.location.hash.substring(1));
+      }, false);
+    }
+
+    if (this.config['view_history_handler']) {
+      window.addEventListener('popstate', function(e) {
+        if(e.state) self.navigate_to_dest(e.state);
       }, false);
     }
 
@@ -798,6 +806,13 @@ Viewer.prototype = {
     var detail_str = /** @type{string} */ (target.getAttribute('data-dest-detail'));
     if (!detail_str) return;
 
+    if (this.config['view_history_handler']) {
+      try {
+        var cur_hash = this.get_current_view_hash();
+        window.history.replaceState(cur_hash, '', '#' + cur_hash);
+        window.history.pushState(detail_str, '', '#' + detail_str);
+      } catch(ex) { }
+    }
     this.navigate_to_dest(detail_str, this.get_containing_page(target));
     e.preventDefault();
   },
@@ -939,7 +954,7 @@ Viewer.prototype = {
     detail.push('XYZ');
 
     var cur_pos = cur_page.view_position();
-    cur_pos[1] = cur_page.height() - cur_pos[1];
+    cur_pos = transform(cur_page.ictm, [cur_pos[0], cur_page.height()-cur_pos[1]]);
     detail.push(cur_pos[0] / this.scale);
     detail.push(cur_pos[1] / this.scale);
     
