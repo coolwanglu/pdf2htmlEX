@@ -62,9 +62,9 @@ var DEFAULT_CONFIG = {
   'render_timeout' : 100,
   // zoom ratio step for each zoom in/out event
   'scale_step' : 0.9,
-  // register global key handler
+  // register global key handler, allowing navigation by keyboard
   'key_handler' : true,
-  // register hashchange handler
+  // register hashchange handler, navigate to the location specified by the hash
   'hashchange_handler' : true,
 
   '__dummy__'        : 'no comma'
@@ -884,7 +884,6 @@ Viewer.prototype = {
 
     this.rescale(zoom, false);
 
-
     var self = this;
     /**
      * page should of type Page 
@@ -927,6 +926,26 @@ Viewer.prototype = {
     var container = this.container;
     container.scrollLeft += pos[0] - cur_target_pos[0];
     container.scrollTop += pos[1] - cur_target_pos[1];
+  },
+
+  /**
+   * generate the hash for the current view
+   */
+  get_current_view_hash : function() {
+    var detail = [];
+    var cur_page = this.pages[this.cur_page_idx];
+
+    detail.push(cur_page.num);
+    detail.push('XYZ');
+
+    var cur_pos = cur_page.view_position();
+    cur_pos[1] = cur_page.height() - cur_pos[1];
+    detail.push(cur_pos[0] / this.scale);
+    detail.push(cur_pos[1] / this.scale);
+    
+    detail.push(this.scale);
+
+    return JSON.stringify(detail);
   }
 };
 
