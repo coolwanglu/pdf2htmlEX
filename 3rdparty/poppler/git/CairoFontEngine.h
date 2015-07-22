@@ -122,7 +122,7 @@ private:
   FT_Library lib;
   GBool useCIDs;
 /*
- * multi thread disabled by WangLu
+ * pdf2htmlEX: disabled multi thread 
 #if MULTITHREADED
   GooMutex mutex;
 #endif

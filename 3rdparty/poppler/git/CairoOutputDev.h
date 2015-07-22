@@ -272,7 +272,9 @@ protected:
   cairo_filter_t getFilterForSurface(cairo_surface_t *image,
 				     GBool interpolate);
   GBool getStreamData (Stream *str, char **buffer, int *length);
-  virtual void setMimeData(Stream *str, Object *ref, cairo_surface_t *image);
+  // pdf2htmlEX: make setMimeData virtual, we need to override it
+  virtual 
+  void setMimeData(Stream *str, Object *ref, cairo_surface_t *image);
   void fillToStrokePathClip(GfxState *state);
   void alignStrokeCoords(GfxSubpath *subpath, int i, double *x, double *y);
 

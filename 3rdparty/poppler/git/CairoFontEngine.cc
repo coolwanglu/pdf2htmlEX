@@ -59,7 +59,7 @@
 #endif
 
 /*
- * multi thread disabled by WangLu
+ * pdf2htmlEX: disabled multi thread 
 #if MULTITHREADED
 #  define fontEngineLocker()   MutexLocker locker(&mutex)
 #else
@@ -768,7 +768,7 @@ CairoFontEngine::CairoFontEngine(FT_Library libA) {
   useCIDs = major > 2 ||
             (major == 2 && (minor > 1 || (minor == 1 && patch > 7)));
 /*
- * multi thread disabled by WangLu
+ * pdf2htmlEX: disabled multi thread 
 #if MULTITHREADED
   gInitMutex(&mutex);
 #endif
@@ -783,7 +783,7 @@ CairoFontEngine::~CairoFontEngine() {
       delete fontCache[i];
   }
 /*
- * multi thread disabled by WangLu
+ * pdf2htmlEX: disabled multi thread 
 #if MULTITHREADED
   gDestroyMutex(&mutex);
 #endif
