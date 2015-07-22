@@ -421,7 +421,8 @@ CairoFreeTypeFont *CairoFreeTypeFont::create(GfxFont *gfxFont, XRef *xref,
   ref = *gfxFont->getID();
   fontType = gfxFont->getType();
 
-  if (!(fontLoc = gfxFont->locateFont(xref, gFalse))) {
+  // pdf2htmlEX: changed gFlase to nullptr
+  if (!(fontLoc = gfxFont->locateFont(xref, nullptr))) {
     error(errSyntaxError, -1, "Couldn't find a font for '{0:s}'",
     	gfxFont->getName() ? gfxFont->getName()->getCString()
 	                       : "(unnamed)");
