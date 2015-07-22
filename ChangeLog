@@ -1,4 +1,11 @@
-Developing
+v0.14.6
+2015.07.22
+
+* Fixed Windows build
+* Fixed crash when flattening non-CID fonts
+* Handle OpenType subtype for FontFile3
+* New option for the JS viewer: `view_history_handler`
+
 
 v0.13.6
 2015.04.29
