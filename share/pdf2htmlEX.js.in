@@ -38,6 +38,7 @@ var CSS_CLASS_NAMES = {
   page_data        : '@CSS_PAGE_DATA_CN@',
   background_image : '@CSS_BACKGROUND_IMAGE_CN@',
   link             : '@CSS_LINK_CN@',
+  input_radio      : '@CSS_INPUT_RADIO_CN@',
   __dummy__        : 'no comma'
 };
 
@@ -61,10 +62,12 @@ var DEFAULT_CONFIG = {
   'render_timeout' : 100,
   // zoom ratio step for each zoom in/out event
   'scale_step' : 0.9,
-  // register global key handler
+  // register global key handler, allowing navigation by keyboard
   'key_handler' : true,
-  // register hashchange handler
+  // register hashchange handler, navigate to the location specified by the hash
   'hashchange_handler' : true,
+  // register view history handler, allowing going back to the previous location
+  'view_history_handler' : true,
 
   '__dummy__'        : 'no comma'
 };
@@ -261,7 +264,7 @@ Viewer.prototype = {
   },
 
   initialize_radio_button : function() {
-    var elements = document.getElementsByClassName('ir');
+    var elements = document.getElementsByClassName(CSS_CLASS_NAMES.input_radio);
     
     for(var i = 0; i < elements.length; i++) {
       var r = elements[i];
@@ -309,6 +312,12 @@ Viewer.prototype = {
     if (this.config['hashchange_handler']) {
       window.addEventListener('hashchange', function(e) {
         self.navigate_to_dest(document.location.hash.substring(1));
+      }, false);
+    }
+
+    if (this.config['view_history_handler']) {
+      window.addEventListener('popstate', function(e) {
+        if(e.state) self.navigate_to_dest(e.state);
       }, false);
     }
 
@@ -759,13 +768,13 @@ Viewer.prototype = {
 
   fit_width : function () {
     var page_idx = this.cur_page_idx;
-    this.rescale(this.container.clientWidth / this.pages[page_idx].width(), false);
+    this.rescale(this.container.clientWidth / this.pages[page_idx].width(), true);
     this.scroll_to(page_idx);
   },
 
   fit_height : function () {
     var page_idx = this.cur_page_idx;
-    this.rescale(this.container.clientHeight / this.pages[page_idx].height(), false);
+    this.rescale(this.container.clientHeight / this.pages[page_idx].height(), true);
     this.scroll_to(page_idx);
   },
   /**
@@ -797,6 +806,13 @@ Viewer.prototype = {
     var detail_str = /** @type{string} */ (target.getAttribute('data-dest-detail'));
     if (!detail_str) return;
 
+    if (this.config['view_history_handler']) {
+      try {
+        var cur_hash = this.get_current_view_hash();
+        window.history.replaceState(cur_hash, '', '#' + cur_hash);
+        window.history.pushState(detail_str, '', '#' + detail_str);
+      } catch(ex) { }
+    }
     this.navigate_to_dest(detail_str, this.get_containing_page(target));
     e.preventDefault();
   },
@@ -883,7 +899,6 @@ Viewer.prototype = {
 
     this.rescale(zoom, false);
 
-
     var self = this;
     /**
      * page should of type Page 
@@ -926,6 +941,26 @@ Viewer.prototype = {
     var container = this.container;
     container.scrollLeft += pos[0] - cur_target_pos[0];
     container.scrollTop += pos[1] - cur_target_pos[1];
+  },
+
+  /**
+   * generate the hash for the current view
+   */
+  get_current_view_hash : function() {
+    var detail = [];
+    var cur_page = this.pages[this.cur_page_idx];
+
+    detail.push(cur_page.num);
+    detail.push('XYZ');
+
+    var cur_pos = cur_page.view_position();
+    cur_pos = transform(cur_page.ictm, [cur_pos[0], cur_page.height()-cur_pos[1]]);
+    detail.push(cur_pos[0] / this.scale);
+    detail.push(cur_pos[1] / this.scale);
+    
+    detail.push(this.scale);
+
+    return JSON.stringify(detail);
   }
 };
 

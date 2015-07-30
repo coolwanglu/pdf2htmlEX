@@ -97,3 +97,11 @@ class BrowserTests(Common):
     def test_process_form(self):
         self.run_test_case('with_form.pdf', ['--process-form', 1])
 
+    def test_invalid_unicode_issue477(self):
+        self.run_test_case('invalid_unicode_issue477.pdf')
+
+    def test_svg_background_with_page_rotation_issue402(self):
+        self.run_test_case('svg_background_with_page_rotation_issue402.pdf', ['--bg-format', 'svg'])
+
+    def test_fontfile3_opentype(self):
+        self.run_test_case('fontfile3_opentype.pdf', ['-l', 1])

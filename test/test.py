@@ -100,14 +100,13 @@ if __name__ == '__main__':
 
     test_names = []
     for name in sys.argv[1:]:
-        if name.find('.') != -1:
-            test_names.append(name)
-        else:
+        test_names.append(name)
+        if name.find('.') == -1:
             for m in all_classes:
                 test_names.append(m + '.' + name)
     
     for module in all_modules:
-        if len(test_names) > 0:
+        if len(test_names) > 0 and module.__name__ not in test_names:
             for n in test_names:
                 try:
                     suites.append(loader.loadTestsFromName(n, module))

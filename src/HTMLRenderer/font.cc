@@ -117,6 +117,10 @@ string HTMLRenderer::dump_embedded_font (GfxFont * font, FontInfo & info)
                 {
                     suffix = ".cid";
                 }
+                else if (subtype == "OpenType")
+                {
+                    suffix = ".otf";
+                }
                 else
                 {
                     cerr << "Unknown subtype: " << subtype << endl;
