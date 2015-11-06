@@ -40,6 +40,7 @@ struct Param
     int process_annotation;
     int process_form;
     int correct_text_visibility;
+    int ignore_partial_clipping;
     int printing;
     int fallback;
     int tmp_file_size_limit;
