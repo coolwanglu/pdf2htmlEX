@@ -445,7 +445,7 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
      * re-encoding the font by glyph names
      *
      * for 8bit + TrueType
-     * sort the glpyhs as the original order, and load the code2GID table
+     * sort the glyphs as the original order, and load the code2GID table
      * later we will map GID (instead of char code) to Unicode
      *
      * for CID + nonTrueType
@@ -884,7 +884,7 @@ const FontInfo * HTMLRenderer::install_font(GfxFont * font)
     /*
      * The 2nd parameter of locateFont should be true only for PS
      * which does not make much sense in our case
-     * If we specify gFalse here, font_loc->locaType cannot be gfxFontLocResident
+     * If we specify gFalse here, font_loc->locType cannot be gfxFontLocResident
      */
     if(auto * font_loc = font->locateFont(xref, nullptr))
     {

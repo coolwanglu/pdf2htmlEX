@@ -45,7 +45,7 @@ Not enough motivation/Lazy
  - multiple charcode mapped to a same glyph
  - minimum line width of css drawing
  - separate classes for annotations (such that we don't have to hide all css drawings for printing)
- - Widget Annoataion
+ - Widget Annotation
  - handle large negative letter space
  - optimization levels
  
