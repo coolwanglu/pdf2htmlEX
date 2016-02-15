@@ -17,7 +17,7 @@ namespace pdf2htmlEX {
  * Check whether a unicode character is illegal for the output HTML.
  * Unlike PDF readers, browsers has special treatments for such characters (normally treated as
  * zero-width space), regardless of metrics and glyphs provided by fonts. So these characters
- * should be mapped to unicode private area to "cheat" browsers, at the cost of loosing actual
+ * should be mapped to unicode private area to "cheat" browsers, at the cost of losing actual
  * unicode values in the HTML.
  *
  * The following chart shows illegal characters  in HTML by webkit, mozilla, and pdf2htmlEX (p2h).

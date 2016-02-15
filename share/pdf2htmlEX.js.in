@@ -818,7 +818,7 @@ Viewer.prototype = {
   },
 
   /**
-   * @param{string} detail_str may come from user provided hashtag, need sanitzing
+   * @param{string} detail_str may come from user provided hashtag, need sanitizing
    * @param{Page=} src_page page containing the source event (e.g. link)
    */
   navigate_to_dest : function(detail_str, src_page) {
@@ -901,7 +901,7 @@ Viewer.prototype = {
 
     var self = this;
     /**
-     * page should of type Page 
+     * page should have type Page
      * @param{Page} page 
      */
     var transform_and_scroll = function(page) {
