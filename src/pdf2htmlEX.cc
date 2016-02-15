@@ -198,6 +198,7 @@ void parse_options (int argc, char **argv)
         .add("clean-tmp", &param.clean_tmp, 1, "remove temporary files after conversion")
         .add("tmp-dir", &param.tmp_dir, param.tmp_dir, "specify the location of temporary directory.")
         .add("data-dir", &param.data_dir, param.data_dir, "specify data directory")
+        .add("poppler-data-dir", &param.poppler_data_dir, param.poppler_data_dir, "specify poppler data directory")
         .add("debug", &param.debug, 0, "print debugging information")
         .add("proof", &param.proof, 0, "texts are drawn on both text layer and background for proof.")
 
@@ -387,7 +388,7 @@ int main(int argc, char **argv)
 
     bool finished = false;
     // read config file
-    globalParams = new GlobalParams();
+    globalParams = new GlobalParams(!param.poppler_data_dir.empty() ? param.poppler_data_dir.c_str() : NULL);
     // open PDF file
     PDFDoc * doc = nullptr;
     try
