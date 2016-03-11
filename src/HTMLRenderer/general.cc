@@ -38,6 +38,7 @@ using std::max;
 using std::min_element;
 using std::vector;
 using std::abs;
+using std::cout;
 using std::cerr;
 using std::endl;
 
@@ -120,11 +121,13 @@ void HTMLRenderer::process(PDFDoc *doc)
     for(int i = param.first_page; i <= param.last_page ; ++i)
     {
         if (param.tmp_file_size_limit != -1 && tmp_files.get_total_size() > param.tmp_file_size_limit * 1024) {
-            cerr << "Stop processing, reach max size\n";
+            if(param.quiet == 0)
+                cout << "Stop processing, reach max size\n";
             break;
         }
 
-        cerr << "Working: " << (i-param.first_page) << "/" << page_count << '\r' << flush;
+        if (param.quiet == 0)
+            cerr << "Working: " << (i-param.first_page) << "/" << page_count << '\r' << flush;
 
         if(param.split_pages)
         {
@@ -153,9 +156,11 @@ void HTMLRenderer::process(PDFDoc *doc)
             f_curpage = nullptr;
         }
     }
-    if(page_count >= 0)
-        cerr << "Working: " << page_count << "/" << page_count;
-    cerr << endl;
+    if(page_count >= 0 && param.quiet == 0)
+        cout << "Working: " << page_count << "/" << page_count;
+
+    if(param.quiet == 0)
+        cout << endl;
 
     ////////////////////////
     // Process Outline
@@ -167,7 +172,8 @@ void HTMLRenderer::process(PDFDoc *doc)
     bg_renderer = nullptr;
     fallback_bg_renderer = nullptr;
 
-    cerr << endl;
+    if(param.quiet == 0)
+        cout << endl;
 }
 
 void HTMLRenderer::setDefaultCTM(double *ctm)
