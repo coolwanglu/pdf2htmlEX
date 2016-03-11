@@ -79,6 +79,7 @@ struct Param
     std::string tmp_dir;
     int debug;
     int proof;
+    int quiet;
 
     std::string input_filename, output_filename;
 };
