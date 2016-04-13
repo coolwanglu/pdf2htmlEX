@@ -10,7 +10,6 @@
 - **Scientific Paper** (text and figures): [HTML](http://coolwanglu.github.com/pdf2htmlEX/demo/demo.html) / [PDF](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.148.349&rep=rep1&type=pdf)
 - **Full Circle Magazine** (read while downloading): [HTML](http://coolwanglu.github.com/pdf2htmlEX/demo/issue65_en.html) / [PDF](http://dl.fullcirclemagazine.org/issue65_en.pdf)
 - **Git Manual** (CJK support): [HTML](http://coolwanglu.github.com/pdf2htmlEX/demo/chn.html) / [PDF](http://files.cnblogs.com/phphuaibei/git%E6%90%AD%E5%BB%BA.pdf)
-- [:point_right:Try your own files](https://github.com/coolwanglu/pdf2htmlEX/wiki/Try-Your-Own-Files)
 
 pdf2htmlEX renders PDF files in HTML, utilizing modern Web technologies.
 Academic papers with lots of formulas and figures? Magazines with complicated layouts? No problem!
