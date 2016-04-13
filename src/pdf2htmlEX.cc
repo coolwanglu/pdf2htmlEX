@@ -111,7 +111,7 @@ void prepare_directories()
 
     errno = 0;
 
-    unique_ptr<char> pBuf(new char[tmp_dir.size() + 1]);
+    unique_ptr<char[]> pBuf(new char[tmp_dir.size() + 1]);
     strcpy(pBuf.get(), tmp_dir.c_str());
     auto p = mkdtemp(pBuf.get());
     if(p == nullptr)
