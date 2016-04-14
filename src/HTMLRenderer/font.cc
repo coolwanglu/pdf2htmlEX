@@ -536,6 +536,7 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
             ffw_reencode_glyph_order();
 
             GfxCIDFont * _font = dynamic_cast<GfxCIDFont*>(font);
+            assert(_font != nullptr);
 
             // To locate CID2GID for the font
             // as in CairoFontEngine.cc
