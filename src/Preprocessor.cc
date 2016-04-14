@@ -20,7 +20,6 @@
 
 namespace pdf2htmlEX {
 
-using std::cout;
 using std::endl;
 using std::flush;
 using std::max;
@@ -46,7 +45,7 @@ void Preprocessor::process(PDFDoc * doc)
     for(int i = param.first_page; i <= param.last_page ; ++i) 
     {
         if(param.quiet == 0)
-            cout << "Preprocessing: " << (i - param.first_page) << "/" << page_count << '\r' << flush;
+            cerr << "Preprocessing: " << (i - param.first_page) << "/" << page_count << '\r' << flush;
 
         doc->displayPage(this, i, DEFAULT_DPI, DEFAULT_DPI,
                 0, 
@@ -56,10 +55,10 @@ void Preprocessor::process(PDFDoc * doc)
                 nullptr, nullptr, nullptr, nullptr);
     }
     if(page_count >= 0 && param.quiet == 0)
-        cout << "Preprocessing: " << page_count << "/" << page_count;
+        cerr << "Preprocessing: " << page_count << "/" << page_count;
 
     if(param.quiet == 0)
-        cout << endl;
+        cerr << endl;
 }
 
 void Preprocessor::drawChar(GfxState *state, double x, double y,
