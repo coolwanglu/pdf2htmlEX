@@ -9,7 +9,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <cstring>
-
+#include <libgen.h>
 #include "path.h"
 
 #ifdef __MINGW32__
@@ -114,12 +114,18 @@ bool is_truetype_suffix(const string & suffix)
 
 string get_filename (const string & path)
 {
+   char* s= basename(strdup(path.c_str()));
+   std::string str(s);
+   return str;
+    
+    /*
     size_t idx = path.rfind('/');
     if(idx == string::npos)
         return path;
     else if (idx == path.size() - 1)
         return "";
     return path.substr(idx + 1);
+    */
 }
 
 string get_suffix(const string & path)
