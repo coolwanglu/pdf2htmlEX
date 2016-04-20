@@ -13,6 +13,7 @@
 
 #include "util/encoding.h"
 #include "util/css_const.h"
+#include "util/unicode.h"
 
 namespace pdf2htmlEX {
 
@@ -32,6 +33,7 @@ HTMLTextLine::HTMLTextLine (const HTMLLineState & line_state, const Param & para
     ,clip_x1(0)
     ,clip_y1(0)
     ,width(0)
+    ,last_output_unicode(0)
 { }
 
 void HTMLTextLine::append_unicodes(const Unicode * u, int l, double width)
@@ -88,14 +90,23 @@ void HTMLTextLine::dump_char(std::ostream & out, int pos)
     int c = text[pos];
     if (c > 0)
     {
-        Unicode u = c;
-        writeUnicodes(out, &u, 1);
+        dump_unicode(out, c);
     }
     else if (c < 0)
     {
         auto dt = decomposed_text[- c - 1];
-        writeUnicodes(out, &dt.front(), dt.size());
+        for (auto it = dt.begin(), end = dt.end(); it != end; it++)
+            dump_unicode(out, *it);
     }
+}
+
+void HTMLTextLine::dump_unicode(std::ostream & out, Unicode u)
+{
+    // ZWSP following space can be optimized out.
+    if (u == zero_width_space && last_output_unicode == ' ')
+        return;
+    writeUnicodes(out, &u, 1);
+    last_output_unicode = u;
 }
 
 void HTMLTextLine::dump_chars(ostream & out, int begin, int len)
@@ -162,6 +173,7 @@ void HTMLTextLine::dump_text(ostream & out)
             << " " << CSS::BOTTOM_CN           << all_manager.bottom.install(line_state.y - clip_y1)
             ;
         // it will be closed by the first state
+        last_output_unicode = 0;
     }
 
     std::vector<State*> stack;
@@ -249,8 +261,7 @@ void HTMLTextLine::dump_text(ostream & out)
                         double space_off = state_iter1->single_space_offset();
                         if(std::abs(target - space_off) <= param.h_eps)
                         {
-                            Unicode u = ' ';
-                            writeUnicodes(out, &u, 1);
+                            dump_unicode(out, ' ');
                             actual_offset = space_off;
                             done = true;
                         }
@@ -269,7 +280,10 @@ void HTMLTextLine::dump_text(ostream & out)
                             double threshold = state_iter1->em_size() * (param.space_threshold);
 
                             out << "<span class=\"" << CSS::WHITESPACE_CN
-                                << ' ' << CSS::WHITESPACE_CN << wid << "\">" << (target > (threshold - EPS) ? " " : "") << "</span>";
+                                << ' ' << CSS::WHITESPACE_CN << wid << "\">";
+                            if (target > (threshold - EPS))
+                                dump_unicode(out, ' ');
+                            out << "</span>";
                         }
                     }
                 }

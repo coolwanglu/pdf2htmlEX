@@ -13,6 +13,8 @@
 
 namespace pdf2htmlEX {
 
+const Unicode zero_width_space = 0x200B;
+
 /**
  * Check whether a unicode character is illegal for the output HTML.
  * Unlike PDF readers, browsers has special treatments for such characters (normally treated as

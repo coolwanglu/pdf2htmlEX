@@ -74,7 +74,7 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
     while (len > 0) 
     {
         auto n = font->getNextChar(p, len, &code, &u, &uLen, &ax, &ay, &ox, &oy);
-        HR_DEBUG(printf("HTMLRenderer::drawString:unicode=%lc(%d)\n", (wchar_t)u[0], u[0]));
+        HR_DEBUG(printf("HTMLRenderer::drawString:unicode=%lc(%d)%s\n", (wchar_t)u[0], u[0], has_glyph(code, font) ? "":" no glyph"));
 
         if(!(equal(ox, 0) && equal(oy, 0)))
         {
@@ -113,24 +113,36 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
             }
             else
             {
-                Unicode uu;
-                if(cur_text_state.font_info->use_tounicode)
+                if (uLen == 1 && is_illegal_unicode(u[0]) && !has_glyph(code, font))
                 {
-                    uu = check_unicode(u, uLen, code, font);
+                    // Convert illegal html unicode to a whitespace, if it has no glyph.
+                    // Add a zero-width space AFTER the offset to make sure words are
+                    // delimited, and make sure the ZWSP can be optimized out if the
+                    // offset is represented by a space (see HTMLTextLine::dump_unicode).
+                    html_text_page.get_cur_line()->append_offset(ddx * draw_text_scale);
+                    html_text_page.get_cur_line()->append_unicodes(&zero_width_space, 1, 0);
                 }
                 else
                 {
-                    uu = unicode_from_font(code, font);
-                }
-                html_text_page.get_cur_line()->append_unicodes(&uu, 1, ddx);
-                /*
-                 * In PDF, word_space is appended if (n == 1 and *p = ' ')
-                 * but in HTML, word_space is appended if (uu == ' ')
-                 */
-                int space_count = (is_space ? 1 : 0) - ((uu == ' ') ? 1 : 0);
-                if(space_count != 0)
-                {
-                    html_text_page.get_cur_line()->append_offset(cur_word_space * draw_text_scale * space_count);
+                    Unicode uu;
+                    if(cur_text_state.font_info->use_tounicode)
+                    {
+                        uu = check_unicode(u, uLen, code, font);
+                    }
+                    else
+                    {
+                        uu = unicode_from_font(code, font);
+                    }
+                    html_text_page.get_cur_line()->append_unicodes(&uu, 1, ddx);
+                    /*
+                     * In PDF, word_space is appended if (n == 1 and *p = ' ')
+                     * but in HTML, word_space is appended if (uu == ' ')
+                     */
+                    int space_count = (is_space ? 1 : 0) - ((uu == ' ') ? 1 : 0);
+                    if(space_count != 0)
+                    {
+                        html_text_page.get_cur_line()->append_offset(cur_word_space * draw_text_scale * space_count);
+                    }
                 }
             }
         }

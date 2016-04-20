@@ -377,6 +377,7 @@ _ft_new_face (FT_Library lib,
 
 CairoFreeTypeFont::CairoFreeTypeFont(Ref ref,
 				     cairo_font_face_t *cairo_font_face,
+				     FT_Face ft_face,
 				     int *codeToGID,
 				     Guint codeToGIDLen,
 				     GBool substitute) : CairoFont(ref,
@@ -384,7 +385,10 @@ CairoFreeTypeFont::CairoFreeTypeFont(Ref ref,
 								   codeToGID,
 								   codeToGIDLen,
 								   substitute,
-								   gTrue) { }
+								   gTrue),
+								   // Caution: this field is added by pdf2htmlEX to determine whitespace. Please merge during update.
+								   ft_face(ft_face)
+                                    { }
 
 CairoFreeTypeFont::~CairoFreeTypeFont() { }
 
@@ -547,7 +551,7 @@ CairoFreeTypeFont *CairoFreeTypeFont::create(GfxFont *gfxFont, XRef *xref,
 
   delete fontLoc;
   return new CairoFreeTypeFont(ref,
-		       font_face,
+		       font_face, face,
 		       codeToGID, codeToGIDLen,
 		       substitute);
 

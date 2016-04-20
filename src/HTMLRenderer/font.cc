@@ -38,6 +38,7 @@
 #include "CairoFontEngine.h"
 #include "CairoOutputDev.h"
 #include <Gfx.h>
+#include FT_OUTLINE_H
 #endif
 
 namespace pdf2htmlEX {
@@ -1095,6 +1096,31 @@ void HTMLRenderer::export_local_font(const FontInfo & info, GfxFont * font, cons
     f_css.fs << "visibility:visible;";
 
     f_css.fs << "}" << endl;
+}
+
+bool HTMLRenderer::has_glyph(CharCode code, GfxFont* font)
+{
+#if ENABLE_SVG
+    if (font->getType() == fontType3)
+        return true;
+    CairoFreeTypeFont* ftfont = (CairoFreeTypeFont*)font_engine->getFont(font, cur_doc, false, xref);
+    if (ftfont == nullptr)
+        return false;
+    FT_Face face = ftfont->get_ft_face();
+    if (face == nullptr)
+        return false;
+    auto gid = ftfont->getGlyph(code, nullptr, 0);
+    // gid == 0 means no glyph
+    if (gid == 0)
+        return false;
+    if (FT_Load_Glyph(face, gid, FT_LOAD_NO_SCALE))
+        return false;
+    FT_GlyphSlot slot = face->glyph;
+    // n_contours == 0 means an empty glyph
+    if (slot->format == FT_GLYPH_FORMAT_OUTLINE && slot->outline.n_contours == 0)
+        return false;
+#endif
+    return true;
 }
 
 } //namespace pdf2htmlEX

@@ -29,6 +29,10 @@
 #include "util/css_const.h"
 #include "util/encoding.h"
 
+#if ENABLE_SVG
+#include "CairoFontEngine.h"
+#endif
+
 namespace pdf2htmlEX {
 
 using std::fixed;
@@ -86,11 +90,19 @@ HTMLRenderer::HTMLRenderer(const Param & param)
             [this](double * box, bool partial) { covered_text_detector.add_char_bbox_clipped(box, partial); };
     tracer.on_non_char_drawn =
             [this](double * box) { covered_text_detector.add_non_char_bbox(box); };
+
+#if ENABLE_SVG
+    FT_Init_FreeType(&ft_lib);
+    font_engine = std::unique_ptr<CairoFontEngine>(new CairoFontEngine(ft_lib));
+#endif
 }
 
 HTMLRenderer::~HTMLRenderer()
 {
     ffw_finalize();
+#if ENABLE_SVG
+    FT_Done_FreeType(ft_lib);
+#endif
 }
 
 void HTMLRenderer::process(PDFDoc *doc)
