@@ -77,6 +77,7 @@ struct Param
     std::string data_dir;
     std::string poppler_data_dir;
     std::string tmp_dir;
+    int quiet;
     int debug;
     int proof;
 
