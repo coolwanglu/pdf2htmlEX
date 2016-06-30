@@ -334,6 +334,13 @@ void check_param()
     }
 #endif
 
+    if (param.output_filename == "-" &&
+           (!param.embed_css || !param.embed_font || !param.embed_image || !param.embed_javascript
+               || !param.embed_outline || !param.embed_external_font)) {
+        cerr << "output redirected to STDOUT, but some html parts set to be not embededed." << endl;
+        exit(EXIT_FAILURE);
+    }
+
     if((param.font_format == "ttf") && (param.external_hint_tool == ""))
     {
         cerr << "Warning: No hint tool is specified for truetype fonts, the result may be rendered poorly in some circumstances." << endl;
