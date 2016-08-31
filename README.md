@@ -33,6 +33,7 @@ Learn more about [who](https://github.com/coolwanglu/pdf2htmlEX/wiki/Use-Cases) 
  * [Download](https://github.com/coolwanglu/pdf2htmlEX/wiki/Download) & [Building](https://github.com/coolwanglu/pdf2htmlEX/wiki/Building)
  * [Quick Start](https://github.com/coolwanglu/pdf2htmlEX/wiki/Quick-Start)
  * [Report Issues / Ask for Help](https://github.com/coolwanglu/pdf2htmlEX/blob/master/CONTRIBUTING.md#guidance)
+ * [External complementary guide to easy setup] (http://blog.framebench.com/our-love-for-open-source/)
 
 ### Get in Touch
 
