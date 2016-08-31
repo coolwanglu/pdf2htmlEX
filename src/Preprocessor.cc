@@ -20,7 +20,6 @@
 
 namespace pdf2htmlEX {
 
-using std::cerr;
 using std::endl;
 using std::flush;
 using std::max;
