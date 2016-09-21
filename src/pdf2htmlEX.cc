@@ -393,19 +393,17 @@ int main(int argc, char **argv)
     PDFDoc * doc = nullptr;
     try
     {
-        {
-            GooString * ownerPW = (param.owner_password == "") ? (nullptr) : (new GooString(param.owner_password.c_str()));
-            GooString * userPW = (param.user_password == "") ? (nullptr) : (new GooString(param.user_password.c_str()));
-            GooString fileName(param.input_filename.c_str());
+        GooString * ownerPW = (param.owner_password == "") ? (nullptr) : (new GooString(param.owner_password.c_str()));
+        GooString * userPW = (param.user_password == "") ? (nullptr) : (new GooString(param.user_password.c_str()));
+        GooString fileName(param.input_filename.c_str());
 
-            doc = PDFDocFactory().createPDFDoc(fileName, ownerPW, userPW);
+        doc = PDFDocFactory().createPDFDoc(fileName, ownerPW, userPW);
 
-            delete userPW;
-            delete ownerPW;
-        }
+        delete userPW;
+        delete ownerPW;
 
         if (!doc->isOk())
-            throw "Cannot read the file";
+            throw "Cannot read the PDF input file: " + param.input_filename;
 
         // check for copy permission
         if (!doc->okToCopy())
