@@ -14,7 +14,8 @@ class BrowserTests(Common):
     DEFAULT_PDF2HTMLEX_ARGS = [
         '--fit-width', 800,
         '--last-page', 1,
-        '--embed', 'fi', # avoid base64 to make it faster
+        '--embed', 'FI', # with 'fi', test suite is currently broken (some directory interference)
+        # avoid base64 to make it faster
     ]
 
     BROWSER_WIDTH=800
@@ -28,7 +29,7 @@ class BrowserTests(Common):
     def tearDownClass(cls):
         pass
 
-    def run_test_case(self, filename, pdf2htmlEX_args=[], page_must_load=True):
+    def run_test_case(self, filename, args=[], page_must_load=True):
         basefilename, extension = os.path.splitext(filename)
         self.assertEquals(extension.lower(), '.pdf', 'Input file is not PDF')
 
@@ -37,7 +38,7 @@ class BrowserTests(Common):
         ref_htmlfilename = os.path.join(ref_htmlfolder, htmlfilename)
         out_htmlfilename = os.path.join(self.OUTDIR, htmlfilename)
 
-        pdf2htmlEX_args = self.DEFAULT_PDF2HTMLEX_ARGS + [
+        pdf2htmlEX_args = self.DEFAULT_PDF2HTMLEX_ARGS + args + [
                 os.path.join(self.TEST_DATA_DIR, filename),
                 htmlfilename ]
         result = self.run_pdf2htmlEX(pdf2htmlEX_args)
