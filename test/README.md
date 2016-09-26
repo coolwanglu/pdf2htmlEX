@@ -2,21 +2,16 @@
 
 - python2 and packages
   - Python Imaging Library
-  - Selenium  
+  - Selenium
   - unittest
 - Firefox
   - firefoxdriver
 
 ### Usage
 - Run all tests:
-  - `./test.py`
-- Run selected test suites:
-  - `./test.py test_local_browser`
-- Run selected test case:
-  - `./test.py test_local_browser.test_basic_text`
-  - Or `./test.py test_basic_text`
+  - python test_output.py
+  - python test_local_browser.py
 - Environment variables:
-  - Set `P2H_TEST_SAVE_TMP=1` to keep the temporary files in `/tmp/pdf2htmlEX_test`
   - Set `P2H_TEST_GEN=1` to generate new reference files
   - Set `P2H_TEST_REMOTE=1` to test different browsers using Sauce Labs
     - Install `sauceclient` for Python
@@ -24,6 +19,7 @@
     - Setup a HTTP server at `/` on port 8000
     - Enable Sauce Connect
     - See `.travis.yml` as an example
+    - python test_remote_browser.py
 
 ### Add new test cases
 
@@ -36,4 +32,3 @@
 - [Optional] Include the source files that the PDF file is generated from.
 - Add the new PDF file to the correct folder in `test/`, and add a new function in the corresponding Python file
 - Run `P2H_TEST_GEN=1 test/test.py test_issueXXX` to generate the reference, assuming that the new function is called `test_issueXXX`
-

@@ -35,7 +35,7 @@ class BrowserTests(Common):
         ref_htmlfolder = os.path.join(self.TEST_DATA_DIR, basefilename)
         ref_htmlfilename = os.path.join(ref_htmlfolder, htmlfilename)
 
-        out_htmlfilename = os.path.join(self.cur_output_dir, htmlfilename)
+        out_htmlfilename = os.path.join(self.OUTDIR, htmlfilename)
 
         self.assertEquals(extension.lower(), '.pdf', 'Input file is not PDF')
 
@@ -51,17 +51,14 @@ class BrowserTests(Common):
         if self.GENERATING_MODE:
             # copy generated html files
             shutil.rmtree(ref_htmlfolder, True)
-            shutil.copytree(self.cur_output_dir, ref_htmlfolder)
+            shutil.copytree(self.OUTDIR, ref_htmlfolder)
             return
 
-        png_out_dir = os.path.join(self.cur_temp_dir, 'png_out')
-        os.mkdir(png_out_dir)
-
-        pngfilename_out_fullpath = os.path.join(png_out_dir, basefilename + '.out.png')
+        pngfilename_out_fullpath = os.path.join(self.PNGDIR, basefilename + '.out.png')
         self.generate_image(out_htmlfilename, pngfilename_out_fullpath)
         out_img = Image.open(pngfilename_out_fullpath)
 
-        pngfilename_ref_fullpath = os.path.join(png_out_dir, basefilename + '.ref.png')
+        pngfilename_ref_fullpath = os.path.join(self.PNGDIR, basefilename + '.ref.png')
         self.generate_image(ref_htmlfilename, pngfilename_ref_fullpath, page_must_load=page_must_load)
         ref_img = Image.open(pngfilename_ref_fullpath)
 
@@ -71,11 +68,15 @@ class BrowserTests(Common):
         if diff_bbox is not None:
             diff_size = (diff_bbox[2] - diff_bbox[0]) * (diff_bbox[3] - diff_bbox[1])
             img_size = ref_img.size[0] * ref_img.size[1]
-            if self.SAVE_TMP:
-                # save the diff image
-                # http://stackoverflow.com/questions/15721484/saving-in-png-using-pil-library-after-taking-imagechops-difference-of-two-png
-                diff_img.convert('RGB').save(os.path.join(png_out_dir, basefilename + '.diff.png'))
-            self.fail('PNG files differ by <= %d pixels, (%f%% of %d pixels in total)' % (diff_size, 1.0*diff_size/img_size, img_size))
+            diff_file_name = "<not saved>"
+            # save the diff image
+            # http://stackoverflow.com/questions/15721484/saving-in-png-using-pil-library-after-taking-imagechops-difference-of-two-png
+            diff_file_name = os.path.join(self.PNGDIR, basefilename + '.diff.png')
+            diff_img.convert('RGB').save(diff_file_name)
+            self.fail(('PNG files %s and %s differ by <= %d pixels, (%f%% of %d pixels in total), '+
+                       'difference: %s') %
+                      (pngfilename_out_fullpath, pngfilename_ref_fullpath,
+                       diff_size, 1.0*diff_size/img_size, img_size, diff_file_name))
 
     @unittest.skipIf(Common.GENERATING_MODE, 'Do not auto generate reference for test_fail')
     def test_fail(self):

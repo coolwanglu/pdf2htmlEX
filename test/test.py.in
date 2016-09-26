@@ -21,27 +21,18 @@ class Common(object):
     TEST_DIR = os.path.join(SRC_DIR, 'test')
     DATA_DIR = os.path.join(SRC_DIR, 'share')
 
-    SAVE_TMP = bool(os.environ.get('P2H_TEST_SAVE_TMP'))
     GENERATING_MODE = bool(os.environ.get('P2H_TEST_GEN'))
 
-    CANONICAL_TEMPDIR = '/tmp/pdf2htmlEX_test'
+    # temporary directories defined in CMakeLists.txt:
+    TMPDIR = "@PDF2HTMLEX_TMPDIR@"
+    PNGDIR = "@PDF2HTMLEX_PNGDIR@"
+    DATDIR = "@PDF2HTMLEX_DATDIR@"
+    OUTDIR = "@PDF2HTMLEX_OUTDIR@"
 
     def setUp(self):
-        if not self.SAVE_TMP:
-            self.cur_temp_dir = tempfile.mkdtemp(prefix='pdf2htmlEX_test')
-        else:
-            shutil.rmtree(self.CANONICAL_TEMPDIR, True)
-            os.mkdir(self.CANONICAL_TEMPDIR)
-            self.cur_temp_dir = self.CANONICAL_TEMPDIR
-
-        self.cur_data_dir = os.path.join(self.cur_temp_dir, 'share')
-        self.cur_output_dir = os.path.join(self.cur_temp_dir, 'out')
-        os.mkdir(self.cur_data_dir)
-        os.mkdir(self.cur_output_dir)
-
         # filter manifest
         with open(os.path.join(self.DATA_DIR, 'manifest')) as inf:
-            with open(os.path.join(self.cur_data_dir, 'manifest'), 'w') as outf:
+            with open(os.path.join(self.DATDIR, 'manifest'), 'w') as outf:
                 ignore = False
                 for line in inf:
                     if ignore:
@@ -54,13 +45,9 @@ class Common(object):
 
         # copy files
         shutil.copy(os.path.join(self.DATA_DIR, 'base.min.css'),
-                os.path.join(self.cur_data_dir, 'base.min.css'))
+                os.path.join(self.DATDIR, 'base.min.css'))
         shutil.copy(os.path.join(self.TEST_DIR, 'fancy.min.css'),
-                os.path.join(self.cur_data_dir, 'fancy.min.css'))
-
-    def tearDown(self):
-        if not self.SAVE_TMP:
-            shutil.rmtree(self.cur_temp_dir, True)
+                os.path.join(self.DATDIR, 'fancy.min.css'))
 
     def run_pdf2htmlEX(self, args):
         """
@@ -71,9 +58,12 @@ class Common(object):
         :return: an object of relevant info
         """
 
+        shutil.rmtree(self.TMPDIR, ignore_errors=False, onerror=None)
+        os.mkdir(self.TMPDIR)
+
         args = [Common.PDF2HTMLEX_PATH,
-               '--data-dir', self.cur_data_dir,
-               '--dest-dir', self.cur_output_dir
+               '--data-dir', self.DATDIR,
+               '--dest-dir', self.TMPDIR
               ] + args
 
         with open(os.devnull, 'w') as fnull:
@@ -81,7 +71,9 @@ class Common(object):
 
         self.assertEquals(return_code, 0, 'cannot execute pdf2htmlEX')
 
-        files = os.listdir(self.cur_output_dir)
+        files = os.listdir(self.TMPDIR)
+        for file in files:
+            shutil.copy(os.path.join(self.TMPDIR,file), self.OUTDIR)
 
         return {
             'return_code' : return_code,
