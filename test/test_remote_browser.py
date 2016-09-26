@@ -99,7 +99,7 @@ class test_remote_browser_base(BrowserTests):
             passed = (sys.exc_info() == (None, None, None))
             branch = os.environ.get('TRAVIS_BRANCH', 'manual')
             pull_request = os.environ.get('TRAVIS_PULL_REQUEST', 'false')
-            self.sauce.jobs.update_job(self.browser.session_id, 
+            self.sauce.jobs.update_job(self.browser.session_id,
                 build_num=os.environ.get('TRAVIS_BUILD_NUMBER', '0'),
                 name='pdf2htmlEX',
                 passed=passed,
@@ -110,7 +110,7 @@ class test_remote_browser_base(BrowserTests):
             raise
             pass
 
-    def generate_image(self, html_file, png_file, page_must_load=True):
+    def generate_image(self, html_file, png_file):
         self.browser.get(BASEURL + html_file)
         try:
             WebDriverWait(self.browser, 5).until(expected_conditions.presence_of_element_located((By.ID, 'page-container')))

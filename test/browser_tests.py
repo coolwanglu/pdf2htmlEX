@@ -30,22 +30,20 @@ class BrowserTests(Common):
 
     def run_test_case(self, filename, pdf2htmlEX_args=[], page_must_load=True):
         basefilename, extension = os.path.splitext(filename)
-        htmlfilename = basefilename + '.html'
+        self.assertEquals(extension.lower(), '.pdf', 'Input file is not PDF')
 
+        htmlfilename = basefilename + '.html'
         ref_htmlfolder = os.path.join(self.TEST_DATA_DIR, basefilename)
         ref_htmlfilename = os.path.join(ref_htmlfolder, htmlfilename)
-
         out_htmlfilename = os.path.join(self.OUTDIR, htmlfilename)
-
-        self.assertEquals(extension.lower(), '.pdf', 'Input file is not PDF')
 
         pdf2htmlEX_args = self.DEFAULT_PDF2HTMLEX_ARGS \
             + list(pdf2htmlEX_args) + [
                 os.path.join(self.TEST_DATA_DIR, filename),
                 htmlfilename
             ]
-
         result = self.run_pdf2htmlEX(pdf2htmlEX_args)
+
         self.assertIn(htmlfilename, result['output_files'], 'HTML file is not generated')
 
         if self.GENERATING_MODE:
@@ -54,13 +52,13 @@ class BrowserTests(Common):
             shutil.copytree(self.OUTDIR, ref_htmlfolder)
             return
 
-        pngfilename_out_fullpath = os.path.join(self.PNGDIR, basefilename + '.out.png')
-        self.generate_image(out_htmlfilename, pngfilename_out_fullpath)
-        out_img = Image.open(pngfilename_out_fullpath)
+        pngfilename_out = os.path.join(self.PNGDIR, basefilename + '.out.png')
+        self.generate_image(out_htmlfilename, pngfilename_out)
+        out_img = Image.open(pngfilename_out)
 
-        pngfilename_ref_fullpath = os.path.join(self.PNGDIR, basefilename + '.ref.png')
-        self.generate_image(ref_htmlfilename, pngfilename_ref_fullpath, page_must_load=page_must_load)
-        ref_img = Image.open(pngfilename_ref_fullpath)
+        pngfilename_ref = os.path.join(self.PNGDIR, basefilename + '.ref.png')
+        self.generate_image(ref_htmlfilename, pngfilename_ref, page_must_load=page_must_load)
+        ref_img = Image.open(pngfilename_ref)
 
         diff_img = ImageChops.difference(ref_img, out_img);
 
@@ -68,14 +66,12 @@ class BrowserTests(Common):
         if diff_bbox is not None:
             diff_size = (diff_bbox[2] - diff_bbox[0]) * (diff_bbox[3] - diff_bbox[1])
             img_size = ref_img.size[0] * ref_img.size[1]
-            diff_file_name = "<not saved>"
-            # save the diff image
-            # http://stackoverflow.com/questions/15721484/saving-in-png-using-pil-library-after-taking-imagechops-difference-of-two-png
+            # save the diff image (http://stackoverflow.com/questions/15721484):
             diff_file_name = os.path.join(self.PNGDIR, basefilename + '.diff.png')
             diff_img.convert('RGB').save(diff_file_name)
             self.fail(('PNG files %s and %s differ by <= %d pixels, (%f%% of %d pixels in total), '+
                        'difference: %s') %
-                      (pngfilename_out_fullpath, pngfilename_ref_fullpath,
+                      (pngfilename_out, pngfilename_ref,
                        diff_size, 1.0*diff_size/img_size, img_size, diff_file_name))
 
     @unittest.skipIf(Common.GENERATING_MODE, 'Do not auto generate reference for test_fail')
