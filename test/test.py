@@ -9,6 +9,10 @@ import subprocess
 
 class Common(object):
     SRC_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    print "DEBUG 1: ", __file__
+    print "DEBUG 2: ", os.path.abspath(__file__)
+    print "DEBUG 3: ", os.path.dirname(os.path.abspath(__file__))
+    print "DEBUG 4: ", SRC_DIR
     TEST_DIR = os.path.join(SRC_DIR, 'test')
     DATA_DIR = os.path.join(SRC_DIR, 'share')
     PDF2HTMLEX_PATH = os.path.join(SRC_DIR, 'pdf2htmlEX')
@@ -17,7 +21,7 @@ class Common(object):
     GENERATING_MODE = bool(os.environ.get('P2H_TEST_GEN'))
 
     CANONICAL_TEMPDIR = '/tmp/pdf2htmlEX_test'
-    
+
     def setUp(self):
         if not self.SAVE_TMP:
             self.cur_temp_dir = tempfile.mkdtemp(prefix='pdf2htmlEX_test')
@@ -30,7 +34,7 @@ class Common(object):
         self.cur_output_dir = os.path.join(self.cur_temp_dir, 'out')
         os.mkdir(self.cur_data_dir)
         os.mkdir(self.cur_output_dir)
-        
+
         # filter manifest
         with open(os.path.join(self.DATA_DIR, 'manifest')) as inf:
             with open(os.path.join(self.cur_data_dir, 'manifest'), 'w') as outf:
@@ -59,7 +63,7 @@ class Common(object):
         Execute the pdf2htmlEX with the specified arguments.
 
         :type args: list of values
-        :param args: list of arguments to pass to executable. 
+        :param args: list of arguments to pass to executable.
         :return: an object of relevant info
         """
 
@@ -75,13 +79,16 @@ class Common(object):
 
         files = os.listdir(self.cur_output_dir)
 
-        return { 
+        return {
             'return_code' : return_code,
             'output_files' : files
         }
-    
+
 
 if __name__ == '__main__':
+    if not len(sys.argv)==2:
+        print >> sys.stderr, "Usage: python test.py <pdf2htmlEX_executable_path>"
+        exit(1)
     if not os.path.isfile(Common.PDF2HTMLEX_PATH) or not os.access(Common.PDF2HTMLEX_PATH, os.X_OK):
         print >> sys.stderr, "Cannot locate pdf2htmlEX executable. Make sure source was built before running this test."
         exit(1)
@@ -104,7 +111,7 @@ if __name__ == '__main__':
         if name.find('.') == -1:
             for m in all_classes:
                 test_names.append(m + '.' + name)
-    
+
     for module in all_modules:
         if len(test_names) > 0 and module.__name__ not in test_names:
             for n in test_names:
