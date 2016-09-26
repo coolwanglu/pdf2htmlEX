@@ -68,10 +68,10 @@ class BrowserTests(Common):
             # save the diff image (http://stackoverflow.com/questions/15721484):
             diff_file_name = os.path.join(self.PNGDIR, basefilename + '.diff.png')
             diff_img.convert('RGB').save(diff_file_name)
-            self.fail(('PNG files %s and %s differ by <= %d pixels, (%f%% of %d pixels in total), '+
-                       'difference: %s') %
+            self.fail(('PNG files %s and %s differ by at most %d pixels, '+
+                       '(%f%% of %d pixels in total), difference: %s') %
                       (pngfilename_out, pngfilename_ref,
-                       diff_size, 1.0*diff_size/img_size, img_size, diff_file_name))
+                       diff_size, 100.0*diff_size/img_size, img_size, diff_file_name))
 
     @unittest.skipIf(Common.GENERATING_MODE, 'Do not auto generate reference for test_fail')
     def test_fail(self):
