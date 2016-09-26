@@ -2,9 +2,10 @@
 
 - python2 and packages
   - Python Imaging Library
-  - Selenium
+  - Selenium  
   - unittest
 - Firefox
+  - firefoxdriver
 
 ### Usage
 - Run all tests:
