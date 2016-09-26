@@ -37,11 +37,9 @@ class BrowserTests(Common):
         ref_htmlfilename = os.path.join(ref_htmlfolder, htmlfilename)
         out_htmlfilename = os.path.join(self.OUTDIR, htmlfilename)
 
-        pdf2htmlEX_args = self.DEFAULT_PDF2HTMLEX_ARGS \
-            + list(pdf2htmlEX_args) + [
+        pdf2htmlEX_args = self.DEFAULT_PDF2HTMLEX_ARGS + [
                 os.path.join(self.TEST_DATA_DIR, filename),
-                htmlfilename
-            ]
+                htmlfilename ]
         result = self.run_pdf2htmlEX(pdf2htmlEX_args)
 
         self.assertIn(htmlfilename, result['output_files'], 'HTML file is not generated')
