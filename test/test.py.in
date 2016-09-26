@@ -8,7 +8,10 @@ import shutil
 import subprocess
 
 class Common(object):
-    PDF2HTMLEX_PATH = "@PDF2HTMLEX_PATH@"
+    """
+    Variables and methods for common use in different tests.
+    """
+    PDF2HTMLEX_PATH = "@PDF2HTMLEX_PATH@" # defined in CMakeLists.txt
     if not os.path.isfile(PDF2HTMLEX_PATH) or not os.access(PDF2HTMLEX_PATH, os.X_OK):
         print >> sys.stderr, "Cannot locate pdf2htmlEX executable, expected at ", PDF2HTMLEX_PATH,
         ". Make sure source was built before running this test."
@@ -84,49 +87,3 @@ class Common(object):
             'return_code' : return_code,
             'output_files' : files
         }
-
-
-if __name__ == '__main__':
-    suites = []
-    loader = unittest.TestLoader()
-
-    all_classes = ['test_output', 'test_local_browser']
-    if bool(os.environ.get('P2H_TEST_REMOTE')):
-        all_classes += 'test_remote_browser'
-
-    all_modules = [ __import__(m) for m in all_classes ]
-
-    test_names = []
-    for name in sys.argv[1:]:
-        test_names.append(name)
-        if name.find('.') == -1:
-            for m in all_classes:
-                test_names.append(m + '.' + name)
-
-    print( 'TEST_NAMES -> ', test_names )
-
-    for module in all_modules:
-        if len(test_names) > 0 and module.__name__ not in test_names:            
-            for n in test_names:
-                try:
-                    suites.append(loader.loadTestsFromName(n, module))
-                    print( "DEB2 ", n, module, ' ==> ', loader.loadTestsFromName(n, module))
-                except:
-                    print "Catched error:", sys.exc_info()
-                    pass
-        else:
-            suites.append(loader.loadTestsFromModule(module))
-            print( "DEB1 ", module, ' ==> ', loader.loadTestsFromModule(module))
-
-    if len(suites) == 0:
-        print >>sys.stderr, 'No test found'
-        exit(1)
-
-    failure_count = 0
-    runner = unittest.TextTestRunner(verbosity=2)
-    for suite in suites:
-        result = runner.run(suite)
-        print( 'SUITE ', suite, ' ---> ', result )
-        failure_count += len(result.errors) + len(result.failures)
-
-    exit(failure_count)

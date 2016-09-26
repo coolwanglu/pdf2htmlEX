@@ -35,3 +35,6 @@ class test_local_browser(BrowserTests, unittest.TestCase):
             if page_must_load:
                 raise
         self.browser.save_screenshot(png_file)
+
+if __name__ == '__main__':
+    unittest.main()
