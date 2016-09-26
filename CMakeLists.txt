@@ -215,8 +215,8 @@ set(PDF2HTMLEX_RESOURCE
 install (FILES ${PDF2HTMLEX_RESOURCE} DESTINATION share/pdf2htmlEX)
 install (FILES pdf2htmlEX.1 DESTINATION share/man/man1)
 
-enable_testing()
+include(CTest)
 set(PDF2HTMLEX_PATH ${CMAKE_BINARY_DIR}/pdf2htmlEX)
 configure_file(${CMAKE_SOURCE_DIR}/test/test.py.in ${CMAKE_SOURCE_DIR}/test/test.py)
-add_test(test python ${CMAKE_SOURCE_DIR}/test/test.py test_basic_text)
-add_test(test python ${CMAKE_SOURCE_DIR}/test/test.py test_local_browser)
+add_test(test_basic   python ${CMAKE_SOURCE_DIR}/test/test.py test_basic_text)
+add_test(test_browser python ${CMAKE_SOURCE_DIR}/test/test.py test_local_browser)
