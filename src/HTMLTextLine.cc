@@ -250,7 +250,10 @@ void HTMLTextLine::dump_text(ostream & out)
                         if(std::abs(target - space_off) <= param.h_eps)
                         {
                             Unicode u = ' ';
+				// Sometimes we guess wrong whether we have a valid space character, so ensure it is always hidden
+                            out << "<span class=\"" << CSS::WHITESPACE_CN << "\">";
                             writeUnicodes(out, &u, 1);
+                            out << "</span>";
                             actual_offset = space_off;
                             done = true;
                         }

@@ -18,9 +18,11 @@
 // Copyright (C) 2005, 2006 Kristian Høgsberg <krh@redhat.com>
 // Copyright (C) 2005 Nickolay V. Shmyrev <nshmyrev@yandex.ru>
 // Copyright (C) 2006-2011, 2013 Carlos Garcia Campos <carlosgc@gnome.org>
-// Copyright (C) 2008, 2009, 2011-2013 Adrian Johnson <ajohnson@redneon.com>
+// Copyright (C) 2008, 2009, 2011-2016 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2008 Michael Vrable <mvrable@cs.ucsd.edu>
 // Copyright (C) 2010-2013 Thomas Freitag <Thomas.Freitag@alfa.de>
+// Copyright (C) 2015 Suzuki Toshiya <mpsuzuki@hiroshima-u.ac.jp>
+// Copyright (C) 2016 Jason Crain <jason@aquaticape.us>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -111,7 +113,7 @@ public:
 #if CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 12, 0)
   virtual GBool useShadedFills(int type) { return type <= 7; }
 #else
-  virtual GBool useShadedFills(int type) { return type < 4; }
+  virtual GBool useShadedFills(int type) { return type > 1 && type < 4; }
 #endif
 
   // Does this device use FillColorStop()?
@@ -120,6 +122,10 @@ public:
   // Does this device use beginType3Char/endType3Char?  Otherwise,
   // text in Type 3 fonts will be drawn with drawChar/drawString.
   virtual GBool interpretType3Chars() { return gFalse; }
+
+  // Does this device need to clip pages to the crop box even when the
+  // box is the crop box?
+  virtual GBool needClipToCropBox() { return gTrue; }
 
   //----- initialization and control
 
@@ -164,6 +170,9 @@ public:
 				  double *mat, double *bbox,
 				  int x0, int y0, int x1, int y1,
 				  double xStep, double yStep);
+#if CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 12, 0)
+  virtual GBool functionShadedFill(GfxState *state, GfxFunctionShading *shading);
+#endif
   virtual GBool axialShadedFill(GfxState *state, GfxAxialShading *shading, double tMin, double tMax);
   virtual GBool axialShadedSupportExtend(GfxState *state, GfxAxialShading *shading);
   virtual GBool radialShadedFill(GfxState *state, GfxRadialShading *shading, double sMin, double sMax);
@@ -257,6 +266,7 @@ public:
   void setCairo (cairo_t *cr);
   void setTextPage (TextPage *text);
   void setPrinting (GBool printing) { this->printing = printing; needFontUpdate = gTrue; }
+  void setAntialias(cairo_antialias_t antialias);
 
   void setInType3Char(GBool inType3Char) { this->inType3Char = inType3Char; }
   void getType3GlyphWidth (double *wx, double *wy) { *wx = t3_glyph_wx; *wy = t3_glyph_wy; }
@@ -272,11 +282,15 @@ protected:
   cairo_filter_t getFilterForSurface(cairo_surface_t *image,
 				     GBool interpolate);
   GBool getStreamData (Stream *str, char **buffer, int *length);
-  // pdf2htmlEX: make setMimeData virtual, we need to override it
-  virtual 
-  void setMimeData(Stream *str, Object *ref, cairo_surface_t *image);
+virtual
+  void setMimeData(GfxState *state, Stream *str, Object *ref,
+		   GfxImageColorMap *colorMap, cairo_surface_t *image);
   void fillToStrokePathClip(GfxState *state);
   void alignStrokeCoords(GfxSubpath *subpath, int i, double *x, double *y);
+#if CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 14, 0)
+  GBool setMimeDataForJBIG2Globals (Stream *str, cairo_surface_t *image);
+#endif
+  static void setContextAntialias(cairo_t *cr, cairo_antialias_t antialias);
 
   GfxRGB fill_color, stroke_color;
   cairo_pattern_t *fill_pattern, *stroke_pattern;
@@ -298,6 +312,7 @@ protected:
     cairo_line_cap_t cap;
     cairo_line_join_t join;
     double miter;
+    int ref_count;
   } *strokePathClip;
 
   PDFDoc *doc;			// the current document
@@ -313,6 +328,7 @@ protected:
   GBool needFontUpdate;                // set when the font needs to be updated
   GBool printing;
   GBool use_show_text_glyphs;
+  GBool text_matrix_valid;
   cairo_surface_t *surface;
   cairo_glyph_t *glyphs;
   int glyphCount;
@@ -327,7 +343,7 @@ protected:
   double t3_glyph_wx, t3_glyph_wy;
   GBool t3_glyph_has_bbox;
   double t3_glyph_bbox[4];
-
+  cairo_antialias_t antialias;
   GBool prescaleImages;
 
   TextPage *text;		// text for the current page

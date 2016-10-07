@@ -12,6 +12,9 @@
 
 #include <GfxState.h>
 
+#include <vector>
+#include <array>
+
 #include "pdf2htmlEX-config.h"
 
 #if ENABLE_SVG
@@ -31,11 +34,11 @@ public:
      * bbox in device space.
      */
     // a non-char graphics is drawn
-    std::function<void(double * bbox)> on_non_char_drawn;
+    std::function<void(cairo_t *cairo, double * bbox, int what)> on_non_char_drawn;
     // a char is drawn in the clip area
-    std::function<void(double * bbox)> on_char_drawn;
+    std::function<void(cairo_t *cairo, double * bbox)> on_char_drawn;
     // a char is drawn out of/partially in the clip area
-    std::function<void(double * bbox, bool patially)> on_char_clipped;
+    std::function<void(cairo_t *cairo, double * bbox, bool patially)> on_char_clipped;
 
     DrawingTracer(const Param & param);
     virtual ~DrawingTracer();
@@ -46,7 +49,7 @@ public:
      * x, y: glyph-drawing position, in PDF text object space.
      * ax, ay: glyph advance, in glyph space.
      */
-    void draw_char(GfxState * state, double x, double y, double ax, double ay);
+    void draw_char(GfxState * state, double x, double y, double ax, double ay, int inTransparencyGroup);
     /*
      * An image is drawing
      */
@@ -63,12 +66,14 @@ private:
     void finish();
     // Following methods operate in user space (just before CTM is applied)
     void do_path(GfxState * state, GfxPath * path);
-    void draw_non_char_bbox(GfxState * state, double * bbox);
-    void draw_char_bbox(GfxState * state, double * bbox);
+    void draw_non_char_bbox(GfxState * state, double * bbox, int what);
+    void draw_char_bbox(GfxState * state, double * bbox, int inTransparencyGroup);
     // If cairo is available, parameter state is ignored
-    void transform_bbox_by_ctm(double * bbox, GfxState * state = nullptr);
+    void xform_pt(double & x, double & y);
 
     const Param & param;
+
+    std::vector<double*> ctm_stack;
 
 #if ENABLE_SVG
     cairo_t * cairo;

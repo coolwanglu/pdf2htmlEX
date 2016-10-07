@@ -121,12 +121,9 @@ private:
   CairoFont *fontCache[cairoFontCacheSize];
   FT_Library lib;
   GBool useCIDs;
-/*
- * pdf2htmlEX: disabled multi thread 
 #if MULTITHREADED
   GooMutex mutex;
 #endif
-*/
 };
 
 #endif

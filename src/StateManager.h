@@ -43,7 +43,18 @@ public:
     // install new_value into the map
     // return the corresponding id
     long long install(double new_value, double * actual_value_ptr = nullptr) {
-        auto iter = value_map.lower_bound(new_value - eps);
+	// DCRH: Fix for when eps check fails and yet map thinks the keys are the same
+	// (DEV1-RYR-LETTER example)
+        auto iter = value_map.find(new_value);
+        if (iter != value_map.end()) {
+            if(actual_value_ptr != nullptr)
+                *actual_value_ptr = iter->first;
+
+            return iter->second;
+        }
+
+        iter = value_map.lower_bound(new_value - eps);
+
         if((iter != value_map.end()) && (std::abs(iter->first - new_value) <= eps))
         {
             if(actual_value_ptr != nullptr)

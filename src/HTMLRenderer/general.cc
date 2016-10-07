@@ -47,6 +47,7 @@ HTMLRenderer::HTMLRenderer(const Param & param)
     ,html_text_page(param, all_manager)
     ,preprocessor(param)
     ,tmp_files(param)
+    ,covered_text_detector(param)
     ,tracer(param)
 {
     if(!(param.debug))
@@ -81,11 +82,11 @@ HTMLRenderer::HTMLRenderer(const Param & param)
     all_manager.bottom      .set_eps(EPS);
 
     tracer.on_char_drawn =
-            [this](double * box) { covered_text_detector.add_char_bbox(box); };
+            [this](cairo_t *cairo, double * box) { covered_text_detector.add_char_bbox(cairo, box); };
     tracer.on_char_clipped =
-            [this](double * box, bool partial) { covered_text_detector.add_char_bbox_clipped(box, partial); };
+            [this](cairo_t *cairo, double * box, bool partial) { covered_text_detector.add_char_bbox_clipped(cairo, box, partial); };
     tracer.on_non_char_drawn =
-            [this](double * box) { covered_text_detector.add_non_char_bbox(box); };
+            [this](cairo_t *cairo, double * box, int what) { covered_text_detector.add_non_char_bbox(cairo, box, what); };
 }
 
 HTMLRenderer::~HTMLRenderer()

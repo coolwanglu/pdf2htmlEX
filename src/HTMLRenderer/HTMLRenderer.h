@@ -144,6 +144,13 @@ struct HTMLRenderer : OutputDev
     virtual void eoFill(GfxState *state);
     virtual GBool axialShadedFill(GfxState *state, GfxAxialShading *shading, double tMin, double tMax);
 
+  virtual void beginTransparencyGroup(GfxState * /*state*/, double * /*bbox*/,
+                                      GfxColorSpace * /*blendingColorSpace*/,
+                                      GBool /*isolated*/, GBool /*knockout*/,
+                                      GBool /*forSoftMask*/);
+  virtual void endTransparencyGroup(GfxState * /*state*/);
+
+
     virtual void processLink(AnnotLink * al);
 
     /*
@@ -250,6 +257,7 @@ protected:
     ////////////////////////////////////////////////////
     // PDF states
     ////////////////////////////////////////////////////
+    int inTransparencyGroup;
     // track the original (unscaled) values to determine scaling and merge lines
     // current position
     double cur_tx, cur_ty; // real text position, in text coords
