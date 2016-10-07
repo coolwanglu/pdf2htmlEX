@@ -114,7 +114,8 @@ bool SplashBackgroundRenderer::render_page(PDFDoc * doc, int pageno)
 {
     drawn_char_count = 0;
     bool process_annotation = param.process_annotation;
-    doc->displayPage(this, pageno, param.h_dpi, param.v_dpi,
+
+    doc->displayPage(this, pageno, param.actual_dpi, param.actual_dpi,
             0, 
             (!(param.use_cropbox)),
             false, false,
@@ -139,8 +140,8 @@ void SplashBackgroundRenderer::embed_image(int pageno)
             dump_image((char*)fn, xmin, ymin, xmax, ymax);
         }
 
-        double h_scale = html_renderer->text_zoom_factor() * DEFAULT_DPI / param.h_dpi;
-        double v_scale = html_renderer->text_zoom_factor() * DEFAULT_DPI / param.v_dpi;
+        double h_scale = html_renderer->text_zoom_factor() * DEFAULT_DPI / param.actual_dpi;
+        double v_scale = html_renderer->text_zoom_factor() * DEFAULT_DPI / param.actual_dpi;
 
         auto & f_page = *(html_renderer->f_curpage);
         auto & all_manager = html_renderer->all_manager;
@@ -207,7 +208,7 @@ void SplashBackgroundRenderer::dump_image(const char * filename, int x1, int y1,
         throw string("Image format not supported: ") + format;
     }
 
-    if(!writer->init(f, width, height, param.h_dpi, param.v_dpi))
+    if(!writer->init(f, width, height, param.actual_dpi, param.actual_dpi))
         throw "Cannot initialize image writer";
         
     auto * bitmap = getBitmap();

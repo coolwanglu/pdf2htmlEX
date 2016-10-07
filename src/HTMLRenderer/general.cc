@@ -41,7 +41,7 @@ using std::abs;
 using std::cerr;
 using std::endl;
 
-HTMLRenderer::HTMLRenderer(const Param & param)
+HTMLRenderer::HTMLRenderer(Param & param)
     :OutputDev()
     ,param(param)
     ,html_text_page(param, all_manager)
@@ -94,6 +94,8 @@ HTMLRenderer::~HTMLRenderer()
     ffw_finalize();
 }
 
+#define MAX_DIMEN 6000
+
 void HTMLRenderer::process(PDFDoc *doc)
 {
     cur_doc = doc;
@@ -120,6 +122,17 @@ void HTMLRenderer::process(PDFDoc *doc)
     int page_count = (param.last_page - param.first_page + 1);
     for(int i = param.first_page; i <= param.last_page ; ++i)
     {
+        param.actual_dpi = param.desired_dpi;
+
+        if (param.actual_dpi * doc->getPageCropWidth(i) / 72.0 > MAX_DIMEN) {
+            param.actual_dpi = 72.0 * MAX_DIMEN / doc->getPageCropWidth(i);
+            printf("Warning:Page %d width clamped to %d (%f DPI)\n", i, MAX_DIMEN, param.actual_dpi);
+        }
+        if (param.actual_dpi * doc->getPageCropHeight(i) / 72.0 > MAX_DIMEN) {
+            param.actual_dpi = 72.0 * MAX_DIMEN / doc->getPageCropHeight(i);
+            printf("Warning:Page %d height clamped to %d (%f DPI)\n", i, MAX_DIMEN, param.actual_dpi);
+        }
+
         if (param.tmp_file_size_limit != -1 && tmp_files.get_total_size() > param.tmp_file_size_limit * 1024) {
             cerr << "Stop processing, reach max size\n";
             break;

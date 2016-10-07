@@ -22,7 +22,8 @@ struct Param
     double zoom;
     double fit_width, fit_height;
     int use_cropbox;
-    double h_dpi, v_dpi;
+    double desired_dpi;
+    double actual_dpi;
 
     // output
     int embed_css;

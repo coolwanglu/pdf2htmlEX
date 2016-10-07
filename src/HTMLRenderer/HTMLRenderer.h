@@ -47,7 +47,7 @@ namespace pdf2htmlEX {
 
 struct HTMLRenderer : OutputDev
 {
-    HTMLRenderer(const Param & param);
+    HTMLRenderer(Param & param);
     virtual ~HTMLRenderer();
 
     void process(PDFDoc * doc);
@@ -252,7 +252,7 @@ protected:
     double print_scale (void) const { return 96.0 / DEFAULT_DPI / text_zoom_factor(); }
 
 
-    const Param & param;
+    Param & param;
 
     ////////////////////////////////////////////////////
     // PDF states

@@ -134,9 +134,9 @@ bool CairoBackgroundRenderer::render_page(PDFDoc * doc, int pageno)
     if(param.embed_image)
         html_renderer->tmp_files.add(fn);
 
-    surface = cairo_svg_surface_create(fn.c_str(), page_width * param.h_dpi / DEFAULT_DPI, page_height * param.v_dpi / DEFAULT_DPI);
+    surface = cairo_svg_surface_create(fn.c_str(), page_width * param.actual_dpi / DEFAULT_DPI, page_height * param.actual_dpi / DEFAULT_DPI);
     cairo_svg_surface_restrict_to_version(surface, CAIRO_SVG_VERSION_1_2);
-    cairo_surface_set_fallback_resolution(surface, param.h_dpi, param.v_dpi);
+    cairo_surface_set_fallback_resolution(surface, param.actual_dpi, param.actual_dpi);
 
     cairo_t * cr = cairo_create(surface);
     setCairo(cr);
@@ -144,7 +144,7 @@ bool CairoBackgroundRenderer::render_page(PDFDoc * doc, int pageno)
     bitmaps_in_current_page.clear();
 
     bool process_annotation = param.process_annotation;
-    doc->displayPage(this, pageno, param.h_dpi, param.v_dpi,
+    doc->displayPage(this, pageno, param.actual_dpi, param.actual_dpi,
             0, 
             (!(param.use_cropbox)),
             false, 

@@ -237,7 +237,7 @@ string HTMLRenderer::dump_type3_font (GfxFont * font, FontInfo & info)
         surface = cairo_svg_surface_create(glyph_filename.c_str(), transformed_bbox_width * scale, transformed_bbox_height * scale);
 
         cairo_svg_surface_restrict_to_version(surface, CAIRO_SVG_VERSION_1_2);
-        cairo_surface_set_fallback_resolution(surface, param.h_dpi, param.v_dpi);
+        cairo_surface_set_fallback_resolution(surface, param.actual_dpi, param.actual_dpi);
         cairo_t * cr = cairo_create(surface);
 
         // track the position of the origin

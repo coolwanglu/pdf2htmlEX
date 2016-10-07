@@ -139,8 +139,7 @@ void parse_options (int argc, char **argv)
         .add("fit-width", &param.fit_width, 0, "fit width to <fp> pixels", true)
         .add("fit-height", &param.fit_height, 0, "fit height to <fp> pixels", true)
         .add("use-cropbox", &param.use_cropbox, 1, "use CropBox instead of MediaBox")
-        .add("hdpi", &param.h_dpi, 144.0, "horizontal resolution for graphics in DPI")
-        .add("vdpi", &param.v_dpi, 144.0, "vertical resolution for graphics in DPI")
+        .add("dpi", &param.desired_dpi, 144.0, "Resolution for graphics in DPI")
 
         // output files
         .add("embed", "specify which elements should be embedded into output", embed_parser, true)
