@@ -24,6 +24,8 @@ struct Param
     int use_cropbox;
     double desired_dpi;
     double actual_dpi;
+    double max_dpi;
+    double text_dpi;
 
     // output
     int embed_css;

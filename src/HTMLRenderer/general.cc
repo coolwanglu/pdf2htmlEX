@@ -84,7 +84,7 @@ HTMLRenderer::HTMLRenderer(Param & param)
     tracer.on_char_drawn =
             [this](cairo_t *cairo, double * box) { covered_text_detector.add_char_bbox(cairo, box); };
     tracer.on_char_clipped =
-            [this](cairo_t *cairo, double * box, bool partial) { covered_text_detector.add_char_bbox_clipped(cairo, box, partial); };
+            [this](cairo_t *cairo, double * box, int partial) { covered_text_detector.add_char_bbox_clipped(cairo, box, partial); };
     tracer.on_non_char_drawn =
             [this](cairo_t *cairo, double * box, int what) { covered_text_detector.add_non_char_bbox(cairo, box, what); };
 }
@@ -123,14 +123,11 @@ void HTMLRenderer::process(PDFDoc *doc)
     for(int i = param.first_page; i <= param.last_page ; ++i)
     {
         param.actual_dpi = param.desired_dpi;
+        param.max_dpi = 72 * MAX_DIMEN / max(doc->getPageCropWidth(i), doc->getPageCropHeight(i));
 
-        if (param.actual_dpi * doc->getPageCropWidth(i) / 72.0 > MAX_DIMEN) {
-            param.actual_dpi = 72.0 * MAX_DIMEN / doc->getPageCropWidth(i);
-            printf("Warning:Page %d width clamped to %d (%f DPI)\n", i, MAX_DIMEN, param.actual_dpi);
-        }
-        if (param.actual_dpi * doc->getPageCropHeight(i) / 72.0 > MAX_DIMEN) {
-            param.actual_dpi = 72.0 * MAX_DIMEN / doc->getPageCropHeight(i);
-            printf("Warning:Page %d height clamped to %d (%f DPI)\n", i, MAX_DIMEN, param.actual_dpi);
+        if (param.actual_dpi > param.max_dpi) {
+            param.actual_dpi = param.max_dpi;
+            printf("Warning:Page %d clamped to %f DPI\n", i, param.actual_dpi);
         }
 
         if (param.tmp_file_size_limit != -1 && tmp_files.get_total_size() > param.tmp_file_size_limit * 1024) {
@@ -160,6 +157,10 @@ void HTMLRenderer::process(PDFDoc *doc)
                 true,  // crop
                 false, // printing
                 nullptr, nullptr, nullptr, nullptr);
+
+        if (param.desired_dpi != param.actual_dpi) {
+            printf("Page %d DPI change %.1f => %.1f\n", i, param.desired_dpi, param.actual_dpi);
+        }
 
         if(param.split_pages)
         {

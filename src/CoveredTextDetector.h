@@ -22,7 +22,7 @@ class CoveredTextDetector
 {
 public:
 
-    CoveredTextDetector(const Param & param);
+    CoveredTextDetector(Param & param);
 
     /**
      * Reset to initial state. Should be called when start drawing a page.
@@ -60,7 +60,7 @@ private:
     // x00, y00, x01, y01; x10, y10, x11, y11;...
     std::vector<double> char_bboxes;
     std::vector<int> char_pts_visible;
-    const Param & param;
+    Param & param;
 };
 
 }

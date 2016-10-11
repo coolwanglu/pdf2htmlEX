@@ -38,7 +38,7 @@ public:
     // a char is drawn in the clip area
     std::function<void(cairo_t *cairo, double * bbox)> on_char_drawn;
     // a char is drawn out of/partially in the clip area
-    std::function<void(cairo_t *cairo, double * bbox, bool patially)> on_char_clipped;
+    std::function<void(cairo_t *cairo, double * bbox, int pts_visible)> on_char_clipped;
 
     DrawingTracer(const Param & param);
     virtual ~DrawingTracer();

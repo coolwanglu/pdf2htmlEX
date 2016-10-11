@@ -7,13 +7,14 @@
 
 #include "CoveredTextDetector.h"
 
+#include <algorithm>
 #include "util/math.h"
 
 //#define DEBUG
 
 namespace pdf2htmlEX {
 
-CoveredTextDetector::CoveredTextDetector(const Param & param): param(param)
+CoveredTextDetector::CoveredTextDetector(Param & param): param(param)
 {
 }
 
@@ -33,14 +34,18 @@ void CoveredTextDetector::add_char_bbox(cairo_t *cairo, double * bbox)
 
 void CoveredTextDetector::add_char_bbox_clipped(cairo_t *cairo, double * bbox, int pts_visible)
 {
-//printf("add_char_bbox_clipped: %d, [%f,%f,%f,%f]\n", partially, bbox[0], bbox[1], bbox[2], bbox[3]);
-
+#ifdef DEBUG
+    printf("add_char_bbox_clipped: pts_visible:%x: [%f,%f,%f,%f]\n", pts_visible, bbox[0], bbox[1], bbox[2], bbox[3]);
+#endif
     char_bboxes.insert(char_bboxes.end(), bbox, bbox + 4);
     char_pts_visible.push_back(pts_visible);
 
     // DCRH: Hide if no points are visible, or if some points are visible and correct_text_visibility == 2
     if (pts_visible == 0 || param.correct_text_visibility == 2) {
         chars_covered.push_back(true);
+        if (pts_visible > 0 && param.correct_text_visibility == 2) {
+            param.actual_dpi = std::min(param.text_dpi, param.max_dpi); // Char partially covered so increase background resolution
+        }
     } else {
         chars_covered.push_back(false);
     }
@@ -93,11 +98,14 @@ printf("pts_visible=%x\n", pts_visible);
 printf("pts_visible=%x\n", pts_visible);
 #endif
             char_pts_visible[i] = pts_visible;
-            if (pts_visible == 0 || (pts_visible != (1|2|4|8) &&  param.correct_text_visibility == 2)) {
+            if (pts_visible == 0 || (pts_visible != (1|2|4|8) && param.correct_text_visibility == 2)) {
 #ifdef DEBUG
 printf("Char covered\n");
 #endif
-                    chars_covered[i] = true;
+                chars_covered[i] = true;
+                if (pts_visible > 0 && param.correct_text_visibility == 2) { // Partially visible text => increase rendering DPI
+                    param.actual_dpi = std::min(param.text_dpi, param.max_dpi);
+                }
             }
         } else {
 #ifdef DEBUG
