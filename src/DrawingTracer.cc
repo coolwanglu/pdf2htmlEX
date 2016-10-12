@@ -432,25 +432,13 @@ void DrawingTracer::draw_char(GfxState *state, double x, double y, double ax, do
     if (font->getWMode() == 0)
     {
 //        bbox[1] += desc;
- //       bbox[3] += asc;
+//        bbox[3] += asc;
     }
     else
     {//TODO Vertical?
     }
 
 //printf("bbox before: [%f,%f,%f,%f]\n", bbox[0],bbox[1],bbox[2],bbox[3]);
-    // The char bbox does not appear to be very accurate, so 
-    // shrink it a bit.
-    // Hopefully these lines can be removed when the bbox is fixed
-    double ox1 = bbox[0];
-    double ox2 = bbox[2];
-    double oy1 = bbox[1];
-    double oy2 = bbox[3];
-    double inset = 0.10;
-    bbox[0] = (1-inset)*ox1 + inset*ox2;
-    bbox[2] = inset*ox1 + (1-inset)*ox2;
-    bbox[1] = (1-inset)*oy1 + inset*oy2;
-    bbox[3] = inset*oy1 + (1-inset)*oy2;
 //printf("bbox after: [%f,%f,%f,%f]\n", bbox[0],bbox[1],bbox[2],bbox[3]);
     tm_transform_bbox(final_after_ctm, bbox);
 //printf("bbox after: [%f,%f,%f,%f]\n", bbox[0],bbox[1],bbox[2],bbox[3]);
