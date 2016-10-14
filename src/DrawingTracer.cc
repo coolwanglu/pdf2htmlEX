@@ -191,6 +191,10 @@ void DrawingTracer::stroke(GfxState * state)
     if (!param.correct_text_visibility)
         return;
 
+    if (state->getStrokeOpacity() < 0.5) {
+        // Ignore partially transparent fills for occlusion purposes
+        return;
+    }
 
     // Transform the line width by the ctm. This isn't 100% - we should really do this path segment by path segment,
     // this is a reasonable approximation providing the CTM has uniform scaling X/Y
@@ -230,7 +234,7 @@ void DrawingTracer::stroke(GfxState * state)
         while (p < n) {
             cairo_new_path(cairo);
 #ifdef DEBUG
-printf("move_to: [%f,%f]\n", x, y);
+            printf("move_to: [%f,%f]\n", x, y);
 #endif
             cairo_move_to(cairo, x, y);
             if (subpath->getCurve(p)) {
@@ -244,7 +248,7 @@ printf("move_to: [%f,%f]\n", x, y);
                 xform_pt(x1, y1);
                 xform_pt(x2, y2);
 #ifdef DEBUG
-printf("curve_to: [%f,%f], [%f,%f], [%f,%f]\n", x1, y1, x2, y2, x, y);
+                printf("curve_to: [%f,%f], [%f,%f], [%f,%f]\n", x1, y1, x2, y2, x, y);
 #endif
                 cairo_curve_to(cairo,
                     x1, y1,
@@ -256,7 +260,7 @@ printf("curve_to: [%f,%f], [%f,%f], [%f,%f]\n", x1, y1, x2, y2, x, y);
                 y = subpath->getY(p);
                 xform_pt(x, y);
 #ifdef DEBUG
-printf("line_to: [%f,%f]\n", x, y);
+                printf("line_to: [%f,%f]\n", x, y);
 #endif
                 cairo_line_to(cairo, x, y);
                 ++p;
@@ -277,6 +281,11 @@ void DrawingTracer::fill(GfxState * state, bool even_odd)
 {
     if (!param.correct_text_visibility)
         return;
+
+    if (state->getFillOpacity() < 0.5) {
+        // Ignore partially transparent fills for occlusion purposes
+        return;
+    }
 
     do_path(state, state->getPath());
     //cairo_fill_extents don't take fill rule into account.
@@ -390,16 +399,9 @@ void DrawingTracer::draw_image(GfxState *state)
     draw_non_char_bbox(state, bbox, 1);
 }
 
-void DrawingTracer::draw_char(GfxState *state, double x, double y, double ax, double ay, int inTransparencyGroup)
+void DrawingTracer::draw_char(GfxState *state, double x, double y, double width, double height, int inTransparencyGroup)
 {
-    if (ax == 0) { // To handle some characters which have zero advance. Give it some width so the bbox tests still work
-        ax = 0.1;
-    }
-    if (ay == 0) {
-        ay = 0.1;
-    }
-        
-//printf("x=%f,y=%f,ax=%f,ay=%f\n", x, y, ax, ay);
+//printf("x=%f,y=%f,width=%f,height=%f\n", x, y, width, height);
     Matrix tm, itm;
     memcpy(tm.m, state->getTextMat(), sizeof(tm.m));
 
@@ -419,6 +421,8 @@ void DrawingTracer::draw_char(GfxState *state, double x, double y, double ax, do
     //TODO Vertical? Currently vertical/type3 chars are treated as non-chars.
     double char_m[6] {fs * h, 0, 0, fs, char_cx + x, char_cy + y + ry};
 
+//printf("char_m = %f,%f,%f,%f,%f,%f\n", char_m[0], char_m[1], char_m[2], char_m[3], char_m[4], char_m[5]);
+
     double final_m[6];
     tm_multiply(final_m, tm.m, char_m);
 
@@ -426,17 +430,8 @@ void DrawingTracer::draw_char(GfxState *state, double x, double y, double ax, do
     double final_after_ctm[6];
     tm_multiply(final_after_ctm, ctm_stack.back(), final_m);
 //printf("final_after_ctm= %f,%f,%f,%f,%f,%f\n", final_after_ctm[0], final_after_ctm[1], final_after_ctm[2], final_after_ctm[3], final_after_ctm[4], final_after_ctm[5]);
-    auto font = state->getFont();
-    double bbox[4] {0, 0, ax, ay};
-//    double desc = font->getDescent(), asc = font->getAscent();
-    if (font->getWMode() == 0)
-    {
-//        bbox[1] += desc;
-//        bbox[3] += asc;
-    }
-    else
-    {//TODO Vertical?
-    }
+    double inset = 0.1;
+    double bbox[4] {inset*width, inset*height, (1-inset)*width, (1-inset)*height};
 
 //printf("bbox before: [%f,%f,%f,%f]\n", bbox[0],bbox[1],bbox[2],bbox[3]);
 //printf("bbox after: [%f,%f,%f,%f]\n", bbox[0],bbox[1],bbox[2],bbox[3]);

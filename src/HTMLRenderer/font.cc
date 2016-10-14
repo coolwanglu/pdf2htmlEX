@@ -1030,21 +1030,15 @@ void HTMLRenderer::export_remote_font(const FontInfo & info, const string & form
     }
 
     bool italic = false;
-    bool bold = false;
     char *fn = font->getName()->getCString();
 //printf("%s : %d / %d\n", fn, font->isItalic(), font->isBold());
 
-    if (font->isItalic() && !strcasestr(fn,"italic")) {
+    if (strcasestr(fn,"oblique")) {
         italic = true;
 //printf("Adding italic to %s\n", fn);
     }
-    if (font->isBold() && !strcasestr(fn,"bold")) {
-        bold = true;
-//printf("Adding bold to %s\n", fn);
-    }
 
     const char *style = italic ? "italic" : "normal";
-    const char *weight = bold ? "bold" : "normal";
 
     f_css.fs << ")"
              << "format(\"" << css_font_format << "\");"
@@ -1053,7 +1047,7 @@ void HTMLRenderer::export_remote_font(const FontInfo & info, const string & form
              << "font-family:" << CSS::FONT_FAMILY_CN << info.id << ";"
              << "line-height:" << round(info.ascent - info.descent) << ";"
              << "font-style:" << style << ";"
-             << "font-weight:" << weight << ";"
+             << "font-weight:normal;"
              << "visibility:visible;"
              << "}" 
              << endl;

@@ -47,9 +47,9 @@ public:
     /*
      * A character is drawing
      * x, y: glyph-drawing position, in PDF text object space.
-     * ax, ay: glyph advance, in glyph space.
+     * width, height: glyph width/height
      */
-    void draw_char(GfxState * state, double x, double y, double ax, double ay, int inTransparencyGroup);
+    void draw_char(GfxState * state, double x, double y, double width, double height, int inTransparencyGroup);
     /*
      * An image is drawing
      */

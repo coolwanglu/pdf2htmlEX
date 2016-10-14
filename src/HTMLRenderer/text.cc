@@ -89,7 +89,34 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
         }
         ddx = ax * cur_font_size + cur_letter_space;
         ddy = ay * cur_font_size;
-        tracer.draw_char(state, dx, dy, ax, ay, !drawChars || inTransparencyGroup);
+
+        double width = 0, height = font->getAscent();
+        if (font->isCIDFont()) {
+            char buf[2];
+            buf[0] = (code >> 8) & 0xff;
+            buf[1] = (code & 0xff);
+            width = ((GfxCIDFont *)font)->getWidth(buf, 2);
+        } else {
+            width = ((Gfx8BitFont *)font)->getWidth(code);
+        }
+
+        if (width == 0 || height == 0) {
+            cerr << "CID: " << font->isCIDFont() << ", char:" << code << ", width:" << width << ", ax:" << ax << ", height:" << height << ", ay:" << ay << endl;
+        }
+        if (width == 0) {
+            width = ax;
+            if (width == 0) {
+                width = 0.001;
+            }
+        }
+        if (height == 0) {
+            height = ay;
+            if (height == 0) {
+                height = 0.001;
+            }
+        }
+
+        tracer.draw_char(state, dx, dy, width, height, !drawChars || inTransparencyGroup);
 
         bool is_space = false;
         if (n == 1 && *p == ' ') 
