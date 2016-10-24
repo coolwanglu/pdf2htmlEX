@@ -101,7 +101,7 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
         }
 
         if (width == 0 || height == 0) {
-            cerr << "CID: " << font->isCIDFont() << ", char:" << code << ", width:" << width << ", ax:" << ax << ", height:" << height << ", ay:" << ay << endl;
+            //cerr << "CID: " << font->isCIDFont() << ", char:" << code << ", width:" << width << ", ax:" << ax << ", height:" << height << ", ay:" << ay << endl;
         }
         if (width == 0) {
             width = ax;
