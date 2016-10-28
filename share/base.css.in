@@ -64,6 +64,7 @@
   }
   #sidebar { display:none; }
   #page-container {
+    position: relative;
     width:auto;
     height:auto;
     overflow:visible;
