@@ -1,5 +1,25 @@
 #![](http://coolwanglu.github.io/pdf2htmlEX/images/pdf2htmlEX-64x64.png) pdf2htmlEX 
 
+# My branch differences:
+
+This is my branch of pdf2htmlEX which I maintain for my own purposes. I have made a number of changes and improvements over the original code:
+
+* Lots of bugs fixes, mostly of edge cases
+* Integration of latest Cairo code
+* Out of source building
+* Rewritten handling of obscured/partially obscured text - now much more accurate
+* Some support for transparent text
+* Improvement of DPI settings - clamping of DPI to ensure output graphic isn't too big
+
+`--correct-text-visibility` tracks the visibility of 4 sample points for each character (currently the 4 corners of the character's bounding box, inset slightly) to determine visibility.
+It now has two modes. 1 = Fully occluded text handled (i.e. doesn't get put into the HTML layer). 2 = Partially occluded text handled.
+
+The default is now "1", so fully occluded text should no longer show through. If "2" is selected then if the character is partially occluded it will be drawn in the background layer. In this case, the rendered DPI of the page will be automatically increased to `--covered-text-dpi` (default: 300) to reduce the impact of rasterized text.
+
+For maximum accuracy I strongly recommend using the output options: `--font-size-multiplier 1 --zoom 25`. This will circumvent rounding errors inside web browsers. You will then have to sscale down the resulting HTML page using an appropriate "scale" transform.
+
+If you are concerned about file size of the resulting HTML, then I recommend patching fontforge to prevent it writing the current time into the dumped fonts, and then post-process the pdf2htmlEX data to remove duplicate files - there will usually be many duplicate background images and fonts.
+
 <!--
 [![Build Status](https://travis-ci.org/coolwanglu/pdf2htmlEX.png?branch=master)](https://travis-ci.org/coolwanglu/pdf2htmlEX)
 -->
