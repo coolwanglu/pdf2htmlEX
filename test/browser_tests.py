@@ -14,7 +14,6 @@ class BrowserTests(Common):
     DEFAULT_PDF2HTMLEX_ARGS = [
         '--fit-width', 800,
         '--last-page', 1,
-        '--embed', 'FI', # with 'fi', test suite is currently broken (some directory interference)
         # avoid base64 to make it faster
     ]
 
