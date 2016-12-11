@@ -1,3 +1,5 @@
+pdf2htmlEX is no longer under active development. New maintainers are [wanted](http://pdf2htmlex.blogspot.ch/2016/12/looking-for-new-maintainer.html).
+
 #![](http://coolwanglu.github.io/pdf2htmlEX/images/pdf2htmlEX-64x64.png) pdf2htmlEX 
 
 <!--
@@ -27,35 +29,16 @@ Learn more about [who](https://github.com/coolwanglu/pdf2htmlEX/wiki/Use-Cases) 
 
 [Compare to others](https://github.com/coolwanglu/pdf2htmlEX/wiki/Comparison)
 
-### Wiki Portals
+### Portals
 
  * [:house:Wiki Home](https://github.com/coolwanglu/pdf2htmlEX/wiki)
  * [Download](https://github.com/coolwanglu/pdf2htmlEX/wiki/Download) & [Building](https://github.com/coolwanglu/pdf2htmlEX/wiki/Building)
  * [Quick Start](https://github.com/coolwanglu/pdf2htmlEX/wiki/Quick-Start)
  * [Report Issues / Ask for Help](https://github.com/coolwanglu/pdf2htmlEX/blob/master/CONTRIBUTING.md#guidance)
-
-### Get in Touch
-
-Get quick answers for common questions:
  * [:question:FAQ](https://github.com/coolwanglu/pdf2htmlEX/wiki/FAQ)
-
-Don't miss the latest development news:
- * [Development Blog](http://pdf2htmlex.blogspot.com) 
- * [@pdf2htmlEX](https://twitter.com/pdf2htmlEX) 
-
-Discuss with the developers and the users of pdf2htmlEX
  * [:envelope:Mailing List](https://groups.google.com/forum/#!forum/pdf2htmlex)
  * [:mahjong:中文邮件列表](https://groups.google.com/forum/#!forum/pdf2htmlex-cn)
- 
-Chat with the main author: 王璐 (Lu Wang)
- * <coolwanglu@gmail.com>
- * [@coolwanglu](https://twitter.com/coolwanglu)
- * :bangbang:Questions about pdf2htmlEX? Use the mailling list instead.:bangbang:
- * Accepting messages in :cn::us::gb::jp: (languages).
 
-Want to help without coding? Thank you!
-* [:moneybag:Make a donation](http://coolwanglu.github.io/pdf2htmlEX/donate.html)
- 
 ### LICENSE
 
 pdf2htmlEX, as a whole package, is licensed under GPLv3+.
