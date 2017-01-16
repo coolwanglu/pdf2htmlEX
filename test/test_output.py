@@ -14,8 +14,12 @@ class test_output(Common, unittest.TestCase):
         args = list(args)
         args.insert(0, os.path.join(self.TEST_DIR, 'test_output', input_file))
         result = self.run_pdf2htmlEX(args)
+        self.maxDiff = None
         if expected_output_files:
             self.assertItemsEqual(result['output_files'], expected_output_files)
+            print("test_output ", input_file, ": matched ", expected_output_files)
+        else:
+            print("test_output ", input_file, ": passed")
 
     def test_generate_single_html_default_name_single_page_pdf(self):
         self.run_test_case('1-page.pdf', expected_output_files = ['1-page.html'])
@@ -88,3 +92,6 @@ class test_output(Common, unittest.TestCase):
 
     def test_issue501(self):
         self.run_test_case('issue501', ['--split-pages', 1, '--embed-css', 0]);
+
+if __name__ == '__main__':
+    unittest.main() # runs all methods that have names starting with 'test'
