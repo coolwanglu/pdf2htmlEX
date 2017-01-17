@@ -219,7 +219,7 @@ void CairoBackgroundRenderer::embed_image(int pageno)
         auto path = html_renderer->str_fmt("%s/bg%x.svg", param.tmp_dir.c_str(), pageno);
         ifstream fin((char*)path, ifstream::binary);
         if(!fin)
-            throw string("Cannot read background image ") + (char*)path;
+            throw string("Cannot read background image: ") + (char*)path;
         f_page << "data:image/svg+xml;base64," << Base64Stream(fin);
     }
     else

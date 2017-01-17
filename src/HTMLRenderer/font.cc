@@ -160,7 +160,7 @@ string HTMLRenderer::dump_embedded_font (GfxFont * font, FontInfo & info)
 
         ofstream outf(filepath, ofstream::binary);
         if(!outf)
-            throw string("Cannot open file ") + filepath + " for writing";
+            throw "Cannot open temporary font file for writing: " + filepath;
 
         char buf[1024];
         int len;

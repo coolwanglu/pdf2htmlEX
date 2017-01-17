@@ -177,7 +177,7 @@ void SplashBackgroundRenderer::embed_image(int pageno)
             auto path = html_renderer->str_fmt("%s/bg%x.%s", param.tmp_dir.c_str(), pageno, format.c_str());
             ifstream fin((char*)path, ifstream::binary);
             if(!fin)
-                throw string("Cannot read background image ") + (char*)path;
+                throw string("Cannot read background image: ") + (char*)path;
 
             auto iter = FORMAT_MIME_TYPE_MAP.find(format);
             if(iter == FORMAT_MIME_TYPE_MAP.end())
@@ -204,7 +204,7 @@ void SplashBackgroundRenderer::dump_image(const char * filename, int x1, int y1,
 
     FILE * f = fopen(filename, "wb");
     if(!f)
-        throw string("Cannot open file for background image " ) + filename;
+        throw string("Cannot open file for background image: " ) + filename;
 
     // use unique_ptr to auto delete the object upon exception
     unique_ptr<ImgWriter> writer;
@@ -228,7 +228,7 @@ void SplashBackgroundRenderer::dump_image(const char * filename, int x1, int y1,
     }
 
     if(!writer->init(f, width, height, param.h_dpi, param.v_dpi))
-        throw "Cannot initialize image writer";
+        throw "Failed initializing image writer";
         
     auto * bitmap = getBitmap();
     assert(bitmap->getMode() == splashModeRGB8);
@@ -247,12 +247,12 @@ void SplashBackgroundRenderer::dump_image(const char * filename, int x1, int y1,
     
     if(!writer->writePointers(pointers.data(), height)) 
     {
-        throw "Cannot write background image";
+        throw "Failed writing background image";
     }
 
     if(!writer->close())
     {
-        throw "Cannot finish background image";
+        throw "Failed closing background image";
     }
 
     fclose(f);

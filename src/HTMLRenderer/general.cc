@@ -108,7 +108,7 @@ void HTMLRenderer::process(PDFDoc *doc)
     {
         bg_renderer = BackgroundRenderer::getBackgroundRenderer(param.bg_format, this, param);
         if(!bg_renderer)
-            throw "Cannot initialize background renderer, unsupported format";
+            throw "Failed initializing background renderer, unsupported format";
         bg_renderer->init(doc);
 
         fallback_bg_renderer = BackgroundRenderer::getFallbackBackgroundRenderer(this, param);
@@ -133,7 +133,7 @@ void HTMLRenderer::process(PDFDoc *doc)
             auto page_fn = str_fmt("%s/%s", param.dest_dir.c_str(), filled_template_filename.c_str());
             f_curpage = new ofstream((char*)page_fn, ofstream::binary);
             if(!(*f_curpage))
-                throw string("Cannot open ") + (char*)page_fn + " for writing";
+                throw string("Cannot open page file for writing: ") + (char*)page_fn;
             set_stream_flags((*f_curpage));
 
             cur_page_filename = filled_template_filename;
@@ -328,7 +328,7 @@ void HTMLRenderer::pre_process(PDFDoc * doc)
         f_css.path = (char*)fn;
         f_css.fs.open(f_css.path, ofstream::binary);
         if(!f_css.fs)
-            throw string("Cannot open ") + (char*)fn + " for writing";
+            throw string("Cannot open temporary css file for writing: ") + (char*)fn;
         set_stream_flags(f_css.fs);
     }
 
@@ -348,7 +348,7 @@ void HTMLRenderer::pre_process(PDFDoc * doc)
         f_outline.path = (char*)fn;
         f_outline.fs.open(f_outline.path, ofstream::binary);
         if(!f_outline.fs)
-            throw string("Cannot open") + (char*)fn + " for writing";
+            throw string("Cannot open temporary outline file for writing: ") + (char*)fn;
 
         // might not be necessary
         set_stream_flags(f_outline.fs);
@@ -367,7 +367,7 @@ void HTMLRenderer::pre_process(PDFDoc * doc)
         f_pages.path = (char*)fn;
         f_pages.fs.open(f_pages.path, ofstream::binary);
         if(!f_pages.fs)
-            throw string("Cannot open ") + (char*)fn + " for writing";
+            throw string("Cannot open temporary page file for writing: ") + (char*)fn;
         set_stream_flags(f_pages.fs);
     }
 
@@ -399,14 +399,15 @@ void HTMLRenderer::post_process(void)
         auto fn = str_fmt("%s/%s", param.dest_dir.c_str(), param.output_filename.c_str());
         output.open((char*)fn, ofstream::binary);
         if(!output)
-            throw string("Cannot open ") + (char*)fn + " for writing";
+            throw string("Cannot open main html file for writing: ") + (char*)fn;
         set_stream_flags(output);
     }
 
     // apply manifest
-    ifstream manifest_fin((char*)str_fmt("%s/%s", param.data_dir.c_str(), MANIFEST_FILENAME.c_str()), ifstream::binary);
+    string manifest_fname(str_fmt("%s/%s", param.data_dir.c_str(), MANIFEST_FILENAME.c_str()));
+    ifstream manifest_fin(manifest_fname, ifstream::binary);
     if(!manifest_fin)
-        throw "Cannot open the manifest file";
+        throw "Cannot open the manifest file for reading: "+manifest_fname;
 
     bool embed_string = false;
     string line;
@@ -465,7 +466,7 @@ void HTMLRenderer::post_process(void)
                 {
                     ifstream fin(f_outline.path, ifstream::binary);
                     if(!fin)
-                        throw "Cannot open outline for reading";
+                        throw "Cannot open outline file for reading: " + f_outline.path;
                     output << fin.rdbuf();
                     output.clear(); // output will set fail big if fin is empty
                 }
@@ -474,7 +475,7 @@ void HTMLRenderer::post_process(void)
             {
                 ifstream fin(f_pages.path, ifstream::binary);
                 if(!fin)
-                    throw "Cannot open pages for reading";
+                    throw "Cannot open pages file for reading: " + f_pages.path;
                 output << fin.rdbuf();
                 output.clear(); // output will set fail bit if fin is empty
             }
@@ -552,7 +553,7 @@ void HTMLRenderer::embed_file(ostream & out, const string & path, const string &
     {
         ifstream fin(path, ifstream::binary);
         if(!fin)
-            throw string("Cannot open file ") + path + " for embedding";
+            throw "Cannot open embedding input file for reading: " + path;
         out << entry.prefix_embed;
 
         if(entry.base64_encode)
@@ -576,11 +577,11 @@ void HTMLRenderer::embed_file(ostream & out, const string & path, const string &
         {
             ifstream fin(path, ifstream::binary);
             if(!fin)
-                throw string("Cannot copy file: ") + path;
-            auto out_path = param.dest_dir + "/" + fn;
+                throw "Cannot open embedding input file (copy mode) for reading: " + path;
+            string out_path = param.dest_dir + "/" + fn;
             ofstream out(out_path, ofstream::binary);
             if(!out)
-                throw string("Cannot open file ") + path + " for embedding";
+                throw "Cannot open embedding output file for writing: " + out_path;
             out << fin.rdbuf();
             out.clear(); // out will set fail big if fin is empty
         }

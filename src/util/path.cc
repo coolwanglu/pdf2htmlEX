@@ -40,7 +40,7 @@ void create_directories(const string & path)
                 return;
         }
 
-        throw string("Cannot create directory: ") + path;
+        throw "Cannot create directories: " + path;
     }
 }
 
