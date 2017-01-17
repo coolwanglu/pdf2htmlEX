@@ -660,18 +660,20 @@ Viewer.prototype = {
         case 33: // Page UP:
           if (with_alt) { // alt-pageup    -> scroll one page up
             self.scroll_to(self.cur_page_idx - 1);
-          } else { // pageup        -> scroll one screen up
+            handled = true;
+          } else if (!with_ctrl) { // pageup        -> scroll one screen up
             self.container.scrollTop -= self.container.clientHeight;
+            handled = true;
           }
-          handled = true;
           break;
         case 34: // Page DOWN
           if (with_alt) { // alt-pagedown  -> scroll one page down
             self.scroll_to(self.cur_page_idx + 1);
-          } else { // pagedown      -> scroll one screen down
+            handled = true;
+          } else if (!with_ctrl) { // pagedown      -> scroll one screen down
             self.container.scrollTop += self.container.clientHeight;
+            handled = true;
           }
-          handled = true;
           break;
         case 35: // End
           self.container.scrollTop = self.container.scrollHeight;
