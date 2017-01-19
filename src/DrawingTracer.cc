@@ -304,7 +304,7 @@ void DrawingTracer::draw_char_bbox(GfxState * state, double * bbox)
     if (cairo_in_clip(cairo, bbox[0], bbox[3]))
         ++pt_in;
 
-    if (pt_in == 0)
+    if (pt_in == 0 || param.ignore_partial_clipping)
     {
         transform_bbox_by_ctm(bbox);
         if(on_char_clipped)

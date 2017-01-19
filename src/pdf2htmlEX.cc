@@ -182,6 +182,7 @@ void parse_options (int argc, char **argv)
         .add("tounicode", &param.tounicode, 0, "how to handle ToUnicode CMaps (0=auto, 1=force, -1=ignore)")
         .add("optimize-text", &param.optimize_text, 0, "try to reduce the number of HTML elements used for text")
         .add("correct-text-visibility", &param.correct_text_visibility, 0, "try to detect texts covered by other graphics and properly arrange them")
+        .add("ignore-partial-clipping", &param.ignore_partial_clipping, 0, "when text visibility correction is enabled, ignore partially clipped char bounding boxes")
 
         // background image
         .add("bg-format", &param.bg_format, "png", "specify background image format")
@@ -342,6 +343,11 @@ void check_param()
     {
         cerr << "Warning: --svg-embed-bitmap is forced on because --embed-image is on, or the dumped bitmaps can't be loaded." << endl;
         param.svg_embed_bitmap = 1;
+    }
+
+    if (!param.correct_text_visibility && param.ignore_partial_clipping)
+    {
+        cerr << "Warning: parameter --ignore-partial-clipping has no effect if --correct-text-visibility is not enabled." << endl;
     }
 }
 
