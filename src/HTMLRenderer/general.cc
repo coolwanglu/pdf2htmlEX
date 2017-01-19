@@ -124,7 +124,9 @@ void HTMLRenderer::process(PDFDoc *doc)
             break;
         }
 
-        cerr << "Working: " << (i-param.first_page) << "/" << page_count << '\r' << flush;
+        if (!param.quiet) {
+            cerr << "Working: " << (i-param.first_page) << "/" << page_count << '\r' << flush;
+        }
 
         if(param.split_pages)
         {
@@ -153,9 +155,10 @@ void HTMLRenderer::process(PDFDoc *doc)
             f_curpage = nullptr;
         }
     }
-    if(page_count >= 0)
+    if (!param.quiet && page_count >= 0)
         cerr << "Working: " << page_count << "/" << page_count;
-    cerr << endl;
+    if (!param.quiet)
+        cerr << endl;
 
     ////////////////////////
     // Process Outline
@@ -167,7 +170,8 @@ void HTMLRenderer::process(PDFDoc *doc)
     bg_renderer = nullptr;
     fallback_bg_renderer = nullptr;
 
-    cerr << endl;
+    if (!param.quiet)
+       cerr << endl;
 }
 
 void HTMLRenderer::setDefaultCTM(double *ctm)
@@ -394,14 +398,22 @@ void HTMLRenderer::post_process(void)
     f_css.fs.close();
 
     // build the main HTML file
-    ofstream output;
-    {
-        auto fn = str_fmt("%s/%s", param.dest_dir.c_str(), param.output_filename.c_str());
-        output.open((char*)fn, ofstream::binary);
-        if(!output)
-            throw string("Cannot open ") + (char*)fn + " for writing";
-        set_stream_flags(output);
+    std::streambuf *output_buf;
+    if(param.output_filename == "-") {
+        output_buf = std::cout.rdbuf();
     }
+    else {
+        std::ofstream foutput;
+
+        auto fn = str_fmt("%s/%s", param.dest_dir.c_str(), param.output_filename.c_str());
+        foutput.open((char*)fn, ofstream::binary);
+        if(!foutput)
+            throw string("Cannot open ") + (char*)fn + " for writing";
+        set_stream_flags(foutput);
+
+        output_buf = foutput.rdbuf();
+    }
+    std::ostream output(output_buf);
 
     // apply manifest
     ifstream manifest_fin((char*)str_fmt("%s/%s", param.data_dir.c_str(), MANIFEST_FILENAME.c_str()), ifstream::binary);
