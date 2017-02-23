@@ -56,73 +56,70 @@ static string get_linkdest_detail_str(LinkDest * dest, Catalog * catalog, int & 
     // dec
     sout << "[" << pageno;
 
-    if(dest)
+    switch(dest->getKind())
     {
-        switch(dest->getKind())
-        {
-            case destXYZ:
-                {
-                    sout << ",\"XYZ\",";
-                    if(dest->getChangeLeft())
-                        sout << (dest->getLeft());
-                    else
-                        sout << "null";
-                    sout << ",";
-                    if(dest->getChangeTop())
-                        sout << (dest->getTop());
-                    else
-                        sout << "null";
-                    sout << ",";
-                    if(dest->getChangeZoom())
-                        sout << (dest->getZoom());
-                    else
-                        sout << "null";
-                }
-                break;
-            case destFit:
-                sout << ",\"Fit\"";
-                break;
-            case destFitH:
-                sout << ",\"FitH\",";
-                if(dest->getChangeTop())
-                    sout << (dest->getTop());
-                else
-                    sout << "null";
-                break;
-            case destFitV:
-                sout << ",\"FitV\",";
+        case destXYZ:
+            {
+                sout << ",\"XYZ\",";
                 if(dest->getChangeLeft())
                     sout << (dest->getLeft());
                 else
                     sout << "null";
-                break;
-            case destFitR:
-                sout << ",\"FitR\","
-                    << (dest->getLeft()) << ","
-                    << (dest->getBottom()) << ","
-                    << (dest->getRight()) << ","
-                    << (dest->getTop());
-                break;
-            case destFitB:
-                sout << ",\"FitB\"";
-                break;
-            case destFitBH:
-                sout << ",\"FitBH\",";
+                sout << ",";
                 if(dest->getChangeTop())
                     sout << (dest->getTop());
                 else
                     sout << "null";
-                break;
-            case destFitBV:
-                sout << ",\"FitBV\",";
-                if(dest->getChangeLeft())
-                    sout << (dest->getLeft());
+                sout << ",";
+                if(dest->getChangeZoom())
+                    sout << (dest->getZoom());
                 else
                     sout << "null";
-                break;
-            default:
-                break;
-        }
+            }
+            break;
+        case destFit:
+            sout << ",\"Fit\"";
+            break;
+        case destFitH:
+            sout << ",\"FitH\",";
+            if(dest->getChangeTop())
+                sout << (dest->getTop());
+            else
+                sout << "null";
+            break;
+        case destFitV:
+            sout << ",\"FitV\",";
+            if(dest->getChangeLeft())
+                sout << (dest->getLeft());
+            else
+                sout << "null";
+            break;
+        case destFitR:
+            sout << ",\"FitR\","
+                << (dest->getLeft()) << ","
+                << (dest->getBottom()) << ","
+                << (dest->getRight()) << ","
+                << (dest->getTop());
+            break;
+        case destFitB:
+            sout << ",\"FitB\"";
+            break;
+        case destFitBH:
+            sout << ",\"FitBH\",";
+            if(dest->getChangeTop())
+                sout << (dest->getTop());
+            else
+                sout << "null";
+            break;
+        case destFitBV:
+            sout << ",\"FitBV\",";
+            if(dest->getChangeLeft())
+                sout << (dest->getLeft());
+            else
+                sout << "null";
+            break;
+        default:
+            break;
     }
     sout << "]";
 
@@ -166,6 +163,7 @@ string HTMLRenderer::get_linkaction_str(LinkAction * action, string & detail)
             case actionURI:
                 {
                     auto * real_action = dynamic_cast<LinkURI*>(action);
+                    assert(real_action != nullptr);
                     dest_str = real_action->getURI()->getCString();
                 }
                 break;

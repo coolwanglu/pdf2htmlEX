@@ -378,13 +378,12 @@ void HTMLTextLine::optimize_normal(std::vector<HTMLTextLine*> & lines)
     new_offsets.reserve(offsets.size());
 
     auto offset_iter1 = offsets.begin();
-    for(auto state_iter2 = states.begin(), state_iter1 = state_iter2++; 
-            state_iter1 != states.end(); 
-            ++state_iter1, ++state_iter2)
+    for(auto state_iter1 = states.begin(); state_iter1 != states.end(); ++state_iter1)
     {
+        const auto state_iter2 = std::next(state_iter1);
         const size_t text_idx1 = state_iter1->start_idx;
         const size_t text_idx2 = (state_iter2 == states.end()) ? text.size() : state_iter2->start_idx;
-        size_t text_count = text_idx2 - text_idx1;
+        const size_t text_count = text_idx2 - text_idx1;
 
         // there might be some offsets before the first state
         while((offset_iter1 != offsets.end()) 

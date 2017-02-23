@@ -84,7 +84,7 @@ protected:
 
 // Be careful about the mixed usage of Matrix and const double *
 // the input is usually double *, which might be changed, so we have to copy the content out
-// in the map we use Matrix instead of double * such that the array may be automatically release when deconstructing
+// in the map we use Matrix instead of double * such that the array may be automatically release when destructing
 template <class Imp>
 class StateManager<Matrix, Imp>
 {
@@ -96,7 +96,7 @@ public:
     // return id
     long long install(const double * new_value) {
         Matrix m;
-        memcpy(m.m, new_value, sizeof(m.m));
+        memcpy(m.m, new_value, 4 * sizeof(double));
         auto iter = value_map.lower_bound(m);
         if((iter != value_map.end()) && (tm_equal(m.m, iter->first.m, 4)))
         {
