@@ -94,7 +94,7 @@ HTMLRenderer::~HTMLRenderer()
     ffw_finalize();
 }
 
-#define MAX_DIMEN 6000
+#define MAX_DIMEN 9000
 
 void HTMLRenderer::process(PDFDoc *doc)
 {
