@@ -51,6 +51,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include "goo/gmem.h"
+//#include "goo/gtypes_p.h"
 #include "CairoRescaleBox.h"
 
 
