@@ -51,7 +51,7 @@ public:
   void updateRender(GfxState *state);
 
 protected:
-  virtual void setMimeData(Stream *str, Object *ref, cairo_surface_t *image);
+  virtual void setMimeData(GfxState *state, Stream *str, Object *ref, GfxImageColorMap *colorMap, cairo_surface_t *image);
 
 protected:
   HTMLRenderer * html_renderer;
