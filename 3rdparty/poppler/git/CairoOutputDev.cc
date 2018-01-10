@@ -16,11 +16,10 @@
 //
 // Copyright (C) 2005-2008 Jeff Muizelaar <jeff@infidigm.net>
 // Copyright (C) 2005, 2006 Kristian Høgsberg <krh@redhat.com>
-// Copyright (C) 2005, 2009, 2012 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2005, 2009, 2012, 2017 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2005 Nickolay V. Shmyrev <nshmyrev@yandex.ru>
 // Copyright (C) 2006-2011, 2013, 2014 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2008 Carl Worth <cworth@cworth.org>
-// Copyright (C) 2008-2016 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2008 Michael Vrable <mvrable@cs.ucsd.edu>
 // Copyright (C) 2008, 2009 Chris Wilson <chris@chris-wilson.co.uk>
 // Copyright (C) 2008, 2012 Hib Eris <hib@hiberis.nl>
@@ -143,13 +142,18 @@ CairoOutputDev::CairoOutputDev() {
   strokePathClip = NULL;
   cairo = NULL;
   currentFont = NULL;
+#if CAIRO_VERSION >= CAIRO_VERSION_ENCODE(1, 14, 0)
+  prescaleImages = gFalse;
+#else
   prescaleImages = gTrue;
+#endif
   printing = gTrue;
   use_show_text_glyphs = gFalse;
   inUncoloredPattern = gFalse;
   inType3Char = gFalse;
   t3_glyph_has_bbox = gFalse;
   text_matrix_valid = gTrue;
+  antialias = CAIRO_ANTIALIAS_DEFAULT;
 
   groupColorSpaceStack = NULL;
   maskStack = NULL;
@@ -185,10 +189,10 @@ CairoOutputDev::~CairoOutputDev() {
     cairo_pattern_destroy (mask);
   if (shape)
     cairo_pattern_destroy (shape);
-  if (text) 
+  if (text)
     text->decRefCnt();
   if (actualText)
-    delete actualText;  
+    delete actualText;
 }
 
 void CairoOutputDev::setCairo(cairo_t *cairo)
@@ -215,7 +219,7 @@ void CairoOutputDev::setCairo(cairo_t *cairo)
 
 void CairoOutputDev::setTextPage(TextPage *text)
 {
-  if (this->text) 
+  if (this->text)
     this->text->decRefCnt();
   if (actualText)
     delete actualText;
@@ -659,7 +663,7 @@ void CairoOutputDev::updateFont(GfxState *state) {
   //FIXME: use cairo font engine?
   if (text)
     text->updateFont(state);
-  
+
   currentFont = fontEngine->getFont (state->getFont(), doc, printing, xref);
 
   if (!currentFont)
@@ -670,7 +674,7 @@ void CairoOutputDev::updateFont(GfxState *state) {
 
   use_show_text_glyphs = state->getFont()->hasToUnicodeCMap() &&
     cairo_surface_has_show_text_glyphs (cairo_get_target (cairo));
- 
+
   double fontSize = state->getFontSize();
   double *m = state->getTextMat();
   /* NOTE: adjusting by a constant is hack. The correct solution
@@ -1483,11 +1487,11 @@ void CairoOutputDev::endString(GfxState *state)
       }
       cairo_path_destroy (textClipPath);
     }
-    
+
     // append the glyph path
     cairo_glyph_path (cairo, glyphs, glyphCount);
-   
-    // move the path back into textClipPath 
+
+    // move the path back into textClipPath
     // and clear the current path
     textClipPath = cairo_copy_path (cairo);
     cairo_new_path (cairo);
@@ -1960,7 +1964,7 @@ CairoOutputDev::getFilterForSurface(cairo_surface_t *image,
 				    GBool interpolate)
 {
   if (interpolate)
-    return CAIRO_FILTER_BILINEAR;
+    return CAIRO_FILTER_BEST;
 
   int orig_width = cairo_image_surface_get_width (image);
   int orig_height = cairo_image_surface_get_height (image);
@@ -1980,7 +1984,7 @@ CairoOutputDev::getFilterForSurface(cairo_surface_t *image,
   if (scaled_width / orig_width >= 4 || scaled_height / orig_height >= 4)
 	  return CAIRO_FILTER_NEAREST;
 
-  return CAIRO_FILTER_BILINEAR;
+  return CAIRO_FILTER_BEST;
 }
 
 void CairoOutputDev::drawImageMask(GfxState *state, Object *ref, Stream *str,
@@ -2023,7 +2027,7 @@ void CairoOutputDev::drawImageMask(GfxState *state, Object *ref, Stream *str,
 
   cairo_matrix_t matrix;
   cairo_get_matrix (cairo, &matrix);
-  //XXX: it is possible that we should only do sub pixel positioning if 
+  //XXX: it is possible that we should only do sub pixel positioning if
   // we are rendering fonts */
   if (!printing && prescaleImages
       /* not rotated */
@@ -2076,7 +2080,7 @@ void CairoOutputDev::setSoftMaskFromImageMask(GfxState *state, Object *ref, Stre
 
     cairo_matrix_t matrix;
     cairo_get_matrix (cairo, &matrix);
-    //XXX: it is possible that we should only do sub pixel positioning if 
+    //XXX: it is possible that we should only do sub pixel positioning if
     // we are rendering fonts */
     if (!printing && prescaleImages && matrix.xy == 0.0 && matrix.yx == 0.0) {
       drawImageMaskPrescaled(state, ref, str, width, height, invert, gFalse, inlineImg);
@@ -2576,7 +2580,7 @@ void CairoOutputDev::drawMaskedImage(GfxState *state, Object *ref,
    * so check its underlying color space as well */
   int is_identity_transform;
   is_identity_transform = colorMap->getColorSpace()->getMode() == csDeviceRGB ||
-		  (colorMap->getColorSpace()->getMode() == csICCBased && 
+		  (colorMap->getColorSpace()->getMode() == csICCBased &&
 		   ((GfxICCBasedColorSpace*)colorMap->getColorSpace())->getAlt()->getMode() == csDeviceRGB);
 #endif
 
@@ -2955,7 +2959,7 @@ void CairoOutputDev::setMimeData(GfxState *state, Stream *str, Object *ref,
       return;
   }
 
-  str->getDict()->lookup("ColorSpace", &obj);
+  obj = str->getDict()->lookup("ColorSpace");
   colorSpace = GfxColorSpace::parse(NULL, &obj, this, state);
   obj.free();
 
@@ -3118,7 +3122,7 @@ public:
     return image;
   }
 
-  void getRow(int row_num, uint32_t *row_data) {
+  void getRow(int row_num, uint32_t *row_data) override {
     int i;
     Guchar *pix;
 
@@ -3289,7 +3293,7 @@ CairoImageOutputDev::~CairoImageOutputDev()
 }
 
 void CairoImageOutputDev::saveImage(CairoImage *image)
-{ 
+{
   if (numImages >= size) {
 	  size += 16;
 	  images = (CairoImage **) greallocn (images, size, sizeof (CairoImage *));
@@ -3408,10 +3412,10 @@ void CairoImageOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
     setCairo (cr);
     cairo_translate (cr, 0, height);
     cairo_scale (cr, width, -height);
-    
+
     CairoOutputDev::drawImage(state, ref, str, width, height, colorMap, interpolate, maskColors, inlineImg);
     image->setImage (surface);
-    
+
     setCairo (NULL);
     cairo_surface_destroy (surface);
     cairo_destroy (cr);
@@ -3443,11 +3447,11 @@ void CairoImageOutputDev::drawSoftMaskedImage(GfxState *state, Object *ref, Stre
     setCairo (cr);
     cairo_translate (cr, 0, height);
     cairo_scale (cr, width, -height);
-    
+
     CairoOutputDev::drawSoftMaskedImage(state, ref, str, width, height, colorMap, interpolate,
 					maskStr, maskWidth, maskHeight, maskColorMap, maskInterpolate);
     image->setImage (surface);
-    
+
     setCairo (NULL);
     cairo_surface_destroy (surface);
     cairo_destroy (cr);
@@ -3478,11 +3482,11 @@ void CairoImageOutputDev::drawMaskedImage(GfxState *state, Object *ref, Stream *
     setCairo (cr);
     cairo_translate (cr, 0, height);
     cairo_scale (cr, width, -height);
-    
+
     CairoOutputDev::drawMaskedImage(state, ref, str, width, height, colorMap, interpolate,
 				    maskStr, maskWidth, maskHeight, maskInvert, maskInterpolate);
     image->setImage (surface);
-    
+
     setCairo (NULL);
     cairo_surface_destroy (surface);
     cairo_destroy (cr);

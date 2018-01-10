@@ -145,14 +145,14 @@ bool CairoBackgroundRenderer::render_page(PDFDoc * doc, int pageno)
 
     bool process_annotation = param.process_annotation;
     doc->displayPage(this, pageno, param.actual_dpi, param.actual_dpi,
-            0, 
+            0,
             (!(param.use_cropbox)),
-            false, 
+            false,
             false,
             nullptr, nullptr, &annot_cb, &process_annotation);
 
     setCairo(nullptr);
-    
+
     {
         auto status = cairo_status(cr);
         cairo_destroy(cr);
@@ -198,7 +198,7 @@ bool CairoBackgroundRenderer::render_page(PDFDoc * doc, int pageno)
 void CairoBackgroundRenderer::embed_image(int pageno)
 {
     auto & f_page = *(html_renderer->f_curpage);
-    
+
     // SVGs introduced by <img> or background-image can't have external resources;
     // SVGs introduced by <embed> and <object> can, but they are more expensive for browsers.
     // So we use <img> if the SVG contains no external bitmaps, and use <embed> otherwise.
@@ -263,21 +263,20 @@ void CairoBackgroundRenderer::setMimeData(GfxState *state, Stream *str, Object *
     //
     // In PDF, jpeg stream objects can also specify other color spaces like DeviceN and Separation,
     // It is also not safe to dump them directly.
-    Object obj;
-    str->getDict()->lookup("ColorSpace", &obj);
+    Object obj = str->getDict()->lookup("ColorSpace");
     if (!obj.isName() || (strcmp(obj.getName(), "DeviceRGB") && strcmp(obj.getName(), "DeviceGray")) )
     {
-        obj.free();
+        //obj.free();
         return;
     }
-    obj.free();
-    str->getDict()->lookup("Decode", &obj);
+    //obj.free();
+    obj = str->getDict()->lookup("Decode");
     if (obj.isArray())
     {
-        obj.free();
+        //obj.free();
         return;
     }
-    obj.free();
+    //obj.free();
 
     int imgId = ref->getRef().num;
     auto uri = strdup((char*) html_renderer->str_fmt("o%d.jpg", imgId));

@@ -40,7 +40,9 @@ Unicode unicode_from_font (CharCode code, GfxFont * font)
 {
     if(!font->isCIDFont())
     {
-        char * cname = dynamic_cast<Gfx8BitFont*>(font)->getCharName(code);
+        auto * font2 = dynamic_cast<Gfx8BitFont*>(font);
+        assert(font2 != nullptr);
+        char * cname = font2->getCharName(code);
         // may be untranslated ligature
         if(cname)
         {
