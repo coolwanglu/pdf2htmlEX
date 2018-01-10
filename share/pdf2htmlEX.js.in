@@ -901,7 +901,7 @@ Viewer.prototype = {
 
     var self = this;
     /**
-     * page should have type Page
+     * page should have type Page 
      * @param{Page} page 
      */
     var transform_and_scroll = function(page) {

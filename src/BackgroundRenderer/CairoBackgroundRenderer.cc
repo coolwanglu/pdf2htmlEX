@@ -134,9 +134,9 @@ bool CairoBackgroundRenderer::render_page(PDFDoc * doc, int pageno)
     if(param.embed_image)
         html_renderer->tmp_files.add(fn);
 
-    surface = cairo_svg_surface_create(fn.c_str(), page_width * param.h_dpi / DEFAULT_DPI, page_height * param.v_dpi / DEFAULT_DPI);
+    surface = cairo_svg_surface_create(fn.c_str(), page_width * param.actual_dpi / DEFAULT_DPI, page_height * param.actual_dpi / DEFAULT_DPI);
     cairo_svg_surface_restrict_to_version(surface, CAIRO_SVG_VERSION_1_2);
-    cairo_surface_set_fallback_resolution(surface, param.h_dpi, param.v_dpi);
+    cairo_surface_set_fallback_resolution(surface, param.actual_dpi, param.actual_dpi);
 
     cairo_t * cr = cairo_create(surface);
     setCairo(cr);
@@ -144,15 +144,15 @@ bool CairoBackgroundRenderer::render_page(PDFDoc * doc, int pageno)
     bitmaps_in_current_page.clear();
 
     bool process_annotation = param.process_annotation;
-    doc->displayPage(this, pageno, param.h_dpi, param.v_dpi,
-            0, 
+    doc->displayPage(this, pageno, param.actual_dpi, param.actual_dpi,
+            0,
             (!(param.use_cropbox)),
-            false, 
+            false,
             false,
             nullptr, nullptr, &annot_cb, &process_annotation);
 
     setCairo(nullptr);
-    
+
     {
         auto status = cairo_status(cr);
         cairo_destroy(cr);
@@ -198,7 +198,7 @@ bool CairoBackgroundRenderer::render_page(PDFDoc * doc, int pageno)
 void CairoBackgroundRenderer::embed_image(int pageno)
 {
     auto & f_page = *(html_renderer->f_curpage);
-    
+
     // SVGs introduced by <img> or background-image can't have external resources;
     // SVGs introduced by <embed> and <object> can, but they are more expensive for browsers.
     // So we use <img> if the SVG contains no external bitmaps, and use <embed> otherwise.
@@ -235,11 +235,11 @@ string CairoBackgroundRenderer::build_bitmap_path(int id)
     return string(html_renderer->str_fmt("%s/o%d.jpg", param.dest_dir.c_str(), id));
 }
 // Override CairoOutputDev::setMimeData() and dump bitmaps in SVG to external files.
-void CairoBackgroundRenderer::setMimeData(Stream *str, Object *ref, cairo_surface_t *image)
+void CairoBackgroundRenderer::setMimeData(GfxState *state, Stream *str, Object *ref, GfxImageColorMap *colorMap, cairo_surface_t *image)
 {
     if (param.svg_embed_bitmap)
     {
-        CairoOutputDev::setMimeData(str, ref, image);
+        CairoOutputDev::setMimeData(state, str, ref, colorMap, image);
         return;
     }
 
@@ -263,21 +263,20 @@ void CairoBackgroundRenderer::setMimeData(Stream *str, Object *ref, cairo_surfac
     //
     // In PDF, jpeg stream objects can also specify other color spaces like DeviceN and Separation,
     // It is also not safe to dump them directly.
-    Object obj;
-    str->getDict()->lookup("ColorSpace", &obj);
+    Object obj = str->getDict()->lookup("ColorSpace");
     if (!obj.isName() || (strcmp(obj.getName(), "DeviceRGB") && strcmp(obj.getName(), "DeviceGray")) )
     {
-        obj.free();
+        //obj.free();
         return;
     }
-    obj.free();
-    str->getDict()->lookup("Decode", &obj);
+    //obj.free();
+    obj = str->getDict()->lookup("Decode");
     if (obj.isArray())
     {
-        obj.free();
+        //obj.free();
         return;
     }
-    obj.free();
+    //obj.free();
 
     int imgId = ref->getRef().num;
     auto uri = strdup((char*) html_renderer->str_fmt("o%d.jpg", imgId));

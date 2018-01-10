@@ -126,6 +126,15 @@ void ffw_load_font(const char * filename)
     assert(font->fv);
 
     cur_fv = font->fv;
+
+    // If we are a composite font, then ensure the cidmaster has the same ascent/descent values as the first subfont.
+    // If there are more than one subfont then what do we do???
+    if (cur_fv->cidmaster && (cur_fv->cidmaster->ascent != cur_fv->sf->ascent || cur_fv->cidmaster->descent != cur_fv->sf->descent)) {
+        printf("ffw_load_font:Warning ascent/descent mismatch for CID font: %d/%d => %d/%d\n",
+                cur_fv->cidmaster->ascent, cur_fv->cidmaster->descent,  cur_fv->sf->ascent, cur_fv->sf->descent);
+        cur_fv->cidmaster->ascent = cur_fv->sf->ascent;
+        cur_fv->cidmaster->descent = cur_fv->sf->descent;
+    }
 }
 
 /*

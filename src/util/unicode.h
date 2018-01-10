@@ -59,6 +59,13 @@ namespace pdf2htmlEX {
 inline bool is_illegal_unicode(Unicode c)
 {
     return (c < 0x20) || (c >= 0x7F && c <= 0xA0) || (c == 0xAD)
+            || (c >= 0x300 && c <= 0x36f) // DCRH Combining diacriticals
+            || (c >= 0x1ab0 && c <= 0x1aff) // DCRH Combining diacriticals
+            || (c >= 0x1dc0 && c <= 0x1dff) // DCRH Combining diacriticals
+            || (c >= 0x20d0 && c <= 0x20ff) // DCRH Combining diacriticals
+            || (c >= 0xfe20 && c <= 0xfe2f) // DCRH Combining diacriticals
+            || (c >= 0x900 && c <= 0x97f) // DCRH Devanagari - Webkit struggles with spacing for these code points
+            || (c >= 0xa00 && c <= 0xa7f) // DCRH Gurmukhi - Webkit struggles with spacing for these code points
             || (c == 0x061C) || (c == 0x1361)
             || (c >= 0x200B && c <= 0x200F) || (c == 0x2028) || (c == 0x2029)
             || (c >= 0x202A && c <= 0x202E) || (c >= 0x2066 && c <= 0x2069)

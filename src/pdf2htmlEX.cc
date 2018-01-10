@@ -111,7 +111,7 @@ void prepare_directories()
 
     errno = 0;
 
-    unique_ptr<char> pBuf(new char[tmp_dir.size() + 1]);
+    unique_ptr<char[]> pBuf(new char[tmp_dir.size() + 1]);
     strcpy(pBuf.get(), tmp_dir.c_str());
     auto p = mkdtemp(pBuf.get());
     if(p == nullptr)
@@ -139,8 +139,7 @@ void parse_options (int argc, char **argv)
         .add("fit-width", &param.fit_width, 0, "fit width to <fp> pixels", true)
         .add("fit-height", &param.fit_height, 0, "fit height to <fp> pixels", true)
         .add("use-cropbox", &param.use_cropbox, 1, "use CropBox instead of MediaBox")
-        .add("hdpi", &param.h_dpi, 144.0, "horizontal resolution for graphics in DPI")
-        .add("vdpi", &param.v_dpi, 144.0, "vertical resolution for graphics in DPI")
+        .add("dpi", &param.desired_dpi, 144.0, "Resolution for graphics in DPI")
 
         // output files
         .add("embed", "specify which elements should be embedded into output", embed_parser, true)
@@ -160,7 +159,7 @@ void parse_options (int argc, char **argv)
         .add("process-form", &param.process_form, 0, "include text fields and radio buttons")
         .add("printing", &param.printing, 1, "enable printing support")
         .add("fallback", &param.fallback, 0, "output in fallback mode")
-        .add("tmp-file-size-limit", &param.tmp_file_size_limit, -1, "Maximum size (in KB) used by temporary files, -1 for no limit.")
+        .add("tmp-file-size-limit", &param.tmp_file_size_limit, -1, "Maximum size (in KB) used by temporary files, -1 for no limit")
 
         // fonts
         .add("embed-external-font", &param.embed_external_font, 1, "embed local match for external fonts")
@@ -181,13 +180,14 @@ void parse_options (int argc, char **argv)
         .add("space-as-offset", &param.space_as_offset, 0, "treat space characters as offsets")
         .add("tounicode", &param.tounicode, 0, "how to handle ToUnicode CMaps (0=auto, 1=force, -1=ignore)")
         .add("optimize-text", &param.optimize_text, 0, "try to reduce the number of HTML elements used for text")
-        .add("correct-text-visibility", &param.correct_text_visibility, 0, "try to detect texts covered by other graphics and properly arrange them")
+        .add("correct-text-visibility", &param.correct_text_visibility, 1, "0: Don't do text visibility checks. 1: Fully occluded text handled. 2: Partially occluded text handled")
+        .add("covered-text-dpi", &param.text_dpi, 300, "Rendering DPI to use if correct-text-visibility == 2 and there is partially covered text on the page")
 
         // background image
         .add("bg-format", &param.bg_format, "png", "specify background image format")
         .add("svg-node-count-limit", &param.svg_node_count_limit, -1, "if node count in a svg background image exceeds this limit,"
-                " fall back this page to bitmap background; negative value means no limit.")
-        .add("svg-embed-bitmap", &param.svg_embed_bitmap, 1, "1: embed bitmaps in svg background; 0: dump bitmaps to external files if possible.")
+                " fall back this page to bitmap background; negative value means no limit")
+        .add("svg-embed-bitmap", &param.svg_embed_bitmap, 1, "1: embed bitmaps in svg background; 0: dump bitmaps to external files if possible")
 
         // encryption
         .add("owner-password,o", &param.owner_password, "", "owner password (for encrypted files)", true)
@@ -196,11 +196,12 @@ void parse_options (int argc, char **argv)
 
         // misc.
         .add("clean-tmp", &param.clean_tmp, 1, "remove temporary files after conversion")
-        .add("tmp-dir", &param.tmp_dir, param.tmp_dir, "specify the location of temporary directory.")
+        .add("tmp-dir", &param.tmp_dir, param.tmp_dir, "specify the location of temporary directory")
         .add("data-dir", &param.data_dir, param.data_dir, "specify data directory")
         .add("poppler-data-dir", &param.poppler_data_dir, param.poppler_data_dir, "specify poppler data directory")
         .add("debug", &param.debug, 0, "print debugging information")
-        .add("proof", &param.proof, 0, "texts are drawn on both text layer and background for proof.")
+        .add("proof", &param.proof, 0, "texts are drawn on both text layer and background for proof")
+        .add("quiet", &param.quiet, 0, "perform operations quietly")
 
         // meta
         .add("version,v", "print copyright and version info", &show_version_and_exit)

@@ -20,10 +20,10 @@ using std::ostream;
 
 Unicode map_to_private(CharCode code)
 {
-    Unicode private_mapping = (Unicode)(code + 0xE000);
-    if(private_mapping > 0xF8FF)
+    Unicode private_mapping = (Unicode)(code + 0xE600); // DCRH: Stupid mobile safari uses code points in 0xe000 - 0xe5ff range to switch to emoji font
+    if(private_mapping > 0xF65F) // DCRH: More emoji-avoiding for mobile safari (see http://www.fileformat.info/info/unicode/block/private_use_area/utf8test.htm)
     {
-        private_mapping = (Unicode)((private_mapping - 0xF8FF) + 0xF0000);
+        private_mapping = (Unicode)((private_mapping - 0xF65F) + 0xF0000);
         if(private_mapping > 0xFFFFD)
         {
             private_mapping = (Unicode)((private_mapping - 0xFFFFD) + 0x100000);
@@ -40,7 +40,9 @@ Unicode unicode_from_font (CharCode code, GfxFont * font)
 {
     if(!font->isCIDFont())
     {
-        char * cname = dynamic_cast<Gfx8BitFont*>(font)->getCharName(code);
+        auto * font2 = dynamic_cast<Gfx8BitFont*>(font);
+        assert(font2 != nullptr);
+        char * cname = font2->getCharName(code);
         // may be untranslated ligature
         if(cname)
         {

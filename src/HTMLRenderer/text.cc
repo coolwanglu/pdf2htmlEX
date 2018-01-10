@@ -33,16 +33,23 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
     double cur_word_space   = state->getWordSpace();
     double cur_horiz_scaling = state->getHorizScaling();
 
+        bool drawChars = true;
 
     // Writing mode fonts and Type 3 fonts are rendered as images
     // I don't find a way to display writing mode fonts in HTML except for one div for each character, which is too costly
     // For type 3 fonts, due to the font matrix, still it's hard to show it on HTML
-    if( (font == nullptr) 
-        || (font->getWMode())
-        || ((font->getType() == fontType3) && (!param.process_type3))
+
+
+    if(state->getFont()
+        && ( (state->getFont()->getWMode())
+            || ((state->getFont()->getType() == fontType3) && (!param.process_type3))
+            || (state->getRender() >= 4)
+           )
       )
     {
-        return;
+        // We still want to go through the loop to ensure characters are added to the covered_chars array
+        drawChars = false;
+//printf("%d / %d / %d\n", state->getFont()->getWMode(), (state->getFont()->getType() == fontType3), state->getRender());
     }
 
     // see if the line has to be closed due to state change
@@ -74,7 +81,7 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
     while (len > 0) 
     {
         auto n = font->getNextChar(p, len, &code, &u, &uLen, &ax, &ay, &ox, &oy);
-        HR_DEBUG(printf("HTMLRenderer::drawString:unicode=%lc(%d)\n", (wchar_t)u[0], u[0]));
+        HR_DEBUG(printf("HTMLRenderer::drawString:unicode=%lc(%d)\n", u ? (wchar_t)u[0] : ' ', u ? u[0] : -1));
 
         if(!(equal(ox, 0) && equal(oy, 0)))
         {
@@ -82,7 +89,34 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
         }
         ddx = ax * cur_font_size + cur_letter_space;
         ddy = ay * cur_font_size;
-        tracer.draw_char(state, dx, dy, ax, ay);
+
+        double width = 0, height = font->getAscent();
+        if (font->isCIDFont()) {
+            char buf[2];
+            buf[0] = (code >> 8) & 0xff;
+            buf[1] = (code & 0xff);
+            width = ((GfxCIDFont *)font)->getWidth(buf, 2);
+        } else {
+            width = ((Gfx8BitFont *)font)->getWidth(code);
+        }
+
+        if (width == 0 || height == 0) {
+            //cerr << "CID: " << font->isCIDFont() << ", char:" << code << ", width:" << width << ", ax:" << ax << ", height:" << height << ", ay:" << ay << endl;
+        }
+        if (width == 0) {
+            width = ax;
+            if (width == 0) {
+                width = 0.001;
+            }
+        }
+        if (height == 0) {
+            height = ay;
+            if (height == 0) {
+                height = 0.001;
+            }
+        }
+
+        tracer.draw_char(state, dx, dy, width, height, !drawChars || inTransparencyGroup);
 
         bool is_space = false;
         if (n == 1 && *p == ' ') 
@@ -99,6 +133,7 @@ void HTMLRenderer::drawString(GfxState * state, GooString * s)
             is_space = true;
         }
         
+
         if(is_space && (param.space_as_offset))
         {
             html_text_page.get_cur_line()->append_padding_char();
@@ -158,7 +193,7 @@ bool HTMLRenderer::is_char_covered(int index)
     {
         std::cerr << "Warning: HTMLRenderer::is_char_covered: index out of bound: "
                 << index << ", size: " << covered.size() <<endl;
-        return false;
+        return true;  // Something's gone wrong so assume covered so at least something is output
     }
     return covered[index];
 }

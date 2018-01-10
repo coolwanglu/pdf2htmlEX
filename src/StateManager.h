@@ -43,7 +43,18 @@ public:
     // install new_value into the map
     // return the corresponding id
     long long install(double new_value, double * actual_value_ptr = nullptr) {
-        auto iter = value_map.lower_bound(new_value - eps);
+	// DCRH: Fix for when eps check fails and yet map thinks the keys are the same
+	// (DEV1-RYR-LETTER example)
+        auto iter = value_map.find(new_value);
+        if (iter != value_map.end()) {
+            if(actual_value_ptr != nullptr)
+                *actual_value_ptr = iter->first;
+
+            return iter->second;
+        }
+
+        iter = value_map.lower_bound(new_value - eps);
+
         if((iter != value_map.end()) && (std::abs(iter->first - new_value) <= eps))
         {
             if(actual_value_ptr != nullptr)
@@ -84,7 +95,7 @@ protected:
 
 // Be careful about the mixed usage of Matrix and const double *
 // the input is usually double *, which might be changed, so we have to copy the content out
-// in the map we use Matrix instead of double * such that the array may be automatically release when deconstructing
+// in the map we use Matrix instead of double * such that the array may be automatically release when destructing
 template <class Imp>
 class StateManager<Matrix, Imp>
 {
@@ -96,7 +107,7 @@ public:
     // return id
     long long install(const double * new_value) {
         Matrix m;
-        memcpy(m.m, new_value, sizeof(m.m));
+        memcpy(m.m, new_value, 4 * sizeof(double));
         auto iter = value_map.lower_bound(m);
         if((iter != value_map.end()) && (tm_equal(m.m, iter->first.m, 4)))
         {

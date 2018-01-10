@@ -17,16 +17,16 @@
 // Copyright (C) 2005-2007 Jeff Muizelaar <jeff@infidigm.net>
 // Copyright (C) 2005, 2006 Kristian Høgsberg <krh@redhat.com>
 // Copyright (C) 2005 Martin Kretzschmar <martink@gnome.org>
-// Copyright (C) 2005, 2009, 2012, 2013 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2006, 2007, 2010, 2011 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2007 Koji Otani <sho@bbr.jp>
 // Copyright (C) 2008, 2009 Chris Wilson <chris@chris-wilson.co.uk>
-// Copyright (C) 2008, 2012 Adrian Johnson <ajohnson@redneon.com>
+// Copyright (C) 2008, 2012, 2014, 2016 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2009 Darren Kenny <darren.kenny@sun.com>
 // Copyright (C) 2010 Suzuki Toshiya <mpsuzuki@hiroshima-u.ac.jp>
 // Copyright (C) 2010 Jan Kümmel <jan+freedesktop@snorc.org>
 // Copyright (C) 2012 Hib Eris <hib@hiberis.nl>
 // Copyright (C) 2013 Thomas Freitag <Thomas.Freitag@alfa.de>
+// Copyright (C) 2015, 2016 Jason Crain <jason@aquaticape.us>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -58,16 +58,11 @@
 #pragma implementation
 #endif
 
-/*
- * pdf2htmlEX: disabled multi thread 
 #if MULTITHREADED
 #  define fontEngineLocker()   MutexLocker locker(&mutex)
 #else
-*/
 #  define fontEngineLocker()
-/*
 #endif
-*/
 
 //------------------------------------------------------------------------
 // CairoFont
@@ -116,7 +111,7 @@ CairoFont::getGlyph(CharCode code,
 double
 CairoFont::getSubstitutionCorrection(GfxFont *gfxFont)
 {
-  double w1, w2;
+  double w1, w2, w3;
   CharCode code;
   char *name;
 
@@ -146,7 +141,8 @@ CairoFont::getSubstitutionCorrection(GfxFont *gfxFont)
 	cairo_font_options_destroy(options);
 	w2 = extents.x_advance;
       }
-      if (!gfxFont->isSymbolic()) {
+      w3 = ((Gfx8BitFont *)gfxFont)->getWidth(0);
+      if (!gfxFont->isSymbolic() && w2 > 0 && w1 > w3) {
 	// if real font is substantially narrower than substituted
 	// font, reduce the font size accordingly
 	if (w1 > 0.01 && w1 < 0.9 * w2) {
@@ -260,12 +256,16 @@ _ft_done_face (void *closure)
   else
     _ft_open_faces = data->next;
 
+  if (data->fd != -1) {
 #if defined(__SUNPRO_CC) && defined(__sun) && defined(__SVR4)
-  munmap ((char*)data->bytes, data->size);
+    munmap ((char*)data->bytes, data->size);
 #else
-  munmap (data->bytes, data->size);
+    munmap (data->bytes, data->size);
 #endif
-  close (data->fd);
+    close (data->fd);
+  } else {
+    gfree (data->bytes);
+  }
 
   FT_Done_Face (data->face);
   gfree (data);
@@ -322,6 +322,8 @@ _ft_new_face (FT_Library lib,
         munmap (tmpl.bytes, tmpl.size);
 #endif
         close (tmpl.fd);
+      } else {
+	gfree (tmpl.bytes);
       }
       *face_out = l->face;
       *font_face_out = cairo_font_face_reference (l->font_face);
@@ -399,7 +401,7 @@ CairoFreeTypeFont *CairoFreeTypeFont::create(GfxFont *gfxFont, XRef *xref,
   GfxFontType fontType;
   GfxFontLoc *fontLoc;
   char **enc;
-  char *name;
+  const char *name;
   FoFiTrueType *ff;
   FoFiType1C *ff1c;
   Ref ref;
@@ -408,7 +410,7 @@ CairoFreeTypeFont *CairoFreeTypeFont::create(GfxFont *gfxFont, XRef *xref,
 
   int *codeToGID;
   Guint codeToGIDLen;
-  
+
   codeToGID = NULL;
   codeToGIDLen = 0;
   font_data = NULL;
@@ -417,12 +419,11 @@ CairoFreeTypeFont *CairoFreeTypeFont::create(GfxFont *gfxFont, XRef *xref,
   fileNameC = NULL;
 
   GBool substitute = gFalse;
-  
+
   ref = *gfxFont->getID();
   fontType = gfxFont->getType();
 
-  // pdf2htmlEX: changed gFlase to nullptr
-  if (!(fontLoc = gfxFont->locateFont(xref, nullptr))) {
+  if (!(fontLoc = gfxFont->locateFont(xref, NULL))) {
     error(errSyntaxError, -1, "Couldn't find a font for '{0:s}'",
     	gfxFont->getName() ? gfxFont->getName()->getCString()
 	                       : "(unnamed)");
@@ -454,15 +455,26 @@ CairoFreeTypeFont *CairoFreeTypeFont::create(GfxFont *gfxFont, XRef *xref,
       error(errSyntaxError, -1, "could not create type1 face");
       goto err2;
     }
-    
+
     enc = ((Gfx8BitFont *)gfxFont)->getEncoding();
-    
+
     codeToGID = (int *)gmallocn(256, sizeof(int));
     codeToGIDLen = 256;
     for (i = 0; i < 256; ++i) {
       codeToGID[i] = 0;
       if ((name = enc[i])) {
-	codeToGID[i] = FT_Get_Name_Index(face, name);
+	codeToGID[i] = FT_Get_Name_Index(face, (char*)name);
+	if (codeToGID[i] == 0) {
+	  Unicode u;
+	  u = globalParams->mapNameToUnicodeText (name);
+	  codeToGID[i] = FT_Get_Char_Index (face, u);
+	}
+	if (codeToGID[i] == 0) {
+	  name = GfxFont::getAlternateName(name);
+	  if (name) {
+	    codeToGID[i] = FT_Get_Name_Index(face, (char*)name);
+	  }
+	}
       }
     }
     break;
@@ -491,6 +503,7 @@ CairoFreeTypeFont *CairoFreeTypeFont::create(GfxFont *gfxFont, XRef *xref,
     codeToGIDLen = n;
     /* Fall through */
   case fontTrueType:
+  case fontTrueTypeOT:
     if (font_data != NULL) {
       ff = FoFiTrueType::make(font_data, font_data_len);
     } else {
@@ -501,7 +514,7 @@ CairoFreeTypeFont *CairoFreeTypeFont::create(GfxFont *gfxFont, XRef *xref,
       goto err2;
     }
     /* This might be set already for the CIDType2 case */
-    if (fontType == fontTrueType) {
+    if (fontType == fontTrueType || fontType == fontTrueTypeOT) {
       codeToGID = ((Gfx8BitFont *)gfxFont)->getCodeToGIDMap(ff);
       codeToGIDLen = 256;
     }
@@ -511,7 +524,7 @@ CairoFreeTypeFont *CairoFreeTypeFont::create(GfxFont *gfxFont, XRef *xref,
       goto err2;
     }
     break;
-    
+
   case fontCIDType0:
   case fontCIDType0C:
 
@@ -532,13 +545,45 @@ CairoFreeTypeFont *CairoFreeTypeFont::create(GfxFont *gfxFont, XRef *xref,
     }
 
     if (! _ft_new_face (lib, fileNameC, font_data, font_data_len, &face, &font_face)) {
-      gfree(codeToGID);
-      codeToGID = NULL;
       error(errSyntaxError, -1, "could not create cid face\n");
       goto err2;
     }
     break;
-    
+
+  case fontCIDType0COT:
+    codeToGID = NULL;
+    n = 0;
+    if (((GfxCIDFont *)gfxFont)->getCIDToGID()) {
+      n = ((GfxCIDFont *)gfxFont)->getCIDToGIDLen();
+      if (n) {
+	codeToGID = (int *)gmallocn(n, sizeof(int));
+	memcpy(codeToGID, ((GfxCIDFont *)gfxFont)->getCIDToGID(),
+	       n * sizeof(int));
+      }
+    }
+    codeToGIDLen = n;
+
+    if (!codeToGID) {
+      if (!useCIDs) {
+	if (font_data != NULL) {
+	  ff = FoFiTrueType::make(font_data, font_data_len);
+	} else {
+	  ff = FoFiTrueType::load(fileNameC);
+	}
+	if (ff) {
+	  if (ff->isOpenTypeCFF()) {
+	    codeToGID = ff->getCIDToGIDMap((int *)&codeToGIDLen);
+	  }
+	  delete ff;
+	}
+      }
+    }
+    if (! _ft_new_face (lib, fileNameC, font_data, font_data_len, &face, &font_face)) {
+      error(errSyntaxError, -1, "could not create cid (OT) face\n");
+      goto err2;
+    }
+    break;
+
   default:
     fprintf (stderr, "font type %d not handled\n", (int)fontType);
     goto err2;
@@ -554,6 +599,8 @@ CairoFreeTypeFont *CairoFreeTypeFont::create(GfxFont *gfxFont, XRef *xref,
  err2:
   /* hmm? */
   delete fontLoc;
+  gfree (codeToGID);
+  gfree (font_data);
   fprintf (stderr, "some font thing failed\n");
   return NULL;
 }
@@ -659,7 +706,8 @@ _render_type3_glyph (cairo_scaled_font_t  *scaled_font,
   output_dev->startDoc(info->doc, info->fontEngine);
   output_dev->startPage (1, gfx->getState(), gfx->getXRef());
   output_dev->setInType3Char(gTrue);
-  gfx->display(charProcs->getVal(glyph, &charProc));
+  charProc = charProcs->getVal(glyph);
+  gfx->display(&charProc);
 
   output_dev->getType3GlyphWidth (&wx, &wy);
   cairo_matrix_transform_distance (&matrix, &wx, &wy);
@@ -678,7 +726,6 @@ _render_type3_glyph (cairo_scaled_font_t  *scaled_font,
 
   delete gfx;
   delete output_dev;
-  charProc.free();
 
   return CAIRO_STATUS_SUCCESS;
 }
@@ -762,33 +809,27 @@ CairoFontEngine::CairoFontEngine(FT_Library libA) {
   for (i = 0; i < cairoFontCacheSize; ++i) {
     fontCache[i] = NULL;
   }
-  
+
   FT_Int major, minor, patch;
   // as of FT 2.1.8, CID fonts are indexed by CID instead of GID
   FT_Library_Version(lib, &major, &minor, &patch);
   useCIDs = major > 2 ||
             (major == 2 && (minor > 1 || (minor == 1 && patch > 7)));
-/*
- * pdf2htmlEX: disabled multi thread 
 #if MULTITHREADED
   gInitMutex(&mutex);
 #endif
-*/
 }
 
 CairoFontEngine::~CairoFontEngine() {
   int i;
-  
+
   for (i = 0; i < cairoFontCacheSize; ++i) {
     if (fontCache[i])
       delete fontCache[i];
   }
-/*
- * pdf2htmlEX: disabled multi thread 
 #if MULTITHREADED
   gDestroyMutex(&mutex);
 #endif
-*/
 }
 
 CairoFont *
@@ -797,7 +838,7 @@ CairoFontEngine::getFont(GfxFont *gfxFont, PDFDoc *doc, GBool printing, XRef *xr
   Ref ref;
   CairoFont *font;
   GfxFontType fontType;
-  
+
   fontEngineLocker();
   ref = *gfxFont->getID();
 
@@ -811,7 +852,7 @@ CairoFontEngine::getFont(GfxFont *gfxFont, PDFDoc *doc, GBool printing, XRef *xr
       return font;
     }
   }
-  
+
   fontType = gfxFont->getType();
   if (fontType == fontType3)
     font = CairoType3Font::create (gfxFont, doc, this, printing, xref);

@@ -1,0 +1,1 @@
+rm -rf build pdf2htmlEX.1 share/*.css share/*.js share/*.min.* src/pdf2htmlEX-config.h src/util/css_const.h

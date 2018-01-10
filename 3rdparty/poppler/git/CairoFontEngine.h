@@ -74,7 +74,7 @@ protected:
 class CairoFreeTypeFont : public CairoFont {
 public:
   static CairoFreeTypeFont *create(GfxFont *gfxFont, XRef *xref, FT_Library lib, GBool useCIDs);
-  virtual ~CairoFreeTypeFont();
+  ~CairoFreeTypeFont();
 
 private:
   CairoFreeTypeFont(Ref ref, cairo_font_face_t *cairo_font_face,
@@ -88,9 +88,9 @@ public:
   static CairoType3Font *create(GfxFont *gfxFont, PDFDoc *doc,
 				CairoFontEngine *fontEngine,
 				GBool printing, XRef *xref);
-  virtual ~CairoType3Font();
+  ~CairoType3Font();
 
-  virtual GBool matches(Ref &other, GBool printing);
+  GBool matches(Ref &other, GBool printing) override;
 
 private:
   CairoType3Font(Ref ref, PDFDoc *doc,
@@ -121,12 +121,9 @@ private:
   CairoFont *fontCache[cairoFontCacheSize];
   FT_Library lib;
   GBool useCIDs;
-/*
- * pdf2htmlEX: disabled multi thread 
 #if MULTITHREADED
   GooMutex mutex;
 #endif
-*/
 };
 
 #endif

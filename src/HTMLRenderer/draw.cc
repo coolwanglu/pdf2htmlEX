@@ -62,4 +62,14 @@ GBool HTMLRenderer::axialShadedFill(GfxState *state, GfxAxialShading *shading, d
     return true;
 }
 
+void HTMLRenderer::beginTransparencyGroup(GfxState *state, double *bbox,
+                                      GfxColorSpace *blendingColorSpace,
+                                      GBool isolated, GBool knockout,
+                                      GBool forSoftMask) {
+	inTransparencyGroup++;
+}
+void HTMLRenderer::endTransparencyGroup(GfxState *state) {
+	inTransparencyGroup--;
+}
+
 } // namespace pdf2htmlEX

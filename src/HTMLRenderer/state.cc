@@ -104,6 +104,7 @@ void HTMLRenderer::clipToStrokePath(GfxState * state)
 }
 void HTMLRenderer::reset_state()
 {
+    inTransparencyGroup = 0;
     draw_text_scale = 1.0;
 
     cur_font_size = 0.0;

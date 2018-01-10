@@ -41,12 +41,13 @@ using std::abs;
 using std::cerr;
 using std::endl;
 
-HTMLRenderer::HTMLRenderer(const Param & param)
+HTMLRenderer::HTMLRenderer(Param & param)
     :OutputDev()
     ,param(param)
     ,html_text_page(param, all_manager)
     ,preprocessor(param)
     ,tmp_files(param)
+    ,covered_text_detector(param)
     ,tracer(param)
 {
     if(!(param.debug))
@@ -81,17 +82,19 @@ HTMLRenderer::HTMLRenderer(const Param & param)
     all_manager.bottom      .set_eps(EPS);
 
     tracer.on_char_drawn =
-            [this](double * box) { covered_text_detector.add_char_bbox(box); };
+            [this](cairo_t *cairo, double * box) { covered_text_detector.add_char_bbox(cairo, box); };
     tracer.on_char_clipped =
-            [this](double * box, bool partial) { covered_text_detector.add_char_bbox_clipped(box, partial); };
+            [this](cairo_t *cairo, double * box, int partial) { covered_text_detector.add_char_bbox_clipped(cairo, box, partial); };
     tracer.on_non_char_drawn =
-            [this](double * box) { covered_text_detector.add_non_char_bbox(box); };
+            [this](cairo_t *cairo, double * box, int what) { covered_text_detector.add_non_char_bbox(cairo, box, what); };
 }
 
 HTMLRenderer::~HTMLRenderer()
 {
     ffw_finalize();
 }
+
+#define MAX_DIMEN 9000
 
 void HTMLRenderer::process(PDFDoc *doc)
 {
@@ -119,12 +122,22 @@ void HTMLRenderer::process(PDFDoc *doc)
     int page_count = (param.last_page - param.first_page + 1);
     for(int i = param.first_page; i <= param.last_page ; ++i)
     {
+        param.actual_dpi = param.desired_dpi;
+        param.max_dpi = 72 * MAX_DIMEN / max(doc->getPageCropWidth(i), doc->getPageCropHeight(i));
+
+        if (param.actual_dpi > param.max_dpi) {
+            param.actual_dpi = param.max_dpi;
+            printf("Warning:Page %d clamped to %f DPI\n", i, param.actual_dpi);
+        }
+
         if (param.tmp_file_size_limit != -1 && tmp_files.get_total_size() > param.tmp_file_size_limit * 1024) {
-            cerr << "Stop processing, reach max size\n";
+            if(param.quiet == 0)
+                cerr << "Stop processing, reach max size\n";
             break;
         }
 
-        cerr << "Working: " << (i-param.first_page) << "/" << page_count << '\r' << flush;
+        if (param.quiet == 0)
+            cerr << "Working: " << (i-param.first_page) << "/" << page_count << '\r' << flush;
 
         if(param.split_pages)
         {
@@ -147,15 +160,21 @@ void HTMLRenderer::process(PDFDoc *doc)
                 false, // printing
                 nullptr, nullptr, nullptr, nullptr);
 
+        if (param.desired_dpi != param.actual_dpi) {
+            printf("Page %d DPI change %.1f => %.1f\n", i, param.desired_dpi, param.actual_dpi);
+        }
+
         if(param.split_pages)
         {
             delete f_curpage;
             f_curpage = nullptr;
         }
     }
-    if(page_count >= 0)
+    if(page_count >= 0 && param.quiet == 0)
         cerr << "Working: " << page_count << "/" << page_count;
-    cerr << endl;
+
+    if(param.quiet == 0)
+        cerr << endl;
 
     ////////////////////////
     // Process Outline
@@ -167,7 +186,8 @@ void HTMLRenderer::process(PDFDoc *doc)
     bg_renderer = nullptr;
     fallback_bg_renderer = nullptr;
 
-    cerr << endl;
+    if(param.quiet == 0)
+        cerr << endl;
 }
 
 void HTMLRenderer::setDefaultCTM(double *ctm)

@@ -47,7 +47,7 @@ namespace pdf2htmlEX {
 
 struct HTMLRenderer : OutputDev
 {
-    HTMLRenderer(const Param & param);
+    HTMLRenderer(Param & param);
     virtual ~HTMLRenderer();
 
     void process(PDFDoc * doc);
@@ -143,6 +143,13 @@ struct HTMLRenderer : OutputDev
     virtual void fill(GfxState *state);
     virtual void eoFill(GfxState *state);
     virtual GBool axialShadedFill(GfxState *state, GfxAxialShading *shading, double tMin, double tMax);
+
+  virtual void beginTransparencyGroup(GfxState * /*state*/, double * /*bbox*/,
+                                      GfxColorSpace * /*blendingColorSpace*/,
+                                      GBool /*isolated*/, GBool /*knockout*/,
+                                      GBool /*forSoftMask*/);
+  virtual void endTransparencyGroup(GfxState * /*state*/);
+
 
     virtual void processLink(AnnotLink * al);
 
@@ -245,11 +252,12 @@ protected:
     double print_scale (void) const { return 96.0 / DEFAULT_DPI / text_zoom_factor(); }
 
 
-    const Param & param;
+    Param & param;
 
     ////////////////////////////////////////////////////
     // PDF states
     ////////////////////////////////////////////////////
+    int inTransparencyGroup;
     // track the original (unscaled) values to determine scaling and merge lines
     // current position
     double cur_tx, cur_ty; // real text position, in text coords
