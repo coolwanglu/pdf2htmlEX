@@ -68,6 +68,8 @@ var DEFAULT_CONFIG = {
   'hashchange_handler' : true,
   // register view history handler, allowing going back to the previous location
   'view_history_handler' : true,
+  // Fit page width on start
+  'fit_width': true,
 
   '__dummy__'        : 'no comma'
 };
@@ -335,6 +337,10 @@ Viewer.prototype = {
 
     this.initialize_radio_button();
     this.render();
+    
+    // Fit page to container
+    if (this.config['fit_width'])
+        this.fit_width();
   },
 
   /*
@@ -766,9 +772,11 @@ Viewer.prototype = {
     this.schedule_render(true);
   },
 
+  // Rescale pages to fit container width.
   fit_width : function () {
     var page_idx = this.cur_page_idx;
-    this.rescale(this.container.clientWidth / this.pages[page_idx].width(), true);
+    // .98 is used to add a small left/right margin because it looks better than 100% width
+    this.rescale(this.container.clientWidth * .98 / this.pages[page_idx].width(), true);
     this.scroll_to(page_idx);
   },
 
