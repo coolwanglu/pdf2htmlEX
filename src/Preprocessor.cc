@@ -36,8 +36,8 @@ Preprocessor::Preprocessor(const Param & param)
 
 Preprocessor::~Preprocessor(void)
 {
-    for(auto iter = code_maps.begin(); iter != code_maps.end(); ++iter)
-        delete [] iter->second;
+    for(auto & p : code_maps)
+        delete [] p.second;
 }
 
 void Preprocessor::process(PDFDoc * doc)

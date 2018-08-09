@@ -131,9 +131,9 @@ void writeURL(ostream & out, const string & s)
 
 void writeJSON(ostream & out, const string & s)
 {
-    for(auto iter = s.begin(); iter != s.end(); ++iter)
+    for(auto c : s)
     {
-        switch (*iter) 
+        switch (c)
         {
             case '\\': out << "\\\\"; break;
             case '"': out << "\\\""; break;
@@ -144,16 +144,15 @@ void writeJSON(ostream & out, const string & s)
             case '\n': out << "\\n"; break;
             case '\r': out << "\\r"; break;
             case '\t': out << "\\t"; break;
-            default: out << *iter; break;
+            default: out << c; break;
         }
     }
 }
 
 void writeAttribute(std::ostream & out, const std::string & s)
 {
-    for (auto iter = s.begin(); iter != s.end(); ++iter)
+    for (auto c : s)
     {
-        char c = *iter;
         switch(c)
         {
             case '&':

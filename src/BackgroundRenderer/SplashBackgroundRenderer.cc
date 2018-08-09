@@ -29,7 +29,7 @@ using std::unique_ptr;
 const SplashColor SplashBackgroundRenderer::white = {255,255,255};
 
 SplashBackgroundRenderer::SplashBackgroundRenderer(const string & imgFormat, HTMLRenderer * html_renderer, const Param & param)
-    : SplashOutputDev(splashModeRGB8, 4, gFalse, (SplashColorPtr)(&white), gTrue, gTrue)
+    : SplashOutputDev(splashModeRGB8, 4, gFalse, (SplashColorPtr)(&white))
     , html_renderer(html_renderer)
     , param(param)
     , format(imgFormat)
@@ -56,15 +56,9 @@ SplashBackgroundRenderer::SplashBackgroundRenderer(const string & imgFormat, HTM
  * And thus have modified region set to the whole page area
  * We do not want that.
  */
-#if POPPLER_OLDER_THAN_0_23_0
-void SplashBackgroundRenderer::startPage(int pageNum, GfxState *state)
-{
-    SplashOutputDev::startPage(pageNum, state);
-#else
 void SplashBackgroundRenderer::startPage(int pageNum, GfxState *state, XRef *xrefA)
 {
     SplashOutputDev::startPage(pageNum, state, xrefA);
-#endif
     clearModRegion();
 }
 
@@ -78,10 +72,12 @@ void SplashBackgroundRenderer::drawChar(GfxState *state, double x, double y,
     // - OR there is special filling method
     // - OR using a writing mode font
     // - OR using a Type 3 font while param.process_type3 is not enabled
+    // - OR the text is used as path
     if((param.fallback || param.proof)
        || ( (state->getFont()) 
             && ( (state->getFont()->getWMode())
                  || ((state->getFont()->getType() == fontType3) && (!param.process_type3))
+                 || (state->getRender() >= 4)
                )
           )
       )
@@ -232,7 +228,7 @@ void SplashBackgroundRenderer::dump_image(const char * filename, int x1, int y1,
     }
 
     if(!writer->init(f, width, height, param.h_dpi, param.v_dpi))
-        throw "Cannot initialize PNGWriter";
+        throw "Cannot initialize image writer";
         
     auto * bitmap = getBitmap();
     assert(bitmap->getMode() == splashModeRGB8);

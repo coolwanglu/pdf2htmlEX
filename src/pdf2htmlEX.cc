@@ -1,6 +1,6 @@
 // pdf2htmlEX.cc
 //
-// Copyright (C) 2012-2014 Lu Wang <coolwanglu@gmail.com>
+// Copyright (C) 2012-2015 Lu Wang <coolwanglu@gmail.com>
 
 #include <cstdio>
 #include <cstdlib>
@@ -56,7 +56,7 @@ void show_usage_and_exit(const char * dummy = nullptr)
 void show_version_and_exit(const char * dummy = nullptr)
 {
     cerr << "pdf2htmlEX version " << PDF2HTMLEX_VERSION << endl;
-    cerr << "Copyright 2012-2014 Lu Wang <coolwanglu@gmail.com> and other contributors" << endl;
+    cerr << "Copyright 2012-2015 Lu Wang <coolwanglu@gmail.com> and other contributors" << endl;
     cerr << "Libraries: " << endl;
     cerr << "  poppler " << POPPLER_VERSION << endl;
     cerr << "  libfontforge " << ffw_get_version() << endl;
@@ -76,13 +76,6 @@ void show_version_and_exit(const char * dummy = nullptr)
 #endif
     cerr << endl;
 
-    // TODO: define constants
-    if(ffw_get_version() < 20130101LL) 
-    {
-        cerr << endl 
-             << "Warning: pdf2htmlEX has been built with a too old version of Fontforge, which is not supported." << endl;
-    }
-    
     cerr << endl;
     exit(EXIT_SUCCESS);
 }
@@ -164,6 +157,7 @@ void parse_options (int argc, char **argv)
         .add("process-nontext", &param.process_nontext, 1, "render graphics in addition to text")
         .add("process-outline", &param.process_outline, 1, "show outline in HTML")
         .add("process-annotation", &param.process_annotation, 0, "show annotation in HTML")
+        .add("process-form", &param.process_form, 0, "include text fields and radio buttons")
         .add("printing", &param.printing, 1, "enable printing support")
         .add("fallback", &param.fallback, 0, "output in fallback mode")
         .add("tmp-file-size-limit", &param.tmp_file_size_limit, -1, "Maximum size (in KB) used by temporary files, -1 for no limit.")
@@ -204,6 +198,7 @@ void parse_options (int argc, char **argv)
         .add("clean-tmp", &param.clean_tmp, 1, "remove temporary files after conversion")
         .add("tmp-dir", &param.tmp_dir, param.tmp_dir, "specify the location of temporary directory.")
         .add("data-dir", &param.data_dir, param.data_dir, "specify data directory")
+        .add("poppler-data-dir", &param.poppler_data_dir, param.poppler_data_dir, "specify poppler data directory")
         .add("debug", &param.debug, 0, "print debugging information")
         .add("proof", &param.proof, 0, "texts are drawn on both text layer and background for proof.")
 
@@ -254,7 +249,6 @@ void check_param()
         if(get_suffix(param.input_filename) == ".pdf")
         {
             param.output_filename = s.substr(0, s.size() - 4) + ".html";
-
         }
         else
         {
@@ -297,8 +291,7 @@ void check_param()
         }
         else
         {
-            if(!param.split_pages)
-                param.css_filename = s + ".css";
+            param.css_filename = s + ".css";
         }
     }
     if(param.outline_filename.empty())
@@ -343,6 +336,12 @@ void check_param()
     if((param.font_format == "ttf") && (param.external_hint_tool == ""))
     {
         cerr << "Warning: No hint tool is specified for truetype fonts, the result may be rendered poorly in some circumstances." << endl;
+    }
+
+    if (param.embed_image && (param.bg_format == "svg") && !param.svg_embed_bitmap)
+    {
+        cerr << "Warning: --svg-embed-bitmap is forced on because --embed-image is on, or the dumped bitmaps can't be loaded." << endl;
+        param.svg_embed_bitmap = 1;
     }
 }
 
@@ -389,7 +388,7 @@ int main(int argc, char **argv)
 
     bool finished = false;
     // read config file
-    globalParams = new GlobalParams();
+    globalParams = new GlobalParams(!param.poppler_data_dir.empty() ? param.poppler_data_dir.c_str() : NULL);
     // open PDF file
     PDFDoc * doc = nullptr;
     try

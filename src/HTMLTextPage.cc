@@ -23,10 +23,8 @@ HTMLTextPage::HTMLTextPage(const Param & param, AllStateManager & all_manager)
 
 HTMLTextPage::~HTMLTextPage()
 {
-    for(auto iter = text_lines.begin(); iter != text_lines.end(); ++iter)
-    {
-        delete (*iter);
-    }
+    for(auto p : text_lines)
+        delete p;
 }
 
 void HTMLTextPage::dump_text(ostream & out)
@@ -35,12 +33,12 @@ void HTMLTextPage::dump_text(ostream & out)
     {
         // text lines may be split during optimization, collect them
         std::vector<HTMLTextLine*> new_text_lines;
-        for(auto iter = text_lines.begin(); iter != text_lines.end(); ++iter)
-            (*iter)->optimize(new_text_lines);
+        for(auto p : text_lines)
+            p->optimize(new_text_lines);
         std::swap(text_lines, new_text_lines);
     }
-    for(auto iter = text_lines.begin(); iter != text_lines.end(); ++iter)
-        (*iter)->prepare();
+    for(auto p : text_lines)
+        p->prepare();
     if(param.optimize_text)
         optimize();
 

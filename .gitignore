@@ -3,20 +3,18 @@ CMakeFiles/*
 cmake_install.cmake
 CTestTestfile.cmake
 gmon.out
-Makefile
 install_manifest.txt
+Makefile
 pdf2htmlEX
 pdf2htmlEX.1
+*.pyc
 share/base.css
+share/base.min.css
 share/fancy.css
-share/js_src/css_class_names.js
+share/fancy.min.css
 share/pdf2htmlEX.js
+share/pdf2htmlEX.min.js
 src/pdf2htmlEX-config.h
 src/util/css_const.h
-test/*
+test export-ignore
 Testing/*
-wiki/*
-doc/*
-/"\\"
-/share/base.min.css
-/share/fancy.min.css

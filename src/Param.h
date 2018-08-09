@@ -38,6 +38,7 @@ struct Param
     int process_nontext;
     int process_outline;
     int process_annotation;
+    int process_form;
     int correct_text_visibility;
     int printing;
     int fallback;
@@ -74,6 +75,7 @@ struct Param
     // misc.
     int clean_tmp;
     std::string data_dir;
+    std::string poppler_data_dir;
     std::string tmp_dir;
     int debug;
     int proof;

@@ -39,11 +39,7 @@ public:
   // text in Type 3 fonts will be drawn with drawChar/drawString.
   virtual GBool interpretType3Chars() { return !param.process_type3; }
 
-#if POPPLER_OLDER_THAN_0_23_0
-  virtual void startPage(int pageNum, GfxState *state);
-#else
   virtual void startPage(int pageNum, GfxState *state, XRef *xrefA);
-#endif
   
   virtual void drawChar(GfxState *state, double x, double y,
       double dx, double dy,

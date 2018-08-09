@@ -59,7 +59,7 @@
 #endif
 
 /*
- * multi thread disabled by WangLu
+ * pdf2htmlEX: disabled multi thread 
 #if MULTITHREADED
 #  define fontEngineLocker()   MutexLocker locker(&mutex)
 #else
@@ -421,7 +421,8 @@ CairoFreeTypeFont *CairoFreeTypeFont::create(GfxFont *gfxFont, XRef *xref,
   ref = *gfxFont->getID();
   fontType = gfxFont->getType();
 
-  if (!(fontLoc = gfxFont->locateFont(xref, gFalse))) {
+  // pdf2htmlEX: changed gFlase to nullptr
+  if (!(fontLoc = gfxFont->locateFont(xref, nullptr))) {
     error(errSyntaxError, -1, "Couldn't find a font for '{0:s}'",
     	gfxFont->getName() ? gfxFont->getName()->getCString()
 	                       : "(unnamed)");
@@ -768,7 +769,7 @@ CairoFontEngine::CairoFontEngine(FT_Library libA) {
   useCIDs = major > 2 ||
             (major == 2 && (minor > 1 || (minor == 1 && patch > 7)));
 /*
- * multi thread disabled by WangLu
+ * pdf2htmlEX: disabled multi thread 
 #if MULTITHREADED
   gInitMutex(&mutex);
 #endif
@@ -783,7 +784,7 @@ CairoFontEngine::~CairoFontEngine() {
       delete fontCache[i];
   }
 /*
- * multi thread disabled by WangLu
+ * pdf2htmlEX: disabled multi thread 
 #if MULTITHREADED
   gDestroyMutex(&mutex);
 #endif

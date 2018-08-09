@@ -5,11 +5,11 @@ set(CMAKE_BUILD_TYPE Release CACHE STRING "Build configuration (Debug, Release, 
 project(pdf2htmlEX)
 cmake_minimum_required(VERSION 2.6.0 FATAL_ERROR)
 
-option(ENABLE_SVG "Enable SVG support, for generating SVG background images and converting Type 3 fonts" OFF)
+option(ENABLE_SVG "Enable SVG support, for generating SVG background images and converting Type 3 fonts" ON)
 
 include_directories(${CMAKE_SOURCE_DIR}/src)
 
-set(PDF2HTMLEX_VERSION "0.12")
+set(PDF2HTMLEX_VERSION "0.14.6")
 set(ARCHIVE_NAME pdf2htmlex-${PDF2HTMLEX_VERSION})
 add_custom_target(dist
     COMMAND git archive --prefix=${ARCHIVE_NAME}/ HEAD
@@ -19,21 +19,7 @@ add_custom_target(dist
 find_package(PkgConfig)
 
 
-pkg_check_modules(POPPLER poppler>=0.25.0)
-if(POPPLER_FOUND)
-    set(POPPLER_OLDER_THAN_0_25_0 0)
-    set(POPPLER_OLDER_THAN_0_23_0 0)
-else()
-    set(POPPLER_OLDER_THAN_0_25_0 1)
-    pkg_check_modules(POPPLER poppler>=0.23.0)
-    if(POPPLER_FOUND)
-        set(POPPLER_OLDER_THAN_0_23_0 0)
-    else()
-        set(POPPLER_OLDER_THAN_0_23_0 1)
-        pkg_check_modules(POPPLER REQUIRED poppler>=0.20.0)
-    endif()
-endif()
-
+pkg_check_modules(POPPLER REQUIRED poppler>=0.25.0)
 include_directories(${POPPLER_INCLUDE_DIRS})
 link_directories(${POPPLER_LIBRARY_DIRS})
 set(PDF2HTMLEX_LIBS ${PDF2HTMLEX_LIBS} ${POPPLER_LIBRARIES})
@@ -47,11 +33,7 @@ if(ENABLE_SVG)
         link_directories(${CAIRO_LIBRARY_DIRS})
         set(PDF2HTMLEX_LIBS ${PDF2HTMLEX_LIBS} ${CAIRO_LIBRARIES})
         set(ENABLE_SVG 1)
-        if(POPPLER_OLDER_THAN_0_23_0)
-            set(CAIROOUTPUTDEV_PATH 3rdparty/poppler/0.22.5)
-        else()
-            set(CAIROOUTPUTDEV_PATH 3rdparty/poppler/git)
-        endif()
+        set(CAIROOUTPUTDEV_PATH 3rdparty/poppler/git)
         include_directories(${CAIROOUTPUTDEV_PATH})
         set(PDF2HTMLEX_SRC ${PDF2HTMLEX_SRC}
             ${CAIROOUTPUTDEV_PATH}/CairoFontEngine.h
@@ -102,10 +84,20 @@ else()
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
 endif()
 
-include(CheckCXXCompilerFlag)
-check_cxx_compiler_flag("${CMAKE_CXX_FLAGS}" CXX0X_SUPPORT)
+# check the C++11 features we need
+include(CheckCXXSourceCompiles)
+check_cxx_source_compiles("
+#include <vector>
+int main()
+{
+  char * ptr = nullptr;
+  std::vector<int> v;
+  auto f = [&](){ for(auto & i : v) ++i; };
+  f();
+}
+" CXX0X_SUPPORT)
 if(NOT CXX0X_SUPPORT)
-    message(FATAL_ERROR "Error: your compiler does not support C++0x, please update it.")
+    message(FATAL_ERROR "Error: your compiler does not support C++0x/C++11, please update it.")
 endif()
 
 
@@ -127,6 +119,7 @@ set(PDF2HTMLEX_SRC ${PDF2HTMLEX_SRC}
     src/HTMLRenderer/general.cc
     src/HTMLRenderer/image.cc
     src/HTMLRenderer/font.cc
+    src/HTMLRenderer/form.cc
     src/HTMLRenderer/link.cc
     src/HTMLRenderer/outline.cc
     src/HTMLRenderer/state.cc
@@ -190,6 +183,7 @@ add_custom_target(pdf2htmlEX_resources ALL DEPENDS
 add_custom_command(OUTPUT ${CMAKE_SOURCE_DIR}/share/pdf2htmlEX.min.js
     COMMAND ${CMAKE_SOURCE_DIR}/share/build_js.sh
     DEPENDS
+        ${CMAKE_SOURCE_DIR}/share/build_js.sh
         ${CMAKE_SOURCE_DIR}/share/pdf2htmlEX.js
     )
 
@@ -198,6 +192,7 @@ add_custom_command(OUTPUT
         ${CMAKE_SOURCE_DIR}/share/fancy.min.css
     COMMAND ${CMAKE_SOURCE_DIR}/share/build_css.sh
     DEPENDS
+        ${CMAKE_SOURCE_DIR}/share/build_css.sh
         ${CMAKE_SOURCE_DIR}/share/base.css
         ${CMAKE_SOURCE_DIR}/share/fancy.css
     )
@@ -220,6 +215,19 @@ set(PDF2HTMLEX_RESOURCE
 install (FILES ${PDF2HTMLEX_RESOURCE} DESTINATION share/pdf2htmlEX)
 install (FILES pdf2htmlEX.1 DESTINATION share/man/man1)
 
-enable_testing()
-add_test(test_naming
-    python ${CMAKE_SOURCE_DIR}/test/test_naming.py)
+## tests:
+
+set(PDF2HTMLEX_PATH ${CMAKE_BINARY_DIR}/pdf2htmlEX)
+set(PDF2HTMLEX_TMPDIR /tmp/pdf2htmlEX/tmp)
+set(PDF2HTMLEX_DATDIR /tmp/pdf2htmlEX/dat)
+set(PDF2HTMLEX_PNGDIR /tmp/pdf2htmlEX/png)
+set(PDF2HTMLEX_OUTDIR /tmp/pdf2htmlEX/out)
+file(MAKE_DIRECTORY ${PDF2HTMLEX_TMPDIR})
+file(MAKE_DIRECTORY ${PDF2HTMLEX_DATDIR})
+file(MAKE_DIRECTORY ${PDF2HTMLEX_PNGDIR})
+file(MAKE_DIRECTORY ${PDF2HTMLEX_OUTDIR})
+configure_file(${CMAKE_SOURCE_DIR}/test/test.py.in ${CMAKE_SOURCE_DIR}/test/test.py)
+
+include(CTest)
+add_test(test_basic   python ${CMAKE_SOURCE_DIR}/test/test_output.py)
+add_test(test_browser python ${CMAKE_SOURCE_DIR}/test/test_local_browser.py)

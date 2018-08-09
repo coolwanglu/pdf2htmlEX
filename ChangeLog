@@ -1,3 +1,21 @@
+v0.14.6
+2015.07.22
+
+* Fixed Windows build
+* Fixed crash when flattening non-CID fonts
+* Handle OpenType subtype for FontFile3
+* New option for the JS viewer: `view_history_handler`
+
+
+v0.13.6
+2015.04.29
+
+* Use micro versions
+* Do not support Poppler < 0.25.0 any more
+* ENABLE_SVG is enabled by default
+* Improved DrawingTracer
+* Workarounds for chrome/webkit
+
 v0.12
 2014.07.24
 
