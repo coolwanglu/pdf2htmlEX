@@ -41,9 +41,13 @@ void HTMLRenderer::process_form(ofstream & out)
         
         if(w->getType() == formText)
         {
-            double font_size = height / 2;
+            double font_size = height / 2;           
+            FormField *f = w->getField();
+            Object *o = f->getObj();
+            char *name = o->getDict()->lookup((char *)"T", o)->getString()->getCString();
 
-            out << "<input id=\"text-" << pageNum << "-" << i 
+            out << "<input id=\"text-" << pageNum << "-" << i
+                << "\" form-field=\"" << name
                 << "\" class=\"" << CSS::INPUT_TEXT_CN 
                 << "\" type=\"text\" value=\"\""
                 << " style=\"position: absolute; left: " << x1 
