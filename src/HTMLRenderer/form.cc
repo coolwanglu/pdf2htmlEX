@@ -46,15 +46,14 @@ void HTMLRenderer::process_form(ofstream & out)
             Object *o = f->getObj();
             char *name = o->getDict()->lookup((char *)"T", o)->getString()->getCString();
 
-            out << "<input id=\"text-" << pageNum << "-" << i
+            out << "<div id=\"text-" << pageNum << "-" << i
                 << "\" form-field=\"" << name
                 << "\" class=\"" << CSS::INPUT_TEXT_CN 
-                << "\" type=\"text\" value=\"\""
-                << " style=\"position: absolute; left: " << x1 
+                << "\" style=\"position: absolute; left: " << x1 
                 << "px; bottom: " << y1 << "px;" 
                 << " width: " << width << "px; height: " << std::to_string(height) 
                 << "px; line-height: " << std::to_string(height) << "px; font-size: " 
-                << font_size << "px;\" />" << endl;
+                << font_size << "px;\" ></div>" << endl;
         } 
         else if(w->getType() == formButton)
         {
