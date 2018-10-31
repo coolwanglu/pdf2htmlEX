@@ -49,7 +49,7 @@ void HTMLRenderer::process_form(ofstream & out)
             out << "<div id=\"text-" << pageNum << "-" << i
                 << "\" form-field=\"" << name
                 << "\" class=\"" << CSS::INPUT_TEXT_CN 
-                << "\" style=\"position: absolute; left: " << x1 
+                << "\" style=\"position: absolute; font-family:arial; left: " << x1 
                 << "px; bottom: " << y1 << "px;" 
                 << " width: " << width << "px; height: " << std::to_string(height) 
                 << "px; line-height: " << std::to_string(height) << "px; font-size: " 
