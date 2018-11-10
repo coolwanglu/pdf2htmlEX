@@ -41,19 +41,27 @@ void HTMLRenderer::process_form(ofstream & out)
         
         if(w->getType() == formText)
         {
+
             double font_size = height / 2;           
             FormField *f = w->getField();
             Object *o = f->getObj();
-            char *name = o->getDict()->lookup((char *)"T", o)->getString()->getCString();
 
-            out << "<div id=\"text-" << pageNum << "-" << i
-                << "\" form-field=\"" << name
-                << "\" class=\"" << CSS::INPUT_TEXT_CN 
-                << "\" style=\"position: absolute; font-family:arial; left: " << x1 
-                << "px; bottom: " << y1 << "px;" 
-                << " width: " << width << "px; height: " << std::to_string(height) 
-                << "px; line-height: " << std::to_string(height) << "px; font-size: " 
-                << font_size << "px;\" ></div>" << endl;
+            // the following line throws if the result of lookup doesnt return a string. 
+            Object *lo = o->getDict()->lookup((char *)"T", o);
+
+            if (lo->getType() == objString) { 
+                char *name = lo->getString()->getCString();
+
+                out << "<div id=\"text-" << pageNum << "-" << i
+                    << "\" form-field=\"" << name
+                    << "\" class=\"" << CSS::INPUT_TEXT_CN 
+                    << "\" style=\"position: absolute; font-family:arial; left: " << x1 
+                    << "px; bottom: " << y1 << "px;" 
+                    << " width: " << width << "px; height: " << std::to_string(height) 
+                    << "px; line-height: " << std::to_string(height) << "px; font-size: " 
+                    << font_size << "px;\" ></div>" << endl;
+            }
+          
         } 
         else if(w->getType() == formButton)
         {
