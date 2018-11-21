@@ -38,11 +38,12 @@ void HTMLRenderer::process_form(ofstream & out)
 
         double width = x2 - x1;
         double height = y2 - y1;
+        double font_size = height / 2;           
+           
         
         if(w->getType() == formText)
         {
 
-            double font_size = height / 2;           
             FormField *f = w->getField();
             Object *o = f->getObj();
 
@@ -61,21 +62,58 @@ void HTMLRenderer::process_form(ofstream & out)
                     << "px; line-height: " << std::to_string(height) << "px; font-size: " 
                     << font_size << "px;\" ></div>" << endl;
             }
-          
         } 
-        else if(w->getType() == formButton)
+        else if (w->getType() == formButton)
         {
-            //Ideally would check w->getButtonType()
-            //for more specific rendering
-            width += 3;
-            height += 3;
+            FormWidgetButton *b = dynamic_cast<FormWidgetButton*>(w);
 
-            out << "<div id=\"cb-" << pageNum << "-" << i 
-                << "\" class=\"" << CSS::INPUT_RADIO_CN 
-                << "\" style=\"position: absolute; left: " << x1 
-                << "px; bottom: " << y1 << "px;" 
-                << " width: " << width << "px; height: " 
-                << std::to_string(height) << "px; background-size: cover;\" ></div>" << endl;
+            if (b->getButtonType() == formButtonCheck) {
+                // grab the export value of the form button type....
+                FormField *f = w->getField();
+                Object *o = f->getObj();
+
+                if (o->getType() == objDict) { 
+                    cerr << "Is Dictionary" << endl;
+                    cerr << o->getType() << endl;
+
+                    //Object *widgeto = b->getObj();
+
+                    Dict *od = o->getDict();
+
+                    
+                    // the following line throws if the result of lookup doesnt return a string. 
+                    Object *formfielddescription = od->lookup((char *)"Parent", o);
+
+                    if (formfielddescription->getType() == objDict) { 
+
+                        Dict *formfielddictionary = formfielddescription->getDict();
+
+                        Object *lo = formfielddictionary->lookup((char *)"T", formfielddescription);
+        
+                        if (lo->getType() == objString) { 
+                            char *fieldname = lo->getString()->getCString();
+
+                            cerr << fieldname << endl;
+
+                            char *name = b->getOnStr();
+
+                            cerr << name << endl;
+
+                            out << "<div id=\"text-" << pageNum << "-" << i
+                                << "\" form-field=\"" << fieldname
+                                << "\" export-value=\"" << name
+                                << "\" class=\"" << CSS::INPUT_TEXT_CN 
+                                << "\" style=\"position: absolute; font-family:arial; left: " << x1 
+                                << "px; bottom: " << y1 << "px;" 
+                                << " width: " << width << "px; height: " << std::to_string(height) 
+                                << "px; line-height: " << std::to_string(height) << "px; font-size: " 
+                                << font_size << "px;\" ></div>" << endl;    
+                        } else { 
+                            cerr << lo->getType() << endl;
+                        }
+                    }
+                }
+            }
         }
         else 
         {
