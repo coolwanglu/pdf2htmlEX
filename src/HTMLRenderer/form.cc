@@ -15,10 +15,10 @@
 #include "util/namespace.h"
 #include "util/misc.h"
 
+using namespace std;
+
 namespace pdf2htmlEX {
    
-using std::ofstream;
-using std::cerr;
 
 void HTMLRenderer::process_form(ofstream & out)
 {
@@ -65,6 +65,7 @@ void HTMLRenderer::process_form(ofstream & out)
         } 
         else if (w->getType() == formButton)
         {
+            cerr << "Found a button" << endl;
             FormWidgetButton *b = dynamic_cast<FormWidgetButton*>(w);
 
             if (b->getButtonType() == formButtonCheck) {
@@ -84,6 +85,8 @@ void HTMLRenderer::process_form(ofstream & out)
                     // the following line throws if the result of lookup doesnt return a string. 
                     Object *formfielddescription = od->lookup((char *)"Parent", o);
 
+                    cerr << "didnt throw" << endl;
+
                     if (formfielddescription->getType() == objDict) { 
 
                         Dict *formfielddictionary = formfielddescription->getDict();
@@ -93,6 +96,7 @@ void HTMLRenderer::process_form(ofstream & out)
                         if (lo->getType() == objString) { 
                             char *fieldname = lo->getString()->getCString();
 
+                            cerr << "first branch" << endl;
                             cerr << fieldname << endl;
 
                             char *name = b->getOnStr();
@@ -103,16 +107,31 @@ void HTMLRenderer::process_form(ofstream & out)
                                 << "\" form-field=\"" << fieldname
                                 << "\" export-value=\"" << name
                                 << "\" class=\"" << CSS::INPUT_TEXT_CN 
-                                << "\" style=\"position: absolute; font-family:arial; left: " << x1 
+                                << "\" style=\"position: absolute; font -family:arial; left: " << x1 
                                 << "px; bottom: " << y1 << "px;" 
                                 << " width: " << width << "px; height: " << std::to_string(height) 
                                 << "px; line-height: " << std::to_string(height) << "px; font-size: " 
                                 << font_size << "px;\" ></div>" << endl;    
-                        } else { 
-                            cerr << lo->getType() << endl;
                         }
+                    } else if (od->lookup((char *)"T", o)->getType() == objString) { 
+                        char *fieldname = od->lookup((char *)"T", o)->getString()->getCString();
+                        char *name = b->getOnStr();
+
+                        cerr << "second branch" << endl;
+                        cerr << fieldname << endl;
+                        cerr << name << endl;
+
+                        out << "<div id=\"text-" << pageNum << "-" << i
+                            << "\" form-field=\"" << fieldname
+                            << "\" export-value=\"" << name
+                            << "\" class=\"" << CSS::INPUT_TEXT_CN 
+                            << "\" style=\"position: absolute; font -family:arial; left: " << x1 
+                            << "px; bottom: " << y1 << "px;" 
+                            << " width: " << width << "px; height: " << std::to_string(height) 
+                            << "px; line-height: " << std::to_string(height) << "px; font-size: " 
+                            << font_size << "px;\" ></div>" << endl;
                     }
-                }
+                } 
             }
         }
         else 
@@ -120,6 +139,7 @@ void HTMLRenderer::process_form(ofstream & out)
             cerr << "Unsupported form field detected" << endl;
         }
     }
+    cerr << flush;
 }
 
 }
