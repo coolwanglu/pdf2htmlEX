@@ -51,7 +51,28 @@ void HTMLRenderer::process_form(ofstream & out)
             Object *o = f->getObj();
 
             // the following line throws if the result of lookup doesnt return a string. 
-            Object *lo = o->getDict()->lookup((char *)"T", o);
+            Object *lo = new Object();
+            o->getDict()->lookup((char *)"T", lo);
+            Object *ff = new Object();
+            o->getDict()->lookup((char *)"Ff", ff);
+            //Object *po = o->getDict()->lookup((char *)"T", o);
+            cerr << "Success" << endl;
+            //o = f->getObj(); 
+            //Object *ffEntry = o->getDict()->lookup((char *)"T", o);
+            int ffvalue = 0;
+            int multiline_flag = 4096;
+            if (ff->getType() == objInt) { 
+            //    cerr << "FFlo stuff" << endl;
+                ffvalue = ff->getInt();
+                cerr << "Found fflo" << ffvalue << endl;
+            }
+            std::string classes = "";
+            classes = classes + CSS::INPUT_TEXT_CN;
+
+            if (ffvalue & multiline_flag) { 
+                cerr << "This is a multiline field" << endl;
+                classes = classes + " multiline";
+            }
 
             if (lo->getType() == objNull) {
                 // check the parent
@@ -66,12 +87,14 @@ void HTMLRenderer::process_form(ofstream & out)
                 }
             }
             
-            if (lo->getType() == objString) { 
+            if (lo->getType() == objString) {
+                
+                //cerr << "Flags: " << fflo->getType() << endl; 
                 char *name = lo->getString()->getCString();
                 cerr << "Writing text box for " << name << endl;
                 out << "<div id=\"text-" << pageNum << "-" << i
                     << "\" form-field=\"" << name
-                    << "\" class=\"" << CSS::INPUT_TEXT_CN 
+                    << "\" class=\"" << classes 
                     << "\" style=\"position: absolute; font-family:arial; left: " << x1 
                     << "px; bottom: " << y1 << "px;" 
                     << " width: " << width << "px; height: " << std::to_string(height) 
