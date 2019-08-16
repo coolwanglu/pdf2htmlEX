@@ -408,6 +408,35 @@ private:
     std::unordered_map<int, std::pair<double,double>> value_map; 
 };
 
+class LandscapeManager
+{
+public:
+    void install(double width, double height) { 
+        value_map.insert(std::make_pair(width, height));
+    }
+
+    void dump_css(std::ostream & out) { 
+        for (auto & p : value_map)
+        {
+            if (p.first > p.second) { 
+                out << "@page{size:landscape;}";
+                out << std::endl;
+            }
+        }
+    }
+
+    void dump_print_css(std::ostream & out, double scale) { 
+        for(auto & p : value_map) { 
+            if (p.first > p.second) { 
+                out << "@page{size:landscape;}";
+                out << std::endl;
+            }
+        }
+    }
+private:
+    std::unordered_map<double, double> value_map; 
+};
+
 struct AllStateManager
 {
     TransformMatrixManager transform_matrix;
@@ -423,6 +452,7 @@ struct AllStateManager
     WidthManager                      width;
     LeftManager                        left;
     BGImageSizeManager         bgimage_size;
+    LandscapeManager      landscape_manager;
 };
 
 } // namespace pdf2htmlEX 
