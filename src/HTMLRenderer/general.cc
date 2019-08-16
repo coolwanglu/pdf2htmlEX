@@ -190,6 +190,7 @@ void HTMLRenderer::startPage(int pageNum, GfxState *state, XRef * xref)
 void HTMLRenderer::endPage() {
     long long wid = all_manager.width.install(html_text_page.get_width());
     long long hid = all_manager.height.install(html_text_page.get_height());
+    all_manager.landscape_manager.install(html_text_page.get_width(), html_text_page.get_height());
 
     (*f_curpage)
         << "<div id=\"" << CSS::PAGE_FRAME_CN << pageNum
@@ -458,6 +459,9 @@ void HTMLRenderer::post_process(void)
             if(line == "$css")
             {
                 embed_file(output, f_css.path, ".css", false);
+
+                // Insert the landscape bit here if necessary...
+
             }
             else if (line == "$outline")
             {
@@ -498,38 +502,40 @@ void HTMLRenderer::set_stream_flags(std::ostream & out)
 
 void HTMLRenderer::dump_css (void)
 {
-    all_manager.transform_matrix.dump_css(f_css.fs);
-    all_manager.vertical_align  .dump_css(f_css.fs);
-    all_manager.letter_space    .dump_css(f_css.fs);
-    all_manager.stroke_color    .dump_css(f_css.fs);
-    all_manager.word_space      .dump_css(f_css.fs);
-    all_manager.whitespace      .dump_css(f_css.fs);
-    all_manager.fill_color      .dump_css(f_css.fs);
-    all_manager.font_size       .dump_css(f_css.fs);
-    all_manager.bottom          .dump_css(f_css.fs);
-    all_manager.height          .dump_css(f_css.fs);
-    all_manager.width           .dump_css(f_css.fs);
-    all_manager.left            .dump_css(f_css.fs);
-    all_manager.bgimage_size    .dump_css(f_css.fs);
+    all_manager.transform_matrix .dump_css(f_css.fs);
+    all_manager.vertical_align   .dump_css(f_css.fs);
+    all_manager.letter_space     .dump_css(f_css.fs);
+    all_manager.stroke_color     .dump_css(f_css.fs);
+    all_manager.word_space       .dump_css(f_css.fs);
+    all_manager.whitespace       .dump_css(f_css.fs);
+    all_manager.fill_color       .dump_css(f_css.fs);
+    all_manager.font_size        .dump_css(f_css.fs);
+    all_manager.bottom           .dump_css(f_css.fs);
+    all_manager.height           .dump_css(f_css.fs);
+    all_manager.width            .dump_css(f_css.fs);
+    all_manager.left             .dump_css(f_css.fs);
+    all_manager.bgimage_size     .dump_css(f_css.fs);
+    all_manager.landscape_manager.dump_css(f_css.fs);
 
     // print css
     if(param.printing)
     {
         double ps = print_scale();
         f_css.fs << CSS::PRINT_ONLY << "{" << endl;
-        all_manager.transform_matrix.dump_print_css(f_css.fs, ps);
-        all_manager.vertical_align  .dump_print_css(f_css.fs, ps);
-        all_manager.letter_space    .dump_print_css(f_css.fs, ps);
-        all_manager.stroke_color    .dump_print_css(f_css.fs, ps);
-        all_manager.word_space      .dump_print_css(f_css.fs, ps);
-        all_manager.whitespace      .dump_print_css(f_css.fs, ps);
-        all_manager.fill_color      .dump_print_css(f_css.fs, ps);
-        all_manager.font_size       .dump_print_css(f_css.fs, ps);
-        all_manager.bottom          .dump_print_css(f_css.fs, ps);
-        all_manager.height          .dump_print_css(f_css.fs, ps);
-        all_manager.width           .dump_print_css(f_css.fs, ps);
-        all_manager.left            .dump_print_css(f_css.fs, ps);
-        all_manager.bgimage_size    .dump_print_css(f_css.fs, ps);
+        all_manager.transform_matrix .dump_print_css(f_css.fs, ps);
+        all_manager.vertical_align   .dump_print_css(f_css.fs, ps);
+        all_manager.letter_space     .dump_print_css(f_css.fs, ps);
+        all_manager.stroke_color     .dump_print_css(f_css.fs, ps);
+        all_manager.word_space       .dump_print_css(f_css.fs, ps);
+        all_manager.whitespace       .dump_print_css(f_css.fs, ps);
+        all_manager.fill_color       .dump_print_css(f_css.fs, ps);
+        all_manager.font_size        .dump_print_css(f_css.fs, ps);
+        all_manager.bottom           .dump_print_css(f_css.fs, ps);
+        all_manager.height           .dump_print_css(f_css.fs, ps);
+        all_manager.width            .dump_print_css(f_css.fs, ps);
+        all_manager.left             .dump_print_css(f_css.fs, ps);
+        all_manager.bgimage_size     .dump_print_css(f_css.fs, ps);
+        all_manager.landscape_manager.dump_print_css(f_css.fs, ps);
         f_css.fs << "}" << endl;
     }
 }

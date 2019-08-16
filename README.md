@@ -1,3 +1,17 @@
+# David Morton's Personal Fork of pdf2htmlEX!!!
+This isn't really a maintained branch anymore. I've created this branch to fix a few issues with PDF forms, and how they might translate to HTML blobs. I'm not a pro at C++, so if you, in the great wild internet, are reading these words I'm shouting into the void right now, and you feel like criticizing my commits, feel free. I mostly just get into this code and then get out as quickly as I can before someone claims I know C++. 
+
+
+
+
+
+
+
+
+
+
+# Original Readme content
+
 pdf2htmlEX is no longer under active development. New maintainers are [wanted](http://pdf2htmlex.blogspot.ch/2016/12/looking-for-new-maintainer.html).
 
 #![](http://coolwanglu.github.io/pdf2htmlEX/images/pdf2htmlEX-64x64.png) pdf2htmlEX 
