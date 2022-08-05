@@ -7,11 +7,11 @@ pdf2htmlEX is no longer under active development. New maintainers are [wanted](h
 -->
 >一图胜千言<br>A beautiful demo is worth a thousand words
 
-- **Bible de Genève, 1564** (fonts and typography): [HTML](http://coolwanglu.github.com/pdf2htmlEX/demo/geneve.html) / [PDF](https://github.com/raphink/geneve_1564/releases/download/2015-07-08_01/geneve_1564.pdf)
-- **Cheat Sheet** (math formulas): [HTML](http://coolwanglu.github.com/pdf2htmlEX/demo/cheat.html) / [PDF](http://www.tug.org/texshowcase/cheat.pdf)
-- **Scientific Paper** (text and figures): [HTML](http://coolwanglu.github.com/pdf2htmlEX/demo/demo.html) / [PDF](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.148.349&rep=rep1&type=pdf)
-- **Full Circle Magazine** (read while downloading): [HTML](http://coolwanglu.github.com/pdf2htmlEX/demo/issue65_en.html) / [PDF](http://dl.fullcirclemagazine.org/issue65_en.pdf)
-- **Git Manual** (CJK support): [HTML](http://coolwanglu.github.com/pdf2htmlEX/demo/chn.html) / [PDF](http://files.cnblogs.com/phphuaibei/git%E6%90%AD%E5%BB%BA.pdf)
+- **Bible de Genève, 1564** (fonts and typography): [HTML](http://coolwanglu.github.io/pdf2htmlEX/demo/geneve.html) / [PDF](https://github.com/raphink/geneve_1564/releases/download/2015-07-08_01/geneve_1564.pdf)
+- **Cheat Sheet** (math formulas): [HTML](http://coolwanglu.github.io/pdf2htmlEX/demo/cheat.html) / [PDF](http://www.tug.org/texshowcase/cheat.pdf)
+- **Scientific Paper** (text and figures): [HTML](http://coolwanglu.github.io/pdf2htmlEX/demo/demo.html) / [PDF](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.148.349&rep=rep1&type=pdf)
+- **Full Circle Magazine** (read while downloading): [HTML](http://coolwanglu.github.io/pdf2htmlEX/demo/issue65_en.html) / [PDF](http://dl.fullcirclemagazine.org/issue65_en.pdf)
+- **Git Manual** (CJK support): [HTML](http://coolwanglu.github.io/pdf2htmlEX/demo/chn.html) / [PDF](http://files.cnblogs.com/phphuaibei/git%E6%90%AD%E5%BB%BA.pdf)
 
 pdf2htmlEX renders PDF files in HTML, utilizing modern Web technologies.
 Academic papers with lots of formulas and figures? Magazines with complicated layouts? No problem!
