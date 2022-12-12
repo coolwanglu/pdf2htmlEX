@@ -373,6 +373,14 @@ string HTMLRenderer::dump_type3_font (GfxFont * font, FontInfo & info)
 #endif
 }
 
+namespace {
+
+void output_map_file_header(std::ostream& out) {
+    out << "glyph_code mapped_code unicode" << std::endl;
+}
+
+} // namespace
+
 void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo & info, bool get_metric_only)
 {
     if(param.debug)
@@ -528,6 +536,7 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
             ffw_reencode_glyph_order();
 
             GfxCIDFont * _font = dynamic_cast<GfxCIDFont*>(font);
+            assert(_font != nullptr);
 
             // To locate CID2GID for the font
             // as in CairoFontEngine.cc
@@ -574,6 +583,7 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
             map_filename = (char*)str_fmt("%s/f%llx.map", param.tmp_dir.c_str(), info.id);
             tmp_files.add(map_filename);
             map_outf.open(map_filename);
+            output_map_file_header(map_outf);
         }
 
         unordered_set<int> codeset;
@@ -650,6 +660,7 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
                         {
                             map_outf.close();
                             map_outf.open(map_filename);
+                            output_map_file_header(map_outf);
                         }
                         continue;
                     }
