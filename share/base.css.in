@@ -70,6 +70,9 @@
     background-color:transparent;
   }
   .@CSS_CSS_DRAW_CN@ { display:none; }
+  .@CSS_INPUT_TEXT_CN@ {
+    zoom: 1.778;
+  }
 }
 /* Part 2: Page Elements: Modify with caution
  * The followings are base classes, some of which are meant to be override by PDF specific classes
